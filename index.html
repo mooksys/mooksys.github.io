@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>개인 대시보드</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+</head>
+<body>
+    
+    <main class="dashboard-container">
+        <div class="card title-card">
+            <h1>안녕하세요, 홍길동입니다.</h1>
+        </div>
+
+        <div class="card profile-card">
+            <img src="https://via.placeholder.com/100" alt="프로필 사진" class="profile-img">
+            <h2>홍길동</h2>
+            <p>코딩과 새로운 기술을 사랑하는 개발자입니다.</p>
+            <div class="social-links">
+                <a href="[GitHub 주소]" target="_blank"><i class="fa-brands fa-github"></i></a>
+                <a href="[블로그 주소]" target="_blank"><i class="fa-solid fa-blog"></i></a>
+                <a href="[이메일 주소]" target="_blank"><i class="fa-solid fa-envelope"></i></a>
+            </div>
+        </div>
+
+        <div class="card info-card">
+            <h3>오늘의 날짜</h3>
+            <p id="date"></p>
+            <p id="time" class="digital-clock"></p>
+        </div>
+
+        <div class="card info-card">
+            <h3>현재 날씨</h3>
+            <p id="weather-icon"></p>
+            <p id="weather-info"></p>
+        </div>
+
+        <div class="card link-card">
+            <h3>Blog</h3>
+            <p>개인 기술 블로그입니다.</p>
+            <a href="https://example.com" target="_blank" class="btn">방문하기</a>
+        </div>
+
+        <div class="card link-card">
+            <h3>GitHub</h3>
+            <p>프로젝트 소스 코드를 확인하세요.</p>
+            <a href="https://github.com" target="_blank" class="btn">방문하기</a>
+        </div>
+        
+    </main>
+    <script src="script.js"></script>
+</body>
+</html>

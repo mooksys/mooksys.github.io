@@ -1,0 +1,154 @@
+body {
+    font-family: 'Noto Sans KR', sans-serif;
+    background-color: #f0f2f5;
+    color: #333;
+    margin: 0;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.dashboard-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    justify-content: center;
+    max-width: 1200px;
+}
+
+.card {
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    transition: transform 0.2s;
+    flex: 1 1 300px; /* 기본 카드 크기 */
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+}
+
+.profile-card .profile-img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    margin-bottom: 15px;
+    object-fit: cover;
+}
+
+.info-card h3 {
+    margin-top: 0;
+    color: #555;
+}
+
+.info-card p {
+    font-size: 1.2rem;
+    margin: 5px 0;
+}
+
+#weather-icon {
+    font-size: 3rem;
+}
+
+.link-card p {
+    flex-grow: 1; /* 버튼을 항상 아래에 위치시키기 위함 */
+}
+
+.btn {
+    display: inline-block;
+    background-color: #007bff;
+    color: #fff;
+    padding: 10px 20px;
+    border-radius: 5px;
+    text-decoration: none;
+    font-weight: bold;
+    transition: background-color 0.2s;
+    margin-top: 15px;
+}
+
+.btn:hover {
+    background-color: #0056b3;
+}
+
+/* style.css 파일 가장 아래에 이 부분을 추가하세요. */
+
+.title-card {
+    flex-basis: 100%; /* 카드가 한 줄의 전체 너비를 차지하도록 설정 */
+    background-color: #007bff; /* 다른 카드와 구분되도록 배경색 변경 */
+    color: #fff; /* 글자색을 흰색으로 변경 */
+}
+
+.title-card h1 {
+    margin: 0; /* h1의 기본 마진 제거 */
+    font-size: 2rem; /* 폰트 크기 조정 */
+}
+
+/* style.css 파일 가장 아래에 이 부분을 추가하세요. */
+
+/* 날짜 스타일 */
+#date {
+    font-size: 1.5rem; /* 기존 1.2rem에서 크기 증가 */
+    font-weight: 700;  /* 굵게 (bold) */
+    margin-bottom: 15px; /* 시계와의 간격 조정 */
+}
+
+/* 디지털 시계 스타일 수정 */
+.digital-clock {
+    font-family: 'Orbitron', sans-serif;
+    background-color: #000;
+    color: #00ff7f;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-size: 2.2rem; /* 기존 1.8rem에서 크기 대폭 증가 */
+    font-weight: 700;  /* 굵게 (bold) 확실하게 지정 */
+    letter-spacing: 2px;
+    text-shadow: 0 0 5px #00ff7f;
+    width: 90%;
+    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+}
+
+/* 프로필 카드 전용 스타일 */
+.profile-card {
+    background: linear-gradient(135deg, #f8f9fa, #e9ecef); /* 은은한 대각선 그라데이션 배경 */
+    border-left: 5px solid #007bff; /* 왼쪽에 파란색 강조 테두리 */
+}
+
+/* 프로필 카드 안의 요소들 정렬 */
+.profile-card h2 {
+    margin: 15px 0 5px 0;
+}
+
+.profile-card p {
+    margin-bottom: 20px; /* 소셜 링크와의 간격 확보 */
+}
+
+/* 소셜 링크 컨테이너 */
+.social-links {
+    display: flex;
+    gap: 20px; /* 아이콘 사이 간격 */
+}
+
+/* 소셜 링크 아이콘 */
+.social-links a {
+    color: #555; /* 기본 아이콘 색상 */
+    font-size: 1.8rem; /* 아이콘 크기 */
+    transition: transform 0.2s, color 0.2s; /* 부드러운 전환 효과 */
+}
+
+/* 마우스를 올렸을 때 아이콘 스타일 */
+.social-links a:hover {
+    color: #007bff; /* 파란색으로 변경 */
+    transform: scale(1.2); /* 살짝 확대되는 효과 */
+}
