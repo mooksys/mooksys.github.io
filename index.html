@@ -3,55 +3,198 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>개인 대시보드</title>
+    <title>개인 대시보드 - 홍길동</title>
+    <meta name="description" content="홍길동의 개인 대시보드 - 개발자 포트폴리오">
     <link rel="stylesheet" href="style.css">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+    
+    <!-- PWA 지원 -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#6366f1">
+    
+    <!-- SEO 개선 -->
+    <meta property="og:title" content="홍길동 - 개발자 포트폴리오">
+    <meta property="og:description" content="코딩과 새로운 기술을 사랑하는 개발자">
+    <meta property="og:type" content="website">
 </head>
 <body>
+    <!-- 로딩 스크린 -->
+    <div id="loading-screen" class="loading-screen">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>로딩 중...</p>
+        </div>
+    </div>
     
-    <main class="dashboard-container">
-        <div class="card title-card">
-            <h1>안녕하세요, 홍길동입니다.</h1>
+    <main class="dashboard-container" role="main">
+        <!-- 타이틀 카드 -->
+        <div class="card title-card" data-animation="fade-up">
+            <h1>안녕하세요, <span class="highlight">홍길동</span>입니다.</h1>
+            <div class="subtitle">풀스택 개발자 & 기술 블로거</div>
         </div>
 
-        <div class="card profile-card">
-            <img src="https://via.placeholder.com/100" alt="프로필 사진" class="profile-img">
+        <!-- 프로필 카드 -->
+        <div class="card profile-card" data-animation="fade-up">
+            <div class="profile-image-container">
+                <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face" 
+                     alt="홍길동 프로필 사진" class="profile-img" loading="lazy">
+                <div class="status-indicator" title="온라인"></div>
+            </div>
             <h2>홍길동</h2>
-            <p>코딩과 새로운 기술을 사랑하는 개발자입니다.</p>
-            <div class="social-links">
-                <a href="[GitHub 주소]" target="_blank"><i class="fa-brands fa-github"></i></a>
-                <a href="[블로그 주소]" target="_blank"><i class="fa-solid fa-blog"></i></a>
-                <a href="[이메일 주소]" target="_blank"><i class="fa-solid fa-envelope"></i></a>
+            <p class="bio">코딩과 새로운 기술을 사랑하는 개발자입니다.<br>
+               <span class="highlight-text">매일 성장하며 더 나은 세상을 만들어가고 있습니다.</span>
+            </p>
+            
+            <!-- 기술 스택 -->
+            <div class="tech-stack">
+                <span class="tech-tag">JavaScript</span>
+                <span class="tech-tag">React</span>
+                <span class="tech-tag">Node.js</span>
+                <span class="tech-tag">Python</span>
+            </div>
+            
+            <div class="social-links" role="navigation" aria-label="소셜 미디어 링크">
+                <a href="https://github.com" target="_blank" title="GitHub 프로필" aria-label="GitHub">
+                    <i class="fa-brands fa-github"></i>
+                </a>
+                <a href="#" target="_blank" title="기술 블로그" aria-label="블로그">
+                    <i class="fa-solid fa-blog"></i>
+                </a>
+                <a href="mailto:example@email.com" target="_blank" title="이메일 문의" aria-label="이메일">
+                    <i class="fa-solid fa-envelope"></i>
+                </a>
+                <a href="https://linkedin.com" target="_blank" title="LinkedIn 프로필" aria-label="LinkedIn">
+                    <i class="fa-brands fa-linkedin"></i>
+                </a>
             </div>
         </div>
 
-        <div class="card info-card">
-            <h3>오늘의 날짜</h3>
-            <p id="date"></p>
-            <p id="time" class="digital-clock"></p>
+        <!-- 날짜 및 시간 카드 -->
+        <div class="card info-card time-card" data-animation="fade-up">
+            <h3><i class="fa-solid fa-calendar-days"></i> 현재 시간</h3>
+            <p id="date" class="date-display"></p>
+            <p id="time" class="digital-clock" role="timer" aria-live="polite"></p>
+            <div class="timezone-info">
+                <i class="fa-solid fa-globe"></i>
+                <span>Seoul, Korea (UTC+9)</span>
+            </div>
         </div>
 
-        <div class="card info-card">
-            <h3>현재 날씨</h3>
-            <p id="weather-icon"></p>
-            <p id="weather-info"></p>
+        <!-- 날씨 카드 -->
+        <div class="card info-card weather-card" data-animation="fade-up">
+            <h3><i class="fa-solid fa-cloud-sun"></i> 현재 날씨</h3>
+            <div class="weather-container">
+                <div id="weather-icon" class="weather-icon" role="img" aria-label="날씨 상태"></div>
+                <div class="weather-details">
+                    <p id="weather-info" class="weather-main"></p>
+                    <p id="weather-location" class="weather-location">성남시, 경기도</p>
+                    <div class="weather-extra" id="weather-extra">
+                        <span class="humidity"><i class="fa-solid fa-droplet"></i> 습도: --</span>
+                        <span class="wind"><i class="fa-solid fa-wind"></i> 바람: --</span>
+                    </div>
+                </div>
+            </div>
+            <button id="refresh-weather" class="refresh-btn" title="날씨 새로고침" aria-label="날씨 정보 새로고침">
+                <i class="fa-solid fa-refresh"></i>
+            </button>
         </div>
 
-        <div class="card link-card">
-            <h3>Blog</h3>
-            <p>개인 기술 블로그입니다.</p>
-            <a href="https://example.com" target="_blank" class="btn">방문하기</a>
+        <!-- 통계 카드 -->
+        <div class="card stats-card" data-animation="fade-up">
+            <h3><i class="fa-solid fa-chart-line"></i> 활동 통계</h3>
+            <div class="stats-grid">
+                <div class="stat-item">
+                    <div class="stat-number" data-target="127">0</div>
+                    <div class="stat-label">GitHub 커밋</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="23">0</div>
+                    <div class="stat-label">블로그 포스트</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="15">0</div>
+                    <div class="stat-label">완료 프로젝트</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-number" data-target="8">0</div>
+                    <div class="stat-label">진행중 프로젝트</div>
+                </div>
+            </div>
         </div>
 
-        <div class="card link-card">
-            <h3>GitHub</h3>
-            <p>프로젝트 소스 코드를 확인하세요.</p>
-            <a href="https://github.com" target="_blank" class="btn">방문하기</a>
+        <!-- 블로그 카드 -->
+        <div class="card link-card blog-card" data-animation="fade-up">
+            <div class="card-icon">
+                <i class="fa-solid fa-blog"></i>
+            </div>
+            <div class="card-content">
+                <h3>기술 블로그</h3>
+                <p>프로그래밍 팁, 튜토리얼, 그리고 개발 경험담을 공유하고 있습니다. 
+                   최신 웹 기술과 베스트 프랙티스를 다룹니다.</p>
+                <div class="card-meta">
+                    <span class="update-info"><i class="fa-solid fa-clock"></i> 1일 전 업데이트</span>
+                    <span class="view-count"><i class="fa-solid fa-eye"></i> 1.2K+ 조회수</span>
+                </div>
+            </div>
+            <a href="https://example.com" target="_blank" class="btn btn-primary" rel="noopener noreferrer">
+                <i class="fa-solid fa-external-link-alt"></i>
+                블로그 방문
+            </a>
         </div>
-        
+
+        <!-- GitHub 카드 -->
+        <div class="card link-card github-card" data-animation="fade-up">
+            <div class="card-icon">
+                <i class="fa-brands fa-github"></i>
+            </div>
+            <div class="card-content">
+                <h3>GitHub 저장소</h3>
+                <p>오픈소스 프로젝트와 개인 작업물들을 확인하세요. 
+                   코드 리뷰와 기여도 언제나 환영합니다!</p>
+                <div class="card-meta">
+                    <span class="repo-count"><i class="fa-solid fa-code-branch"></i> 42개 저장소</span>
+                    <span class="star-count"><i class="fa-solid fa-star"></i> 256개 스타</span>
+                </div>
+            </div>
+            <a href="https://github.com" target="_blank" class="btn btn-secondary" rel="noopener noreferrer">
+                <i class="fa-solid fa-external-link-alt"></i>
+                GitHub 방문
+            </a>
+        </div>
+
+        <!-- 연락처 카드 -->
+        <div class="card contact-card" data-animation="fade-up">
+            <h3><i class="fa-solid fa-paper-plane"></i> 연락하기</h3>
+            <p>프로젝트 협업이나 기술 문의가 있으시면 언제든 연락주세요!</p>
+            <div class="contact-methods">
+                <a href="mailto:example@email.com" class="contact-method" aria-label="이메일 보내기">
+                    <i class="fa-solid fa-envelope"></i>
+                    <span>이메일</span>
+                </a>
+                <a href="https://linkedin.com" target="_blank" class="contact-method" aria-label="LinkedIn 메시지">
+                    <i class="fa-brands fa-linkedin"></i>
+                    <span>LinkedIn</span>
+                </a>
+                <a href="#" class="contact-method" aria-label="디스코드 채팅">
+                    <i class="fa-brands fa-discord"></i>
+                    <span>Discord</span>
+                </a>
+            </div>
+        </div>
     </main>
+
+    <!-- 맨 위로 버튼 -->
+    <button id="scroll-to-top" class="scroll-to-top" title="맨 위로" aria-label="페이지 맨 위로 스크롤">
+        <i class="fa-solid fa-chevron-up"></i>
+    </button>
+
+    <!-- 테마 전환 버튼 -->
+    <button id="theme-toggle" class="theme-toggle" title="테마 전환" aria-label="다크/라이트 모드 전환">
+        <i class="fa-solid fa-moon"></i>
+    </button>
+
     <script src="script.js"></script>
 </body>
 </html>

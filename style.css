@@ -1,154 +1,992 @@
-body {
-    font-family: 'Noto Sans KR', sans-serif;
-    background-color: #f0f2f5;
-    color: #333;
+/* CSS 변수 정의 */
+:root {
+    /* 색상 팔레트 */
+    --primary: #6366f1;
+    --primary-light: #8b5cf6;
+    --secondary: #06b6d4;
+    --accent: #f59e0b;
+    --success: #10b981;
+    --danger: #ef4444;
+    --warning: #f59e0b;
+    
+    /* 다크 테마 색상 */
+    --background: #0f172a;
+    --background-secondary: #1e293b;
+    --surface: #334155;
+    --surface-light: #475569;
+    --surface-hover: #64748b;
+    
+    /* 텍스트 색상 */
+    --text-primary: #f1f5f9;
+    --text-secondary: #cbd5e1;
+    --text-muted: #94a3b8;
+    --text-inverse: #1e293b;
+    
+    /* 라이트 테마 색상 */
+    --light-background: #f8fafc;
+    --light-surface: #ffffff;
+    --light-text-primary: #1e293b;
+    --light-text-secondary: #64748b;
+    
+    /* 기타 */
+    --border: rgba(148, 163, 184, 0.2);
+    --shadow: rgba(0, 0, 0, 0.25);
+    --glow: rgba(99, 102, 241, 0.3);
+    --radius: 16px;
+    --radius-small: 8px;
+    --radius-large: 24px;
+    
+    /* 애니메이션 */
+    --transition-fast: 0.15s ease;
+    --transition-medium: 0.3s ease;
+    --transition-slow: 0.5s ease;
+    --cubic-bezier: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 라이트 테마 */
+[data-theme="light"] {
+    --background: var(--light-background);
+    --background-secondary: var(--light-surface);
+    --surface: var(--light-surface);
+    --surface-light: #f1f5f9;
+    --surface-hover: #e2e8f0;
+    --text-primary: var(--light-text-primary);
+    --text-secondary: var(--light-text-secondary);
+    --text-muted: #64748b;
+    --border: rgba(30, 41, 59, 0.1);
+    --shadow: rgba(30, 41, 59, 0.15);
+}
+
+/* 기본 리셋 */
+*, *::before, *::after {
     margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    scroll-behavior: smooth;
+}
+
+body {
+    font-family: 'Noto Sans KR', -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    background: linear-gradient(135deg, var(--background) 0%, var(--background-secondary) 100%);
+    color: var(--text-primary);
+    min-height: 100vh;
     padding: 20px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    overflow-x: hidden;
+    line-height: 1.6;
+    transition: background var(--transition-medium), color var(--transition-medium);
 }
 
-header {
-    text-align: center;
-    margin-bottom: 30px;
+/* 애니메이션 배경 */
+body::before {
+    content: '';
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: 
+        radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.1) 0%, transparent 50%);
+    z-index: -1;
+    animation: float 20s ease-in-out infinite;
+    pointer-events: none;
 }
 
-.dashboard-container {
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-10px) rotate(1deg); }
+}
+
+/* 로딩 스크린 */
+.loading-screen {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--background);
     display: flex;
-    flex-wrap: wrap;
-    gap: 20px;
     justify-content: center;
-    max-width: 1200px;
+    align-items: center;
+    z-index: 9999;
+    opacity: 1;
+    transition: opacity 0.5s ease;
 }
 
-.card {
-    background-color: #fff;
-    border-radius: 10px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    padding: 25px;
-    transition: transform 0.2s;
-    flex: 1 1 300px; /* 기본 카드 크기 */
-    min-width: 280px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+.loading-screen.fade-out {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.loading-spinner {
     text-align: center;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid var(--surface);
+    border-top: 4px solid var(--primary);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 20px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-spinner p {
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+}
+
+/* 대시보드 컨테이너 */
+.dashboard-container {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 24px;
+    max-width: 1400px;
+    margin: 0 auto;
+    opacity: 0;
+    animation: fadeInUp 0.8s ease forwards;
+    animation-delay: 0.3s;
+}
+
+/* 카드 기본 스타일 */
+.card {
+    background: rgba(51, 65, 85, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 32px;
+    transition: all var(--transition-medium) var(--cubic-bezier);
+    position: relative;
+    overflow: hidden;
+}
+
+[data-theme="light"] .card {
+    background: rgba(255, 255, 255, 0.9);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+}
+
+.card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--primary), transparent);
+    opacity: 0;
+    transition: opacity var(--transition-medium);
 }
 
 .card:hover {
-    transform: translateY(-5px);
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 25px 50px var(--shadow), 0 0 30px var(--glow);
+    border-color: var(--primary);
 }
 
-.profile-card .profile-img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    margin-bottom: 15px;
-    object-fit: cover;
+.card:hover::before {
+    opacity: 1;
 }
 
-.info-card h3 {
-    margin-top: 0;
-    color: #555;
-}
-
-.info-card p {
-    font-size: 1.2rem;
-    margin: 5px 0;
-}
-
-#weather-icon {
-    font-size: 3rem;
-}
-
-.link-card p {
-    flex-grow: 1; /* 버튼을 항상 아래에 위치시키기 위함 */
-}
-
-.btn {
-    display: inline-block;
-    background-color: #007bff;
-    color: #fff;
-    padding: 10px 20px;
-    border-radius: 5px;
-    text-decoration: none;
-    font-weight: bold;
-    transition: background-color 0.2s;
-    margin-top: 15px;
-}
-
-.btn:hover {
-    background-color: #0056b3;
-}
-
-/* style.css 파일 가장 아래에 이 부분을 추가하세요. */
-
+/* 타이틀 카드 */
 .title-card {
-    flex-basis: 100%; /* 카드가 한 줄의 전체 너비를 차지하도록 설정 */
-    background-color: #007bff; /* 다른 카드와 구분되도록 배경색 변경 */
-    color: #fff; /* 글자색을 흰색으로 변경 */
+    grid-column: 1 / -1;
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    text-align: center;
+    border: none;
+    color: white;
+    position: relative;
+    min-height: 150px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+}
+
+.title-card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255,255,255,0.1) 50%, transparent 70%);
+    animation: shine 3s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes shine {
+    0% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+    100% { transform: translateX(-100%); }
 }
 
 .title-card h1 {
-    margin: 0; /* h1의 기본 마진 제거 */
-    font-size: 2rem; /* 폰트 크기 조정 */
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    background: linear-gradient(45deg, #fff, #e2e8f0);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    text-shadow: 0 4px 20px rgba(0,0,0,0.3);
+    position: relative;
+    z-index: 1;
+    margin-bottom: 12px;
 }
 
-/* style.css 파일 가장 아래에 이 부분을 추가하세요. */
-
-/* 날짜 스타일 */
-#date {
-    font-size: 1.5rem; /* 기존 1.2rem에서 크기 증가 */
-    font-weight: 700;  /* 굵게 (bold) */
-    margin-bottom: 15px; /* 시계와의 간격 조정 */
+.highlight {
+    background: linear-gradient(45deg, #fbbf24, #f59e0b);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-/* 디지털 시계 스타일 수정 */
-.digital-clock {
-    font-family: 'Orbitron', sans-serif;
-    background-color: #000;
-    color: #00ff7f;
-    padding: 10px 15px;
-    border-radius: 5px;
-    font-size: 2.2rem; /* 기존 1.8rem에서 크기 대폭 증가 */
-    font-weight: 700;  /* 굵게 (bold) 확실하게 지정 */
-    letter-spacing: 2px;
-    text-shadow: 0 0 5px #00ff7f;
-    width: 90%;
-    box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.5);
+.subtitle {
+    font-size: 1.2rem;
+    font-weight: 500;
+    opacity: 0.9;
+    position: relative;
+    z-index: 1;
 }
 
-/* 프로필 카드 전용 스타일 */
+/* 프로필 카드 */
 .profile-card {
-    background: linear-gradient(135deg, #f8f9fa, #e9ecef); /* 은은한 대각선 그라데이션 배경 */
-    border-left: 5px solid #007bff; /* 왼쪽에 파란색 강조 테두리 */
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+    text-align: center;
+    padding: 40px 32px;
 }
 
-/* 프로필 카드 안의 요소들 정렬 */
+.profile-image-container {
+    position: relative;
+    display: inline-block;
+    margin-bottom: 24px;
+}
+
+.profile-img {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--primary);
+    box-shadow: 0 8px 32px var(--glow);
+    transition: all var(--transition-medium);
+}
+
+.profile-img:hover {
+    transform: scale(1.1);
+    box-shadow: 0 12px 40px var(--glow);
+}
+
+.status-indicator {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    width: 20px;
+    height: 20px;
+    background: var(--success);
+    border-radius: 50%;
+    border: 3px solid var(--surface);
+    animation: pulse-status 2s ease-in-out infinite;
+}
+
+@keyframes pulse-status {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
 .profile-card h2 {
-    margin: 15px 0 5px 0;
+    font-size: 2rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    background: linear-gradient(45deg, var(--primary), var(--secondary));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
-.profile-card p {
-    margin-bottom: 20px; /* 소셜 링크와의 간격 확보 */
+.bio {
+    font-size: 1.1rem;
+    color: var(--text-secondary);
+    margin-bottom: 24px;
+    line-height: 1.6;
 }
 
-/* 소셜 링크 컨테이너 */
+.highlight-text {
+    color: var(--accent);
+    font-weight: 500;
+}
+
+/* 기술 스택 */
+.tech-stack {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 24px;
+}
+
+.tech-tag {
+    background: var(--surface);
+    color: var(--text-primary);
+    padding: 6px 12px;
+    border-radius: var(--radius-small);
+    font-size: 0.875rem;
+    font-weight: 500;
+    border: 1px solid var(--border);
+    transition: all var(--transition-fast);
+}
+
+.tech-tag:hover {
+    background: var(--primary);
+    color: white;
+    transform: translateY(-2px);
+}
+
+/* 소셜 링크 */
 .social-links {
     display: flex;
-    gap: 20px; /* 아이콘 사이 간격 */
+    justify-content: center;
+    gap: 16px;
 }
 
-/* 소셜 링크 아이콘 */
 .social-links a {
-    color: #555; /* 기본 아이콘 색상 */
-    font-size: 1.8rem; /* 아이콘 크기 */
-    transition: transform 0.2s, color 0.2s; /* 부드러운 전환 효과 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 50px;
+    height: 50px;
+    background: var(--surface-light);
+    border-radius: 12px;
+    color: var(--text-secondary);
+    font-size: 1.5rem;
+    transition: all var(--transition-medium);
+    position: relative;
+    overflow: hidden;
 }
 
-/* 마우스를 올렸을 때 아이콘 스타일 */
+.social-links a::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent);
+    transition: left 0.5s;
+}
+
 .social-links a:hover {
-    color: #007bff; /* 파란색으로 변경 */
-    transform: scale(1.2); /* 살짝 확대되는 효과 */
+    transform: translateY(-4px);
+    background: var(--primary);
+    color: white;
+    box-shadow: 0 8px 25px var(--glow);
+}
+
+.social-links a:hover::before {
+    left: 100%;
+}
+
+/* 정보 카드 */
+.info-card {
+    text-align: center;
+}
+
+.info-card h3 {
+    font-size: 1.3rem;
+    font-weight: 600;
+    color: var(--text-secondary);
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+
+.info-card h3::before {
+    content: '';
+    width: 8px;
+    height: 8px;
+    background: var(--accent);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.5; transform: scale(1.2); }
+}
+
+/* 시간 카드 */
+.time-card {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(99, 102, 241, 0.1) 100%);
+}
+
+.date-display {
+    font-size: 1.8rem;
+    font-weight: 700;
+    margin-bottom: 16px;
+    color: var(--text-primary);
+}
+
+.digital-clock {
+    font-family: 'JetBrains Mono', monospace;
+    background: linear-gradient(135deg, #000 0%, #1a1a1a 100%);
+    color: #00ff41;
+    padding: 16px 24px;
+    border-radius: 12px;
+    font-size: 2rem;
+    font-weight: 700;
+    letter-spacing: 3px;
+    text-shadow: 
+        0 0 5px #00ff41,
+        0 0 10px #00ff41,
+        0 0 15px #00ff41;
+    border: 1px solid #00ff41;
+    box-shadow: 
+        inset 0 0 20px rgba(0, 255, 65, 0.1),
+        0 0 20px rgba(0, 255, 65, 0.2);
+    position: relative;
+    overflow: hidden;
+    margin-bottom: 16px;
+}
+
+.digital-clock::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 65, 0.1), transparent);
+    animation: scan 2s linear infinite;
+}
+
+@keyframes scan {
+    0% { left: -100%; }
+    100% { left: 100%; }
+}
+
+.timezone-info {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    color: var(--text-muted);
+    font-size: 0.9rem;
+}
+
+/* 날씨 카드 */
+.weather-card {
+    background: linear-gradient(135deg, rgba(6, 182, 212, 0.1) 0%, rgba(245, 158, 11, 0.1) 100%);
+    position: relative;
+}
+
+.weather-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 16px;
+}
+
+.weather-icon {
+    font-size: 4rem;
+    filter: drop-shadow(0 4px 8px rgba(0,0,0,0.3));
+    margin-bottom: 8px;
+}
+
+.weather-icon img {
+    width: 80px;
+    height: 80px;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+}
+
+.weather-details {
+    text-align: center;
+}
+
+.weather-main {
+    font-size: 1.3rem;
+    color: var(--text-primary);
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.weather-location {
+    color: var(--text-muted);
+    font-size: 0.9rem;
+    margin-bottom: 12px;
+}
+
+.weather-extra {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+}
+
+.refresh-btn {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    background: var(--surface);
+    border: none;
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.refresh-btn:hover {
+    background: var(--primary);
+    color: white;
+    transform: rotate(180deg);
+}
+
+/* 통계 카드 */
+.stats-card {
+    background: linear-gradient(135deg, rgba(139, 92, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%);
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.stat-item {
+    text-align: center;
+    padding: 16px;
+    background: var(--surface);
+    border-radius: var(--radius-small);
+    border: 1px solid var(--border);
+    transition: all var(--transition-medium);
+}
+
+.stat-item:hover {
+    transform: translateY(-2px);
+    border-color: var(--primary);
+}
+
+.stat-number {
+    font-size: 2rem;
+    font-weight: 700;
+    color: var(--primary);
+    margin-bottom: 8px;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: var(--text-secondary);
+    font-weight: 500;
+}
+
+/* 링크 카드 공통 */
+.link-card {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    min-height: 280px;
+    padding: 32px;
+    position: relative;
+}
+
+.card-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 60px;
+    height: 60px;
+    background: var(--primary);
+    border-radius: var(--radius);
+    color: white;
+    font-size: 1.8rem;
+    margin-bottom: 20px;
+    transition: all var(--transition-medium);
+}
+
+.link-card:hover .card-icon {
+    transform: scale(1.1) rotate(5deg);
+    box-shadow: 0 8px 25px var(--glow);
+}
+
+.card-content {
+    flex: 1;
+}
+
+.card-content h3 {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.card-content p {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 20px;
+    font-size: 0.875rem;
+    color: var(--text-muted);
+}
+
+/* 블로그 카드 */
+.blog-card {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(239, 68, 68, 0.1) 100%);
+}
+
+.blog-card .card-icon {
+    background: linear-gradient(135deg, var(--accent) 0%, var(--danger) 100%);
+}
+
+/* GitHub 카드 */
+.github-card {
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+}
+
+.github-card .card-icon {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+}
+
+/* 연락처 카드 */
+.contact-card {
+    background: linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(6, 182, 212, 0.1) 100%);
+    text-align: center;
+}
+
+.contact-methods {
+    display: flex;
+    justify-content: center;
+    gap: 16px;
+    margin-top: 24px;
+}
+
+.contact-method {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px;
+    background: var(--surface);
+    border-radius: var(--radius);
+    color: var(--text-secondary);
+    text-decoration: none;
+    transition: all var(--transition-medium);
+    border: 1px solid var(--border);
+    min-width: 80px;
+}
+
+.contact-method:hover {
+    transform: translateY(-4px);
+    background: var(--primary);
+    color: white;
+    border-color: var(--primary);
+}
+
+.contact-method i {
+    font-size: 1.5rem;
+}
+
+.contact-method span {
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+/* 버튼 스타일 */
+.btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    padding: 14px 28px;
+    border-radius: var(--radius);
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 1rem;
+    transition: all var(--transition-medium);
+    position: relative;
+    overflow: hidden;
+    border: 1px solid transparent;
+    cursor: pointer;
+}
+
+.btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+    transition: left 0.5s;
+}
+
+.btn:hover::before {
+    left: 100%;
+}
+
+.btn-primary {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+    color: white;
+}
+
+.btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px var(--glow);
+    border-color: rgba(255,255,255,0.2);
+}
+
+.btn-secondary {
+    background: linear-gradient(135deg, var(--secondary) 0%, var(--primary) 100%);
+    color: white;
+}
+
+.btn-secondary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 30px rgba(6, 182, 212, 0.3);
+}
+
+/* 맨 위로 버튼 */
+.scroll-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: var(--primary);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    opacity: 0;
+    visibility: hidden;
+    transition: all var(--transition-medium);
+    z-index: 1000;
+}
+
+.scroll-to-top.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.scroll-to-top:hover {
+    background: var(--primary-light);
+    transform: translateY(-4px);
+    box-shadow: 0 8px 25px var(--glow);
+}
+
+/* 테마 전환 버튼 */
+.theme-toggle {
+    position: fixed;
+    top: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: var(--surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border);
+    border-radius: 50%;
+    font-size: 1.2rem;
+    cursor: pointer;
+    transition: all var(--transition-medium);
+    z-index: 1000;
+}
+
+.theme-toggle:hover {
+    background: var(--primary);
+    color: white;
+    transform: rotate(180deg);
+    box-shadow: 0 8px 25px var(--glow);
+}
+
+/* 애니메이션 */
+@keyframes fadeInUp {
+    from {
+        opacity: 0;
+        transform: translateY(30px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+.card {
+    animation: fadeInUp 0.6s ease forwards;
+}
+
+.card:nth-child(1) { animation-delay: 0.1s; }
+.card:nth-child(2) { animation-delay: 0.2s; }
+.card:nth-child(3) { animation-delay: 0.3s; }
+.card:nth-child(4) { animation-delay: 0.4s; }
+.card:nth-child(5) { animation-delay: 0.5s; }
+.card:nth-child(6) { animation-delay: 0.6s; }
+.card:nth-child(7) { animation-delay: 0.7s; }
+.card:nth-child(8) { animation-delay: 0.8s; }
+
+/* 반응형 디자인 */
+@media (max-width: 1200px) {
+    .dashboard-container {
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+    }
+}
+
+@media (max-width: 768px) {
+    body {
+        padding: 16px;
+    }
+    
+    .dashboard-container {
+        grid-template-columns: 1fr;
+        gap: 16px;
+    }
+
+    .card {
+        padding: 24px;
+    }
+
+    .title-card h1 {
+        font-size: 2rem;
+    }
+
+    .digital-clock {
+        font-size: 1.8rem;
+        letter-spacing: 2px;
+        padding: 12px 20px;
+    }
+
+    .date-display {
+        font-size: 1.5rem;
+    }
+
+    .profile-img {
+        width: 100px;
+        height: 100px;
+    }
+
+    .social-links a {
+        width: 45px;
+        height: 45px;
+        font-size: 1.3rem;
+    }
+
+    .stats-grid {
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .contact-methods {
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .contact-method {
+        min-width: 120px;
+    }
+
+    .scroll-to-top,
+    .theme-toggle {
+        bottom: 20px;
+        right: 20px;
+    }
+
+    .theme-toggle {
+        top: 20px;
+        right: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .card {
+        padding: 20px;
+    }
+
+    .btn {
+        padding: 12px 24px;
+        font-size: 0.9rem;
+    }
+
+    .tech-stack {
+        justify-content: center;
+    }
+
+    .weather-extra {
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .card-meta {
+        flex-direction: column;
+        gap: 8px;
+    }
+}
+
+/* 접근성 */
+.keyboard-navigation *:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* 스크롤바 스타일링 */
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--surface);
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-light);
+}
+
+/* 프린트 스타일 */
+@media print {
+    body {
+        background: white !important;
+        color: black !important;
+    }
+    
+    .card {
+        border: 1px solid #ccc !important;
+        box-shadow: none !important;
+        background: white !important;
+        break-inside: avoid;
+        margin-bottom: 20px;
+    }
+    
+    .scroll-to-top,
+    .theme-toggle,
+    .loading-screen {
+        display: none !important;
+    }
 }
