@@ -1,0 +1,458 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>과목 링크 생성기</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+            background: linear-gradient(to bottom right, #f8fafc, #eff6ff);
+            min-height: 100vh;
+            padding: 24px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(to right, #2563eb, #4f46e5);
+            padding: 24px;
+            color: white;
+        }
+
+        .header-content {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .icon-box {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 12px;
+            border-radius: 8px;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: bold;
+            margin-bottom: 4px;
+        }
+
+        .header p {
+            color: #bfdbfe;
+            font-size: 14px;
+        }
+
+        .upload-section {
+            padding: 24px;
+            background: #f9fafb;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .upload-area {
+            border: 2px dashed #cbd5e1;
+            border-radius: 12px;
+            padding: 32px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: white;
+        }
+
+        .upload-area:hover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #3b82f6;
+            background: #eff6ff;
+        }
+
+        .upload-icon {
+            margin: 0 auto 12px;
+            color: #64748b;
+        }
+
+        .upload-text {
+            font-size: 16px;
+            color: #475569;
+            margin-bottom: 8px;
+        }
+
+        .upload-hint {
+            font-size: 14px;
+            color: #94a3b8;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .courses-section {
+            padding: 24px;
+            display: none;
+        }
+
+        .courses-section.active {
+            display: block;
+        }
+
+        .courses-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .courses-header h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #1f2937;
+        }
+
+        .course-card {
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 12px;
+            transition: all 0.2s;
+        }
+
+        .course-card:hover {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            border-color: #3b82f6;
+        }
+
+        .course-title {
+            font-size: 15px;
+            font-weight: 500;
+            color: #1f2937;
+            margin-bottom: 8px;
+        }
+
+        .course-info {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .course-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            padding: 4px 12px;
+            background: #eff6ff;
+            color: #2563eb;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: 500;
+        }
+
+        .btn-generate {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-generate:hover {
+            background: #1d4ed8;
+        }
+
+        .links-container {
+            margin-top: 12px;
+            padding: 12px;
+            background: #f9fafb;
+            border-radius: 6px;
+            display: none;
+        }
+
+        .links-container.active {
+            display: block;
+        }
+
+        .link-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            background: white;
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            margin-bottom: 6px;
+        }
+
+        .link-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .link-url {
+            font-size: 13px;
+            color: #2563eb;
+            text-decoration: none;
+        }
+
+        .link-url:hover {
+            text-decoration: underline;
+        }
+
+        .btn-copy-small {
+            padding: 4px 8px;
+            background: transparent;
+            color: #4f46e5;
+            border: none;
+            border-radius: 4px;
+            font-size: 12px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-copy-small:hover {
+            background: #eef2ff;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        .icon-lg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .btn-reset {
+            background: white;
+            color: #374151;
+            border: 1px solid #d1d5db;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-reset:hover {
+            background: #f9fafb;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="card">
+            <div class="header">
+                <div class="header-content">
+                    <div class="icon-box">
+                        <i data-lucide="link" class="icon-lg"></i>
+                    </div>
+                    <div>
+                        <h1>과목 링크 생성기</h1>
+                        <p>JSON 파일을 업로드하여 강좌 링크를 자동 생성하세요</p>
+                    </div>
+                </div>
+            </div>
+
+            <div class="upload-section">
+                <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+                    <i data-lucide="upload" class="icon-lg upload-icon"></i>
+                    <div class="upload-text">JSON 파일을 드래그하거나 클릭하여 업로드</div>
+                    <div class="upload-hint">title, lecture_count, code 필드가 포함된 JSON 파일</div>
+                </div>
+                <input type="file" id="fileInput" accept=".json" onchange="handleFileUpload(event)">
+            </div>
+
+            <div class="courses-section" id="coursesSection">
+                <div class="courses-header">
+                    <h2>강좌 목록 (<span id="courseCount">0</span>개)</h2>
+                    <button class="btn-reset" onclick="resetAll()">초기화</button>
+                </div>
+                <div id="coursesContainer"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        lucide.createIcons();
+
+        var baseAddress = 'http://mp4.itgo.co.kr/mp4/';
+        var coursesData = [];
+
+        var uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', function(e) {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', function(e) {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            var files = e.dataTransfer.files;
+            if (files.length > 0) {
+                handleFile(files[0]);
+            }
+        });
+
+        function handleFileUpload(event) {
+            var file = event.target.files[0];
+            if (file) {
+                handleFile(file);
+            }
+        }
+
+        function handleFile(file) {
+            if (file.type !== 'application/json') {
+                alert('JSON 파일만 업로드할 수 있습니다.');
+                return;
+            }
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    coursesData = JSON.parse(e.target.result);
+                    displayCourses();
+                } catch (error) {
+                    alert('JSON 파일 형식이 올바르지 않습니다.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function displayCourses() {
+            var container = document.getElementById('coursesContainer');
+            container.innerHTML = '';
+
+            for (var i = 0; i < coursesData.length; i++) {
+                var course = coursesData[i];
+                var lectureCount = parseInt(course.lecture_count);
+
+                var card = document.createElement('div');
+                card.className = 'course-card';
+
+                var title = document.createElement('div');
+                title.className = 'course-title';
+                title.textContent = course.title;
+
+                var info = document.createElement('div');
+                info.className = 'course-info';
+
+                var codeBadge = document.createElement('span');
+                codeBadge.className = 'course-badge';
+                codeBadge.innerHTML = '<i data-lucide="code" class="icon"></i> ' + course.code;
+
+                var countBadge = document.createElement('span');
+                countBadge.className = 'course-badge';
+                countBadge.innerHTML = '<i data-lucide="book-open" class="icon"></i> ' + course.lecture_count;
+
+                var generateBtn = document.createElement('button');
+                generateBtn.className = 'btn-generate';
+                generateBtn.textContent = '링크 생성';
+                generateBtn.setAttribute('data-index', i);
+                generateBtn.onclick = function() {
+                    generateCourseLinks(parseInt(this.getAttribute('data-index')));
+                };
+
+                info.appendChild(codeBadge);
+                info.appendChild(countBadge);
+                info.appendChild(generateBtn);
+
+                var linksContainer = document.createElement('div');
+                linksContainer.className = 'links-container';
+                linksContainer.id = 'links-' + i;
+
+                card.appendChild(title);
+                card.appendChild(info);
+                card.appendChild(linksContainer);
+                container.appendChild(card);
+            }
+
+            document.getElementById('courseCount').textContent = coursesData.length;
+            document.getElementById('coursesSection').classList.add('active');
+            
+            lucide.createIcons();
+        }
+
+        function generateCourseLinks(index) {
+            var course = coursesData[index];
+            var lectureCountStr = course.lecture_count.toString().replace(/[^0-9]/g, '');
+            var lectureCount = parseInt(lectureCountStr);
+            var linksContainer = document.getElementById('links-' + index);
+            linksContainer.innerHTML = '';
+
+            for (var i = 1; i <= lectureCount; i++) {
+                var paddedNum = i.toString();
+                if (paddedNum.length < 2) {
+                    paddedNum = '0' + paddedNum;
+                }
+                var url = baseAddress + course.code + '/' + paddedNum + '.mp4';
+
+                var linkItem = document.createElement('div');
+                linkItem.className = 'link-item';
+
+                var link = document.createElement('a');
+                link.className = 'link-url';
+                link.href = url;
+                link.target = '_blank';
+                link.rel = 'noopener noreferrer';
+                link.textContent = paddedNum + ': ' + url;
+
+                var copyBtn = document.createElement('button');
+                copyBtn.className = 'btn-copy-small';
+                copyBtn.textContent = '복사';
+                copyBtn.setAttribute('data-url', url);
+                copyBtn.onclick = function() {
+                    var urlToCopy = this.getAttribute('data-url');
+                    navigator.clipboard.writeText(urlToCopy).then(function() {
+                        var originalText = copyBtn.textContent;
+                        copyBtn.textContent = '복사됨';
+                        setTimeout(function() {
+                            copyBtn.textContent = originalText;
+                        }, 2000);
+                    });
+                };
+
+                linkItem.appendChild(link);
+                linkItem.appendChild(copyBtn);
+                linksContainer.appendChild(linkItem);
+            }
+
+            linksContainer.classList.add('active');
+        }
+
+        function resetAll() {
+            document.getElementById('fileInput').value = '';
+            document.getElementById('coursesContainer').innerHTML = '';
+            document.getElementById('coursesSection').classList.remove('active');
+            coursesData = [];
+        }
+    </script>
+</body>
+</html>
