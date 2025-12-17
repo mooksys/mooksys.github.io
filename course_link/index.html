@@ -369,7 +369,7 @@
                 row.innerHTML = '<td class="lec-num">' + i + '</td>' +
                     '<td class="link-cell"><a href="' + url + '" target="_blank" rel="noopener noreferrer">' + paddedNum + '</a></td>' +
                     '<td style="text-align: center;">' +
-                    '<button class="btn-copy" onclick="copyLink(\'' + url + '\', ' + i + ')">' +
+                    '<button class="btn-copy" onclick="copyLink(\'' + url + '\', ' + i + ')" data-url="' + url + '">' +
                     '<i data-lucide="copy" class="icon"></i>' +
                     '<span id="copyText' + i + '">복사</span>' +
                     '</button>' +
@@ -403,10 +403,10 @@
             var tbody = document.getElementById('linksTableBody');
             var links = [];
             
-            var rows = tbody.querySelectorAll('tr');
-            for (var i = 0; i < rows.length; i++) {
-                var link = rows[i].querySelector('.link-cell a').textContent;
-                links.push(link);
+            var buttons = tbody.querySelectorAll('.btn-copy');
+            for (var i = 0; i < buttons.length; i++) {
+                var url = buttons[i].getAttribute('data-url');
+                links.push(url);
             }
 
             var allLinks = links.join('\n');
