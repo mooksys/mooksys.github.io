@@ -302,7 +302,7 @@
                 <div class="form-grid">
                     <div class="form-group">
                         <label for="code">Code</label>
-                        <input type="text" id="code" placeholder="N100123">
+                        <input type="text" id="code" placeholder="N100123" maxlength="7">
                     </div>
                     <div class="form-group">
                         <label for="lectureCount">강좌수</label>
@@ -354,6 +354,12 @@
 
             if (!code || !lectureCount) {
                 alert('Code와 강좌수를 입력해주세요.');
+                return;
+            }
+
+            var codePattern = /^[A-Za-z][0-9]{6}$/;
+            if (!codePattern.test(code)) {
+                alert('Code는 영문 1자리 + 숫자 6자리 형식이어야 합니다. (예: N100123)');
                 return;
             }
 
