@@ -121,7 +121,6 @@
             color: #1f2937;
         }
 
-        /* 강좌 카드 */
         .course-card {
             background: #ffffff;
             border: 1px solid #e2e8f0;
@@ -151,7 +150,6 @@
             border-color: #3b82f6;
         }
 
-        /* 제목 디자인 대폭 강화 */
         .course-title-wrapper {
             display: flex;
             align-items: center;
@@ -346,7 +344,51 @@
             background: #e2e8f0;
         }
 
-        /* 스크롤바 스타일 */
+        .pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 8px;
+            margin-top: 32px;
+            padding: 20px;
+        }
+
+        .pagination button {
+            padding: 10px 16px;
+            border: 1px solid #e2e8f0;
+            background: white;
+            color: #475569;
+            border-radius: 8px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .pagination button:hover:not(:disabled) {
+            background: #eff6ff;
+            border-color: #3b82f6;
+            color: #2563eb;
+        }
+
+        .pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .pagination button.active {
+            background: #2563eb;
+            color: white;
+            border-color: #2563eb;
+        }
+
+        .pagination .page-info {
+            padding: 0 16px;
+            color: #64748b;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
         .links-container::-webkit-scrollbar {
             width: 8px;
         }
@@ -389,22 +431,37 @@
                     <button class="btn-reset" onclick="resetAll()">전체 초기화</button>
                 </div>
                 <div id="coursesContainer"></div>
+                <div class="pagination" id="pagination"></div>
             </div>
         </div>
     </div>
 
     <script>
-        lucide.createIcons();
+        let coursesData = [];
+        let currentPage = 1;
+        const itemsPerPage = 5;
+        const baseAddress = 'http://mp4.itgo.co.kr/mp4/';
 
-        var baseAddress = 'http://mp4.itgo.co.kr/mp4/';
-        var coursesData = [];
+        // 페이지 로드 후 아이콘 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+        });
 
-        var uploadArea = document.getElementById('uploadArea');
-        uploadArea.addEventListener('dragover', e => { e.preventDefault(); uploadArea.classList.add('dragover'); });
-        uploadArea.addEventListener('dragleave', e => { e.preventDefault(); uploadArea.classList.remove('dragover'); });
+        const uploadArea = document.getElementById('uploadArea');
+        uploadArea.addEventListener('dragover', e => { 
+            e.preventDefault(); 
+            uploadArea.classList.add('dragover'); 
+        });
+        uploadArea.addEventListener('dragleave', e => { 
+            e.preventDefault(); 
+            uploadArea.classList.remove('dragover'); 
+        });
         uploadArea.addEventListener('drop', e => {
-            e.preventDefault(); uploadArea.classList.remove('dragover');
-            if (e.dataTransfer.files.length > 0) handleFile(e.dataTransfer.files[0]);
+            e.preventDefault(); 
+            uploadArea.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                handleFile(e.dataTransfer.files[0]);
+            }
         });
 
         function handleFileUpload(event) {
@@ -413,152 +470,163 @@
         }
 
         function handleFile(file) {
-            if (file.type !== 'application/json') return alert('JSON 파일만 업로드 가능합니다.');
+            if (file.type !== 'application/json') {
+                alert('JSON 파일만 업로드 가능합니다.');
+                return;
+            }
+            
             const reader = new FileReader();
             reader.onload = e => {
                 try {
-                    coursesData = JSON.parse(e.target.result);
-                    displayCourses();
-                } catch { alert('JSON 형식이 올바르지 않습니다.'); }
+                    const data = JSON.parse(e.target.result);
+                    if (Array.isArray(data) && data.length > 0) {
+                        coursesData = data;
+                        currentPage = 1;
+                        displayCourses();
+                    } else {
+                        alert('유효한 강좌 데이터가 없습니다.');
+                    }
+                } catch (error) {
+                    alert('JSON 형식이 올바르지 않습니다.');
+                    console.error(error);
+                }
             };
             reader.readAsText(file);
         }
 
         function displayCourses() {
+            if (!coursesData || !Array.isArray(coursesData) || coursesData.length === 0) {
+                console.log('강좌 데이터가 없습니다.');
+                return;
+            }
+            
             const container = document.getElementById('coursesContainer');
+            if (!container) return;
+            
             container.innerHTML = '';
 
-            coursesData.forEach((course, i) => {
-                const card = document.createElement('div');
-                card.className = 'course-card';
+            const totalPages = Math.ceil(coursesData.length / itemsPerPage);
+            const startIndex = (currentPage - 1) * itemsPerPage;
+            const endIndex = Math.min(startIndex + itemsPerPage, coursesData.length);
+            const currentCourses = coursesData.slice(startIndex, endIndex);
 
-                // 제목 영역 새로 구성
-                const titleWrapper = document.createElement('div');
-                titleWrapper.className = 'course-title-wrapper';
-
-                const titleIcon = document.createElement('i');
-                titleIcon.setAttribute('data-lucide', 'graduation-cap');
-                titleIcon.className = 'course-title-icon';
-
-                const title = document.createElement('div');
-                title.className = 'course-title';
-                title.textContent = course.title || '제목 없음';
-
-                titleWrapper.appendChild(titleIcon);
-                titleWrapper.appendChild(title);
-
-                const info = document.createElement('div');
-                info.className = 'course-info';
-
-                const codeBadge = document.createElement('span');
-                codeBadge.className = 'course-badge';
-                codeBadge.innerHTML = `<i data-lucide="hash" class="icon"></i> ${course.code || '코드 없음'}`;
-
-                const countBadge = document.createElement('span');
-                countBadge.className = 'course-badge';
-                countBadge.innerHTML = `<i data-lucide="book-open" class="icon"></i> ${course.lecture_count || '0'}`;
-
-                const btnGroup = document.createElement('div');
-                btnGroup.className = 'btn-group';
-
-                const generateBtn = document.createElement('button');
-                generateBtn.className = 'btn-generate';
-                generateBtn.textContent = '링크 생성';
-                generateBtn.dataset.index = i;
-                generateBtn.onclick = () => generateCourseLinks(i);
-
-                const copyAllBtn = document.createElement('button');
-                copyAllBtn.className = 'btn-copy-all';
-                copyAllBtn.textContent = '전체 복사';
-                copyAllBtn.dataset.index = i;
-                copyAllBtn.onclick = () => copyAllLinks(i);
-
-                const resetBtn = document.createElement('button');
-                resetBtn.className = 'btn-reset-course';
-                resetBtn.textContent = '초기화';
-                resetBtn.dataset.index = i;
-                resetBtn.onclick = () => resetCourseLinks(i);
-
-                btnGroup.append(generateBtn, copyAllBtn, resetBtn);
-                info.append(codeBadge, countBadge, btnGroup);
-
-                const linksContainer = document.createElement('div');
-                linksContainer.className = 'links-container';
-                linksContainer.id = 'links-' + i;
-
-                card.append(titleWrapper, info, linksContainer);
+            currentCourses.forEach((course, i) => {
+                const actualIndex = startIndex + i;
+                const card = createCourseCard(course, actualIndex);
                 container.appendChild(card);
             });
 
             document.getElementById('courseCount').textContent = coursesData.length;
             document.getElementById('coursesSection').classList.add('active');
+            
+            renderPagination(totalPages);
             lucide.createIcons();
         }
 
-function generateCourseLinks(index) {
-            var course = coursesData[index];
-    
-            // code 필드 안전하게 가져오기 (대소문자 구분 없이 여러 가능성 지원)
-            var code = course.code || course.Code || course.course_code || course.courseCode || course.id || course.ID || '';
+        function createCourseCard(course, index) {
+            const card = document.createElement('div');
+            card.className = 'course-card';
+
+            const titleWrapper = document.createElement('div');
+            titleWrapper.className = 'course-title-wrapper';
+            titleWrapper.innerHTML = `
+                <i data-lucide="graduation-cap" class="course-title-icon"></i>
+                <div class="course-title">${course.title || '제목 없음'}</div>
+            `;
+
+            const info = document.createElement('div');
+            info.className = 'course-info';
+            info.innerHTML = `
+                <span class="course-badge">
+                    <i data-lucide="hash"></i> ${course.code || '코드 없음'}
+                </span>
+                <span class="course-badge">
+                    <i data-lucide="book-open"></i> ${course.lecture_count || '0'}
+                </span>
+            `;
+
+            const btnGroup = document.createElement('div');
+            btnGroup.className = 'btn-group';
+
+            const generateBtn = document.createElement('button');
+            generateBtn.className = 'btn-generate';
+            generateBtn.textContent = '링크 생성';
+            generateBtn.onclick = () => generateCourseLinks(index);
+
+            const copyAllBtn = document.createElement('button');
+            copyAllBtn.className = 'btn-copy-all';
+            copyAllBtn.textContent = '전체 복사';
+            copyAllBtn.id = `copyAll-${index}`;
+            copyAllBtn.onclick = () => copyAllLinks(index);
+
+            const resetBtn = document.createElement('button');
+            resetBtn.className = 'btn-reset-course';
+            resetBtn.textContent = '초기화';
+            resetBtn.onclick = () => resetCourseLinks(index);
+
+            btnGroup.append(generateBtn, copyAllBtn, resetBtn);
+            info.appendChild(btnGroup);
+
+            const linksContainer = document.createElement('div');
+            linksContainer.className = 'links-container';
+            linksContainer.id = `links-${index}`;
+
+            card.append(titleWrapper, info, linksContainer);
+            return card;
+        }
+
+        function generateCourseLinks(index) {
+            const course = coursesData[index];
+            const code = course.code || course.Code || course.course_code || course.courseCode || course.id || course.ID || '';
     
             if (!code || code.trim() === '') {
-                alert('강의 코드를 찾을 수 없습니다!\n강의 제목: ' + course.title + '\nJSON에 "code" 필드를 확인하세요.');
+                alert(`강의 코드를 찾을 수 없습니다!\n강의 제목: ${course.title}\nJSON에 "code" 필드를 확인하세요.`);
                 return;
             }
     
-            // lecture_count에서 숫자만 추출 (예: "18강" → 18, "20회" → 20, "15" → 15)
-            var countText = course.lecture_count ? course.lecture_count.toString() : '';
-            var match = countText.match(/\d+/);
+            const countText = course.lecture_count ? course.lecture_count.toString() : '';
+            const match = countText.match(/\d+/);
             if (!match) {
-                alert('강의 횟수를 찾을 수 없습니다!\n강의 제목: ' + course.title + '\n값: ' + countText);
+                alert(`강의 횟수를 찾을 수 없습니다!\n강의 제목: ${course.title}\n값: ${countText}`);
                 return;
             }
-            var lectureCount = parseInt(match[0], 10);
+            const lectureCount = parseInt(match[0], 10);
 
-            var linksContainer = document.getElementById('links-' + index);
+            const linksContainer = document.getElementById(`links-${index}`);
             linksContainer.innerHTML = '';
             linksContainer.classList.add('active');
 
-            // baseAddress 정확히 사용 (절대 경로 보장)
-            var baseAddress = 'http://mp4.itgo.co.kr/mp4/';
+            for (let i = 1; i <= lectureCount; i++) {
+                const paddedNum = i.toString().padStart(2, '0');
+                const fullUrl = baseAddress + code.trim() + '/' + paddedNum + '.mp4';
 
-            for (var i = 1; i <= lectureCount; i++) {
-                // 3자리 패딩 (001, 002, ..., 100)
-                var paddedNum = i.toString().padStart(2, '0');
-        
-                // 완전한 절대 URL 생성 → 로컬 서버 주소가 붙지 않음
-                var fullUrl = baseAddress + code.trim() + '/' + paddedNum + '.mp4';
-
-                var linkItem = document.createElement('div');
+                const linkItem = document.createElement('div');
                 linkItem.className = 'link-item';
 
-                var link = document.createElement('a');
+                const link = document.createElement('a');
                 link.className = 'link-url';
-                link.href = fullUrl;                    // 절대 경로
+                link.href = fullUrl;
                 link.target = '_blank';
                 link.rel = 'noopener noreferrer';
-                link.textContent = paddedNum + '.mp4';   // 보기 편하게 파일명 표시
+                link.textContent = paddedNum + '.mp4';
 
-                var copyBtn = document.createElement('button');
+                const copyBtn = document.createElement('button');
                 copyBtn.className = 'btn-copy-small';
                 copyBtn.textContent = '복사';
-                copyBtn.onclick = (function(url) {
-                    return function() {
-                        navigator.clipboard.writeText(url).then(() => {
-                            var orig = this.textContent;
-                            this.textContent = '복사됨';
-                            setTimeout(() => { this.textContent = orig; }, 2000);
-                        });
-                    };
-                })(fullUrl);
+                copyBtn.onclick = function() {
+                    navigator.clipboard.writeText(fullUrl).then(() => {
+                        const orig = this.textContent;
+                        this.textContent = '복사됨';
+                        setTimeout(() => { this.textContent = orig; }, 2000);
+                    });
+                };
 
                 linkItem.appendChild(link);
                 linkItem.appendChild(copyBtn);
                 linksContainer.appendChild(linkItem);
             }
 
-            // 링크 생성 후 전체 복사 버튼 보이기
-            var copyAllBtn = document.querySelector('.btn-copy-all[data-index="' + index + '"]');
+            const copyAllBtn = document.getElementById(`copyAll-${index}`);
             if (copyAllBtn) {
                 copyAllBtn.style.display = 'inline-block';
             }
@@ -568,7 +636,7 @@ function generateCourseLinks(index) {
             const links = document.querySelectorAll(`#links-${index} .link-url`);
             const text = Array.from(links).map(a => a.href).join('\n');
             navigator.clipboard.writeText(text).then(() => {
-                const btn = document.querySelector(`.btn-copy-all[data-index="${index}"]`);
+                const btn = document.getElementById(`copyAll-${index}`);
                 const orig = btn.textContent;
                 btn.textContent = '복사됨!';
                 setTimeout(() => btn.textContent = orig, 2000);
@@ -576,11 +644,94 @@ function generateCourseLinks(index) {
         }
 
         function resetCourseLinks(index) {
-            const linksContainer = document.getElementById('links-' + index);
+            const linksContainer = document.getElementById(`links-${index}`);
             linksContainer.innerHTML = '';
             linksContainer.classList.remove('active');
-            const copyAllBtn = document.querySelector(`.btn-copy-all[data-index="${index}"]`);
+            const copyAllBtn = document.getElementById(`copyAll-${index}`);
             if (copyAllBtn) copyAllBtn.style.display = 'none';
+        }
+
+        function renderPagination(totalPages) {
+            const pagination = document.getElementById('pagination');
+            pagination.innerHTML = '';
+
+            if (totalPages <= 1) {
+                pagination.style.display = 'none';
+                return;
+            }
+            
+            pagination.style.display = 'flex';
+
+            const prevBtn = document.createElement('button');
+            prevBtn.innerHTML = '<i data-lucide="chevron-left" style="width:16px;height:16px;"></i>';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => changePage(currentPage - 1);
+            pagination.appendChild(prevBtn);
+
+            const maxVisiblePages = 5;
+            let startPage = Math.max(1, currentPage - Math.floor(maxVisiblePages / 2));
+            let endPage = Math.min(totalPages, startPage + maxVisiblePages - 1);
+
+            if (endPage - startPage < maxVisiblePages - 1) {
+                startPage = Math.max(1, endPage - maxVisiblePages + 1);
+            }
+
+            if (startPage > 1) {
+                const firstBtn = document.createElement('button');
+                firstBtn.textContent = '1';
+                firstBtn.onclick = () => changePage(1);
+                pagination.appendChild(firstBtn);
+
+                if (startPage > 2) {
+                    const dots = document.createElement('span');
+                    dots.className = 'page-info';
+                    dots.textContent = '...';
+                    pagination.appendChild(dots);
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.textContent = i;
+                if (i === currentPage) {
+                    pageBtn.className = 'active';
+                }
+                pageBtn.onclick = () => changePage(i);
+                pagination.appendChild(pageBtn);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    const dots = document.createElement('span');
+                    dots.className = 'page-info';
+                    dots.textContent = '...';
+                    pagination.appendChild(dots);
+                }
+
+                const lastBtn = document.createElement('button');
+                lastBtn.textContent = totalPages;
+                lastBtn.onclick = () => changePage(totalPages);
+                pagination.appendChild(lastBtn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.innerHTML = '<i data-lucide="chevron-right" style="width:16px;height:16px;"></i>';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => changePage(currentPage + 1);
+            pagination.appendChild(nextBtn);
+
+            const pageInfo = document.createElement('span');
+            pageInfo.className = 'page-info';
+            pageInfo.textContent = `${currentPage} / ${totalPages}`;
+            pagination.appendChild(pageInfo);
+
+            lucide.createIcons();
+        }
+
+        function changePage(page) {
+            currentPage = page;
+            displayCourses();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
         }
 
         function resetAll() {
@@ -588,6 +739,7 @@ function generateCourseLinks(index) {
             document.getElementById('coursesContainer').innerHTML = '';
             document.getElementById('coursesSection').classList.remove('active');
             coursesData = [];
+            currentPage = 1;
         }
     </script>
 </body>
