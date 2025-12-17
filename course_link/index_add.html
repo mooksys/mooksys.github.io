@@ -400,52 +400,68 @@
             lucide.createIcons();
         }
 
-        function generateCourseLinks(index) {
-            var course = coursesData[index];
-            var lectureCountStr = course.lecture_count.toString().replace(/[^0-9]/g, '');
-            var lectureCount = parseInt(lectureCountStr);
-            var linksContainer = document.getElementById('links-' + index);
-            linksContainer.innerHTML = '';
+function generateCourseLinks(index) {
+    var course = coursesData[index];
+    
+    // code 필드 안전하게 가져오기 (대소문자 구분 없이 여러 가능성 지원)
+    var code = course.code || course.Code || course.course_code || course.courseCode || course.id || course.ID || '';
+    
+    if (!code || code.trim() === '') {
+        alert('강의 코드를 찾을 수 없습니다!\n강의 제목: ' + course.title + '\nJSON에 "code" 필드를 확인하세요.');
+        return;
+    }
+    
+    // lecture_count에서 숫자만 추출 (예: "18강" → 18, "20회" → 20, "15" → 15)
+    var countText = course.lecture_count ? course.lecture_count.toString() : '';
+    var match = countText.match(/\d+/);
+    if (!match) {
+        alert('강의 횟수를 찾을 수 없습니다!\n강의 제목: ' + course.title + '\n값: ' + countText);
+        return;
+    }
+    var lectureCount = parseInt(match[0], 10);
 
-            for (var i = 1; i <= lectureCount; i++) {
-                var paddedNum = i.toString();
-                if (paddedNum.length < 2) {
-                    paddedNum = '0' + paddedNum;
-                }
-                var url = baseAddress + course.code + '/' + paddedNum + '.mp4';
+    var linksContainer = document.getElementById('links-' + index);
+    linksContainer.innerHTML = '';
+    linksContainer.classList.add('active');
 
-                var linkItem = document.createElement('div');
-                linkItem.className = 'link-item';
+    // baseAddress 정확히 사용 (절대 경로 보장)
+    var baseAddress = 'http://mp4.itgo.co.kr/mp4/';
 
-                var link = document.createElement('a');
-                link.className = 'link-url';
-                link.href = url;
-                link.target = '_blank';
-                link.rel = 'noopener noreferrer';
-                link.textContent = paddedNum + ': ' + url;
+    for (var i = 1; i <= lectureCount; i++) {
+        // 3자리 패딩 (001, 002, ..., 100)
+        var paddedNum = i.toString().padStart(2, '0');
+        
+        // 완전한 절대 URL 생성 → 로컬 서버 주소가 붙지 않음
+        var fullUrl = baseAddress + code.trim() + '/' + paddedNum + '.mp4';
 
-                var copyBtn = document.createElement('button');
-                copyBtn.className = 'btn-copy-small';
-                copyBtn.textContent = '복사';
-                copyBtn.setAttribute('data-url', url);
-                copyBtn.onclick = function() {
-                    var urlToCopy = this.getAttribute('data-url');
-                    navigator.clipboard.writeText(urlToCopy).then(function() {
-                        var originalText = copyBtn.textContent;
-                        copyBtn.textContent = '복사됨';
-                        setTimeout(function() {
-                            copyBtn.textContent = originalText;
-                        }, 2000);
-                    });
-                };
+        var linkItem = document.createElement('div');
+        linkItem.className = 'link-item';
 
-                linkItem.appendChild(link);
-                linkItem.appendChild(copyBtn);
-                linksContainer.appendChild(linkItem);
-            }
+        var link = document.createElement('a');
+        link.className = 'link-url';
+        link.href = fullUrl;                    // 절대 경로
+        link.target = '_blank';
+        link.rel = 'noopener noreferrer';
+        link.textContent = paddedNum + '.mp4';   // 보기 편하게 파일명 표시
 
-            linksContainer.classList.add('active');
-        }
+        var copyBtn = document.createElement('button');
+        copyBtn.className = 'btn-copy-small';
+        copyBtn.textContent = '복사';
+        copyBtn.onclick = (function(url) {
+            return function() {
+                navigator.clipboard.writeText(url).then(() => {
+                    var orig = this.textContent;
+                    this.textContent = '복사됨';
+                    setTimeout(() => { this.textContent = orig; }, 2000);
+                });
+            };
+        })(fullUrl);
+
+        linkItem.appendChild(link);
+        linkItem.appendChild(copyBtn);
+        linksContainer.appendChild(linkItem);
+    }
+}
 
         function resetAll() {
             document.getElementById('fileInput').value = '';
