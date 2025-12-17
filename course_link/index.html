@@ -68,7 +68,7 @@
 
         .form-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            grid-template-columns: repeat(3, 1fr);
             gap: 16px;
         }
 
@@ -298,18 +298,15 @@
             </div>
 
             <div class="form-section">
+                <input type="hidden" id="baseAddress" value="http://mp4.itgo.co.kr/mp4/">
                 <div class="form-grid">
-                    <div class="form-group">
-                        <label for="baseAddress">Base Address</label>
-                        <input type="text" id="baseAddress" value="http://mp4.itgo.co.kr/mp4/">
-                    </div>
                     <div class="form-group">
                         <label for="code">Code</label>
                         <input type="text" id="code" placeholder="N100123">
                     </div>
                     <div class="form-group">
                         <label for="lectureCount">강좌수</label>
-                        <input type="number" id="lectureCount" placeholder="10" min="1">
+                        <input type="number" id="lectureCount" placeholder="13" min="1">
                     </div>
                     <div class="button-group">
                         <button class="btn btn-primary" onclick="generateLinks()">생성</button>
@@ -370,7 +367,7 @@
 
                 var row = document.createElement('tr');
                 row.innerHTML = '<td class="lec-num">' + i + '</td>' +
-                    '<td class="link-cell"><a href="' + url + '" target="_blank" rel="noopener noreferrer">' + url + '</a></td>' +
+                    '<td class="link-cell"><a href="' + url + '" target="_blank" rel="noopener noreferrer">' + paddedNum + '</a></td>' +
                     '<td style="text-align: center;">' +
                     '<button class="btn-copy" onclick="copyLink(\'' + url + '\', ' + i + ')">' +
                     '<i data-lucide="copy" class="icon"></i>' +
