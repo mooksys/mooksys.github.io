@@ -5,19 +5,529 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>mooksys.github.io</title>
     <meta name="description" content="개인 대시보드 - 개발자 포트폴리오">
-    <link rel="stylesheet" href="style.css">
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-    
-    <!-- PWA 지원 -->
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#6366f1">
-    
-    <!-- SEO 개선 -->
-    <meta property="og:title" content="홍길동 - 개발자 포트폴리오">
-    <meta property="og:description" content="코딩과 새로운 기술을 사랑하는 개발자">
-    <meta property="og:type" content="website">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #6366f1;
+            --primary-dark: #4f46e5;
+            --secondary: #8b5cf6;
+            --accent: #ec4899;
+            --bg-light: #f8fafc;
+            --bg-card-light: #ffffff;
+            --text-light: #1e293b;
+            --text-secondary-light: #64748b;
+            --border-light: #e2e8f0;
+            
+            --bg-dark: #0f172a;
+            --bg-card-dark: #1e293b;
+            --text-dark: #f1f5f9;
+            --text-secondary-dark: #94a3b8;
+            --border-dark: #334155;
+            
+            --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            --shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.15);
+        }
+
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background: var(--bg-light);
+            color: var(--text-light);
+            min-height: 100vh;
+            transition: all 0.3s ease;
+            overflow-x: hidden;
+        }
+
+        body.dark-mode {
+            background: var(--bg-dark);
+            color: var(--text-dark);
+        }
+
+        /* 로딩 스크린 */
+        .loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.5s, visibility 0.5s;
+        }
+
+        .loading-screen.hidden {
+            opacity: 0;
+            visibility: hidden;
+        }
+
+        .loading-spinner {
+            text-align: center;
+            color: white;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* 배경 애니메이션 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: 
+                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
+            z-index: -1;
+            animation: backgroundFloat 20s ease-in-out infinite;
+        }
+
+        @keyframes backgroundFloat {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.1); }
+        }
+
+        .dashboard-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 24px;
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        /* 카드 스타일 */
+        .card {
+            background: var(--bg-card-light);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: var(--shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            border: 1px solid var(--border-light);
+            position: relative;
+            overflow: hidden;
+            opacity: 0;
+            animation: slideUp 0.6s ease-out forwards;
+        }
+
+        body.dark-mode .card {
+            background: var(--bg-card-dark);
+            border-color: var(--border-dark);
+        }
+
+        @keyframes slideUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, transparent, rgba(99, 102, 241, 0.05));
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .card:hover {
+            transform: translateY(-8px);
+            box-shadow: var(--shadow-hover);
+        }
+
+        .card:hover::before {
+            opacity: 1;
+        }
+
+        /* 애니메이션 딜레이 */
+        .card:nth-child(1) { animation-delay: 0.1s; }
+        .card:nth-child(2) { animation-delay: 0.2s; }
+        .card:nth-child(3) { animation-delay: 0.3s; }
+        .card:nth-child(4) { animation-delay: 0.4s; }
+        .card:nth-child(5) { animation-delay: 0.5s; }
+        .card:nth-child(6) { animation-delay: 0.6s; }
+
+        /* 타이틀 카드 */
+        .title-card {
+            grid-column: 1 / -1;
+            text-align: center;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+        }
+
+        .title-card h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+        }
+
+        .title-card .highlight {
+            background: linear-gradient(120deg, #fff, #e0e7ff);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            opacity: 0.95;
+            font-weight: 300;
+        }
+
+        /* 프로필 카드 */
+        .profile-card {
+            text-align: center;
+            grid-row: span 2;
+        }
+
+        .profile-image-container {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            margin: 0 auto 20px;
+        }
+
+        .profile-img {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 4px solid var(--primary);
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
+            transition: transform 0.3s;
+        }
+
+        .profile-img:hover {
+            transform: scale(1.05) rotate(5deg);
+        }
+
+        .status-indicator {
+            position: absolute;
+            bottom: 5px;
+            right: 5px;
+            width: 35px;
+            height: 35px;
+            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            border-radius: 50%;
+            border: 3px solid var(--bg-card-light);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 18px;
+            animation: bounce 2s ease-in-out infinite;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+        }
+
+        body.dark-mode .status-indicator {
+            border-color: var(--bg-card-dark);
+        }
+
+        @keyframes bounce {
+            0%, 100% { 
+                transform: translateY(0) scale(1);
+            }
+            50% { 
+                transform: translateY(-5px) scale(1.1);
+            }
+        }
+
+        .profile-card h2 {
+            font-size: 1.8rem;
+            margin-bottom: 15px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .bio {
+            color: var(--text-secondary-light);
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        body.dark-mode .bio {
+            color: var(--text-secondary-dark);
+        }
+
+        .highlight-text {
+            color: var(--primary);
+            font-weight: 500;
+        }
+
+        /* 시간 카드 */
+        .time-card h3 {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 20px;
+            color: var(--primary);
+            font-size: 1.2rem;
+        }
+
+        .date-display {
+            font-size: 1.3rem;
+            font-weight: 500;
+            margin-bottom: 15px;
+            color: var(--text-secondary-light);
+        }
+
+        body.dark-mode .date-display {
+            color: var(--text-secondary-dark);
+        }
+
+        .digital-clock {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 3rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-align: center;
+            margin: 20px 0;
+            text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
+        }
+
+        .timezone-info {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            color: var(--text-secondary-light);
+            font-size: 0.95rem;
+            margin-top: 15px;
+        }
+
+        body.dark-mode .timezone-info {
+            color: var(--text-secondary-dark);
+        }
+
+        /* 링크 카드 */
+        .link-card {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .card-icon {
+            width: 60px;
+            height: 60px;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.8rem;
+            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
+            transition: transform 0.3s;
+        }
+
+        .card-icon:hover {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        .card-content h3 {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: var(--text-light);
+        }
+
+        body.dark-mode .card-content h3 {
+            color: var(--text-dark);
+        }
+
+        .card-content p {
+            color: var(--text-secondary-light);
+            line-height: 1.6;
+            margin-bottom: 15px;
+        }
+
+        body.dark-mode .card-content p {
+            color: var(--text-secondary-dark);
+        }
+
+        .card-meta {
+            display: flex;
+            gap: 15px;
+            font-size: 0.9rem;
+            color: var(--text-secondary-light);
+            flex-wrap: wrap;
+        }
+
+        body.dark-mode .card-meta {
+            color: var(--text-secondary-dark);
+        }
+
+        .card-meta span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 10px;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s;
+            border: none;
+            cursor: pointer;
+            font-size: 1rem;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+        }
+
+        .btn-secondary {
+            background: var(--bg-light);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            margin-top: 10px;
+        }
+
+        body.dark-mode .btn-secondary {
+            background: var(--bg-card-dark);
+            color: var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+        }
+
+        /* 테마 토글 버튼 */
+        .theme-toggle {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            cursor: pointer;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
+            transition: all 0.3s;
+            z-index: 1000;
+        }
+
+        .theme-toggle:hover {
+            transform: scale(1.1) rotate(10deg);
+        }
+
+        /* 스크롤 탑 버튼 */
+        .scroll-to-top {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: var(--bg-card-light);
+            color: var(--primary);
+            border: 2px solid var(--primary);
+            cursor: pointer;
+            font-size: 1.2rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s;
+            opacity: 0;
+            visibility: hidden;
+            z-index: 1000;
+        }
+
+        body.dark-mode .scroll-to-top {
+            background: var(--bg-card-dark);
+        }
+
+        .scroll-to-top.visible {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .scroll-to-top:hover {
+            transform: translateY(-5px);
+            background: var(--primary);
+            color: white;
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .dashboard-container {
+                grid-template-columns: 1fr;
+                padding: 20px 15px;
+            }
+
+            .title-card h1 {
+                font-size: 1.8rem;
+            }
+
+            .digital-clock {
+                font-size: 2rem;
+            }
+
+            .theme-toggle, .scroll-to-top {
+                width: 50px;
+                height: 50px;
+                right: 20px;
+            }
+
+            .scroll-to-top {
+                bottom: 80px;
+            }
+        }
+    </style>
 </head>
 <body>
     <!-- 로딩 스크린 -->
@@ -30,51 +540,26 @@
     
     <main class="dashboard-container" role="main">
         <!-- 타이틀 카드 -->
-        <div class="card title-card" data-animation="fade-up">
+        <div class="card title-card">
             <h1>안녕하세요, <span class="highlight">mooksys</span>입니다.</h1>
             <div class="subtitle">고등학교 정보교사 & 풀스택 개발자 & 기술 블로거</div>
         </div>
 
         <!-- 프로필 카드 -->
-        <div class="card profile-card" data-animation="fade-up">
+        <div class="card profile-card">
             <div class="profile-image-container">
                 <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face" 
                      alt="mooksys 프로필 사진" class="profile-img" loading="lazy">
-                <div class="status-indicator" title="온라인"></div>
+                <div class="status-indicator" title="온라인">⚡</div>
             </div>
             <h2>mooksys</h2>
             <p class="bio">코딩과 새로운 기술을 사랑하는 정보교사, 개발자입니다.<br>
                <span class="highlight-text">매일 성장하며 더 나은 세상을 만들어가고 있습니다.</span>
             </p>
-            
-            <!-- 기술 스택 -->
-<!--             <div class="tech-stack">
-                <span class="tech-tag">JavaScript</span>
-                <span class="tech-tag">React</span>
-                <span class="tech-tag">Node.js</span>
-                <span class="tech-tag">Python</span>
-                <span class="tech-tag">Java</span>
-                <span class="tech-tag">DataBase_SQL</span>
-            </div> -->
-            
-<!--             <div class="social-links" role="navigation" aria-label="소셜 미디어 링크">
-                <a href="https://github.com" target="_blank" title="GitHub 프로필" aria-label="GitHub">
-                    <i class="fa-brands fa-github"></i>
-                </a>
-                <a href="#" target="_blank" title="기술 블로그" aria-label="블로그">
-                    <i class="fa-solid fa-blog"></i>
-                </a>
-                <a href="mailto:example@email.com" target="_blank" title="이메일 문의" aria-label="이메일">
-                    <i class="fa-solid fa-envelope"></i>
-                </a>
-                <a href="https://linkedin.com" target="_blank" title="LinkedIn 프로필" aria-label="LinkedIn">
-                    <i class="fa-brands fa-linkedin"></i>
-                </a>
-            </div> -->
         </div>
 
         <!-- 날짜 및 시간 카드 -->
-        <div class="card info-card time-card" data-animation="fade-up">
+        <div class="card time-card">
             <h3><i class="fa-solid fa-calendar-days"></i> 현재 시간</h3>
             <p id="date" class="date-display"></p>
             <p id="time" class="digital-clock" role="timer" aria-live="polite"></p>
@@ -84,57 +569,14 @@
             </div>
         </div>
 
-        <!-- 날씨 카드 -->
-<!--         <div class="card info-card weather-card" data-animation="fade-up">
-            <h3><i class="fa-solid fa-cloud-sun"></i> 현재 날씨</h3>
-            <div class="weather-container">
-                <div id="weather-icon" class="weather-icon" role="img" aria-label="날씨 상태"></div>
-                <div class="weather-details">
-                    <p id="weather-info" class="weather-main"></p>
-                    <p id="weather-location" class="weather-location">성남시, 경기도</p>
-                    <div class="weather-extra" id="weather-extra">
-                        <span class="humidity"><i class="fa-solid fa-droplet"></i> 습도: --</span>
-                        <span class="wind"><i class="fa-solid fa-wind"></i> 바람: --</span>
-                    </div>
-                </div>
-            </div>
-            <button id="refresh-weather" class="refresh-btn" title="날씨 새로고침" aria-label="날씨 정보 새로고침">
-                <i class="fa-solid fa-refresh"></i>
-            </button>
-        </div>  -->
-
-        <!-- 통계 카드 -->
-        
-<!--         <div class="card stats-card" data-animation="fade-up">
-            <h3><i class="fa-solid fa-chart-line"></i> 활동 통계</h3>
-            <div class="stats-grid">
-                <div class="stat-item">
-                    <div class="stat-number" data-target="127">0</div>
-                    <div class="stat-label">GitHub 커밋</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" data-target="23">0</div>
-                    <div class="stat-label">블로그 포스트</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" data-target="15">0</div>
-                    <div class="stat-label">완료 프로젝트</div>
-                </div>
-                <div class="stat-item">
-                    <div class="stat-number" data-target="8">0</div>
-                    <div class="stat-label">진행중 프로젝트</div>
-                </div>
-            </div>
-        </div> -->
-
         <!-- 블로그 카드 -->
-        <div class="card link-card blog-card" data-animation="fade-up">
+        <div class="card link-card blog-card">
             <div class="card-icon">
                 <i class="fa-solid fa-newspaper"></i>
             </div>
             <div class="card-content">
                 <h3>News Scrap</h3>
-                <p>- 정보통신기술진흥원 <br>- 교육부 뉴스 스크랩</p>
+                <p>- 정보통신기술진흥원<br>- 교육부 뉴스 스크랩</p>
                 <div class="card-meta">
                     <span class="update-info"><i class="fa-solid fa-clock"></i> 1일 전 업데이트</span>
                     <span class="view-count"><i class="fa-solid fa-eye"></i> 1.2K+ 조회수</span>
@@ -147,50 +589,26 @@
         </div>
 
         <!-- GitHub 카드 -->
-        <div class="card link-card github-card" data-animation="fade-up">
+        <div class="card link-card github-card">
             <div class="card-icon">
-            <a href="#" target="_blank" rel="noopener noreferrer">
                 <i class="fa-solid fa-pen-to-square"></i>
-            </a>
             </div>
             <div class="card-content">
                 <h3>IT Study</h3>
-                <p> IT실무, 자격증 공부하기</p>
+                <p>IT실무, 자격증 공부하기</p>
                 <div class="card-meta">
                     <span class="repo-count"><i class="fa-solid fa-code-branch"></i> 42개 저장소</span>
                     <span class="star-count"><i class="fa-solid fa-star"></i> 256개 스타</span>
                 </div>
             </div>
-            <a href="course_link" target="_blank" class="btn btn-secondary" rel="noopener noreferrer">
+            <a href="course_link" target="_blank" class="btn btn-primary" rel="noopener noreferrer">
                 <i class="fa-solid fa-external-link-alt"></i>
                 Course Link v1
             </a>
-            <br>
             <a href="course_link/index_add.html" target="_blank" class="btn btn-secondary" rel="noopener noreferrer">
                 <i class="fa-solid fa-external-link-alt"></i>
                 Course Add v1
             </a>            
-        </div>
-
-        <!-- 연락처 카드 -->
-        
-<!--         <div class="card contact-card" data-animation="fade-up">
-            <h3><i class="fa-solid fa-paper-plane"></i> 연락하기</h3>
-            <p>프로젝트 협업이나 기술 문의가 있으시면 언제든 연락주세요!</p>
-            <div class="contact-methods">
-                <a href="mailto:example@email.com" class="contact-method" aria-label="이메일 보내기">
-                    <i class="fa-solid fa-envelope"></i>
-                    <span>이메일</span>
-                </a>
-                <a href="https://linkedin.com" target="_blank" class="contact-method" aria-label="LinkedIn 메시지">
-                    <i class="fa-brands fa-linkedin"></i>
-                    <span>LinkedIn</span>
-                </a>
-                <a href="#" class="contact-method" aria-label="디스코드 채팅">
-                    <i class="fa-brands fa-discord"></i>
-                    <span>Discord</span>
-                </a>
-            </div> -->
         </div>
     </main>
 
@@ -204,6 +622,74 @@
         <i class="fa-solid fa-moon"></i>
     </button>
 
-    <script src="script.js"></script>
+    <script>
+        // 로딩 스크린
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.getElementById('loading-screen').classList.add('hidden');
+            }, 1000);
+        });
+
+        // 시간 업데이트
+        function updateTime() {
+            const now = new Date();
+            const timeElement = document.getElementById('time');
+            const dateElement = document.getElementById('date');
+            
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const seconds = String(now.getSeconds()).padStart(2, '0');
+            
+            timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+            
+            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+            dateElement.textContent = now.toLocaleDateString('ko-KR', options);
+        }
+
+        updateTime();
+        setInterval(updateTime, 1000);
+
+        // 테마 토글
+        const themeToggle = document.getElementById('theme-toggle');
+        const body = document.body;
+        const icon = themeToggle.querySelector('i');
+
+        // 저장된 테마 불러오기
+        const savedTheme = localStorage.getItem('theme');
+        if (savedTheme === 'dark') {
+            body.classList.add('dark-mode');
+            icon.classList.replace('fa-moon', 'fa-sun');
+        }
+
+        themeToggle.addEventListener('click', () => {
+            body.classList.toggle('dark-mode');
+            
+            if (body.classList.contains('dark-mode')) {
+                icon.classList.replace('fa-moon', 'fa-sun');
+                localStorage.setItem('theme', 'dark');
+            } else {
+                icon.classList.replace('fa-sun', 'fa-moon');
+                localStorage.setItem('theme', 'light');
+            }
+        });
+
+        // 스크롤 탑 버튼
+        const scrollToTopBtn = document.getElementById('scroll-to-top');
+
+        window.addEventListener('scroll', () => {
+            if (window.pageYOffset > 300) {
+                scrollToTopBtn.classList.add('visible');
+            } else {
+                scrollToTopBtn.classList.remove('visible');
+            }
+        });
+
+        scrollToTopBtn.addEventListener('click', () => {
+            window.scrollTo({
+                top: 0,
+                behavior: 'smooth'
+            });
+        });
+    </script>
 </body>
 </html>
