@@ -4,9 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>mooksys.github.io</title>
-    <meta name="description" content="개인 대시보드 - 개발자 포트폴리오">
-    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=SF+Mono:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
     <style>
         * {
@@ -16,38 +15,55 @@
         }
 
         :root {
-            --primary: #6366f1;
-            --primary-dark: #4f46e5;
-            --secondary: #8b5cf6;
-            --accent: #ec4899;
-            --bg-light: #f8fafc;
-            --bg-card-light: #ffffff;
-            --text-light: #1e293b;
-            --text-secondary-light: #64748b;
-            --border-light: #e2e8f0;
+            --bg-light: #f5f5f7;
+            --bg-card-light: rgba(255, 255, 255, 0.8);
+            --text-light: #1d1d1f;
+            --text-secondary-light: #86868b;
+            --accent-blue: #007aff;
+            --accent-purple: #af52de;
+            --accent-pink: #ff2d55;
+            --accent-orange: #ff9500;
+            --accent-green: #34c759;
             
-            --bg-dark: #0f172a;
-            --bg-card-dark: #1e293b;
-            --text-dark: #f1f5f9;
-            --text-secondary-dark: #94a3b8;
-            --border-dark: #334155;
-            
-            --shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
-            --shadow-hover: 0 20px 60px rgba(0, 0, 0, 0.15);
+            --bg-dark: #1c1c1e;
+            --bg-card-dark: rgba(44, 44, 46, 0.8);
+            --text-dark: #f5f5f7;
+            --text-secondary-dark: #98989d;
         }
 
         body {
-            font-family: 'Noto Sans KR', sans-serif;
+            font-family: -apple-system, BlinkMacSystemFont, 'Inter', 'SF Pro Display', sans-serif;
             background: var(--bg-light);
             color: var(--text-light);
             min-height: 100vh;
-            transition: all 0.3s ease;
-            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+            transition: background 0.3s ease;
         }
 
         body.dark-mode {
             background: var(--bg-dark);
             color: var(--text-dark);
+        }
+
+        /* 배경 블러 효과 */
+        body::before {
+            content: '';
+            position: fixed;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: 
+                radial-gradient(circle at 30% 40%, rgba(0, 122, 255, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 70% 60%, rgba(175, 82, 222, 0.08) 0%, transparent 50%);
+            animation: float 20s ease-in-out infinite;
+            z-index: -1;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            33% { transform: translate(30px, -30px) rotate(120deg); }
+            66% { transform: translate(-20px, 20px) rotate(240deg); }
         }
 
         /* 로딩 스크린 */
@@ -57,12 +73,17 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: var(--bg-light);
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
             z-index: 9999;
             transition: opacity 0.5s, visibility 0.5s;
+        }
+
+        body.dark-mode .loading-screen {
+            background: var(--bg-dark);
         }
 
         .loading-screen.hidden {
@@ -70,418 +91,427 @@
             visibility: hidden;
         }
 
-        .loading-spinner {
-            text-align: center;
-            color: white;
+        .loading-logo {
+            font-size: 3rem;
+            margin-bottom: 20px;
+            animation: bounce 1s ease-in-out infinite;
         }
 
-        .spinner {
-            width: 50px;
-            height: 50px;
-            border: 4px solid rgba(255, 255, 255, 0.3);
-            border-top-color: white;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
-        }
-
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        /* 배경 애니메이션 */
-        body::before {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: 
-                radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 80% 80%, rgba(139, 92, 246, 0.1) 0%, transparent 50%),
-                radial-gradient(circle at 40% 20%, rgba(236, 72, 153, 0.1) 0%, transparent 50%);
-            z-index: -1;
-            animation: backgroundFloat 20s ease-in-out infinite;
-        }
-
-        @keyframes backgroundFloat {
-            0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.8; transform: scale(1.1); }
-        }
-
-        .dashboard-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            padding: 40px 20px;
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
-            gap: 24px;
-            animation: fadeIn 0.6s ease-out;
-        }
-
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(20px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
-
-        /* 카드 스타일 */
-        .card {
-            background: var(--bg-card-light);
-            border-radius: 20px;
-            padding: 30px;
-            box-shadow: var(--shadow);
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-            border: 1px solid var(--border-light);
-            position: relative;
+        .loading-bar {
+            width: 200px;
+            height: 4px;
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 2px;
             overflow: hidden;
-            opacity: 0;
-            animation: slideUp 0.6s ease-out forwards;
         }
 
-        body.dark-mode .card {
-            background: var(--bg-card-dark);
-            border-color: var(--border-dark);
+        body.dark-mode .loading-bar {
+            background: rgba(255, 255, 255, 0.1);
         }
 
-        @keyframes slideUp {
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
+        .loading-progress {
             height: 100%;
-            background: linear-gradient(135deg, transparent, rgba(99, 102, 241, 0.05));
-            opacity: 0;
-            transition: opacity 0.3s;
+            background: var(--accent-blue);
+            border-radius: 2px;
+            animation: loading 1.5s ease-in-out infinite;
         }
 
-        .card:hover {
-            transform: translateY(-8px);
-            box-shadow: var(--shadow-hover);
+        @keyframes bounce {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
         }
 
-        .card:hover::before {
-            opacity: 1;
+        @keyframes loading {
+            0% { width: 0%; }
+            50% { width: 70%; }
+            100% { width: 100%; }
         }
 
-        /* 애니메이션 딜레이 */
-        .card:nth-child(1) { animation-delay: 0.1s; }
-        .card:nth-child(2) { animation-delay: 0.2s; }
-        .card:nth-child(3) { animation-delay: 0.3s; }
-        .card:nth-child(4) { animation-delay: 0.4s; }
-        .card:nth-child(5) { animation-delay: 0.5s; }
-        .card:nth-child(6) { animation-delay: 0.6s; }
+        /* 네비게이션 바 */
+        .navbar {
+            position: sticky;
+            top: 0;
+            background: var(--bg-card-light);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+            padding: 16px 24px;
+            z-index: 100;
+            transition: all 0.3s ease;
+        }
 
-        /* 타이틀 카드 */
-        .title-card {
-            grid-column: 1 / -1;
-            text-align: center;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
+        body.dark-mode .navbar {
+            background: var(--bg-card-dark);
+            border-bottom-color: rgba(255, 255, 255, 0.08);
+        }
+
+        .navbar-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+        }
+
+        .navbar-controls {
+            display: flex;
+            gap: 12px;
+        }
+
+        .control-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
             border: none;
+            background: rgba(0, 0, 0, 0.05);
+            color: var(--text-light);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.2s ease;
         }
 
-        .title-card h1 {
+        body.dark-mode .control-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: var(--text-dark);
+        }
+
+        .control-btn:hover {
+            background: rgba(0, 122, 255, 0.15);
+            transform: scale(1.05);
+        }
+
+        /* 메인 컨테이너 */
+        .dashboard-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px 24px 80px;
+        }
+
+        /* 헤더 섹션 */
+        .header-section {
+            margin-bottom: 40px;
+            text-align: left;
+        }
+
+        .greeting {
             font-size: 2.5rem;
             font-weight: 700;
-            margin-bottom: 10px;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
-        }
-
-        .title-card .highlight {
-            background: linear-gradient(120deg, #fff, #e0e7ff);
+            letter-spacing: -0.03em;
+            margin-bottom: 8px;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
         }
 
-        .subtitle {
+        .subtitle-text {
             font-size: 1.1rem;
-            opacity: 0.95;
-            font-weight: 300;
+            color: var(--text-secondary-light);
+            font-weight: 400;
         }
 
-        /* 프로필 카드 */
-        .profile-card {
-            text-align: center;
-            grid-row: span 2;
+        body.dark-mode .subtitle-text {
+            color: var(--text-secondary-dark);
         }
 
-        .profile-image-container {
+        /* 프로필 섹션 */
+        .profile-section {
+            background: var(--bg-card-light);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 20px;
+            padding: 32px;
+            margin-bottom: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 
+                0 1px 3px rgba(0, 0, 0, 0.05),
+                0 10px 40px rgba(0, 0, 0, 0.03);
+            display: flex;
+            align-items: center;
+            gap: 24px;
+            transition: all 0.3s ease;
+        }
+
+        body.dark-mode .profile-section {
+            background: var(--bg-card-dark);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                0 1px 3px rgba(0, 0, 0, 0.3),
+                0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .profile-section:hover {
+            transform: translateY(-2px);
+            box-shadow: 
+                0 2px 6px rgba(0, 0, 0, 0.08),
+                0 20px 60px rgba(0, 0, 0, 0.06);
+        }
+
+        body.dark-mode .profile-section:hover {
+            box-shadow: 
+                0 2px 6px rgba(0, 0, 0, 0.5),
+                0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .profile-avatar-container {
             position: relative;
-            width: 150px;
-            height: 150px;
-            margin: 0 auto 20px;
+            flex-shrink: 0;
         }
 
-        .profile-img {
-            width: 100%;
-            height: 100%;
+        .profile-avatar {
+            width: 120px;
+            height: 120px;
             border-radius: 50%;
             object-fit: cover;
-            border: 4px solid var(--primary);
-            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.3);
-            transition: transform 0.3s;
+            border: 3px solid rgba(255, 255, 255, 0.8);
+            box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
         }
 
-        .profile-img:hover {
-            transform: scale(1.05) rotate(5deg);
-        }
-
-        .status-indicator {
+        .status-badge {
             position: absolute;
             bottom: 5px;
             right: 5px;
-            width: 35px;
-            height: 35px;
-            background: linear-gradient(135deg, #fbbf24, #f59e0b);
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #ffcc00, #ff9500);
             border-radius: 50%;
             border: 3px solid var(--bg-card-light);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 18px;
-            animation: bounce 2s ease-in-out infinite;
-            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+            font-size: 16px;
+            animation: pulse 2s ease-in-out infinite;
         }
 
-        body.dark-mode .status-indicator {
+        body.dark-mode .status-badge {
             border-color: var(--bg-card-dark);
         }
 
-        @keyframes bounce {
-            0%, 100% { 
-                transform: translateY(0) scale(1);
-            }
-            50% { 
-                transform: translateY(-5px) scale(1.1);
-            }
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
         }
 
-        .profile-card h2 {
+        .profile-info {
+            flex: 1;
+        }
+
+        .profile-name {
             font-size: 1.8rem;
-            margin-bottom: 15px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
+            font-weight: 600;
+            margin-bottom: 8px;
+            letter-spacing: -0.02em;
         }
 
-        .bio {
+        .profile-bio {
             color: var(--text-secondary-light);
-            line-height: 1.8;
-            margin-bottom: 20px;
+            line-height: 1.6;
+            margin-bottom: 16px;
         }
 
-        body.dark-mode .bio {
+        body.dark-mode .profile-bio {
             color: var(--text-secondary-dark);
         }
 
-        .highlight-text {
-            color: var(--primary);
-            font-weight: 500;
+        /* 카드 그리드 */
+        .cards-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            margin-bottom: 24px;
         }
 
-        /* 시간 카드 */
-        .time-card h3 {
+        .card {
+            background: var(--bg-card-light);
+            backdrop-filter: blur(20px) saturate(180%);
+            -webkit-backdrop-filter: blur(20px) saturate(180%);
+            border-radius: 16px;
+            padding: 24px;
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            box-shadow: 
+                0 1px 3px rgba(0, 0, 0, 0.05),
+                0 10px 40px rgba(0, 0, 0, 0.03);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+        }
+
+        body.dark-mode .card {
+            background: var(--bg-card-dark);
+            border-color: rgba(255, 255, 255, 0.08);
+            box-shadow: 
+                0 1px 3px rgba(0, 0, 0, 0.3),
+                0 10px 40px rgba(0, 0, 0, 0.2);
+        }
+
+        .card:hover {
+            transform: translateY(-4px);
+            box-shadow: 
+                0 2px 6px rgba(0, 0, 0, 0.08),
+                0 20px 60px rgba(0, 0, 0, 0.06);
+        }
+
+        body.dark-mode .card:hover {
+            box-shadow: 
+                0 2px 6px rgba(0, 0, 0, 0.5),
+                0 20px 60px rgba(0, 0, 0, 0.3);
+        }
+
+        .card-header {
             display: flex;
             align-items: center;
-            gap: 10px;
-            margin-bottom: 20px;
-            color: var(--primary);
-            font-size: 1.2rem;
-        }
-
-        .date-display {
-            font-size: 1.3rem;
-            font-weight: 500;
-            margin-bottom: 15px;
-            color: var(--text-secondary-light);
-        }
-
-        body.dark-mode .date-display {
-            color: var(--text-secondary-dark);
-        }
-
-        .digital-clock {
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 3rem;
-            font-weight: 700;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-            background-clip: text;
-            text-align: center;
-            margin: 20px 0;
-            text-shadow: 0 0 20px rgba(99, 102, 241, 0.3);
-        }
-
-        .timezone-info {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            color: var(--text-secondary-light);
-            font-size: 0.95rem;
-            margin-top: 15px;
-        }
-
-        body.dark-mode .timezone-info {
-            color: var(--text-secondary-dark);
-        }
-
-        /* 링크 카드 */
-        .link-card {
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
+            gap: 12px;
+            margin-bottom: 16px;
         }
 
         .card-icon {
-            width: 60px;
-            height: 60px;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            border-radius: 15px;
+            width: 48px;
+            height: 48px;
+            border-radius: 12px;
             display: flex;
             align-items: center;
             justify-content: center;
+            font-size: 1.4rem;
             color: white;
-            font-size: 1.8rem;
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
-            transition: transform 0.3s;
         }
 
-        .card-icon:hover {
-            transform: rotate(10deg) scale(1.1);
+        .icon-blue { background: linear-gradient(135deg, #007aff, #5ac8fa); }
+        .icon-purple { background: linear-gradient(135deg, #af52de, #bf5af2); }
+        .icon-orange { background: linear-gradient(135deg, #ff9500, #ff6b00); }
+        .icon-green { background: linear-gradient(135deg, #34c759, #30d158); }
+
+        .card-title {
+            font-size: 1.2rem;
+            font-weight: 600;
+            letter-spacing: -0.01em;
         }
 
-        .card-content h3 {
-            font-size: 1.5rem;
-            margin-bottom: 10px;
-            color: var(--text-light);
-        }
-
-        body.dark-mode .card-content h3 {
-            color: var(--text-dark);
-        }
-
-        .card-content p {
+        .card-content {
             color: var(--text-secondary-light);
             line-height: 1.6;
-            margin-bottom: 15px;
+            margin-bottom: 16px;
         }
 
-        body.dark-mode .card-content p {
+        body.dark-mode .card-content {
             color: var(--text-secondary-dark);
         }
 
         .card-meta {
             display: flex;
-            gap: 15px;
-            font-size: 0.9rem;
+            gap: 16px;
+            font-size: 0.85rem;
             color: var(--text-secondary-light);
-            flex-wrap: wrap;
+            margin-bottom: 16px;
         }
 
         body.dark-mode .card-meta {
             color: var(--text-secondary-dark);
         }
 
-        .card-meta span {
-            display: flex;
-            align-items: center;
-            gap: 5px;
+        .card-meta i {
+            margin-right: 4px;
         }
 
+        /* 시간 카드 특별 스타일 */
+        .time-card .digital-clock {
+            font-family: 'SF Mono', 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 600;
+            letter-spacing: -0.02em;
+            background: linear-gradient(135deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin: 16px 0;
+        }
+
+        .date-display {
+            font-size: 1rem;
+            color: var(--text-secondary-light);
+            margin-bottom: 8px;
+        }
+
+        body.dark-mode .date-display {
+            color: var(--text-secondary-dark);
+        }
+
+        .timezone {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.9rem;
+            color: var(--text-secondary-light);
+            margin-top: 12px;
+        }
+
+        body.dark-mode .timezone {
+            color: var(--text-secondary-dark);
+        }
+
+        /* 버튼 */
         .btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            padding: 12px 24px;
+            padding: 10px 20px;
             border-radius: 10px;
             text-decoration: none;
             font-weight: 500;
-            transition: all 0.3s;
+            font-size: 0.95rem;
+            transition: all 0.2s ease;
             border: none;
             cursor: pointer;
-            font-size: 1rem;
         }
 
         .btn-primary {
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            background: var(--accent-blue);
             color: white;
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
         }
 
         .btn-primary:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(99, 102, 241, 0.4);
+            background: #0051d5;
+            transform: scale(1.02);
         }
 
         .btn-secondary {
-            background: var(--bg-light);
-            color: var(--primary);
-            border: 2px solid var(--primary);
-            margin-top: 10px;
+            background: rgba(0, 122, 255, 0.1);
+            color: var(--accent-blue);
+            margin-top: 8px;
         }
 
         body.dark-mode .btn-secondary {
-            background: var(--bg-card-dark);
-            color: var(--primary);
+            background: rgba(0, 122, 255, 0.15);
         }
 
         .btn-secondary:hover {
-            background: var(--primary);
-            color: white;
-            transform: translateY(-2px);
+            background: rgba(0, 122, 255, 0.2);
+            transform: scale(1.02);
         }
 
-        /* 테마 토글 버튼 */
-        .theme-toggle {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
-            background: linear-gradient(135deg, var(--primary), var(--secondary));
-            color: white;
-            border: none;
-            cursor: pointer;
-            font-size: 1.5rem;
-            box-shadow: 0 8px 30px rgba(99, 102, 241, 0.4);
-            transition: all 0.3s;
-            z-index: 1000;
-        }
-
-        .theme-toggle:hover {
-            transform: scale(1.1) rotate(10deg);
-        }
-
-        /* 스크롤 탑 버튼 */
+        /* 스크롤 버튼 */
         .scroll-to-top {
             position: fixed;
-            bottom: 100px;
-            right: 30px;
-            width: 50px;
-            height: 50px;
+            bottom: 32px;
+            right: 32px;
+            width: 48px;
+            height: 48px;
             border-radius: 50%;
             background: var(--bg-card-light);
-            color: var(--primary);
-            border: 2px solid var(--primary);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+            color: var(--accent-blue);
             cursor: pointer;
             font-size: 1.2rem;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
             opacity: 0;
             visibility: hidden;
             z-index: 1000;
@@ -489,6 +519,7 @@
 
         body.dark-mode .scroll-to-top {
             background: var(--bg-card-dark);
+            border-color: rgba(255, 255, 255, 0.08);
         }
 
         .scroll-to-top.visible {
@@ -497,34 +528,37 @@
         }
 
         .scroll-to-top:hover {
-            transform: translateY(-5px);
-            background: var(--primary);
-            color: white;
+            transform: translateY(-4px);
+            box-shadow: 0 8px 30px rgba(0, 122, 255, 0.3);
         }
 
         /* 반응형 */
         @media (max-width: 768px) {
-            .dashboard-container {
-                grid-template-columns: 1fr;
-                padding: 20px 15px;
+            .navbar {
+                padding: 12px 16px;
             }
 
-            .title-card h1 {
-                font-size: 1.8rem;
-            }
-
-            .digital-clock {
+            .greeting {
                 font-size: 2rem;
             }
 
-            .theme-toggle, .scroll-to-top {
-                width: 50px;
-                height: 50px;
-                right: 20px;
+            .profile-section {
+                flex-direction: column;
+                text-align: center;
+                padding: 24px;
             }
 
-            .scroll-to-top {
-                bottom: 80px;
+            .profile-avatar {
+                width: 100px;
+                height: 100px;
+            }
+
+            .cards-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .dashboard-container {
+                padding: 24px 16px 60px;
             }
         }
     </style>
@@ -532,163 +566,193 @@
 <body>
     <!-- 로딩 스크린 -->
     <div id="loading-screen" class="loading-screen">
-        <div class="loading-spinner">
-            <div class="spinner"></div>
-            <p>로딩 중...</p>
+        <div class="loading-logo">💻</div>
+        <div class="loading-bar">
+            <div class="loading-progress"></div>
         </div>
     </div>
-    
-    <main class="dashboard-container" role="main">
-        <!-- 타이틀 카드 -->
-        <div class="card title-card">
-            <h1>안녕하세요, <span class="highlight">mooksys</span>입니다.</h1>
-            <div class="subtitle">고등학교 정보교사 & 풀스택 개발자 & 기술 블로거</div>
+
+    <!-- 네비게이션 바 -->
+    <nav class="navbar">
+        <div class="navbar-content">
+            <div class="navbar-title">mooksys</div>
+            <div class="navbar-controls">
+                <button id="theme-toggle" class="control-btn" title="테마 전환">
+                    <i class="fa-solid fa-moon"></i>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 메인 컨테이너 -->
+    <main class="dashboard-container">
+        <!-- 헤더 섹션 -->
+        <div class="header-section">
+            <h1 class="greeting">안녕하세요 👋</h1>
+            <p class="subtitle-text">고등학교 정보교사 & 풀스택 개발자 & 기술 블로거</p>
         </div>
 
-        <!-- 프로필 카드 -->
-        <div class="card profile-card">
-            <div class="profile-image-container">
+        <!-- 프로필 섹션 -->
+        <div class="profile-section">
+            <div class="profile-avatar-container">
                 <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face" 
-                     alt="mooksys 프로필 사진" class="profile-img" loading="lazy">
-                <div class="status-indicator" title="온라인">⚡</div>
+                     alt="프로필" class="profile-avatar">
+                <div class="status-badge">⚡</div>
             </div>
-            <h2>mooksys</h2>
-            <p class="bio">코딩과 새로운 기술을 사랑하는 정보교사, 개발자입니다.<br>
-               <span class="highlight-text">매일 성장하며 더 나은 세상을 만들어가고 있습니다.</span>
-            </p>
-        </div>
-
-        <!-- 날짜 및 시간 카드 -->
-        <div class="card time-card">
-            <h3><i class="fa-solid fa-calendar-days"></i> 현재 시간</h3>
-            <p id="date" class="date-display"></p>
-            <p id="time" class="digital-clock" role="timer" aria-live="polite"></p>
-            <div class="timezone-info">
-                <i class="fa-solid fa-globe"></i>
-                <span>Seoul, Korea (UTC+9)</span>
+            <div class="profile-info">
+                <h2 class="profile-name">mooksys</h2>
+                <p class="profile-bio">
+                    코딩과 새로운 기술을 사랑하는 정보교사, 개발자입니다.<br>
+                    매일 성장하며 더 나은 세상을 만들어가고 있습니다.
+                </p>
             </div>
         </div>
 
-        <!-- 블로그 카드 -->
-        <div class="card link-card blog-card">
-            <div class="card-icon">
-                <i class="fa-solid fa-newspaper"></i>
-            </div>
-            <div class="card-content">
-                <h3>News Scrap</h3>
-                <p>- 정보통신기술진흥원<br>- 교육부 뉴스 스크랩</p>
-                <div class="card-meta">
-                    <span class="update-info"><i class="fa-solid fa-clock"></i> 1일 전 업데이트</span>
-                    <span class="view-count"><i class="fa-solid fa-eye"></i> 1.2K+ 조회수</span>
+        <!-- 카드 그리드 -->
+        <div class="cards-grid">
+            <!-- 시간 카드 -->
+            <div class="card time-card">
+                <div class="card-header">
+                    <div class="card-icon icon-blue">
+                        <i class="fa-solid fa-clock"></i>
+                    </div>
+                    <h3 class="card-title">현재 시간</h3>
+                </div>
+                <p id="date" class="date-display"></p>
+                <div id="time" class="digital-clock"></div>
+                <div class="timezone">
+                    <i class="fa-solid fa-globe"></i>
+                    <span>Seoul, Korea (UTC+9)</span>
                 </div>
             </div>
-            <a href="new_scrap" target="_blank" class="btn btn-primary" rel="noopener noreferrer">
-                <i class="fa-solid fa-external-link-alt"></i>
-                News Scrap
-            </a>
-        </div>
 
-        <!-- GitHub 카드 -->
-        <div class="card link-card github-card">
-            <div class="card-icon">
-                <i class="fa-solid fa-pen-to-square"></i>
-            </div>
-            <div class="card-content">
-                <h3>IT Study</h3>
-                <p>IT실무, 자격증 공부하기</p>
-                <div class="card-meta">
-                    <span class="repo-count"><i class="fa-solid fa-code-branch"></i> 42개 저장소</span>
-                    <span class="star-count"><i class="fa-solid fa-star"></i> 256개 스타</span>
+            <!-- News Scrap 카드 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon icon-orange">
+                        <i class="fa-solid fa-newspaper"></i>
+                    </div>
+                    <h3 class="card-title">News Scrap</h3>
                 </div>
+                <p class="card-content">
+                    - 정보통신기술진흥원<br>
+                    - 교육부 뉴스 스크랩
+                </p>
+                <div class="card-meta">
+                    <span><i class="fa-solid fa-clock"></i>1일 전</span>
+                    <span><i class="fa-solid fa-eye"></i>1.2K+ 조회</span>
+                </div>
+                <a href="https://example.com/new_scrap" target="_blank" class="btn btn-primary">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    바로가기
+                </a>
             </div>
-            <a href="course_link" target="_blank" class="btn btn-primary" rel="noopener noreferrer">
-                <i class="fa-solid fa-external-link-alt"></i>
-                Course Link v1
-            </a>
-            <a href="course_link/index_add.html" target="_blank" class="btn btn-secondary" rel="noopener noreferrer">
-                <i class="fa-solid fa-external-link-alt"></i>
-                Course Add v1
-            </a>            
+
+            <!-- IT Study 카드 -->
+            <div class="card">
+                <div class="card-header">
+                    <div class="card-icon icon-purple">
+                        <i class="fa-solid fa-graduation-cap"></i>
+                    </div>
+                    <h3 class="card-title">IT Study</h3>
+                </div>
+                <p class="card-content">
+                    IT실무, 자격증 공부하기
+                </p>
+                <div class="card-meta">
+                    <span><i class="fa-solid fa-code-branch"></i>42개 저장소</span>
+                    <span><i class="fa-solid fa-star"></i>256개 스타</span>
+                </div>
+                <a href="https://example.com/course_link" target="_blank" class="btn btn-primary">
+                    <i class="fa-solid fa-arrow-right"></i>
+                    Course Link v1
+                </a>
+                <a href="https://example.com/course_link/index_add.html" target="_blank" class="btn btn-secondary">
+                    <i class="fa-solid fa-plus"></i>
+                    Course Add v1
+                </a>
+            </div>
         </div>
     </main>
 
     <!-- 맨 위로 버튼 -->
-    <button id="scroll-to-top" class="scroll-to-top" title="맨 위로" aria-label="페이지 맨 위로 스크롤">
+    <button id="scroll-to-top" class="scroll-to-top">
         <i class="fa-solid fa-chevron-up"></i>
     </button>
 
-    <!-- 테마 전환 버튼 -->
-    <button id="theme-toggle" class="theme-toggle" title="테마 전환" aria-label="다크/라이트 모드 전환">
-        <i class="fa-solid fa-moon"></i>
-    </button>
-
     <script>
-        // 로딩 스크린
-        window.addEventListener('load', () => {
+        document.addEventListener('DOMContentLoaded', function() {
+            // 로딩 스크린
             setTimeout(() => {
-                document.getElementById('loading-screen').classList.add('hidden');
-            }, 1000);
-        });
+                const loadingScreen = document.getElementById('loading-screen');
+                if (loadingScreen) {
+                    loadingScreen.classList.add('hidden');
+                }
+            }, 1500);
 
-        // 시간 업데이트
-        function updateTime() {
-            const now = new Date();
-            const timeElement = document.getElementById('time');
-            const dateElement = document.getElementById('date');
-            
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const seconds = String(now.getSeconds()).padStart(2, '0');
-            
-            timeElement.textContent = `${hours}:${minutes}:${seconds}`;
-            
-            const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
-            dateElement.textContent = now.toLocaleDateString('ko-KR', options);
-        }
-
-        updateTime();
-        setInterval(updateTime, 1000);
-
-        // 테마 토글
-        const themeToggle = document.getElementById('theme-toggle');
-        const body = document.body;
-        const icon = themeToggle.querySelector('i');
-
-        // 저장된 테마 불러오기
-        const savedTheme = localStorage.getItem('theme');
-        if (savedTheme === 'dark') {
-            body.classList.add('dark-mode');
-            icon.classList.replace('fa-moon', 'fa-sun');
-        }
-
-        themeToggle.addEventListener('click', () => {
-            body.classList.toggle('dark-mode');
-            
-            if (body.classList.contains('dark-mode')) {
-                icon.classList.replace('fa-moon', 'fa-sun');
-                localStorage.setItem('theme', 'dark');
-            } else {
-                icon.classList.replace('fa-sun', 'fa-moon');
-                localStorage.setItem('theme', 'light');
+            // 시간 업데이트
+            function updateTime() {
+                const now = new Date();
+                const timeElement = document.getElementById('time');
+                const dateElement = document.getElementById('date');
+                
+                if (timeElement && dateElement) {
+                    const hours = String(now.getHours()).padStart(2, '0');
+                    const minutes = String(now.getMinutes()).padStart(2, '0');
+                    const seconds = String(now.getSeconds()).padStart(2, '0');
+                    
+                    timeElement.textContent = `${hours}:${minutes}:${seconds}`;
+                    
+                    const options = { year: 'numeric', month: 'long', day: 'numeric', weekday: 'long' };
+                    dateElement.textContent = now.toLocaleDateString('ko-KR', options);
+                }
             }
-        });
 
-        // 스크롤 탑 버튼
-        const scrollToTopBtn = document.getElementById('scroll-to-top');
+            updateTime();
+            setInterval(updateTime, 1000);
 
-        window.addEventListener('scroll', () => {
-            if (window.pageYOffset > 300) {
-                scrollToTopBtn.classList.add('visible');
-            } else {
-                scrollToTopBtn.classList.remove('visible');
+            // 테마 토글
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            
+            if (themeToggle) {
+                const icon = themeToggle.querySelector('i');
+                
+                themeToggle.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    
+                    body.classList.toggle('dark-mode');
+                    
+                    if (icon) {
+                        if (body.classList.contains('dark-mode')) {
+                            icon.className = 'fa-solid fa-sun';
+                        } else {
+                            icon.className = 'fa-solid fa-moon';
+                        }
+                    }
+                });
             }
-        });
 
-        scrollToTopBtn.addEventListener('click', () => {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
+            // 스크롤 탑 버튼
+            const scrollToTopBtn = document.getElementById('scroll-to-top');
+
+            if (scrollToTopBtn) {
+                window.addEventListener('scroll', function() {
+                    if (window.pageYOffset > 300) {
+                        scrollToTopBtn.classList.add('visible');
+                    } else {
+                        scrollToTopBtn.classList.remove('visible');
+                    }
+                });
+
+                scrollToTopBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    window.scrollTo({
+                        top: 0,
+                        behavior: 'smooth'
+                    });
+                });
+            }
         });
     </script>
 </body>
