@@ -1,0 +1,665 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>광교1동성당 전례표</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            background-color: #f5f5f5;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 100%;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .header-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .header-title h1 {
+            font-size: 24px;
+            color: #333;
+        }
+
+        .header-controls {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .nav-button {
+            padding: 8px 12px;
+            background: white;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .nav-button:hover {
+            background: #f5f5f5;
+        }
+
+        .month-label {
+            min-width: 130px;
+            text-align: center;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .upload-button {
+            background: #2196f3;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .upload-button:hover {
+            background: #1976d2;
+        }
+
+        .message {
+            padding: 12px;
+            border-radius: 6px;
+            margin-top: 15px;
+            display: none;
+        }
+
+        .message.show {
+            display: block;
+        }
+
+        .message.error {
+            background: #ffebee;
+            color: #c62828;
+        }
+
+        .message.success {
+            background: #e8f5e9;
+            color: #2e7d32;
+        }
+
+        .calendar-wrapper {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            overflow-x: auto;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th, td {
+            border: 1px solid #ddd;
+            padding: 8px;
+        }
+
+        thead th {
+            background: #f5f5f5;
+            font-weight: 600;
+            padding: 12px;
+        }
+
+        thead th.sunday {
+            background: #ffebee;
+            color: #d32f2f;
+        }
+
+        thead th.saturday {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        tbody td {
+            vertical-align: top;
+            min-height: 100px;
+            height: 120px;
+            width: 14.28%;
+        }
+
+        tbody td.other-month {
+            background: #fafafa;
+            opacity: 0.5;
+        }
+
+        tbody td.today {
+            background: #fff9c4;
+        }
+
+        .date-number {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        tbody td.sunday .date-number {
+            color: #d32f2f;
+        }
+
+        tbody td.saturday .date-number {
+            color: #1976d2;
+        }
+
+        .event {
+            margin-bottom: 4px;
+            padding: 4px 6px;
+            border-radius: 3px;
+            border-left: 3px solid #2196f3;
+            background: #e3f2fd;
+            cursor: pointer;
+            transition: box-shadow 0.2s;
+            font-size: 11px;
+        }
+
+        .event:hover {
+            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+        }
+
+        .event-time {
+            font-size: 10px;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .event-title {
+            font-size: 11px;
+            font-weight: bold;
+            color: #d32f2f;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            backdrop-filter: blur(4px);
+            animation: fadeIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from { 
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .modal.show {
+            display: flex;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+            border-radius: 20px;
+            padding: 0;
+            max-width: 500px;
+            width: 100%;
+            max-height: 90vh;
+            overflow: hidden;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            animation: slideUp 0.3s ease;
+        }
+
+        .modal-header {
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+            color: white;
+            padding: 24px;
+            font-size: 22px;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .modal-header::before {
+            content: "📅";
+            font-size: 28px;
+        }
+
+        .modal-body-wrapper {
+            padding: 24px;
+            max-height: calc(90vh - 140px);
+            overflow-y: auto;
+        }
+
+        .modal-field {
+            margin-bottom: 16px;
+            padding: 14px 18px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            border-left: 4px solid #2196f3;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .modal-field:hover {
+            transform: translateX(4px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .modal-field label {
+            font-weight: 700;
+            color: #2196f3;
+            font-size: 14px;
+            min-width: 60px;
+            flex-shrink: 0;
+        }
+
+        .modal-field p {
+            color: #333;
+            font-size: 15px;
+            line-height: 1.6;
+            margin: 0;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 20px 24px;
+            background: #f8f9fa;
+            border-top: 1px solid #e0e0e0;
+        }
+
+        .modal-close {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s;
+            box-shadow: 0 4px 12px rgba(33,150,243,0.3);
+        }
+
+        .modal-close:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(33,150,243,0.4);
+        }
+
+        .modal-close:active {
+            transform: translateY(0);
+        }
+
+        .guide {
+            margin-top: 20px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 24px;
+        }
+
+        .guide h3 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .guide pre {
+            background: #f5f5f5;
+            padding: 15px;
+            border-radius: 6px;
+            overflow-x: auto;
+            font-size: 12px;
+            border: 1px solid #ddd;
+        }
+
+        .guide-info {
+            margin-top: 15px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .guide-info p {
+            margin-bottom: 5px;
+        }
+
+        #fileInput {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="header-top">
+                <div class="header-title">
+                    <h1>📅 일정 관리 대시보드</h1>
+                </div>
+                <div class="header-controls">
+                    <button class="nav-button" onclick="changeMonth(-1)">◀ 이전</button>
+                    <div class="month-label" id="monthLabel"></div>
+                    <button class="nav-button" onclick="changeMonth(1)">다음 ▶</button>
+                    <label for="fileInput" class="upload-button">📁 JSON 업로드</label>
+                    <input type="file" id="fileInput" accept=".json" onchange="handleFileUpload(event)">
+                </div>
+            </div>
+            <div id="errorMessage" class="message error"></div>
+            <div id="successMessage" class="message success"></div>
+        </div>
+
+        <div class="calendar-wrapper">
+            <table id="calendarTable">
+                <thead id="calendarHead"></thead>
+                <tbody id="calendarBody"></tbody>
+            </table>
+        </div>
+
+        <div id="guideSection" class="guide">
+            <h3>JSON 파일 형식 예시</h3>
+            <pre>[
+  {
+    "title": "연중 제1주일",
+    "date": "20265-01-11",
+    "time": "10:00",
+    "해설": "홍길순 노엘라",
+    "독1": "홍답순 루시아",
+    "독2": "홍논순 소피아",
+    "color": "#bbdefb",
+    "borderColor": "#2196f3",
+    "titleColor": "#d32f2f"
+  },
+  {
+    "title": "연중 제1주일",
+    "date": "2026-01-12",
+    "time": "10:00",
+    "해설": "홍도순 레지나",
+    "독1": "홍길동 요셉",
+    "color": "#bbdefb",
+    "borderColor": "#2196f3"
+  }
+]</pre>
+            <div class="guide-info">
+                <p><strong>필수 필드:</strong> title, date, time</p>
+                <p><strong>선택 필드:</strong> 해설, 독1, 독2, color, borderColor, titleColor</p>
+                <p><strong>날짜 형식:</strong> YYYY-MM-DD (예: 2025-12-21)</p>
+            </div>
+        </div>
+    </div>
+
+    <div id="modal" class="modal" onclick="closeModal(event)">
+        <div class="modal-content" onclick="event.stopPropagation()">
+            <div class="modal-header">일정 상세</div>
+            <div class="modal-body-wrapper" id="modalBody"></div>
+            <div class="modal-footer">
+                <button class="modal-close" onclick="closeModal()">닫기</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let events = [];
+        let currentDate = new Date();
+        const dayNames = ['日', '月', '火', '水', '木', '金', '土'];
+
+        function getDaysInMonth(year, month) {
+            return new Date(year, month + 1, 0).getDate();
+        }
+
+        function getFirstDayOfMonth(year, month) {
+            return new Date(year, month, 1).getDay();
+        }
+
+        function formatDate(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        function getEventsForDate(date) {
+            const dateString = formatDate(date);
+            return events.filter(event => event.date === dateString);
+        }
+
+        function saveToLocalStorage() {
+            try {
+                localStorage.setItem('calendarEvents', JSON.stringify(events));
+                localStorage.setItem('calendarDate', JSON.stringify({
+                    year: currentDate.getFullYear(),
+                    month: currentDate.getMonth()
+                }));
+            } catch (err) {
+                console.error('localStorage 저장 실패:', err);
+            }
+        }
+
+        function loadFromLocalStorage() {
+            try {
+                const savedEvents = localStorage.getItem('calendarEvents');
+                const savedDate = localStorage.getItem('calendarDate');
+                
+                if (savedEvents) {
+                    events = JSON.parse(savedEvents);
+                    if (events.length > 0) {
+                        document.getElementById('guideSection').style.display = 'none';
+                        showMessage('success', `저장된 ${events.length}개의 일정을 불러왔습니다.`);
+                    }
+                }
+                
+                if (savedDate) {
+                    const date = JSON.parse(savedDate);
+                    currentDate = new Date(date.year, date.month, 1);
+                }
+            } catch (err) {
+                console.error('localStorage 불러오기 실패:', err);
+            }
+        }
+
+        function handleFileUpload(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            if (!file.name.endsWith('.json')) {
+                showMessage('error', 'JSON 파일만 업로드 가능합니다.');
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(event) {
+                try {
+                    const jsonData = JSON.parse(event.target.result);
+                    if (Array.isArray(jsonData)) {
+                        events = jsonData;
+                        saveToLocalStorage();
+                        showMessage('success', `총 ${events.length}개의 일정이 로드되었습니다.`);
+                        renderCalendar();
+                        document.getElementById('guideSection').style.display = 'none';
+                    } else {
+                        showMessage('error', 'JSON 파일은 배열 형식이어야 합니다.');
+                    }
+                } catch (err) {
+                    showMessage('error', '유효하지 않은 JSON 파일입니다.');
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function showMessage(type, text) {
+            const errorMsg = document.getElementById('errorMessage');
+            const successMsg = document.getElementById('successMessage');
+            
+            errorMsg.classList.remove('show');
+            successMsg.classList.remove('show');
+
+            if (type === 'error') {
+                errorMsg.textContent = '⚠️ ' + text;
+                errorMsg.classList.add('show');
+            } else {
+                successMsg.textContent = '✓ ' + text;
+                successMsg.classList.add('show');
+            }
+        }
+
+        function renderCalendar() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            const daysInMonth = getDaysInMonth(year, month);
+            const firstDay = getFirstDayOfMonth(year, month);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            // Update month label
+            document.getElementById('monthLabel').textContent = `${year}년 ${month + 1}월`;
+
+            // Render header
+            let headerHTML = '<tr>';
+            dayNames.forEach((day, idx) => {
+                const dayClass = idx === 0 ? 'sunday' : idx === 6 ? 'saturday' : '';
+                headerHTML += `<th class="${dayClass}">${day}</th>`;
+            });
+            headerHTML += '</tr>';
+            document.getElementById('calendarHead').innerHTML = headerHTML;
+
+            // Render body
+            let bodyHTML = '';
+            let currentDay = 1;
+            let nextMonthDay = 1;
+
+            // Calculate previous month days
+            const prevMonth = month === 0 ? 11 : month - 1;
+            const prevYear = month === 0 ? year - 1 : year;
+            const daysInPrevMonth = getDaysInMonth(prevYear, prevMonth);
+
+            for (let week = 0; week < 6; week++) {
+                bodyHTML += '<tr>';
+                for (let day = 0; day < 7; day++) {
+                    const cellIndex = week * 7 + day;
+                    
+                    if (cellIndex < firstDay) {
+                        // Previous month days
+                        const prevDay = daysInPrevMonth - firstDay + cellIndex + 1;
+                        const date = new Date(prevYear, prevMonth, prevDay);
+                        bodyHTML += `<td class="other-month"><div class="date-number">${prevDay}</div></td>`;
+                    } else if (currentDay <= daysInMonth) {
+                        // Current month days
+                        const date = new Date(year, month, currentDay);
+                        const isToday = date.getTime() === today.getTime();
+                        const dayClass = day === 0 ? 'sunday' : day === 6 ? 'saturday' : '';
+                        const todayClass = isToday ? 'today' : '';
+                        const dayEvents = getEventsForDate(date);
+
+                        bodyHTML += `<td class="${dayClass} ${todayClass}">`;
+                        bodyHTML += `<div class="date-number">${currentDay}</div>`;
+                        
+                        dayEvents.forEach(event => {
+                            const bgColor = event.color || '#e3f2fd';
+                            const borderColor = event.borderColor || '#2196f3';
+                            const titleColor = event.titleColor || '#d32f2f';
+                            bodyHTML += `
+                                <div class="event" 
+                                     style="background:${bgColor}; border-left-color:${borderColor};"
+                                     onclick='showEventDetail(${JSON.stringify(event).replace(/'/g, "&apos;")})'>
+                                    <div class="event-time">${event.time}</div>
+                                    <div class="event-title" style="color:${titleColor}">${event.title}</div>
+                                </div>
+                            `;
+                        });
+                        
+                        bodyHTML += '</td>';
+                        currentDay++;
+                    } else {
+                        // Next month days
+                        const date = new Date(year, month + 1, nextMonthDay);
+                        bodyHTML += `<td class="other-month"><div class="date-number">${nextMonthDay}</div></td>`;
+                        nextMonthDay++;
+                    }
+                }
+                bodyHTML += '</tr>';
+                
+                if (currentDay > daysInMonth && nextMonthDay > 7) break;
+            }
+            
+            document.getElementById('calendarBody').innerHTML = bodyHTML;
+        }
+
+        function showEventDetail(event) {
+            const modalBody = document.getElementById('modalBody');
+            let html = '';
+            
+            html += `<div class="modal-field"><label>제목</label><p>${event.title}</p></div>`;
+            html += `<div class="modal-field"><label>날짜</label><p>${event.date}</p></div>`;
+            html += `<div class="modal-field"><label>시간</label><p>${event.time}</p></div>`;
+            if (event.해설) html += `<div class="modal-field"><label>해설</label><p>${event.해설}</p></div>`;
+            if (event.독1) html += `<div class="modal-field"><label>독1</label><p>${event.독1}</p></div>`;
+            if (event.독2) html += `<div class="modal-field"><label>독2</label><p>${event.독2}</p></div>`;
+            
+            modalBody.innerHTML = html;
+            document.getElementById('modal').classList.add('show');
+        }
+
+        function closeModal(event) {
+            if (!event || event.target.id === 'modal') {
+                document.getElementById('modal').classList.remove('show');
+            }
+        }
+
+        function changeMonth(delta) {
+            currentDate.setMonth(currentDate.getMonth() + delta);
+            saveToLocalStorage();
+            renderCalendar();
+        }
+
+        // Initialize
+        loadFromLocalStorage();
+        renderCalendar();
+    </script>
+</body>
+</html>
