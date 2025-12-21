@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>가톨릭 전례 달력</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Toto, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .calendar-dashboard {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            width: 100%;
+            max-width: 1200px;
+            overflow: hidden;
+            animation: fadeIn 0.5s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+        }
+
+        header button {
+            background: rgba(255, 255, 255, 0.2);
+            color: white;
+            border: 2px solid rgba(255, 255, 255, 0.3);
+            padding: 12px 24px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        header button:hover {
+            background: rgba(255, 255, 255, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        header button:active {
+            transform: translateY(0);
+        }
+
+        #monthYear {
+            font-size: 28px;
+            font-weight: 700;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-section {
+            padding: 20px 30px;
+            background: linear-gradient(to right, #f8f9fa, #e9ecef);
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .upload-section button {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 50px;
+            cursor: pointer;
+            font-size: 15px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .upload-section button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.6);
+        }
+
+        .delete-btn {
+            background: linear-gradient(135deg, #ff6b6b 0%, #ee5a6f 100%) !important;
+            box-shadow: 0 4px 15px rgba(255, 107, 107, 0.4) !important;
+        }
+
+        .delete-btn:hover {
+            box-shadow: 0 6px 20px rgba(255, 107, 107, 0.6) !important;
+        }
+
+        .data-info {
+            color: #6c757d;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .calendar-container {
+            padding: 30px;
+        }
+
+        .day-headers {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .day-name {
+            text-align: center;
+            font-weight: 700;
+            color: #495057;
+            padding: 15px 0;
+            font-size: 16px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .day-name:first-child {
+            color: #dc3545;
+        }
+
+        .day-name:last-child {
+            color: #007bff;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .calendar-day {
+            background: white;
+            border-radius: 12px;
+            padding: 12px;
+            min-height: 120px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+            display: flex;
+            flex-direction: column;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .calendar-day:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .calendar-day.other-month {
+            opacity: 0.3;
+            background: #f8f9fa;
+        }
+
+        .calendar-day.today {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .calendar-day.today .day-number {
+            color: white;
+        }
+
+        .calendar-day.today .event-detail {
+            color: rgba(255, 255, 255, 0.9);
+        }
+
+        .calendar-day.today .event-detail strong {
+            color: white;
+        }
+
+        .day-number {
+            font-size: 20px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 8px;
+            text-align: right;
+        }
+
+        .event-detail {
+            font-size: 11px;
+            color: #6c757d;
+            margin-top: 4px;
+            line-height: 1.4;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        .event-detail strong {
+            color: #495057;
+            font-weight: 600;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(5px);
+            justify-content: center;
+            align-items: center;
+            animation: modalFadeIn 0.3s ease;
+        }
+
+        @keyframes modalFadeIn {
+            from {
+                opacity: 0;
+            }
+            to {
+                opacity: 1;
+            }
+        }
+
+        .modal-content {
+            background: white;
+            padding: 35px;
+            border-radius: 20px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: modalSlideIn 0.3s ease;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        @keyframes modalSlideIn {
+            from {
+                transform: scale(0.9) translateY(20px);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1) translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close-button {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 32px;
+            color: #adb5bd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            line-height: 1;
+        }
+
+        .close-button:hover {
+            color: #495057;
+            transform: rotate(90deg);
+        }
+
+        #modalDate {
+            font-size: 24px;
+            font-weight: 700;
+            color: #212529;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #667eea;
+        }
+
+        #modalDetails div {
+            margin-bottom: 15px;
+            padding: 12px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            font-size: 15px;
+            line-height: 1.6;
+        }
+
+        #modalDetails strong {
+            color: #667eea;
+            font-weight: 600;
+            display: inline-block;
+            min-width: 60px;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 1024px) {
+            .calendar-grid {
+                gap: 8px;
+            }
+
+            .calendar-day {
+                min-height: 100px;
+                padding: 10px;
+            }
+
+            .day-number {
+                font-size: 18px;
+            }
+
+            .event-detail {
+                font-size: 10px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .calendar-dashboard {
+                border-radius: 15px;
+            }
+
+            header {
+                padding: 20px 15px;
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            header button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
+
+            #monthYear {
+                font-size: 22px;
+            }
+
+            .upload-section {
+                padding: 15px;
+                flex-direction: column;
+            }
+
+            .button-group {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .upload-section button {
+                flex: 1;
+                min-width: 120px;
+            }
+
+            .data-info {
+                text-align: center;
+                width: 100%;
+            }
+
+            .calendar-container {
+                padding: 15px;
+            }
+
+            .calendar-grid {
+                grid-template-columns: repeat(7, 1fr);
+                gap: 5px;
+            }
+
+            .day-headers {
+                gap: 5px;
+            }
+
+            .day-name {
+                font-size: 12px;
+                padding: 10px 0;
+            }
+
+            .calendar-day {
+                min-height: 70px;
+                padding: 6px;
+                border-radius: 8px;
+            }
+
+            .day-number {
+                font-size: 14px;
+                margin-bottom: 4px;
+            }
+
+            .event-detail {
+                font-size: 9px;
+                -webkit-line-clamp: 1;
+            }
+
+            .modal-content {
+                padding: 25px;
+                width: 95%;
+            }
+
+            #modalDate {
+                font-size: 20px;
+            }
+
+            #modalDetails div {
+                font-size: 14px;
+                padding: 10px;
+            }
+        }
+
+        @media (max-width: 480px) {
+            #monthYear {
+                font-size: 18px;
+            }
+
+            .day-name {
+                font-size: 10px;
+                padding: 8px 0;
+            }
+
+            .calendar-day {
+                min-height: 60px;
+                padding: 5px;
+            }
+
+            .day-number {
+                font-size: 12px;
+            }
+
+            .event-detail {
+                font-size: 8px;
+            }
+
+            header button {
+                padding: 8px 16px;
+                font-size: 12px;
+            }
+
+            .upload-section button {
+                padding: 10px 20px;
+                font-size: 13px;
+            }
+        }
+
+        /* 스크롤바 스타일 */
+        .modal-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .modal-content::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 10px;
+        }
+
+        .modal-content::-webkit-scrollbar-thumb:hover {
+            background: #764ba2;
+        }
+    </style>
+</head>
+<body>
+    <div class="calendar-dashboard">
+        <header>
+            <button id="prevMonth">◀ 이전</button>
+            <h2 id="monthYear"></h2>
+            <button id="nextMonth">다음 ▶</button>
+        </header>
+        <div class="upload-section">
+            <div class="data-info" id="dataInfo">데이터 없음</div>
+            <div class="button-group">
+                <input type="file" id="jsonFileUpload" accept=".json" style="display: none;">
+                <button id="uploadButton">📁 JSON 업로드</button>
+                <button id="deleteButton" class="delete-btn">🗑️ 데이터 삭제</button>
+            </div>
+        </div>
+        <div class="calendar-container">
+            <div class="day-headers">
+                <div class="day-name">일</div>
+                <div class="day-name">월</div>
+                <div class="day-name">화</div>
+                <div class="day-name">수</div>
+                <div class="day-name">목</div>
+                <div class="day-name">금</div>
+                <div class="day-name">토</div>
+            </div>
+            <div id="calendarDays" class="calendar-grid"></div>
+        </div>
+    </div>
+
+    <div id="eventModal" class="modal">
+        <div class="modal-content">
+            <span class="close-button">&times;</span>
+            <h3 id="modalDate"></h3>
+            <div id="modalDetails"></div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'catholicCalendarEvents';
+        
+        let events = [];
+        let currentMonth = new Date().getMonth();
+        let currentYear = new Date().getFullYear();
+
+        // LocalStorage에서 데이터 로드
+        function loadFromStorage() {
+            try {
+                const stored = localStorage.getItem(STORAGE_KEY);
+                if (stored) {
+                    events = JSON.parse(stored);
+                    updateDataInfo();
+                    return true;
+                }
+            } catch (error) {
+                console.error('Error loading from localStorage:', error);
+            }
+            return false;
+        }
+
+        // LocalStorage에 데이터 저장
+        function saveToStorage() {
+            try {
+                localStorage.setItem(STORAGE_KEY, JSON.stringify(events));
+                updateDataInfo();
+                return true;
+            } catch (error) {
+                console.error('Error saving to localStorage:', error);
+                alert('❌ 데이터 저장 중 오류가 발생했습니다.');
+                return false;
+            }
+        }
+
+        // LocalStorage에서 데이터 삭제
+        function deleteFromStorage() {
+            if (confirm('⚠️ 저장된 모든 전례 데이터를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.')) {
+                try {
+                    localStorage.removeItem(STORAGE_KEY);
+                    events = [];
+                    updateDataInfo();
+                    renderCalendar(
+                        document.getElementById('monthYear'),
+                        document.getElementById('calendarDays'),
+                        currentMonth,
+                        currentYear,
+                        events
+                    );
+                    alert('✅ 데이터가 성공적으로 삭제되었습니다.');
+                } catch (error) {
+                    console.error('Error deleting from localStorage:', error);
+                    alert('❌ 데이터 삭제 중 오류가 발생했습니다.');
+                }
+            }
+        }
+
+        // 데이터 정보 업데이트
+        function updateDataInfo() {
+            const dataInfo = document.getElementById('dataInfo');
+            if (events.length > 0) {
+                dataInfo.textContent = `저장된 데이터: ${events.length}개 이벤트`;
+                dataInfo.style.color = '#28a745';
+            } else {
+                dataInfo.textContent = '데이터 없음';
+                dataInfo.style.color = '#6c757d';
+            }
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const monthYearDisplay = document.getElementById('monthYear');
+            const prevMonthBtn = document.getElementById('prevMonth');
+            const nextMonthBtn = document.getElementById('nextMonth');
+            const calendarDays = document.getElementById('calendarDays');
+            const jsonFileUpload = document.getElementById('jsonFileUpload');
+            const uploadButton = document.getElementById('uploadButton');
+            const deleteButton = document.getElementById('deleteButton');
+
+            // 페이지 로드 시 LocalStorage에서 데이터 로드
+            loadFromStorage();
+
+            renderCalendar(monthYearDisplay, calendarDays, currentMonth, currentYear, events);
+
+            prevMonthBtn.addEventListener('click', () => {
+                currentMonth--;
+                if (currentMonth < 0) {
+                    currentMonth = 11;
+                    currentYear--;
+                }
+                renderCalendar(monthYearDisplay, calendarDays, currentMonth, currentYear, events);
+            });
+
+            nextMonthBtn.addEventListener('click', () => {
+                currentMonth++;
+                if (currentMonth > 11) {
+                    currentMonth = 0;
+                    currentYear++;
+                }
+                renderCalendar(monthYearDisplay, calendarDays, currentMonth, currentYear, events);
+            });
+
+            uploadButton.addEventListener('click', () => {
+                jsonFileUpload.click();
+            });
+
+            jsonFileUpload.addEventListener('change', (event) => {
+                const file = event.target.files[0];
+                if (file) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => {
+                        try {
+                            const uploadedEvents = JSON.parse(e.target.result);
+                            events = uploadedEvents;
+                            
+                            // LocalStorage에 저장
+                            if (saveToStorage()) {
+                                renderCalendar(monthYearDisplay, calendarDays, currentMonth, currentYear, events);
+                                alert('✅ JSON 파일이 업로드되고 저장되었습니다!');
+                            }
+                        } catch (error) {
+                            console.error('Error parsing JSON file:', error);
+                            alert('❌ JSON 파일을 파싱하는 중 오류가 발생했습니다. 올바른 JSON 형식인지 확인해주세요.');
+                        }
+                    };
+                    reader.readAsText(file);
+                }
+                // 파일 입력 초기화
+                event.target.value = '';
+            });
+
+            deleteButton.addEventListener('click', deleteFromStorage);
+
+            const modal = document.getElementById('eventModal');
+            const closeButton = document.querySelector('.close-button');
+
+            closeButton.addEventListener('click', () => {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', (event) => {
+                if (event.target === modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+
+        function renderCalendar(monthYearDisplay, calendarDays, currentMonth, currentYear, events) {
+            calendarDays.innerHTML = '';
+            monthYearDisplay.textContent = `${currentYear}년 ${currentMonth + 1}월`;
+
+            const firstDayOfMonth = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const daysInPrevMonth = new Date(currentYear, currentMonth, 0).getDate();
+
+            for (let i = firstDayOfMonth; i > 0; i--) {
+                const day = document.createElement('div');
+                day.classList.add('calendar-day', 'other-month');
+                day.innerHTML = `<span class="day-number">${daysInPrevMonth - i + 1}</span>`;
+                calendarDays.appendChild(day);
+            }
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const day = document.createElement('div');
+                day.classList.add('calendar-day', 'current-month');
+                day.innerHTML = `<span class="day-number">${i}</span>`;
+                if (i === new Date().getDate() && currentMonth === new Date().getMonth() && currentYear === new Date().getFullYear()) {
+                    day.classList.add('today');
+                }
+
+                const dateString = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+                const dayEvent = events.find(event => event.date === dateString);
+
+                if (dayEvent) {
+                    const addEventDetail = (label, values) => {
+                        if (values) {
+                            const detailElement = document.createElement('div');
+                            detailElement.classList.add('event-detail');
+                            detailElement.innerHTML = `<strong>${label}:</strong> ${Array.isArray(values) ? values.join(', ') : values}`;
+                            detailElement.title = `${label}: ${Array.isArray(values) ? values.join(', ') : values}`;
+                            day.appendChild(detailElement);
+                        }
+                    };
+
+                    addEventDetail('전례', dayEvent.전례);
+                    addEventDetail('입당', dayEvent.입당);
+                    addEventDetail('봉헌', dayEvent.봉헌);
+                    addEventDetail('성체', dayEvent.성체);
+                    addEventDetail('파견', dayEvent.파견);
+                }
+
+                day.addEventListener('click', () => {
+                    const modal = document.getElementById('eventModal');
+                    const modalDate = document.getElementById('modalDate');
+                    const modalDetails = document.getElementById('modalDetails');
+
+                    modalDate.textContent = `${currentYear}년 ${currentMonth + 1}월 ${i}일`;
+                    modalDetails.innerHTML = '';
+
+                    if (dayEvent) {
+                        const addModalDetail = (label, values) => {
+                            if (values) {
+                                const detailElement = document.createElement('div');
+                                detailElement.innerHTML = `<strong>${label}:</strong> ${Array.isArray(values) ? values.join(', ') : values}`;
+                                modalDetails.appendChild(detailElement);
+                            }
+                        };
+
+                        addModalDetail('전례', dayEvent.전례);
+                        addModalDetail('입당', dayEvent.입당);
+                        addModalDetail('봉헌', dayEvent.봉헌);
+                        addModalDetail('성체', dayEvent.성체);
+                        addModalDetail('파견', dayEvent.파견);
+                    } else {
+                        const noEventElement = document.createElement('div');
+                        noEventElement.textContent = '이벤트 없음';
+                        modalDetails.appendChild(noEventElement);
+                    }
+
+                    modal.style.display = 'flex';
+                });
+                calendarDays.appendChild(day);
+            }
+
+            const totalDaysDisplayed = firstDayOfMonth + daysInMonth;
+            const remainingDays = 42 - totalDaysDisplayed;
+
+            for (let i = 1; i <= remainingDays; i++) {
+                const day = document.createElement('div');
+                day.classList.add('calendar-day', 'other-month');
+                day.innerHTML = `<span class="day-number">${i}</span>`;
+                calendarDays.appendChild(day);
+            }
+        }
+    </script>
+</body>
+</html>
