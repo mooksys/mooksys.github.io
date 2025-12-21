@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>과목 링크 생성기</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/umd/lucide.min.js"></script>
+    <script src="https://unpkg.com/lucide@latest"></script>
     <style>
         * {
             margin: 0;
@@ -53,6 +53,83 @@
             padding: 32px 24px;
             background: #f9fafb;
             border-bottom: 1px solid #e5e7eb;
+        }
+
+        .storage-info {
+            margin-top: 16px;
+            padding: 16px;
+            background: white;
+            border-radius: 12px;
+            border: 1px solid #e2e8f0;
+            display: none;
+        }
+
+        .storage-info.active {
+            display: block;
+        }
+
+        .storage-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .storage-title {
+            font-size: 14px;
+            font-weight: 600;
+            color: #475569;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-clear-storage {
+            background: #ef4444;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-clear-storage:hover {
+            background: #dc2626;
+        }
+
+        .btn-load-storage {
+            background: #10b981;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .btn-load-storage:hover {
+            background: #059669;
+        }
+
+        .storage-buttons {
+            display: flex;
+            gap: 8px;
+        }
+
+        .storage-details {
+            font-size: 13px;
+            color: #64748b;
         }
 
         .upload-area {
@@ -423,6 +500,26 @@
                     <div class="upload-hint">title, lecture_count, code 필드가 포함된 JSON 파일</div>
                 </div>
                 <input type="file" id="fileInput" accept=".json" onchange="handleFileUpload(event)">
+                
+                <div class="storage-info" id="storageInfo">
+                    <div class="storage-header">
+                        <div class="storage-title">
+                            <i data-lucide="database" style="width:16px;height:16px;"></i>
+                            저장된 데이터
+                        </div>
+                        <div class="storage-buttons">
+                            <button class="btn-load-storage" onclick="loadFromStorage()" title="저장된 데이터 불러오기">
+                                <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i>
+                                불러오기
+                            </button>
+                            <button class="btn-clear-storage" onclick="clearStorage()">
+                                <i data-lucide="trash-2" style="width:14px;height:14px;"></i>
+                                삭제
+                            </button>
+                        </div>
+                    </div>
+                    <div class="storage-details" id="storageDetails"></div>
+                </div>
             </div>
 
             <div class="courses-section" id="coursesSection">
@@ -444,8 +541,116 @@
 
         // 페이지 로드 후 아이콘 초기화
         document.addEventListener('DOMContentLoaded', function() {
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+            checkStorageAvailable();
         });
+
+        // 저장소 확인
+        function checkStorageAvailable() {
+            try {
+                const saved = localStorage.getItem('coursesData');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    const dataSize = new Blob([saved]).size;
+                    document.getElementById('storageInfo').classList.add('active');
+                    document.getElementById('storageDetails').innerHTML = 
+                        `강좌 ${data.length}개 저장됨 (${(dataSize / 1024).toFixed(1)}KB) - 불러오기 버튼을 클릭하세요`;
+                    if (typeof lucide !== 'undefined') {
+                        lucide.createIcons();
+                    }
+                }
+            } catch (error) {
+                console.error('저장된 데이터 확인 실패:', error);
+            }
+        }
+
+        // localStorage에서 데이터 불러오기
+        function loadFromStorage() {
+            try {
+                const saved = localStorage.getItem('coursesData');
+                if (saved) {
+                    const data = JSON.parse(saved);
+                    if (Array.isArray(data) && data.length > 0) {
+                        coursesData = data;
+                        currentPage = 1;
+                        displayCourses();
+                        alert('저장된 데이터를 불러왔습니다.');
+                    }
+                } else {
+                    alert('저장된 데이터가 없습니다.');
+                }
+            } catch (error) {
+                console.error('저장된 데이터 로드 실패:', error);
+                alert('데이터 불러오기에 실패했습니다.');
+            }
+        }
+
+        // localStorage에 데이터 저장 (필수 필드만)
+        function saveToStorage() {
+            try {
+                // 필수 필드만 추출하여 저장 (용량 절약)
+                const minimalData = coursesData.map(course => ({
+                    title: course.title,
+                    code: course.code || course.Code || course.course_code || course.courseCode || course.id || course.ID,
+                    lecture_count: course.lecture_count
+                }));
+                
+                const dataStr = JSON.stringify(minimalData);
+                const dataSize = new Blob([dataStr]).size;
+                
+                // 5MB 이상이면 경고
+                if (dataSize > 5 * 1024 * 1024) {
+                    console.warn('데이터가 너무 큽니다:', (dataSize / 1024 / 1024).toFixed(2) + 'MB');
+                    if (!confirm('데이터 크기가 큽니다. 저장하시겠습니까?')) {
+                        return;
+                    }
+                }
+                
+                localStorage.setItem('coursesData', dataStr);
+                updateStorageInfo(dataSize);
+            } catch (error) {
+                console.error('데이터 저장 실패:', error);
+                // 저장 실패 시 기존 데이터 삭제 시도
+                try {
+                    localStorage.removeItem('coursesData');
+                } catch (e) {}
+                alert('데이터가 너무 커서 저장할 수 없습니다.\n강좌 수: ' + coursesData.length + '개');
+            }
+        }
+
+        // 저장 정보 업데이트
+        function updateStorageInfo(dataSize) {
+            const storageInfo = document.getElementById('storageInfo');
+            const storageDetails = document.getElementById('storageDetails');
+            
+            if (coursesData && coursesData.length > 0) {
+                storageInfo.classList.add('active');
+                let sizeText = '';
+                if (dataSize) {
+                    const kb = (dataSize / 1024).toFixed(1);
+                    sizeText = ` (${kb}KB)`;
+                }
+                storageDetails.innerHTML = `강좌 ${coursesData.length}개 저장됨${sizeText}`;
+            } else {
+                storageInfo.classList.remove('active');
+            }
+            
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
+        }
+
+        // localStorage 데이터 삭제
+        function clearStorage() {
+            if (confirm('저장된 데이터를 삭제하시겠습니까?')) {
+                localStorage.removeItem('coursesData');
+                resetAll();
+                updateStorageInfo();
+                alert('저장된 데이터가 삭제되었습니다.');
+            }
+        }
 
         const uploadArea = document.getElementById('uploadArea');
         uploadArea.addEventListener('dragover', e => { 
@@ -482,6 +687,7 @@
                     if (Array.isArray(data) && data.length > 0) {
                         coursesData = data;
                         currentPage = 1;
+                        saveToStorage();
                         displayCourses();
                     } else {
                         alert('유효한 강좌 데이터가 없습니다.');
@@ -520,7 +726,10 @@
             document.getElementById('coursesSection').classList.add('active');
             
             renderPagination(totalPages);
-            lucide.createIcons();
+            updateStorageInfo();
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
         function createCourseCard(course, index) {
@@ -725,7 +934,9 @@
             pageInfo.textContent = `${currentPage} / ${totalPages}`;
             pagination.appendChild(pageInfo);
 
-            lucide.createIcons();
+            if (typeof lucide !== 'undefined') {
+                lucide.createIcons();
+            }
         }
 
         function changePage(page) {
@@ -740,8 +951,8 @@
             document.getElementById('coursesSection').classList.remove('active');
             coursesData = [];
             currentPage = 1;
+            updateStorageInfo();
         }
     </script>
 </body>
 </html>
-
