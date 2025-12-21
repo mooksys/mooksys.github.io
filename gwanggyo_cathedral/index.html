@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>광교1동성당 전례표</title>
+    <title>일정 관리 대시보드</title>
     <style>
         * {
             margin: 0;
@@ -387,6 +387,7 @@
                     <button class="nav-button" onclick="changeMonth(-1)">◀ 이전</button>
                     <div class="month-label" id="monthLabel"></div>
                     <button class="nav-button" onclick="changeMonth(1)">다음 ▶</button>
+                    <button class="nav-button" onclick="clearData()" style="background: #f44336; color: white; border: none;">🗑️ 저장소 삭제</button>
                     <label for="fileInput" class="upload-button">📁 JSON 업로드</label>
                     <input type="file" id="fileInput" accept=".json" onchange="handleFileUpload(event)">
                 </div>
@@ -406,22 +407,22 @@
             <h3>JSON 파일 형식 예시</h3>
             <pre>[
   {
-    "title": "연중 제1주일",
-    "date": "20265-01-11",
+    "title": "토마스 사도 축일",
+    "date": "2025-12-21",
     "time": "10:00",
-    "해설": "홍길순 노엘라",
-    "독1": "홍답순 루시아",
-    "독2": "홍논순 소피아",
+    "해설": "해)정미경 노엘라",
+    "독1": "이연주 루시아",
+    "독2": "박유정 스마아",
     "color": "#bbdefb",
     "borderColor": "#2196f3",
     "titleColor": "#d32f2f"
   },
   {
-    "title": "연중 제1주일",
-    "date": "2026-01-12",
-    "time": "10:00",
-    "해설": "홍도순 레지나",
-    "독1": "홍길동 요셉",
+    "title": "최윤이 레지나",
+    "date": "2025-12-21",
+    "time": "19:30",
+    "해설": "해)최윤이 레지나",
+    "독1": "김도식 요셉",
     "color": "#bbdefb",
     "borderColor": "#2196f3"
   }
@@ -648,6 +649,17 @@
         function closeModal(event) {
             if (!event || event.target.id === 'modal') {
                 document.getElementById('modal').classList.remove('show');
+            }
+        }
+
+        function clearData() {
+            if (confirm('⚠️ Local Storage에 저장된 모든 일정 데이터를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.')) {
+                events = [];
+                localStorage.removeItem('calendarEvents');
+                localStorage.removeItem('calendarDate');
+                showMessage('success', 'Local Storage에서 모든 데이터가 삭제되었습니다.');
+                renderCalendar();
+                document.getElementById('guideSection').style.display = 'block';
             }
         }
 
