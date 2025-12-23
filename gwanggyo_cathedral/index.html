@@ -14,7 +14,13 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
             background-color: #f5f5f5;
-            padding: 20px;
+            padding: 10px;
+        }
+
+        @media (min-width: 768px) {
+            body {
+                padding: 20px;
+            }
         }
 
         .container {
@@ -26,43 +32,85 @@
             background: white;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            padding: 20px;
-            margin-bottom: 20px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .header {
+                padding: 20px;
+                margin-bottom: 20px;
+            }
         }
 
         .header-top {
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            flex-wrap: wrap;
+            flex-direction: column;
             gap: 15px;
             margin-bottom: 15px;
+        }
+
+        @media (min-width: 768px) {
+            .header-top {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+            }
         }
 
         .header-title {
             display: flex;
             align-items: center;
             gap: 10px;
+            justify-content: center;
+        }
+
+        @media (min-width: 768px) {
+            .header-title {
+                justify-content: flex-start;
+            }
         }
 
         .header-title h1 {
-            font-size: 24px;
+            font-size: 20px;
             color: #333;
+        }
+
+        @media (min-width: 768px) {
+            .header-title h1 {
+                font-size: 24px;
+            }
         }
 
         .header-controls {
             display: flex;
+            flex-wrap: wrap;
             align-items: center;
-            gap: 10px;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        @media (min-width: 768px) {
+            .header-controls {
+                gap: 10px;
+            }
         }
 
         .nav-button {
-            padding: 8px 12px;
+            padding: 8px 10px;
             background: white;
             border: 1px solid #ddd;
             border-radius: 6px;
             cursor: pointer;
             transition: background 0.2s;
+            font-size: 13px;
+        }
+
+        @media (min-width: 768px) {
+            .nav-button {
+                padding: 8px 12px;
+                font-size: 14px;
+            }
         }
 
         .nav-button:hover {
@@ -70,20 +118,36 @@
         }
 
         .month-label {
-            min-width: 130px;
+            min-width: 100px;
             text-align: center;
             font-weight: 600;
             color: #333;
+            font-size: 14px;
+        }
+
+        @media (min-width: 768px) {
+            .month-label {
+                min-width: 130px;
+                font-size: 16px;
+            }
         }
 
         .upload-button {
             background: #2196f3;
             color: white;
-            padding: 10px 20px;
+            padding: 8px 12px;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             transition: background 0.2s;
+            font-size: 13px;
+        }
+
+        @media (min-width: 768px) {
+            .upload-button {
+                padding: 10px 20px;
+                font-size: 14px;
+            }
         }
 
         .upload-button:hover {
@@ -125,13 +189,27 @@
 
         th, td {
             border: 1px solid #ddd;
-            padding: 8px;
+            padding: 4px;
         }
 
-        thead th {
+        @media (min-width: 768px) {
+            th, td {
+                padding: 8px;
+            }
+        }
+
+        th {
             background: #f5f5f5;
             font-weight: 600;
-            padding: 12px;
+            padding: 8px 4px;
+            font-size: 12px;
+        }
+
+        @media (min-width: 768px) {
+            th {
+                padding: 12px;
+                font-size: 14px;
+            }
         }
 
         thead th.sunday {
@@ -146,9 +224,16 @@
 
         tbody td {
             vertical-align: top;
-            min-height: 100px;
-            height: 120px;
+            min-height: 80px;
+            height: 100px;
             width: 14.28%;
+        }
+
+        @media (min-width: 768px) {
+            tbody td {
+                min-height: 100px;
+                height: 120px;
+            }
         }
 
         tbody td.other-month {
@@ -163,8 +248,15 @@
         .date-number {
             font-weight: 600;
             color: #333;
-            margin-bottom: 6px;
-            font-size: 14px;
+            margin-bottom: 4px;
+            font-size: 12px;
+        }
+
+        @media (min-width: 768px) {
+            .date-number {
+                font-size: 14px;
+                margin-bottom: 6px;
+            }
         }
 
         tbody td.sunday .date-number {
@@ -176,14 +268,23 @@
         }
 
         .event {
-            margin-bottom: 4px;
-            padding: 4px 6px;
+            margin-bottom: 3px;
+            padding: 3px 4px;
             border-radius: 3px;
-            border-left: 3px solid #2196f3;
+            border-left: 2px solid #2196f3;
             background: #e3f2fd;
             cursor: pointer;
             transition: box-shadow 0.2s;
-            font-size: 11px;
+            font-size: 9px;
+        }
+
+        @media (min-width: 768px) {
+            .event {
+                margin-bottom: 4px;
+                padding: 4px 6px;
+                border-left: 3px solid #2196f3;
+                font-size: 11px;
+            }
         }
 
         .event:hover {
@@ -191,18 +292,32 @@
         }
 
         .event-time {
-            font-size: 10px;
+            font-size: 9px;
             font-weight: 600;
             color: #666;
+            display: none;
+        }
+
+        @media (min-width: 768px) {
+            .event-time {
+                font-size: 10px;
+                display: block;
+            }
         }
 
         .event-title {
-            font-size: 11px;
+            font-size: 10px;
             font-weight: bold;
             color: #d32f2f;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
+        }
+
+        @media (min-width: 768px) {
+            .event-title {
+                font-size: 11px;
+            }
         }
 
         .modal {
@@ -243,9 +358,9 @@
 
         .modal-content {
             background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 20px;
+            border-radius: 16px;
             padding: 0;
-            max-width: 500px;
+            max-width: 95%;
             width: 100%;
             max-height: 90vh;
             overflow: hidden;
@@ -253,39 +368,78 @@
             animation: slideUp 0.3s ease;
         }
 
+        @media (min-width: 768px) {
+            .modal-content {
+                max-width: 500px;
+                border-radius: 20px;
+            }
+        }
+
         .modal-header {
             background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
             color: white;
-            padding: 24px;
-            font-size: 22px;
+            padding: 18px;
+            font-size: 18px;
             font-weight: bold;
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
+        }
+
+        @media (min-width: 768px) {
+            .modal-header {
+                padding: 24px;
+                font-size: 22px;
+                gap: 10px;
+            }
         }
 
         .modal-header::before {
             content: "📅";
-            font-size: 28px;
+            font-size: 24px;
+        }
+
+        @media (min-width: 768px) {
+            .modal-header::before {
+                font-size: 28px;
+            }
         }
 
         .modal-body-wrapper {
-            padding: 24px;
+            padding: 18px;
             max-height: calc(90vh - 140px);
             overflow-y: auto;
         }
 
+        @media (min-width: 768px) {
+            .modal-body-wrapper {
+                padding: 24px;
+            }
+        }
+
         .modal-field {
-            margin-bottom: 16px;
-            padding: 14px 18px;
+            margin-bottom: 12px;
+            padding: 12px 14px;
             background: white;
-            border-radius: 12px;
+            border-radius: 10px;
             box-shadow: 0 2px 8px rgba(0,0,0,0.05);
-            border-left: 4px solid #2196f3;
+            border-left: 3px solid #2196f3;
             transition: transform 0.2s, box-shadow 0.2s;
             display: flex;
-            align-items: center;
-            gap: 12px;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        @media (min-width: 768px) {
+            .modal-field {
+                margin-bottom: 16px;
+                padding: 14px 18px;
+                border-radius: 12px;
+                border-left: 4px solid #2196f3;
+                flex-direction: row;
+                align-items: center;
+                gap: 12px;
+            }
         }
 
         .modal-field:hover {
@@ -296,37 +450,64 @@
         .modal-field label {
             font-weight: 700;
             color: #2196f3;
-            font-size: 14px;
-            min-width: 60px;
+            font-size: 13px;
+            min-width: auto;
             flex-shrink: 0;
+        }
+
+        @media (min-width: 768px) {
+            .modal-field label {
+                font-size: 14px;
+                min-width: 60px;
+            }
         }
 
         .modal-field p {
             color: #333;
-            font-size: 15px;
+            font-size: 14px;
             line-height: 1.6;
             margin: 0;
             flex: 1;
         }
 
+        @media (min-width: 768px) {
+            .modal-field p {
+                font-size: 15px;
+            }
+        }
+
         .modal-footer {
-            padding: 20px 24px;
+            padding: 16px 18px;
             background: #f8f9fa;
             border-top: 1px solid #e0e0e0;
         }
 
+        @media (min-width: 768px) {
+            .modal-footer {
+                padding: 20px 24px;
+            }
+        }
+
         .modal-close {
             width: 100%;
-            padding: 14px;
+            padding: 12px;
             background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%);
             color: white;
             border: none;
-            border-radius: 12px;
+            border-radius: 10px;
             cursor: pointer;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             transition: all 0.3s;
             box-shadow: 0 4px 12px rgba(33,150,243,0.3);
+        }
+
+        @media (min-width: 768px) {
+            .modal-close {
+                padding: 14px;
+                border-radius: 12px;
+                font-size: 15px;
+            }
         }
 
         .modal-close:hover {
@@ -339,32 +520,60 @@
         }
 
         .guide {
-            margin-top: 20px;
+            margin-top: 15px;
             background: white;
             border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-            padding: 24px;
+            padding: 18px;
+        }
+
+        @media (min-width: 768px) {
+            .guide {
+                margin-top: 20px;
+                padding: 24px;
+            }
         }
 
         .guide h3 {
-            font-size: 18px;
-            margin-bottom: 15px;
+            font-size: 16px;
+            margin-bottom: 12px;
             color: #333;
+        }
+
+        @media (min-width: 768px) {
+            .guide h3 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
         }
 
         .guide pre {
             background: #f5f5f5;
-            padding: 15px;
+            padding: 12px;
             border-radius: 6px;
             overflow-x: auto;
-            font-size: 12px;
+            font-size: 11px;
             border: 1px solid #ddd;
         }
 
+        @media (min-width: 768px) {
+            .guide pre {
+                padding: 15px;
+                font-size: 12px;
+            }
+        }
+
         .guide-info {
-            margin-top: 15px;
-            font-size: 14px;
+            margin-top: 12px;
+            font-size: 13px;
             color: #666;
+        }
+
+        @media (min-width: 768px) {
+            .guide-info {
+                margin-top: 15px;
+                font-size: 14px;
+            }
         }
 
         .guide-info p {
@@ -387,7 +596,8 @@
                     <button class="nav-button" onclick="changeMonth(-1)">◀ 이전</button>
                     <div class="month-label" id="monthLabel"></div>
                     <button class="nav-button" onclick="changeMonth(1)">다음 ▶</button>
-                    <button class="nav-button" onclick="clearData()" style="background: #f44336; color: white; border: none;">🗑️ 저장소 삭제</button>
+                    <button class="nav-button" onclick="clearCurrentMonth()" style="background: #ff9800; color: white; border: none;">🗑️ 이 달 삭제</button>
+                    <button class="nav-button" onclick="clearAllData()" style="background: #f44336; color: white; border: none;">🗑️ 전체 삭제</button>
                     <label for="fileInput" class="upload-button">📁 JSON 업로드</label>
                     <input type="file" id="fileInput" accept=".json" onchange="handleFileUpload(event)">
                 </div>
@@ -652,7 +862,31 @@
             }
         }
 
-        function clearData() {
+        function clearCurrentMonth() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth() + 1;
+            const monthStr = `${year}-${String(month).padStart(2, '0')}`;
+            
+            const eventsInMonth = events.filter(e => e.date && e.date.startsWith(monthStr));
+            
+            if (eventsInMonth.length === 0) {
+                showMessage('error', `${year}년 ${month}월에는 삭제할 일정이 없습니다.`);
+                return;
+            }
+            
+            if (confirm(`⚠️ ${year}년 ${month}월의 일정 ${eventsInMonth.length}개를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.`)) {
+                events = events.filter(e => !e.date || !e.date.startsWith(monthStr));
+                saveToLocalStorage();
+                showMessage('success', `${year}년 ${month}월의 일정 ${eventsInMonth.length}개가 삭제되었습니다.`);
+                renderCalendar();
+                
+                if (events.length === 0) {
+                    document.getElementById('guideSection').style.display = 'block';
+                }
+            }
+        }
+
+        function clearAllData() {
             if (confirm('⚠️ Local Storage에 저장된 모든 일정 데이터를 삭제하시겠습니까?\n\n이 작업은 되돌릴 수 없습니다.')) {
                 events = [];
                 localStorage.removeItem('calendarEvents');
@@ -675,4 +909,3 @@
     </script>
 </body>
 </html>
-
