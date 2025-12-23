@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>광교1동성당 전례일정 대시보드</title>
+    <title>광교1동성당 전례담당 대시보드</title>
     <style>
         * {
             margin: 0;
@@ -21,6 +21,23 @@
         @media (min-width: 768px) {
             body {
                 padding: 20px;
+            }
+        }
+
+        .main-title {
+            text-align: center;
+            color: white;
+            font-size: 28px;
+            font-weight: 800;
+            margin-bottom: 20px;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            letter-spacing: -0.5px;
+        }
+
+        @media (max-width: 767px) {
+            .main-title {
+                font-size: 20px;
+                margin-bottom: 15px;
             }
         }
 
@@ -491,6 +508,8 @@
 </head>
 <body>
     <div class="container">
+        <h1 class="main-title">✝️ 광교1동성당 전례담당 대시보드</h1>
+        
         <div class="header">
             <div class="month-navigation">
                 <button class="nav-button" onclick="changeMonth(-1)">◀ 이전</button>
