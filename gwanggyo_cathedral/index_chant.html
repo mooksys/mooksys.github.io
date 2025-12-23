@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>광교1동성당 월별 전례 성가</title>
+    <title>광교1동성당 월별전례성가표</title>
     <style>
         * {
             margin: 0;
@@ -51,6 +51,25 @@
             justify-content: space-between;
             align-items: center;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .delete-month-btn {
+            background: rgba(255, 107, 107, 0.3) !important;
+            border: 2px solid rgba(255, 107, 107, 0.5) !important;
+            padding: 10px 20px !important;
+            font-size: 14px !important;
+        }
+
+        .delete-month-btn:hover {
+            background: rgba(255, 107, 107, 0.5) !important;
         }
 
         header button {
@@ -356,13 +375,25 @@
                 gap: 15px;
             }
 
+            .header-nav {
+                width: 100%;
+                justify-content: space-between;
+            }
+
             header button {
                 padding: 10px 20px;
                 font-size: 14px;
             }
 
+            .delete-month-btn {
+                padding: 8px 16px !important;
+                font-size: 12px !important;
+            }
+
             #monthYear {
                 font-size: 22px;
+                text-align: center;
+                width: 100%;
             }
 
             .upload-section {
@@ -491,7 +522,10 @@
 <body>
     <div class="calendar-dashboard">
         <header>
-            <button id="prevMonth">◀ 이전</button>
+            <div class="header-nav">
+                <button id="prevMonth">◀ 이전</button>
+                <button id="deleteMonthButton" class="delete-month-btn">🗑️ 이 달 삭제</button>
+            </div>
             <h2 id="monthYear"></h2>
             <button id="nextMonth">다음 ▶</button>
         </header>
@@ -582,6 +616,41 @@
             }
         }
 
+        // LocalStorage에서 특정 월 데이터 삭제
+        function deleteMonthData(year, month) {
+            const monthStr = `${year}-${String(month + 1).padStart(2, '0')}`;
+            const monthName = `${year}년 ${month + 1}월`;
+            
+            // 해당 월의 이벤트 찾기
+            const monthEvents = events.filter(event => event.date.startsWith(monthStr));
+            
+            if (monthEvents.length === 0) {
+                alert(`❌ ${monthName}에 삭제할 데이터가 없습니다.`);
+                return;
+            }
+            
+            if (confirm(`⚠️ ${monthName}의 ${monthEvents.length}개 이벤트를 삭제하시겠습니까?\n이 작업은 되돌릴 수 없습니다.`)) {
+                try {
+                    // 해당 월 제외한 데이터만 남김
+                    events = events.filter(event => !event.date.startsWith(monthStr));
+                    
+                    if (saveToStorage()) {
+                        renderCalendar(
+                            document.getElementById('monthYear'),
+                            document.getElementById('calendarDays'),
+                            currentMonth,
+                            currentYear,
+                            events
+                        );
+                        alert(`✅ ${monthName} 데이터가 성공적으로 삭제되었습니다.`);
+                    }
+                } catch (error) {
+                    console.error('Error deleting month data:', error);
+                    alert('❌ 데이터 삭제 중 오류가 발생했습니다.');
+                }
+            }
+        }
+
         // 데이터 정보 업데이트
         function updateDataInfo() {
             const dataInfo = document.getElementById('dataInfo');
@@ -602,6 +671,7 @@
             const jsonFileUpload = document.getElementById('jsonFileUpload');
             const uploadButton = document.getElementById('uploadButton');
             const deleteButton = document.getElementById('deleteButton');
+            const deleteMonthButton = document.getElementById('deleteMonthButton');
 
             // 페이지 로드 시 LocalStorage에서 데이터 로드
             loadFromStorage();
@@ -624,6 +694,10 @@
                     currentYear++;
                 }
                 renderCalendar(monthYearDisplay, calendarDays, currentMonth, currentYear, events);
+            });
+
+            deleteMonthButton.addEventListener('click', () => {
+                deleteMonthData(currentYear, currentMonth);
             });
 
             uploadButton.addEventListener('click', () => {
@@ -760,6 +834,4 @@
         }
     </script>
 </body>
-
 </html>
-
