@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>광교1동성당 월별전례성가표</title>
+    <title>광교1동성당 성가표</title>
     <style>
         * {
             margin: 0;
@@ -17,8 +17,30 @@
             min-height: 100vh;
             padding: 20px;
             display: flex;
+            flex-direction: column;
             justify-content: center;
             align-items: center;
+        }
+
+        .main-title {
+            color: white;
+            font-size: 36px;
+            font-weight: 700;
+            text-align: center;
+            margin-bottom: 20px;
+            text-shadow: 3px 3px 6px rgba(0, 0, 0, 0.3);
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .calendar-dashboard {
@@ -277,15 +299,15 @@
 
         .modal-content {
             background: white;
-            padding: 35px;
+            padding: 0;
             border-radius: 20px;
             width: 90%;
-            max-width: 500px;
+            max-width: 550px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             position: relative;
             animation: modalSlideIn 0.3s ease;
-            max-height: 80vh;
-            overflow-y: auto;
+            max-height: 85vh;
+            overflow: hidden;
         }
 
         @keyframes modalSlideIn {
@@ -299,45 +321,117 @@
             }
         }
 
+        .modal-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            position: relative;
+        }
+
         .close-button {
             position: absolute;
             top: 15px;
             right: 20px;
             font-size: 32px;
-            color: #adb5bd;
+            color: rgba(255, 255, 255, 0.8);
             cursor: pointer;
             transition: all 0.3s ease;
             line-height: 1;
+            z-index: 10;
         }
 
         .close-button:hover {
-            color: #495057;
-            transform: rotate(90deg);
+            color: white;
+            transform: rotate(90deg) scale(1.1);
         }
 
         #modalDate {
-            font-size: 24px;
+            font-size: 26px;
             font-weight: 700;
-            color: #212529;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
-            border-bottom: 3px solid #667eea;
+            color: white;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.2);
         }
 
-        #modalDetails div {
-            margin-bottom: 15px;
-            padding: 12px;
-            background: #f8f9fa;
-            border-radius: 8px;
-            font-size: 15px;
-            line-height: 1.6;
+        .modal-body {
+            padding: 30px;
+            max-height: calc(85vh - 100px);
+            overflow-y: auto;
         }
 
-        #modalDetails strong {
+        #modalDetails {
+            display: grid;
+            gap: 15px;
+        }
+
+        #modalDetails .detail-card {
+            background: white;
+            border: 2px solid #e9ecef;
+            border-radius: 12px;
+            padding: 18px;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        #modalDetails .detail-card:hover {
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.15);
+        }
+
+        #modalDetails .detail-card.liturgy-card {
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+            border: none;
+            padding: 20px;
+        }
+
+        #modalDetails .detail-label {
             color: #667eea;
+            font-weight: 700;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        #modalDetails .detail-label::before {
+            content: "♪";
+            font-size: 18px;
+        }
+
+        #modalDetails .liturgy-card .detail-label::before {
+            content: "✟";
+            font-size: 18px;
+        }
+
+        #modalDetails .detail-content {
+            color: #212529;
+            font-size: 16px;
+            line-height: 1.8;
+            font-weight: 500;
+        }
+
+        #modalDetails .liturgy-card .detail-content {
+            font-size: 17px;
             font-weight: 600;
-            display: inline-block;
-            min-width: 60px;
+            color: #495057;
+        }
+
+        .no-event {
+            text-align: center;
+            padding: 40px 20px;
+            color: #6c757d;
+            font-size: 16px;
+        }
+
+        .no-event::before {
+            content: "📅";
+            display: block;
+            font-size: 48px;
+            margin-bottom: 15px;
         }
 
         /* 반응형 디자인 */
@@ -363,6 +457,11 @@
         @media (max-width: 768px) {
             body {
                 padding: 10px;
+            }
+
+            .main-title {
+                font-size: 24px;
+                margin-bottom: 15px;
             }
 
             .calendar-dashboard {
@@ -451,21 +550,41 @@
             }
 
             .modal-content {
-                padding: 25px;
+                padding: 0;
                 width: 95%;
+            }
+
+            .modal-header {
+                padding: 25px 20px;
+            }
+
+            .modal-body {
+                padding: 20px;
             }
 
             #modalDate {
                 font-size: 20px;
             }
 
-            #modalDetails div {
+            #modalDetails .detail-card {
+                padding: 15px;
+            }
+
+            #modalDetails .detail-label {
+                font-size: 12px;
+            }
+
+            #modalDetails .detail-content {
                 font-size: 14px;
-                padding: 10px;
             }
         }
 
         @media (max-width: 480px) {
+            .main-title {
+                font-size: 20px;
+                margin-bottom: 10px;
+            }
+
             #monthYear {
                 font-size: 18px;
             }
@@ -500,26 +619,27 @@
         }
 
         /* 스크롤바 스타일 */
-        .modal-content::-webkit-scrollbar {
+        .modal-body::-webkit-scrollbar {
             width: 8px;
         }
 
-        .modal-content::-webkit-scrollbar-track {
+        .modal-body::-webkit-scrollbar-track {
             background: #f1f1f1;
             border-radius: 10px;
         }
 
-        .modal-content::-webkit-scrollbar-thumb {
+        .modal-body::-webkit-scrollbar-thumb {
             background: #667eea;
             border-radius: 10px;
         }
 
-        .modal-content::-webkit-scrollbar-thumb:hover {
+        .modal-body::-webkit-scrollbar-thumb:hover {
             background: #764ba2;
         }
     </style>
 </head>
 <body>
+    <h1 class="main-title">광교1동성당 성가표</h1>
     <div class="calendar-dashboard">
         <header>
             <div class="header-nav">
@@ -553,9 +673,13 @@
 
     <div id="eventModal" class="modal">
         <div class="modal-content">
-            <span class="close-button">&times;</span>
-            <h3 id="modalDate"></h3>
-            <div id="modalDetails"></div>
+            <div class="modal-header">
+                <span class="close-button">&times;</span>
+                <h3 id="modalDate"></h3>
+            </div>
+            <div class="modal-body">
+                <div id="modalDetails"></div>
+            </div>
         </div>
     </div>
 
@@ -798,21 +922,36 @@
                     modalDetails.innerHTML = '';
 
                     if (dayEvent) {
-                        const addModalDetail = (label, values) => {
+                        const addModalDetail = (label, values, isLiturgy = false) => {
                             if (values) {
-                                const detailElement = document.createElement('div');
-                                detailElement.innerHTML = `<strong>${label}:</strong> ${Array.isArray(values) ? values.join(', ') : values}`;
-                                modalDetails.appendChild(detailElement);
+                                const cardElement = document.createElement('div');
+                                cardElement.classList.add('detail-card');
+                                if (isLiturgy) {
+                                    cardElement.classList.add('liturgy-card');
+                                }
+                                
+                                const labelElement = document.createElement('div');
+                                labelElement.classList.add('detail-label');
+                                labelElement.textContent = label;
+                                
+                                const contentElement = document.createElement('div');
+                                contentElement.classList.add('detail-content');
+                                contentElement.textContent = Array.isArray(values) ? values.join(', ') : values;
+                                
+                                cardElement.appendChild(labelElement);
+                                cardElement.appendChild(contentElement);
+                                modalDetails.appendChild(cardElement);
                             }
                         };
 
-                        addModalDetail('전례', dayEvent.전례);
+                        addModalDetail('전례', dayEvent.전례, true);
                         addModalDetail('입당', dayEvent.입당);
                         addModalDetail('봉헌', dayEvent.봉헌);
                         addModalDetail('성체', dayEvent.성체);
                         addModalDetail('파견', dayEvent.파견);
                     } else {
                         const noEventElement = document.createElement('div');
+                        noEventElement.classList.add('no-event');
                         noEventElement.textContent = '이벤트 없음';
                         modalDetails.appendChild(noEventElement);
                     }
