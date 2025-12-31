@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>광교1동성당 오늘의 성경읽기</title>
+    <title>광교1동성당 성경통독 프로젝트</title>
     <style>
         * {
             margin: 0;
@@ -215,7 +215,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📖 광교1동성당 오늘의 성경읽기</h1>
+            <h1>📖 광교1동성당 성경읽기</h1>
         </div>
 
         <div class="date-card fade-in">
@@ -241,7 +241,7 @@
 
             <div class="info-card">
                 <div class="info-card-content">
-                    💬 해당하는 성경을 읽고 마음에 와닿는 문장을 짧게 카톡방에 올려주시면 됩니다.
+                    💬 해당하는 성경을 읽고 마음에 와 닿는 문장을 짧게 카톡방에 올려주시면 됩니다.
                 </div>
             </div>
         </div>
@@ -295,8 +295,23 @@
             }
         };
 
-        let currentIndex = 0;
+        let currentDate = new Date();
         const dateKeys = Object.keys(verses);
+
+        // 시스템 날짜를 "M월 D일" 형식으로 변환
+        function formatDateToKey(date) {
+            const month = date.getMonth() + 1; // 0-11을 1-12로 변환
+            const day = date.getDate();
+            return `${month}월 ${day}일`;
+        }
+
+        // 날짜 키를 찾아서 인덱스 반환
+        function findDateIndex(dateKey) {
+            const index = dateKeys.indexOf(dateKey);
+            return index !== -1 ? index : 0;
+        }
+
+        let currentIndex = findDateIndex(formatDateToKey(currentDate));
 
         function loadVerse(index) {
             const container = document.getElementById('cardsContainer');
@@ -326,6 +341,7 @@
         document.getElementById('prevBtn').addEventListener('click', () => {
             if (currentIndex > 0) {
                 currentIndex--;
+                currentDate.setDate(currentDate.getDate() - 1);
                 loadVerse(currentIndex);
             }
         });
@@ -333,6 +349,7 @@
         document.getElementById('nextBtn').addEventListener('click', () => {
             if (currentIndex < dateKeys.length - 1) {
                 currentIndex++;
+                currentDate.setDate(currentDate.getDate() + 1);
                 loadVerse(currentIndex);
             }
         });
@@ -370,7 +387,9 @@
                     dateKeys.length = 0;
                     dateKeys.push(...Object.keys(verses));
                     
-                    currentIndex = 0;
+                    // 현재 시스템 날짜로 다시 동기화
+                    currentDate = new Date();
+                    currentIndex = findDateIndex(formatDateToKey(currentDate));
                     loadVerse(currentIndex);
                     
                     document.getElementById('uploadStatus').textContent = 
@@ -425,7 +444,9 @@
                 dateKeys.length = 0;
                 dateKeys.push(...Object.keys(verses));
                 
-                currentIndex = 0;
+                // 현재 시스템 날짜로 다시 동기화
+                currentDate = new Date();
+                currentIndex = findDateIndex(formatDateToKey(currentDate));
                 loadVerse(currentIndex);
                 
                 console.log(`✅ verses.json 파일에서 ${dateKeys.length}일의 말씀을 불러왔습니다.`);
@@ -438,5 +459,4 @@
         loadVersesFromFile();
     </script>
 </body>
-
 </html>
