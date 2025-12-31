@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>광교1동성당 오늘의 성경읽기</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 500px;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 20px;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .date-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+            margin-bottom: 20px;
+        }
+
+        .date-display {
+            font-size: 24px;
+            font-weight: 700;
+            color: #667eea;
+        }
+
+        .upload-section {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .upload-button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: white;
+            color: #667eea;
+            border: none;
+            border-radius: 10px;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .upload-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.25);
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .upload-status {
+            margin-top: 10px;
+            color: white;
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .cards-container {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 20px;
+            padding: 35px 30px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            transition: transform 0.3s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-5px);
+        }
+
+        .info-card {
+            background: linear-gradient(135deg, #f6f8fb 0%, #e9ecf5 100%);
+            border-radius: 20px;
+            padding: 25px 30px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.15);
+            text-align: center;
+        }
+
+        .info-card-content {
+            font-size: 16px;
+            line-height: 1.7;
+            color: #4a5568;
+            font-weight: 500;
+        }
+
+        .card-header {
+            font-size: 16px;
+            font-weight: 700;
+            color: #667eea;
+            margin-bottom: 15px;
+            text-align: center;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .bible-reference {
+            font-size: 18px;
+            font-weight: 700;
+            color: #4a5568;
+            margin-bottom: 12px;
+            text-align: center;
+        }
+
+        .verse-content {
+            font-size: 19px;
+            line-height: 1.8;
+            color: #2d3748;
+            text-align: center;
+            font-weight: 400;
+        }
+
+        .navigation {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+        }
+
+        .nav-button {
+            flex: 1;
+            padding: 15px 25px;
+            font-size: 16px;
+            font-weight: 600;
+            border: none;
+            border-radius: 12px;
+            background: white;
+            color: #667eea;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .nav-button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+        }
+
+        .nav-button:active {
+            transform: translateY(0);
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .fade-in {
+            animation: fadeIn 0.5s ease;
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .card {
+                padding: 30px 25px;
+            }
+
+            .verse-content {
+                font-size: 17px;
+            }
+
+            .nav-button {
+                padding: 12px 20px;
+                font-size: 14px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>📖 광교1동성당 오늘의 성경읽기</h1>
+        </div>
+
+        <div class="date-card fade-in">
+            <div class="date-display" id="dateDisplay">1월 1일</div>
+        </div>
+
+        <div class="cards-container fade-in" id="cardsContainer">
+            <div class="card">
+                <div class="card-header">📜 성경 말씀</div>
+                <div class="bible-reference" id="bibleRef">요한 1서 1장</div>
+                <div class="verse-content" id="bibleVerse">
+                    말씀을 불러오는 중...
+                </div>
+            </div>
+            
+            <div class="card">
+                <div class="card-header">✨ 시편 말씀</div>
+                <div class="bible-reference" id="psalmRef">시편 1편</div>
+                <div class="verse-content" id="psalmVerse">
+                    말씀을 불러오는 중...
+                </div>
+            </div>
+
+            <div class="info-card">
+                <div class="info-card-content">
+                    💬 해당하는 성경을 읽고 마음에 와 닿는 문장을 짧게 카톡방에 올려주시면 됩니다.
+                </div>
+            </div>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-button" id="prevBtn">← 이전</button>
+            <button class="nav-button" id="nextBtn">다음 →</button>
+        </div>
+
+        <div class="upload-section">
+            <input type="file" id="fileInput" accept=".json" />
+            <button class="upload-button" onclick="document.getElementById('fileInput').click()">
+                📁 JSON 파일 업로드
+            </button>
+            <div class="upload-status" id="uploadStatus"></div>
+        </div>
+    </div>
+
+    <script>
+        // 샘플 성경 구절 데이터
+        const verses = {
+            "1월 1일": {
+                bible: "요한 1서 1장",
+                bible_verse_1: "생명의 말씀에 관하여 우리는 들었고 눈으로 보았습니다.",
+                psalm: "시편 1편",
+                psalm_verse_1: "행복하여라! 악인들의 뜻에 따라 걷지 않는 사람!"
+            },
+            "1월 2일": {
+                bible: "요한 1서 2장",
+                bible_verse_1: "나의 자녀들이여, 내가 이것을 여러분에게 쓰는 것은 여러분이 죄를 짓지 않게 하려는 것입니다.",
+                psalm: "시편 2편",
+                psalm_verse_1: "어찌하여 민족들이 소란을 피우며 나라들이 헛된 일을 꾸미는가?"
+            },
+            "1월 3일": {
+                bible: "요한 1서 3장",
+                bible_verse_1: "보십시오, 하느님 아버지께서 우리에게 얼마나 큰 사랑을 베푸셨는지!",
+                psalm: "시편 3편",
+                psalm_verse_1: "주님, 저를 괴롭히는 자들이 어찌 이리 많습니까?"
+            },
+            "1월 4일": {
+                bible: "요한 1서 4장",
+                bible_verse_1: "사랑하는 여러분, 하느님께서 우리를 그토록 사랑하셨으니 우리도 서로 사랑해야 합니다.",
+                psalm: "시편 4편",
+                psalm_verse_1: "내가 부르짖을 때 응답해 주소서, 나의 의로우신 하느님!"
+            },
+            "1월 5일": {
+                bible: "요한 1서 5장",
+                bible_verse_1: "예수님께서 그리스도이심을 믿는 사람은 누구나 하느님에게서 태어난 사람입니다.",
+                psalm: "시편 5편",
+                psalm_verse_1: "주님, 제 말씀에 귀를 기울이시고 제 신음을 헤아려 주소서."
+            }
+        };
+
+        let currentIndex = 0;
+        const dateKeys = Object.keys(verses);
+
+        function loadVerse(index) {
+            const container = document.getElementById('cardsContainer');
+            container.classList.remove('fade-in');
+            
+            setTimeout(() => {
+                if (dateKeys[index] && verses[dateKeys[index]]) {
+                    const data = verses[dateKeys[index]];
+                    
+                    document.getElementById('dateDisplay').textContent = dateKeys[index];
+                    document.getElementById('bibleRef').textContent = data.bible || "";
+                    document.getElementById('bibleVerse').textContent = data.bible_verse_1 || "말씀이 없습니다.";
+                    document.getElementById('psalmRef').textContent = data.psalm || "";
+                    document.getElementById('psalmVerse').textContent = data.psalm_verse_1 || "말씀이 없습니다.";
+                } else {
+                    document.getElementById('dateDisplay').textContent = "말씀 없음";
+                    document.getElementById('bibleRef').textContent = "";
+                    document.getElementById('bibleVerse').textContent = "이 날짜의 말씀이 준비되지 않았습니다.";
+                    document.getElementById('psalmRef').textContent = "";
+                    document.getElementById('psalmVerse').textContent = "";
+                }
+                
+                container.classList.add('fade-in');
+            }, 50);
+        }
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentIndex > 0) {
+                currentIndex--;
+                loadVerse(currentIndex);
+            }
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentIndex < dateKeys.length - 1) {
+                currentIndex++;
+                loadVerse(currentIndex);
+            }
+        });
+
+        // JSON 파일 업로드 처리
+        document.getElementById('fileInput').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            
+            reader.onload = function(event) {
+                try {
+                    const jsonData = JSON.parse(event.target.result);
+                    
+                    // JSON 배열인 경우 처리
+                    if (Array.isArray(jsonData)) {
+                        jsonData.forEach(item => {
+                            if (item.date) {
+                                verses[item.date] = {
+                                    bible: item.bible || "",
+                                    bible_verse_1: item.bible_verse_1 || "",
+                                    psalm: item.psalm || "",
+                                    psalm_verse_1: item.psalm_verse_1 || ""
+                                };
+                            }
+                        });
+                    } 
+                    // JSON 객체인 경우 처리
+                    else if (typeof jsonData === 'object') {
+                        Object.assign(verses, jsonData);
+                    }
+                    
+                    // dateKeys 업데이트
+                    dateKeys.length = 0;
+                    dateKeys.push(...Object.keys(verses));
+                    
+                    currentIndex = 0;
+                    loadVerse(currentIndex);
+                    
+                    document.getElementById('uploadStatus').textContent = 
+                        `✅ ${dateKeys.length}일의 말씀이 로드되었습니다!`;
+                    
+                    setTimeout(() => {
+                        document.getElementById('uploadStatus').textContent = '';
+                    }, 3000);
+                } catch (error) {
+                    document.getElementById('uploadStatus').textContent = 
+                        '❌ 파일을 읽는데 실패했습니다. JSON 형식을 확인해주세요.';
+                    console.error('JSON 파일 로드 오류:', error);
+                }
+            };
+            
+            reader.readAsText(file);
+        });
+
+        // 초기 로드
+        loadVerse(currentIndex);
+
+        // 페이지 로드 시 verses.json 파일 자동으로 불러오기
+        async function loadVersesFromFile() {
+            try {
+                const response = await fetch('verses.json');
+                if (!response.ok) {
+                    console.log('verses.json 파일을 찾을 수 없습니다. 샘플 데이터를 사용합니다.');
+                    return;
+                }
+                
+                const jsonData = await response.json();
+                
+                // JSON 배열인 경우 처리
+                if (Array.isArray(jsonData)) {
+                    jsonData.forEach(item => {
+                        if (item.date) {
+                            verses[item.date] = {
+                                bible: item.bible || "",
+                                bible_verse_1: item.bible_verse_1 || "",
+                                psalm: item.psalm || "",
+                                psalm_verse_1: item.psalm_verse_1 || ""
+                            };
+                        }
+                    });
+                } 
+                // JSON 객체인 경우 처리
+                else if (typeof jsonData === 'object') {
+                    Object.assign(verses, jsonData);
+                }
+                
+                // dateKeys 업데이트
+                dateKeys.length = 0;
+                dateKeys.push(...Object.keys(verses));
+                
+                currentIndex = 0;
+                loadVerse(currentIndex);
+                
+                console.log(`✅ verses.json 파일에서 ${dateKeys.length}일의 말씀을 불러왔습니다.`);
+            } catch (error) {
+                console.log('verses.json 파일을 불러오는데 실패했습니다. 샘플 데이터를 사용합니다.', error);
+            }
+        }
+        
+        // 페이지 로드 시 자동으로 파일 읽기
+        loadVersesFromFile();
+    </script>
+</body>
+</html>
