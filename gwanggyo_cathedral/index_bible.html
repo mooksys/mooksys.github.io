@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>광교1동성당 성경읽기</title>
+    <title>광교1동성당 성경읽기 프로젝트</title>
     <style>
         * {
             margin: 0;
@@ -56,24 +56,26 @@
         }
 
         .date-card {
-            background: white;
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             border-radius: 20px;
-            padding: 28px;
+            padding: 35px 30px;
             text-align: center;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
-            border: 1px solid #e0e6ed;
+            box-shadow: 0 8px 30px rgba(52, 152, 219, 0.3);
+            border: none;
             margin-bottom: 25px;
             transition: all 0.3s ease;
         }
 
         .date-card:hover {
-            box-shadow: 0 6px 25px rgba(0, 0, 0, 0.12);
+            box-shadow: 0 12px 40px rgba(52, 152, 219, 0.4);
+            transform: translateY(-3px);
         }
 
         .date-display {
-            font-size: 26px;
+            font-size: 24px;
             font-weight: 700;
-            color: #3498db;
+            color: white;
+            letter-spacing: 0.5px;
         }
 
         .upload-section {
@@ -135,22 +137,28 @@
             box-shadow: 0 8px 30px rgba(0, 0, 0, 0.12);
         }
 
+        .card-header-container {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid #d6eaf8;
+        }
+
         .card-header {
             font-size: 18px;
             font-weight: 700;
             color: #2980b9;
-            margin-bottom: 18px;
-            text-align: center;
-            padding-bottom: 15px;
-            border-bottom: 2px solid #d6eaf8;
+            margin: 0;
         }
 
         .bible-reference {
             font-size: 19px;
             font-weight: 700;
             color: #1a5490;
-            margin-bottom: 15px;
-            text-align: center;
+            margin: 0;
         }
 
         .verse-content {
@@ -297,21 +305,25 @@
         </div>
 
         <div class="date-card fade-in">
-            <div class="date-display" id="dateDisplay">1월 1일</div>
+            <div class="date-display" id="dateDisplay">2026년 1월 2일 목요일</div>
         </div>
 
         <div class="cards-container fade-in" id="cardsContainer">
             <div class="card">
-                <div class="card-header">📜 성경 말씀</div>
-                <div class="bible-reference" id="bibleRef">요한 1서 1장</div>
+                <div class="card-header-container">
+                    <div class="card-header">📜 성경 말씀</div>
+                    <div class="bible-reference" id="bibleRef">요한 1서 1장</div>
+                </div>
                 <div class="verse-content" id="bibleVerse">
                     말씀을 불러오는 중...
                 </div>
             </div>
             
             <div class="card">
-                <div class="card-header">✨ 시편 말씀</div>
-                <div class="bible-reference" id="psalmRef">시편 1편</div>
+                <div class="card-header-container">
+                    <div class="card-header">✨ 시편 말씀</div>
+                    <div class="bible-reference" id="psalmRef">시편 1편</div>
+                </div>
                 <div class="verse-content" id="psalmVerse">
                     말씀을 불러오는 중...
                 </div>
@@ -390,6 +402,16 @@
             return `${month}월 ${day}일`;
         }
 
+        // 날짜를 "YYYY년 M월 D일 요일" 형식으로 변환
+        function formatDateDisplay(date) {
+            const year = date.getFullYear();
+            const month = date.getMonth() + 1;
+            const day = date.getDate();
+            const days = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
+            const dayOfWeek = days[date.getDay()];
+            return `${year}년 ${month}월 ${day}일 ${dayOfWeek}`;
+        }
+
         // 날짜 키를 찾아서 인덱스 반환
         function findDateIndex(dateKey) {
             const index = dateKeys.indexOf(dateKey);
@@ -406,13 +428,13 @@
                 if (dateKeys[index] && verses[dateKeys[index]]) {
                     const data = verses[dateKeys[index]];
                     
-                    document.getElementById('dateDisplay').textContent = dateKeys[index];
+                    document.getElementById('dateDisplay').textContent = formatDateDisplay(currentDate);
                     document.getElementById('bibleRef').textContent = data.bible || "";
                     document.getElementById('bibleVerse').textContent = data.bible_verse_1 || "말씀이 없습니다.";
                     document.getElementById('psalmRef').textContent = data.psalm || "";
                     document.getElementById('psalmVerse').textContent = data.psalm_verse_1 || "말씀이 없습니다.";
                 } else {
-                    document.getElementById('dateDisplay').textContent = "말씀 없음";
+                    document.getElementById('dateDisplay').textContent = formatDateDisplay(currentDate);
                     document.getElementById('bibleRef').textContent = "";
                     document.getElementById('bibleVerse').textContent = "이 날짜의 말씀이 준비되지 않았습니다.";
                     document.getElementById('psalmRef').textContent = "";
