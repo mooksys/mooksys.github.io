@@ -250,7 +250,7 @@
         }
 
         .course-title {
-            font-size: 18px;
+            font-size: 28px;
             font-weight: 800;
             background: linear-gradient(to right, #1e40af, #4f46e5);
             -webkit-background-clip: text;
@@ -497,7 +497,7 @@
                 <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
                     <i data-lucide="upload-cloud" class="upload-icon"></i>
                     <div class="upload-text">클릭하거나 파일을 드래그하여 JSON 업로드</div>
-                    <div class="upload-hint">title, lecture_count, code 필드가 포함된 JSON 파일</div>
+                    <div class="upload-hint">base_address, courses 배열 (title, lecture_count, code) 필드 포함</div>
                 </div>
                 <input type="file" id="fileInput" accept=".json" onchange="handleFileUpload(event)">
                 
@@ -537,7 +537,7 @@
         let coursesData = [];
         let currentPage = 1;
         const itemsPerPage = 5;
-        const baseAddress = 'http://mp4.itgo.co.kr/mp4/';
+        let baseAddress = ''; // JSON에서 받아올 기본 주소
 
         // 페이지 로드 후 아이콘 초기화
         document.addEventListener('DOMContentLoaded', function() {
@@ -554,9 +554,10 @@
                 if (saved) {
                     const data = JSON.parse(saved);
                     const dataSize = new Blob([saved]).size;
+                    const coursesCount = data.courses ? data.courses.length : (Array.isArray(data) ? data.length : 0);
                     document.getElementById('storageInfo').classList.add('active');
                     document.getElementById('storageDetails').innerHTML = 
-                        `강좌 ${data.length}개 저장됨 (${(dataSize / 1024).toFixed(1)}KB) - 불러오기 버튼을 클릭하세요`;
+                        `강좌 ${coursesCount}개 저장됨 (${(dataSize / 1024).toFixed(1)}KB) - 불러오기 버튼을 클릭하세요`;
                     if (typeof lucide !== 'undefined') {
                         lucide.createIcons();
                     }
@@ -572,8 +573,18 @@
                 const saved = localStorage.getItem('coursesData');
                 if (saved) {
                     const data = JSON.parse(saved);
-                    if (Array.isArray(data) && data.length > 0) {
-                        coursesData = data;
+                    
+                    // 새로운 형식 체크
+                    if (data.base_address && Array.isArray(data.courses)) {
+                        baseAddress = data.base_address;
+                        coursesData = data.courses;
+                    } else if (Array.isArray(data)) {
+                        // 구버전 호환 (base_address 없음)
+                        alert('저장된 데이터에 base_address가 없습니다.\n새로운 형식의 JSON을 업로드해주세요.');
+                        return;
+                    }
+                    
+                    if (coursesData.length > 0) {
                         currentPage = 1;
                         displayCourses();
                         alert('저장된 데이터를 불러왔습니다.');
@@ -590,12 +601,15 @@
         // localStorage에 데이터 저장 (필수 필드만)
         function saveToStorage() {
             try {
-                // 필수 필드만 추출하여 저장 (용량 절약)
-                const minimalData = coursesData.map(course => ({
-                    title: course.title,
-                    code: course.code || course.Code || course.course_code || course.courseCode || course.id || course.ID,
-                    lecture_count: course.lecture_count
-                }));
+                // base_address와 강좌 데이터 함께 저장
+                const minimalData = {
+                    base_address: baseAddress,
+                    courses: coursesData.map(course => ({
+                        title: course.title,
+                        code: course.code || course.Code || course.course_code || course.courseCode || course.id || course.ID,
+                        lecture_count: course.lecture_count
+                    }))
+                };
                 
                 const dataStr = JSON.stringify(minimalData);
                 const dataSize = new Blob([dataStr]).size;
@@ -612,7 +626,6 @@
                 updateStorageInfo(dataSize);
             } catch (error) {
                 console.error('데이터 저장 실패:', error);
-                // 저장 실패 시 기존 데이터 삭제 시도
                 try {
                     localStorage.removeItem('coursesData');
                 } catch (e) {}
@@ -632,7 +645,8 @@
                     const kb = (dataSize / 1024).toFixed(1);
                     sizeText = ` (${kb}KB)`;
                 }
-                storageDetails.innerHTML = `강좌 ${coursesData.length}개 저장됨${sizeText}`;
+                const addressText = baseAddress ? ` | ${baseAddress}` : '';
+                storageDetails.innerHTML = `강좌 ${coursesData.length}개 저장됨${sizeText}${addressText}`;
             } else {
                 storageInfo.classList.remove('active');
             }
@@ -684,13 +698,30 @@
             reader.onload = e => {
                 try {
                     const data = JSON.parse(e.target.result);
-                    if (Array.isArray(data) && data.length > 0) {
-                        coursesData = data;
+                    
+                    // 두 가지 JSON 형식 지원
+                    // 1. { base_address: "...", courses: [...] } 형식
+                    // 2. 배열 형식 [...] (기존 호환성)
+                    
+                    if (data.base_address && Array.isArray(data.courses)) {
+                        // 새로운 형식
+                        baseAddress = data.base_address;
+                        coursesData = data.courses;
+                    } else if (Array.isArray(data)) {
+                        // 기존 배열 형식 (base_address 필수)
+                        alert('JSON 형식 오류!\n\n필요한 구조:\n{\n  "base_address": "http://example.com/",\n  "courses": [...]\n}');
+                        return;
+                    } else {
+                        alert('유효한 JSON 형식이 아닙니다.');
+                        return;
+                    }
+                    
+                    if (coursesData.length > 0) {
                         currentPage = 1;
                         saveToStorage();
                         displayCourses();
                     } else {
-                        alert('유효한 강좌 데이터가 없습니다.');
+                        alert('강좌 데이터가 없습니다.');
                     }
                 } catch (error) {
                     alert('JSON 형식이 올바르지 않습니다.');
@@ -790,6 +821,11 @@
     
             if (!code || code.trim() === '') {
                 alert(`강의 코드를 찾을 수 없습니다!\n강의 제목: ${course.title}\nJSON에 "code" 필드를 확인하세요.`);
+                return;
+            }
+            
+            if (!baseAddress || baseAddress.trim() === '') {
+                alert('base_address가 설정되지 않았습니다!\nJSON 파일에 "base_address" 필드를 확인하세요.');
                 return;
             }
     
@@ -950,6 +986,7 @@
             document.getElementById('coursesContainer').innerHTML = '';
             document.getElementById('coursesSection').classList.remove('active');
             coursesData = [];
+            baseAddress = '';
             currentPage = 1;
             updateStorageInfo();
         }
