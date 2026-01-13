@@ -56,14 +56,25 @@
         }
 
         .date-card {
-            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
             border-radius: 20px;
-            padding: 35px 30px;
+            padding: 28px 30px;
             text-align: center;
             box-shadow: 0 8px 30px rgba(52, 152, 219, 0.3);
             border: none;
             margin-bottom: 25px;
             transition: all 0.3s ease;
+        }
+
+        .date-card.weekday {
+            background: linear-gradient(135deg, #3498db 0%, #2980b9 100%);
+        }
+
+        .date-card.saturday {
+            background: linear-gradient(135deg, #9b59b6 0%, #8e44ad 100%);
+        }
+
+        .date-card.sunday {
+            background: linear-gradient(135deg, #e74c3c 0%, #c0392b 100%);
         }
 
         .date-card:hover {
@@ -125,7 +136,7 @@
         .card {
             background: white;
             border-radius: 20px;
-            padding: 38px 35px;
+            padding: 25px 28px;
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
             border: 1px solid #e0e6ed;
             transition: all 0.3s ease;
@@ -142,8 +153,8 @@
             align-items: center;
             justify-content: center;
             gap: 12px;
-            margin-bottom: 20px;
-            padding-bottom: 15px;
+            margin-bottom: 16px;
+            padding-bottom: 12px;
             border-bottom: 2px solid #d6eaf8;
         }
 
@@ -162,8 +173,8 @@
         }
 
         .verse-content {
-            font-size: 20px;
-            line-height: 1.9;
+            font-size: 19px;
+            line-height: 1.8;
             color: #2c3e50;
             text-align: center;
             font-weight: 400;
@@ -301,10 +312,10 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>📖 광교1동성당 성경읽기</h1>
+            <h1>📖 광교1동성당 오늘의 말씀</h1>
         </div>
 
-        <div class="date-card fade-in">
+        <div class="date-card fade-in weekday" id="dateCard">
             <div class="date-display" id="dateDisplay">2026년 1월 2일 목요일</div>
         </div>
 
@@ -420,6 +431,24 @@
 
         let currentIndex = findDateIndex(formatDateToKey(currentDate));
 
+        // 날짜 카드 색상 업데이트 함수
+        function updateDateCardColor(date) {
+            const dateCard = document.getElementById('dateCard');
+            const dayOfWeek = date.getDay();
+            
+            // 기존 클래스 제거
+            dateCard.classList.remove('weekday', 'saturday', 'sunday');
+            
+            // 요일에 따라 클래스 추가
+            if (dayOfWeek === 0) {
+                dateCard.classList.add('sunday');
+            } else if (dayOfWeek === 6) {
+                dateCard.classList.add('saturday');
+            } else {
+                dateCard.classList.add('weekday');
+            }
+        }
+
         function loadVerse(index) {
             const container = document.getElementById('cardsContainer');
             container.classList.remove('fade-in');
@@ -429,12 +458,14 @@
                     const data = verses[dateKeys[index]];
                     
                     document.getElementById('dateDisplay').textContent = formatDateDisplay(currentDate);
+                    updateDateCardColor(currentDate);
                     document.getElementById('bibleRef').textContent = data.bible || "";
                     document.getElementById('bibleVerse').textContent = data.bible_verse_1 || "말씀이 없습니다.";
                     document.getElementById('psalmRef').textContent = data.psalm || "";
                     document.getElementById('psalmVerse').textContent = data.psalm_verse_1 || "말씀이 없습니다.";
                 } else {
                     document.getElementById('dateDisplay').textContent = formatDateDisplay(currentDate);
+                    updateDateCardColor(currentDate);
                     document.getElementById('bibleRef').textContent = "";
                     document.getElementById('bibleVerse').textContent = "이 날짜의 말씀이 준비되지 않았습니다.";
                     document.getElementById('psalmRef').textContent = "";
