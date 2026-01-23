@@ -1,0 +1,746 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>스크랩 URL 생성기</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Noto Sans KR', sans-serif;
+            background: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            background: linear-gradient(135deg, #f0f8ff 0%, #e6f3ff 100%);
+            backdrop-filter: blur(15px);
+            border-radius: 24px;
+            padding: 2rem;
+            box-shadow: 0 10px 40px rgba(100, 150, 200, 0.12);
+            width: 100%;
+            max-width: 500px;
+            border: 1px solid #d9ecff;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .container::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ffd3a5, #fd6585, #ffeaa7, #a8e6cf);
+            background-size: 300% 100%;
+            animation: shimmer 3s ease-in-out infinite;
+        }
+
+        @keyframes shimmer {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        .header h1 {
+            color: #5a5a5a;
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #fd6585, #ffd3a5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .header-icon {
+            width: 36px;
+            height: 36px;
+            background: linear-gradient(135deg, #ffd3a5, #fd6585);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 1.2rem;
+            animation: bounce 2s infinite;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 53%, 80%, 100% { transform: translateY(0); }
+            40%, 43% { transform: translateY(-8px); }
+            70% { transform: translateY(-4px); }
+        }
+
+        .subtext {
+            color: #9a9a9a;
+            font-size: 1rem;
+            margin-top: 0.5rem;
+        }
+
+        .input-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 1rem;
+            color: #5a5a5a;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .input-group label i {
+            color: #fd6585;
+            font-size: 1.1rem;
+        }
+
+        .input-group input[type="date"] {
+            width: 100%;
+            padding: 1rem 1.2rem;
+            font-size: 1rem;
+            border: 2px solid #ffe4e1;
+            border-radius: 12px;
+            background: #fffaf8;
+            transition: all 0.3s ease;
+            color: #5a5a5a;
+            font-family: inherit;
+        }
+
+        .input-group input[type="date"]:focus {
+            outline: none;
+            border-color: #ffd3a5;
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(255, 211, 165, 0.15);
+            transform: translateY(-2px);
+        }
+
+        .service-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .service-btn {
+            padding: 1rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            border: 2px solid #ffe4e1;
+            border-radius: 12px;
+            background: #fffaf8;
+            color: #5a5a5a;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            position: relative;
+        }
+
+        .service-btn i {
+            font-size: 1.5rem;
+            transition: transform 0.3s ease;
+        }
+
+        .service-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(255, 211, 165, 0.2);
+        }
+
+        .service-btn.active {
+            color: white;
+            box-shadow: 0 4px 15px rgba(253, 101, 133, 0.4);
+        }
+
+        .service-btn.active i {
+            transform: scale(1.1);
+        }
+
+        .service-btn[data-service="iitp"].active {
+            background: linear-gradient(135deg, #a8e6cf, #81d4fa);
+            border-color: #a8e6cf;
+            box-shadow: 0 4px 15px rgba(168, 230, 207, 0.4);
+        }
+
+        .service-btn[data-service="mnc"].active {
+            background: linear-gradient(135deg, #ffd3a5, #ffb6c1);
+            border-color: #ffd3a5;
+            box-shadow: 0 4px 15px rgba(255, 211, 165, 0.4);
+        }
+
+        .service-btn .service-name {
+            font-size: 0.9rem;
+            font-weight: 700;
+        }
+
+        .service-btn .service-desc {
+            font-size: 0.75rem;
+            opacity: 0.8;
+        }
+
+        .generate-btn {
+            width: 100%;
+            padding: 1.2rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #a8e6cf, #ffd3a5);
+            color: #5a5a5a;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(168, 230, 207, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .generate-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(168, 230, 207, 0.4);
+        }
+
+        .generate-btn:active {
+            transform: translateY(-1px);
+        }
+
+        .generate-btn i {
+            font-size: 1.2rem;
+        }
+
+        .info-box {
+            background: linear-gradient(135deg, #fff9e6, #ffeaa7);
+            border: 1px solid #ffeaa7;
+            border-radius: 16px;
+            padding: 1.5rem;
+            margin-top: 1.5rem;
+            color: #8b7355;
+            font-size: 0.95rem;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        .info-box::before {
+            content: '💡';
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            font-size: 1.5rem;
+            opacity: 0.7;
+        }
+
+        .info-box h4 {
+            color: #8b7355;
+            margin-bottom: 0.8rem;
+            font-size: 1.1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .info-box p {
+            margin-bottom: 0.5rem;
+        }
+
+        .info-box p:last-child {
+            margin-bottom: 0;
+        }
+
+        .info-box strong {
+            font-weight: 700;
+        }
+
+        #result {
+            margin-top: 0;
+            text-align: center;
+        }
+
+        .result-btn {
+            width: 100%;
+            padding: 1.2rem 2rem;
+            font-size: 1.1rem;
+            font-weight: 600;
+            background: linear-gradient(135deg, #a29bfe, #fd79a8);
+            color: white;
+            border: none;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+            box-shadow: 0 4px 15px rgba(162, 155, 254, 0.3);
+            text-decoration: none;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .result-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(162, 155, 254, 0.4);
+            background: linear-gradient(135deg, #fd79a8, #a29bfe);
+        }
+
+        .result-btn i {
+            font-size: 1.2rem;
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.1); }
+        }
+
+        .error {
+            background: linear-gradient(135deg, #ffd4d4, #ffb3b3);
+            color: #8b3a3a;
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            font-size: 1rem;
+            text-align: center;
+            border: 1px solid #ffb3b3;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.5rem;
+        }
+
+        .error i {
+            font-size: 1.2rem;
+        }
+
+        /* 반응형 디자인 */
+        @media (max-width: 768px) {
+            body {
+                padding: 15px;
+            }
+
+            .container {
+                padding: 1.5rem;
+                border-radius: 20px;
+            }
+
+            .header h1 {
+                font-size: 1.6rem;
+                flex-direction: column;
+                gap: 0.8rem;
+            }
+
+            .header-icon {
+                width: 32px;
+                height: 32px;
+                font-size: 1rem;
+            }
+
+            .subtext {
+                font-size: 0.9rem;
+            }
+
+            .service-buttons {
+                gap: 0.8rem;
+            }
+
+            .service-btn {
+                padding: 0.9rem 1.2rem;
+            }
+
+            .service-btn i {
+                font-size: 1.3rem;
+            }
+
+            .service-btn .service-name {
+                font-size: 0.85rem;
+            }
+
+            .service-btn .service-desc {
+                font-size: 0.7rem;
+            }
+
+            .input-group label {
+                font-size: 0.9rem;
+            }
+
+            .input-group input[type="date"] {
+                padding: 0.9rem 1rem;
+                font-size: 0.95rem;
+            }
+
+            .generate-btn, .result-btn {
+                padding: 1rem 1.5rem;
+                font-size: 1rem;
+            }
+
+            .info-box {
+                padding: 1.2rem;
+                font-size: 0.9rem;
+            }
+
+            .info-box h4 {
+                font-size: 1rem;
+            }
+        }
+
+        @media (max-width: 480px) {
+            body {
+                padding: 10px;
+            }
+
+            .container {
+                padding: 1.2rem;
+                border-radius: 16px;
+            }
+
+            .header h1 {
+                font-size: 1.4rem;
+            }
+
+            .header-icon {
+                width: 28px;
+                height: 28px;
+                font-size: 0.9rem;
+            }
+
+            .subtext {
+                font-size: 0.85rem;
+            }
+
+            .service-buttons {
+                gap: 0.6rem;
+            }
+
+            .service-btn {
+                padding: 0.8rem 1rem;
+            }
+
+            .service-btn i {
+                font-size: 1.2rem;
+            }
+
+            .service-btn .service-name {
+                font-size: 0.8rem;
+            }
+
+            .service-btn .service-desc {
+                font-size: 0.65rem;
+            }
+
+            .input-group label {
+                font-size: 0.85rem;
+            }
+
+            .input-group input[type="date"] {
+                padding: 0.8rem 0.9rem;
+                font-size: 0.9rem;
+            }
+
+            .generate-btn, .result-btn {
+                padding: 0.9rem 1.2rem;
+                font-size: 0.95rem;
+            }
+
+            .info-box {
+                padding: 1rem;
+                font-size: 0.85rem;
+            }
+
+            .info-box h4 {
+                font-size: 0.95rem;
+            }
+        }
+
+        @media (max-width: 360px) {
+            .container {
+                padding: 1rem;
+            }
+
+            .header h1 {
+                font-size: 1.2rem;
+            }
+
+            .service-buttons {
+                grid-template-columns: 1fr;
+                gap: 0.5rem;
+            }
+
+            .input-group input[type="date"] {
+                padding: 0.7rem 0.8rem;
+                font-size: 0.85rem;
+            }
+
+            .generate-btn, .result-btn {
+                padding: 0.8rem 1rem;
+                font-size: 0.9rem;
+            }
+        }
+
+        /* 다크모드 지원 */
+        @media (prefers-color-scheme: dark) {
+            body {
+                background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 50%, #2d2d2d 100%);
+            }
+
+            .container {
+                background: #1e1e1e;
+                color: #e1e8ed;
+                box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            }
+
+            .header h1 {
+                color: #e1e8ed;
+            }
+
+            .subtext {
+                color: #a0a0a0;
+            }
+
+            .input-group label {
+                color: #e1e8ed;
+            }
+
+            .service-btn {
+                background: #2c2c2c;
+                border-color: #444;
+                color: #e1e8ed;
+            }
+
+            .service-btn.active {
+                color: white;
+            }
+
+            .service-btn[data-service="iitp"].active {
+                background: linear-gradient(135deg, #a8e6cf, #81d4fa);
+                border-color: #a8e6cf;
+            }
+
+            .service-btn[data-service="mnc"].active {
+                background: linear-gradient(135deg, #ffd3a5, #ffb6c1);
+                border-color: #ffd3a5;
+            }
+
+            .input-group input[type="date"] {
+                background: #2c2c2c;
+                border-color: #444;
+                color: #e1e8ed;
+            }
+
+            .info-box {
+                background: linear-gradient(135deg, #3e3e3e, #2c2c2c);
+                border-color: #555;
+                color: #d4d4d4;
+            }
+
+            .info-box h4 {
+                color: #d4d4d4;
+            }
+        }
+
+        /* 접근성 향상 */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
+
+        /* 고해상도 디스플레이 최적화 */
+        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
+            .container {
+                box-shadow: 0 20px 40px rgba(0, 0, 0, 0.12);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>
+                <div class="header-icon">
+                    <i class="fas fa-link"></i>
+                </div>
+                스크랩 URL 생성기
+            </h1>
+            <div class="subtext">IITP 또는 M.N.C 데이터를 조회할 날짜를 선택하세요</div>
+        </div>
+
+        <div class="input-group">
+            <label>
+                <i class="fas fa-list"></i>
+                서비스 선택
+            </label>
+            <div class="service-buttons">
+                <button class="service-btn active" data-service="iitp" onclick="selectService('iitp')">
+                    <i class="fas fa-building"></i>
+                    <span class="service-name">IITP</span>
+                    <span class="service-desc">IT,정보통신관련 뉴스</span>
+                </button>
+                <button class="service-btn" data-service="mnc" onclick="selectService('mnc')">
+                    <i class="fas fa-chart-line"></i>
+                    <span class="service-name">교육부</span>
+                    <span class="service-desc">교육관련 뉴스</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="input-group">
+            <label for="date">
+                <i class="fas fa-calendar-alt"></i>
+                조회 날짜 선택
+            </label>
+            <input type="date" id="date">
+        </div>
+
+        <button class="generate-btn" onclick="generateURL()">
+            <i class="fas fa-magic"></i>
+            URL 생성하기
+        </button>
+
+        <div id="result"></div>
+    </div>
+
+    <script>
+        // 오늘 날짜로 기본값 설정
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+
+        // 선택된 서비스 저장
+        let selectedService = 'iitp';
+
+        // 서비스 선택 함수
+        function selectService(service) {
+            selectedService = service;
+            
+            // 모든 버튼에서 active 클래스 제거
+            document.querySelectorAll('.service-btn').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            
+            // 선택된 버튼에 active 클래스 추가
+            document.querySelector(`[data-service="${service}"]`).classList.add('active');
+        }
+
+        function generateURL() {
+            const service = selectedService;
+            const dateInput = document.getElementById('date').value;
+            const resultDiv = document.getElementById('result');
+
+            if (!dateInput) {
+                resultDiv.innerHTML = '<div class="error"><i class="fas fa-exclamation-triangle"></i>날짜를 입력하세요.</div>';
+                return;
+            }
+
+            let fullUrl;
+            let serviceName;
+
+            if (service === 'iitp') {
+                serviceName = 'IITP';
+                // IITP URL 생성
+                const dataDate = new Date(dateInput);
+                const yyyy = dataDate.getFullYear();
+                const mm = String(dataDate.getMonth() + 1).padStart(2, '0');
+                const dd = String(dataDate.getDate()).padStart(2, '0');
+                const yyyymmdd = yyyy + mm + dd;
+                const yyyymmdd0 = yyyymmdd + '0';
+
+                const hanjaBytes = {
+                    0: [0xec, 0xed], // 日
+                    1: [0xea, 0xc5], // 月
+                    2: [0xfb, 0xfd], // 火
+                    3: [0xe2, 0xa9], // 水
+                    4: [0xd9, 0xca], // 木
+                    5: [0xd1, 0xd1], // 金
+                    6: [0xf7, 0xcf]  // 土
+                };
+                const dayIndex = dataDate.getDay();
+                const hanja = hanjaBytes[dayIndex];
+
+                const bytes = [];
+                'iitp|'.split('').forEach(c => bytes.push(c.charCodeAt(0)));
+                yyyymmdd0.split('').forEach(c => bytes.push(c.charCodeAt(0)));
+                bytes.push('|'.charCodeAt(0));
+                String(yyyy).split('').forEach(c => bytes.push(c.charCodeAt(0)));
+                bytes.push(0xb3, 0xe2); // 년
+                bytes.push(0x20); // space
+                mm.split('').forEach(c => bytes.push(c.charCodeAt(0)));
+                bytes.push(0xbf, 0xf9); // 월
+                bytes.push(0x20); // space
+                dd.split('').forEach(c => bytes.push(c.charCodeAt(0)));
+                bytes.push(0xc0, 0xcf); // 일
+                bytes.push(0x20, 0x20); // space space
+                bytes.push(0x28); // (
+                hanja.forEach(b => bytes.push(b));
+                bytes.push(0x29); // )
+                bytes.push(0x20); // space
+                bytes.push(0xc1, 0xb6, 0xb0, 0xa3); // 조간
+
+                const binaryString = String.fromCharCode.apply(null, bytes);
+                const q = btoa(binaryString);
+
+                const baseUrl = 'https://mail2.scrapmaster.co.kr/mail/include/iitp_list_pop.php';
+                fullUrl = `${baseUrl}?scrapinfo=${yyyymmdd0}&q=${encodeURIComponent(q)}&from=display`;
+            } else { // mnc
+                serviceName = 'M.N.C';
+                // M.N.C URL 생성 (세션 유지)
+                const searchDate = dateInput;
+                const baseUrl = 'https://mnc.scrapmaster.co.kr/v1_75/mb_home.php';
+                fullUrl = `${baseUrl}?scrapBookNo=13459&search_date=${encodeURIComponent(searchDate)}&flag=1&id=moego2009&calen_chk=&div=0&srch_disp=N&page=1&back_url=mb_list&view_cnt=&list=&search_keyword=&lValue=0&lValue=1&lValue=2&lValue=4`;
+            }
+
+            // 날짜 포맷팅 (YYYY-MM-DD를 YYYY년 MM월 DD일로 변환)
+            const formatDate = (dateStr) => {
+                const date = new Date(dateStr);
+                const year = date.getFullYear();
+                const month = date.getMonth() + 1;
+                const day = date.getDate();
+                return `${year}년 ${month}월 ${day}일`;
+            };
+
+            const formattedDate = formatDate(dateInput);
+
+            // 결과 버튼으로 표시
+            resultDiv.innerHTML = `
+                <a href="${fullUrl}" target="_blank" class="result-btn">
+                    <i class="fas fa-external-link-alt"></i>
+                    ${serviceName} 목록 보기 (${formattedDate})
+                </a>
+            `;
+        }
+
+        // Enter 키 이벤트 처리
+        document.getElementById('date').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                generateURL();
+            }
+        });
+    </script>
+</body>
+</html>
