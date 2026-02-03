@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>매일 성경 통독 기록장</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --primary: #D4A574;
+            --secondary: #C9947A;
+            --bg: #FFFBF5;
+            --card: #FFFFFF;
+            --text: #5D4E37;
+            --border: #E8DCC8;
+        }
+        
+        body.dark-mode {
+            --primary: #B8956A;
+            --bg: #3D3325;
+            --card: #3A3020;
+            --text: #E8DCC8;
+            --border: #4A3F2F;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #F5E6D3 0%, #E8D5C4 100%);
+            color: var(--text);
+            padding-bottom: 80px;
+        }
+        
+        .container { max-width: 900px; margin: 0 auto; background: var(--bg); min-height: 100vh; }
+        
+        .header {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            padding: 20px;
+            text-align: center;
+            position: relative;
+        }
+        
+        .dark-toggle {
+            position: absolute;
+            top: 20px;
+            right: 20px;
+            background: rgba(255,255,255,0.2);
+            border: none;
+            color: white;
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 20px;
+        }
+        
+        .section { padding: 15px; }
+        
+        .card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 16px;
+            border: 2px solid var(--border);
+            margin-bottom: 15px;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 12px;
+            margin-bottom: 15px;
+        }
+        
+        .stat-card {
+            background: var(--card);
+            padding: 20px;
+            border-radius: 16px;
+            border: 2px solid var(--border);
+            text-align: center;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .stat-label { font-size: 12px; color: var(--text); margin-top: 5px; }
+        
+        /* 달력 스타일 */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+        
+        .calendar-nav-btn {
+            background: var(--bg);
+            border: 2px solid var(--border);
+            color: var(--text);
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        
+        .calendar-nav-btn:hover {
+            background: var(--primary);
+            color: white;
+        }
+        
+        .calendar-month {
+            font-size: 18px;
+            font-weight: 700;
+            color: var(--primary);
+        }
+        
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+        
+        .calendar-day-header {
+            text-align: center;
+            padding: 8px;
+            font-weight: 600;
+            font-size: 11px;
+            color: var(--text);
+        }
+        
+        .calendar-day {
+            aspect-ratio: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            background: var(--bg);
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 13px;
+            cursor: pointer;
+            position: relative;
+            min-height: 45px;
+            transition: all 0.3s;
+        }
+        
+        .calendar-day.empty { background: transparent; border: none; cursor: default; }
+        .calendar-day.today { border-color: #4CAF50; border-width: 3px; }
+        
+        .calendar-day.recorded {
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            font-weight: 600;
+        }
+        
+        .calendar-day.selected {
+            border-color: var(--primary);
+            border-width: 3px;
+            box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.2);
+            transform: scale(1.05);
+        }
+        
+        .calendar-day:hover:not(.empty) {
+            transform: scale(1.05);
+        }
+        
+        .calendar-icon { font-size: 12px; margin-top: 2px; }
+        .calendar-favorite { position: absolute; top: 2px; right: 2px; font-size: 10px; }
+        
+        .calendar-stats {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 2px solid var(--border);
+            text-align: center;
+            font-size: 14px;
+            color: var(--text);
+        }
+        
+        .selected-info {
+            background: linear-gradient(135deg, #FFF4E6 0%, #FFE8D1 100%);
+            padding: 15px;
+            border-radius: 12px;
+            border-left: 4px solid var(--primary);
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        
+        .selected-info h3 { color: var(--primary); margin-bottom: 5px; }
+        
+        /* 폼 스타일 */
+        .form-group { margin-bottom: 15px; }
+        .form-label { display: block; margin-bottom: 5px; font-weight: 600; font-size: 14px; }
+        .form-input, .form-select, .form-textarea {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 14px;
+            background: var(--card);
+            color: var(--text);
+        }
+        
+        .form-textarea { min-height: 100px; resize: vertical; }
+        .form-row { display: grid; grid-template-columns: 1.5fr 1fr; gap: 10px; }
+        
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+        }
+        
+        /* 기록 카드 */
+        .record-card {
+            background: var(--card);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 20px;
+            margin-bottom: 15px;
+            position: relative;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .record-card.favorite { border-color: #FFD700; }
+        .favorite-star {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        
+        .record-header {
+            padding-bottom: 10px;
+            border-bottom: 2px solid var(--border);
+            margin-bottom: 10px;
+        }
+        
+        .record-date { color: var(--primary); font-weight: 600; font-size: 13px; }
+        .record-title { font-size: 18px; font-weight: 700; margin: 10px 0; }
+        
+        .record-verse {
+            background: linear-gradient(135deg, #FFF4E6 0%, #FFE8D1 100%);
+            padding: 15px;
+            border-left: 4px solid var(--primary);
+            border-radius: 10px;
+            font-style: italic;
+            margin: 10px 0;
+            line-height: 1.6;
+        }
+        
+        .record-meditation { color: var(--text); line-height: 1.6; margin: 10px 0; }
+        
+        .record-actions {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .btn-edit, .btn-delete {
+            padding: 10px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            color: white;
+        }
+        
+        .btn-edit { background: linear-gradient(135deg, #81C784 0%, #66BB6A 100%); }
+        .btn-delete { background: linear-gradient(135deg, #E57373 0%, #EF5350 100%); }
+        
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: var(--text);
+            opacity: 0.6;
+        }
+        
+        .empty-icon { font-size: 48px; margin-bottom: 10px; }
+        
+        .bottom-nav {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: var(--card);
+            border-top: 2px solid var(--border);
+            display: flex;
+            justify-content: space-around;
+            padding: 10px 0;
+            z-index: 100;
+        }
+        
+        .nav-item {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 5px;
+            cursor: pointer;
+            border: none;
+            background: none;
+            color: var(--text);
+        }
+        
+        .nav-item.active { color: var(--primary); }
+        .nav-icon { font-size: 24px; }
+        .nav-label { font-size: 11px; margin-top: 2px; }
+        
+        .page { display: none; }
+        .page.active { display: block; }
+        
+        @media (min-width: 600px) {
+            .bottom-nav { display: none; }
+            .page { display: block !important; }
+            body { padding-bottom: 0; }
+            .stats-grid { grid-template-columns: repeat(4, 1fr); }
+        }
+        
+        @media (max-width: 599px) {
+            .form-row { grid-template-columns: 1fr; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 홈 페이지 -->
+        <div class="page active" id="homePage">
+            <div class="header">
+                <button class="dark-toggle" onclick="toggleDark()">🌙</button>
+                <h1>📖 성경 통독</h1>
+                <p>매일 하나님의 말씀과 함께</p>
+            </div>
+            
+            <div class="section">
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalRecords">0</div>
+                        <div class="stat-label">전체 기록</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="monthRecords">0</div>
+                        <div class="stat-label">이번 달</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="consecutiveDays">0</div>
+                        <div class="stat-label">🔥 연속</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="favoriteCount">0</div>
+                        <div class="stat-label">즐겨찾기</div>
+                    </div>
+                </div>
+                
+                <!-- 홈 달력 -->
+                <div class="card">
+                    <div class="calendar-header">
+                        <button class="calendar-nav-btn" onclick="changeHomeMonth(-1)">◀</button>
+                        <div class="calendar-month" id="homeMonth"></div>
+                        <button class="calendar-nav-btn" onclick="changeHomeMonth(1)">▶</button>
+                    </div>
+                    <div class="calendar-grid" id="homeCalendar"></div>
+                    <div class="calendar-stats" id="homeStats"></div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 기록하기 페이지 -->
+        <div class="page" id="writePage">
+            <div class="header">
+                <h1>✍️ 기록하기</h1>
+            </div>
+            
+            <div class="section">
+                <form onsubmit="saveRecord(event)">
+                    <div class="form-group">
+                        <label class="form-label">📅 날짜</label>
+                        <input type="date" id="date" class="form-input" required>
+                    </div>
+                    
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label class="form-label">📚 성경 책</label>
+                            <select id="book" class="form-select" required>
+                                <option value="">선택하세요</option>
+                                <option>창세기</option><option>출애굽기</option><option>레위기</option>
+                                <option>민수기</option><option>신명기</option><option>여호수아</option>
+                                <option>마태복음</option><option>마가복음</option><option>누가복음</option>
+                                <option>요한복음</option><option>로마서</option><option>고린도전서</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">🔖 장절</label>
+                            <input type="text" id="chapter" class="form-input" placeholder="1:1-5" required>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">✨ 기억에 남는 구절</label>
+                        <textarea id="verse" class="form-textarea" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">💭 묵상</label>
+                        <textarea id="meditation" class="form-textarea" required></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label><input type="checkbox" id="favorite"> ⭐ 즐겨찾기</label>
+                    </div>
+                    
+                    <button type="submit" class="btn-primary">💾 저장하기</button>
+                </form>
+            </div>
+        </div>
+        
+        <!-- 목록 페이지 -->
+        <div class="page" id="listPage">
+            <div class="header">
+                <h1>📚 기록 목록</h1>
+            </div>
+            
+            <div class="section">
+                <!-- 목록 달력 (클릭 가능) -->
+                <div class="card">
+                    <div class="calendar-header">
+                        <button class="calendar-nav-btn" onclick="changeListMonth(-1)">◀</button>
+                        <div class="calendar-month" id="listMonth"></div>
+                        <button class="calendar-nav-btn" onclick="changeListMonth(1)">▶</button>
+                    </div>
+                    <div class="calendar-grid" id="listCalendar"></div>
+                    <div class="calendar-stats" id="listStats"></div>
+                </div>
+                
+                <!-- 선택된 날짜 정보 -->
+                <div id="selectedInfo"></div>
+                
+                <!-- 기록 목록 -->
+                <div id="recordsList"></div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- 하단 탭 -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" onclick="showPage('home')">
+            <div class="nav-icon">🏠</div>
+            <div class="nav-label">홈</div>
+        </button>
+        <button class="nav-item" onclick="showPage('write')">
+            <div class="nav-icon">✍️</div>
+            <div class="nav-label">기록</div>
+        </button>
+        <button class="nav-item" onclick="showPage('list')">
+            <div class="nav-icon">📚</div>
+            <div class="nav-label">목록</div>
+        </button>
+    </nav>
+    
+    <script>
+        // 전역 상태
+        let records = JSON.parse(localStorage.getItem('records') || '[]');
+        let editId = null;
+        let homeYear = new Date().getFullYear();
+        let homeMonth = new Date().getMonth() + 1;
+        let listYear = new Date().getFullYear();
+        let listMonth = new Date().getMonth() + 1;
+        let selectedDate = null;
+        
+        // 초기화
+        document.getElementById('date').value = new Date().toISOString().split('T')[0];
+        updateStats();
+        renderHomeCalendar();
+        renderListCalendar();
+        displayRecords();
+        
+        // 다크모드
+        function toggleDark() {
+            document.body.classList.toggle('dark-mode');
+            document.querySelector('.dark-toggle').textContent = 
+                document.body.classList.contains('dark-mode') ? '☀️' : '🌙';
+        }
+        
+        // 페이지 전환
+        function showPage(page) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.nav-item').forEach(n => n.classList.remove('active'));
+            
+            document.getElementById(page + 'Page').classList.add('active');
+            event.target.closest('.nav-item').classList.add('active');
+            
+            if (page === 'home') renderHomeCalendar();
+            if (page === 'list') renderListCalendar();
+        }
+        
+        // 통계 업데이트
+        function updateStats() {
+            document.getElementById('totalRecords').textContent = records.length;
+            
+            const thisMonth = new Date().toISOString().slice(0, 7);
+            const monthCount = records.filter(r => r.date.startsWith(thisMonth)).length;
+            document.getElementById('monthRecords').textContent = monthCount;
+            
+            const consecutive = calculateConsecutive();
+            document.getElementById('consecutiveDays').textContent = consecutive;
+            
+            const favCount = records.filter(r => r.favorite).length;
+            document.getElementById('favoriteCount').textContent = favCount;
+        }
+        
+        // 연속 일수 계산
+        function calculateConsecutive() {
+            if (records.length === 0) return 0;
+            const dates = [...new Set(records.map(r => r.date))].sort().reverse();
+            const today = new Date().toISOString().split('T')[0];
+            let count = 0;
+            let current = new Date(today);
+            
+            for (let date of dates) {
+                const check = current.toISOString().split('T')[0];
+                if (date === check) {
+                    count++;
+                    current.setDate(current.getDate() - 1);
+                } else {
+                    break;
+                }
+            }
+            return count;
+        }
+        
+        // 달력 렌더링 (공통)
+        function renderCalendar(year, month, gridId, clickable) {
+            const grid = document.getElementById(gridId);
+            grid.innerHTML = '';
+            
+            // 요일 헤더
+            ['일','월','화','수','목','금','토'].forEach(day => {
+                const header = document.createElement('div');
+                header.className = 'calendar-day-header';
+                header.textContent = day;
+                grid.appendChild(header);
+            });
+            
+            const firstDay = new Date(year, month - 1, 1).getDay();
+            const lastDate = new Date(year, month, 0).getDate();
+            const today = new Date().toISOString().split('T')[0];
+            
+            // 빈 칸
+            for (let i = 0; i < firstDay; i++) {
+                const empty = document.createElement('div');
+                empty.className = 'calendar-day empty';
+                grid.appendChild(empty);
+            }
+            
+            // 날짜
+            for (let date = 1; date <= lastDate; date++) {
+                const dateStr = `${year}-${String(month).padStart(2,'0')}-${String(date).padStart(2,'0')}`;
+                const dayRecords = records.filter(r => r.date === dateStr);
+                const hasRecords = dayRecords.length > 0;
+                const hasFav = dayRecords.some(r => r.favorite);
+                
+                const cell = document.createElement('div');
+                cell.className = 'calendar-day';
+                
+                if (hasRecords) cell.classList.add('recorded');
+                if (dateStr === today) cell.classList.add('today');
+                if (selectedDate === dateStr) cell.classList.add('selected');
+                
+                cell.innerHTML = `
+                    <div>${date}</div>
+                    ${hasRecords ? '<div class="calendar-icon">✓</div>' : ''}
+                    ${hasFav ? '<div class="calendar-favorite">⭐</div>' : ''}
+                `;
+                
+                if (clickable && !cell.classList.contains('empty')) {
+                    cell.onclick = () => selectDate(dateStr);
+                }
+                
+                grid.appendChild(cell);
+            }
+        }
+        
+        // 홈 달력
+        function renderHomeCalendar() {
+            document.getElementById('homeMonth').textContent = `${homeYear}년 ${homeMonth}월`;
+            renderCalendar(homeYear, homeMonth, 'homeCalendar', false);
+            
+            const monthStr = `${homeYear}-${String(homeMonth).padStart(2,'0')}`;
+            const dates = new Set(records.filter(r => r.date.startsWith(monthStr)).map(r => r.date));
+            const total = new Date(homeYear, homeMonth, 0).getDate();
+            document.getElementById('homeStats').textContent = `통독: ${dates.size}일 / ${total}일`;
+        }
+        
+        function changeHomeMonth(delta) {
+            homeMonth += delta;
+            if (homeMonth > 12) { homeMonth = 1; homeYear++; }
+            if (homeMonth < 1) { homeMonth = 12; homeYear--; }
+            renderHomeCalendar();
+        }
+        
+        // 목록 달력
+        function renderListCalendar() {
+            document.getElementById('listMonth').textContent = `${listYear}년 ${listMonth}월`;
+            renderCalendar(listYear, listMonth, 'listCalendar', true);
+            
+            const monthStr = `${listYear}-${String(listMonth).padStart(2,'0')}`;
+            const dates = new Set(records.filter(r => r.date.startsWith(monthStr)).map(r => r.date));
+            const total = new Date(listYear, listMonth, 0).getDate();
+            document.getElementById('listStats').textContent = `통독: ${dates.size}일 / ${total}일`;
+        }
+        
+        function changeListMonth(delta) {
+            listMonth += delta;
+            if (listMonth > 12) { listMonth = 1; listYear++; }
+            if (listMonth < 1) { listMonth = 12; listYear--; }
+            selectedDate = null;
+            renderListCalendar();
+            displayRecords();
+        }
+        
+        // 날짜 선택
+        function selectDate(date) {
+            selectedDate = date;
+            renderListCalendar();
+            
+            const dayRecords = records.filter(r => r.date === date);
+            const dateObj = new Date(date);
+            const formatted = `${dateObj.getMonth()+1}월 ${dateObj.getDate()}일`;
+            
+            document.getElementById('selectedInfo').innerHTML = dayRecords.length > 0
+                ? `<div class="selected-info"><h3>${formatted} 📖</h3><p>통독 완료 🙏 (${dayRecords.length}개)</p></div>`
+                : `<div class="selected-info"><h3>${formatted}</h3><p>기록 없음</p></div>`;
+            
+            displayRecords();
+        }
+        
+        // 기록 표시
+        function displayRecords() {
+            const list = document.getElementById('recordsList');
+            let toShow = selectedDate 
+                ? records.filter(r => r.date === selectedDate)
+                : records.filter(r => r.date.startsWith(`${listYear}-${String(listMonth).padStart(2,'0')}`));
+            
+            if (!selectedDate) document.getElementById('selectedInfo').innerHTML = '';
+            
+            if (toShow.length === 0) {
+                list.innerHTML = '<div class="empty-state"><div class="empty-icon">📖</div><p>기록이 없습니다</p></div>';
+                return;
+            }
+            
+            toShow.sort((a,b) => new Date(b.date) - new Date(a.date));
+            
+            list.innerHTML = toShow.map(r => `
+                <div class="record-card ${r.favorite?'favorite':''}">
+                    <div class="favorite-star" onclick="toggleFav(${r.id})">${r.favorite?'⭐':'☆'}</div>
+                    <div class="record-header">
+                        <div class="record-date">📅 ${r.date}</div>
+                    </div>
+                    <div class="record-title">📖 ${r.book} ${r.chapter}</div>
+                    <div class="record-verse">${r.verse}</div>
+                    <div class="record-meditation">${r.meditation}</div>
+                    <div class="record-actions">
+                        <button class="btn-edit" onclick="editRecord(${r.id})">✏️ 수정</button>
+                        <button class="btn-delete" onclick="deleteRecord(${r.id})">🗑️ 삭제</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+        
+        // 저장
+        function saveRecord(e) {
+            e.preventDefault();
+            const data = {
+                id: editId || Date.now(),
+                date: document.getElementById('date').value,
+                book: document.getElementById('book').value,
+                chapter: document.getElementById('chapter').value,
+                verse: document.getElementById('verse').value,
+                meditation: document.getElementById('meditation').value,
+                favorite: document.getElementById('favorite').checked
+            };
+            
+            if (editId) {
+                records = records.map(r => r.id === editId ? data : r);
+                editId = null;
+            } else {
+                records.push(data);
+            }
+            
+            localStorage.setItem('records', JSON.stringify(records));
+            e.target.reset();
+            document.getElementById('date').value = new Date().toISOString().split('T')[0];
+            
+            updateStats();
+            renderHomeCalendar();
+            renderListCalendar();
+            showPage('home');
+            alert('✅ 저장되었습니다!');
+        }
+        
+        // 수정
+        function editRecord(id) {
+            const r = records.find(rec => rec.id === id);
+            if (!r) return;
+            
+            document.getElementById('date').value = r.date;
+            document.getElementById('book').value = r.book;
+            document.getElementById('chapter').value = r.chapter;
+            document.getElementById('verse').value = r.verse;
+            document.getElementById('meditation').value = r.meditation;
+            document.getElementById('favorite').checked = r.favorite || false;
+            
+            editId = id;
+            showPage('write');
+        }
+        
+        // 삭제
+        function deleteRecord(id) {
+            if (!confirm('삭제하시겠습니까?')) return;
+            records = records.filter(r => r.id !== id);
+            localStorage.setItem('records', JSON.stringify(records));
+            updateStats();
+            renderHomeCalendar();
+            renderListCalendar();
+            displayRecords();
+        }
+        
+        // 즐겨찾기 토글
+        function toggleFav(id) {
+            const r = records.find(rec => rec.id === id);
+            if (r) r.favorite = !r.favorite;
+            localStorage.setItem('records', JSON.stringify(records));
+            updateStats();
+            renderHomeCalendar();
+            renderListCalendar();
+            displayRecords();
+        }
+    </script>
+</body>
+</html>
