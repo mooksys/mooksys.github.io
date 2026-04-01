@@ -728,13 +728,30 @@
           // ── 3. 실제 화면의 컨테이너를 직접 캡처 ──
           const captureTarget = document.getElementById("mainContainer");
 
+          // 💡 현재 요소의 실제 렌더링 크기를 가져옵니다.
+          const targetWidth = captureTarget.offsetWidth;
+          const targetHeight = captureTarget.offsetHeight;
+
           try {
             const dataUrl = await htmlToImage.toPng(captureTarget, {
-              pixelRatio: 4, // ← 고해상도 핵심 (4배 = 2160p급)
+              pixelRatio: 4,
               quality: 1.0,
               backgroundColor: "#f5f7fa",
               cacheBust: true,
               skipFonts: false,
+
+              // 👇 [해결책 1] 최종 캡처 이미지의 캔버스 크기를 상하좌우 10px씩(총 20px) 늘립니다.
+              width: targetWidth + 20,
+              height: targetHeight + 20,
+
+              style: {
+                padding: "10px",
+                // 👇 [해결책 2] 패딩이 들어갈 공간을 확보하기 위해 CSS 속성을 강제로 재정의합니다.
+                width: targetWidth + 20 + "px",
+                maxWidth: "none", // 원래 있던 max-width: 550px 제한을 캡처 시에만 해제
+                boxSizing: "border-box", // 늘어난 width 안에 padding이 안정적으로 포함되도록 설정
+                margin: "0", // 중앙 정렬용 여백이 캡처 화면에 영향을 주지 않도록 리셋
+              },
             });
 
             // ── 4. 다운로드 ──
