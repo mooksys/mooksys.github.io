@@ -7,7 +7,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=SF+Mono:wght@400;600&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
       rel="stylesheet"
     />
     <link
@@ -23,170 +23,64 @@
       }
 
       :root {
-        --bg-light: #f5f5f7;
-        --bg-card-light: rgba(255, 255, 255, 0.8);
-        --text-light: #1d1d1f;
-        --text-secondary-light: #86868b;
-        --accent-blue: #007aff;
-        --accent-purple: #af52de;
-        --accent-pink: #ff2d55;
-        --accent-orange: #ff9500;
-        --accent-green: #34c759;
+        /* Light Theme */
+        --bg-main: #ffffff;
+        --bg-secondary: #fafafa;
+        --text-primary: #111111;
+        --text-secondary: #666666;
+        --border-color: #eaeaea;
+        --border-hover: #000000;
+        --accent: #0070f3;
+        --btn-primary-bg: #000000;
+        --btn-primary-text: #ffffff;
+        --btn-secondary-bg: #ffffff;
+        --btn-secondary-border: #eaeaea;
+      }
 
-        --bg-dark: #1c1c1e;
-        --bg-card-dark: rgba(44, 44, 46, 0.8);
-        --text-dark: #f5f5f7;
-        --text-secondary-dark: #98989d;
+      body.dark-mode {
+        /* Dark Theme */
+        --bg-main: #0a0a0a;
+        --bg-secondary: #111111;
+        --text-primary: #ededed;
+        --text-secondary: #a1a1aa;
+        --border-color: #333333;
+        --border-hover: #ffffff;
+        --accent: #3291ff;
+        --btn-primary-bg: #ffffff;
+        --btn-primary-text: #000000;
+        --btn-secondary-bg: #0a0a0a;
+        --btn-secondary-border: #333333;
       }
 
       body {
         font-family:
-          -apple-system, BlinkMacSystemFont, "Inter", "SF Pro Display",
+          "Inter",
+          -apple-system,
+          BlinkMacSystemFont,
           sans-serif;
-        background: var(--bg-light);
-        color: var(--text-light);
+        background-color: var(--bg-main);
+        color: var(--text-primary);
         min-height: 100vh;
+        line-height: 1.5;
         -webkit-font-smoothing: antialiased;
         transition:
-          background 0.3s ease,
-          color 0.3s ease;
-      }
-
-      body.dark-mode {
-        background: var(--bg-dark);
-        color: var(--text-dark);
-      }
-
-      /* 배경 블러 효과 */
-      body::before {
-        content: "";
-        position: fixed;
-        top: -50%;
-        left: -50%;
-        width: 200%;
-        height: 200%;
-        background:
-          radial-gradient(
-            circle at 30% 40%,
-            rgba(0, 122, 255, 0.08) 0%,
-            transparent 50%
-          ),
-          radial-gradient(
-            circle at 70% 60%,
-            rgba(175, 82, 222, 0.08) 0%,
-            transparent 50%
-          );
-        animation: float 20s ease-in-out infinite;
-        z-index: -1;
-      }
-
-      @keyframes float {
-        0%,
-        100% {
-          transform: translate(0, 0) rotate(0deg);
-        }
-        33% {
-          transform: translate(30px, -30px) rotate(120deg);
-        }
-        66% {
-          transform: translate(-20px, 20px) rotate(240deg);
-        }
-      }
-
-      /* 로딩 스크린 */
-      .loading-screen {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: var(--bg-light);
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        z-index: 9999;
-        transition:
-          opacity 0.5s,
-          visibility 0.5s;
-      }
-
-      body.dark-mode .loading-screen {
-        background: var(--bg-dark);
-      }
-
-      .loading-screen.hidden {
-        opacity: 0;
-        visibility: hidden;
-      }
-
-      .loading-logo {
-        font-size: 3rem;
-        margin-bottom: 20px;
-        animation: bounce 1s ease-in-out infinite;
-      }
-
-      .loading-bar {
-        width: 200px;
-        height: 4px;
-        background: rgba(0, 0, 0, 0.1);
-        border-radius: 2px;
-        overflow: hidden;
-      }
-
-      body.dark-mode .loading-bar {
-        background: rgba(255, 255, 255, 0.1);
-      }
-
-      .loading-progress {
-        height: 100%;
-        background: var(--accent-blue);
-        border-radius: 2px;
-        animation: loading 1.5s ease-in-out infinite;
-      }
-
-      @keyframes bounce {
-        0%,
-        100% {
-          transform: translateY(0);
-        }
-        50% {
-          transform: translateY(-10px);
-        }
-      }
-
-      @keyframes loading {
-        0% {
-          width: 0%;
-        }
-        50% {
-          width: 70%;
-        }
-        100% {
-          width: 100%;
-        }
+          background-color 0.2s ease,
+          color 0.2s ease;
       }
 
       /* 네비게이션 바 */
       .navbar {
         position: sticky;
         top: 0;
-        background: var(--bg-card-light);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        background-color: rgba(var(--bg-main), 0.8);
+        backdrop-filter: blur(8px);
+        border-bottom: 1px solid var(--border-color);
         padding: 16px 24px;
         z-index: 100;
-        transition: all 0.3s ease;
-      }
-
-      body.dark-mode .navbar {
-        background: var(--bg-card-dark);
-        border-bottom-color: rgba(255, 255, 255, 0.08);
       }
 
       .navbar-content {
-        max-width: 1200px;
+        max-width: 900px;
         margin: 0 auto;
         display: flex;
         justify-content: space-between;
@@ -194,23 +88,18 @@
       }
 
       .navbar-title {
-        font-size: 1.2rem;
-        font-weight: 600;
-        letter-spacing: -0.02em;
-      }
-
-      .navbar-controls {
-        display: flex;
-        gap: 12px;
+        font-size: 1.25rem;
+        font-weight: 700;
+        letter-spacing: -0.04em;
       }
 
       .control-btn {
+        background: none;
+        border: 1px solid var(--border-color);
+        border-radius: 6px;
         width: 36px;
         height: 36px;
-        border-radius: 50%;
-        border: none;
-        background: rgba(0, 0, 0, 0.05);
-        color: var(--text-light);
+        color: var(--text-primary);
         cursor: pointer;
         display: flex;
         align-items: center;
@@ -218,135 +107,32 @@
         transition: all 0.2s ease;
       }
 
-      body.dark-mode .control-btn {
-        background: rgba(255, 255, 255, 0.1);
-        color: var(--text-dark);
-      }
-
       .control-btn:hover {
-        background: rgba(0, 122, 255, 0.15);
-        transform: scale(1.05);
+        border-color: var(--border-hover);
+        color: var(--border-hover);
       }
 
       /* 메인 컨테이너 */
       .dashboard-container {
-        max-width: 1200px;
+        max-width: 900px;
         margin: 0 auto;
-        padding: 32px 24px 80px;
-      }
-
-      /* 헤더 섹션 */
-      .header-section {
-        margin-bottom: 40px;
-        text-align: left;
-      }
-
-      .greeting {
-        font-size: 2.5rem;
-        font-weight: 700;
-        letter-spacing: -0.03em;
-        margin-bottom: 8px;
-        background: linear-gradient(
-          135deg,
-          var(--accent-blue),
-          var(--accent-purple)
-        );
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-        background-clip: text;
-      }
-
-      .subtitle-text {
-        font-size: 1.1rem;
-        color: var(--text-secondary-light);
-        font-weight: 400;
-      }
-
-      body.dark-mode .subtitle-text {
-        color: var(--text-secondary-dark);
+        padding: 48px 24px 80px;
       }
 
       /* 프로필 섹션 */
       .profile-section {
-        background: var(--bg-card-light);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border-radius: 20px;
-        padding: 32px;
-        margin-bottom: 24px;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        box-shadow:
-          0 1px 3px rgba(0, 0, 0, 0.05),
-          0 10px 40px rgba(0, 0, 0, 0.03);
         display: flex;
         align-items: center;
-        gap: 24px;
-        transition: all 0.3s ease;
-      }
-
-      body.dark-mode .profile-section {
-        background: var(--bg-card-dark);
-        border-color: rgba(255, 255, 255, 0.08);
-        box-shadow:
-          0 1px 3px rgba(0, 0, 0, 0.3),
-          0 10px 40px rgba(0, 0, 0, 0.2);
-      }
-
-      .profile-section:hover {
-        transform: translateY(-2px);
-        box-shadow:
-          0 2px 6px rgba(0, 0, 0, 0.08),
-          0 20px 60px rgba(0, 0, 0, 0.06);
-      }
-
-      body.dark-mode .profile-section:hover {
-        box-shadow:
-          0 2px 6px rgba(0, 0, 0, 0.5),
-          0 20px 60px rgba(0, 0, 0, 0.3);
-      }
-
-      .profile-avatar-container {
-        position: relative;
-        flex-shrink: 0;
+        gap: 32px;
+        margin-bottom: 64px;
       }
 
       .profile-avatar {
-        width: 120px;
-        height: 120px;
+        width: 100px;
+        height: 100px;
         border-radius: 50%;
         object-fit: cover;
-        border: 3px solid rgba(255, 255, 255, 0.8);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.1);
-      }
-
-      .status-badge {
-        position: absolute;
-        bottom: 5px;
-        right: 5px;
-        width: 32px;
-        height: 32px;
-        background: linear-gradient(135deg, #ffcc00, #ff9500);
-        border-radius: 50%;
-        border: 3px solid var(--bg-card-light);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 16px;
-        animation: pulse 2s ease-in-out infinite;
-      }
-
-      body.dark-mode .status-badge {
-        border-color: var(--bg-card-dark);
-      }
-
-      @keyframes pulse {
-        0%,
-        100% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.1);
-        }
+        border: 1px solid var(--border-color);
       }
 
       .profile-info {
@@ -354,64 +140,69 @@
       }
 
       .profile-name {
-        font-size: 1.8rem;
-        font-weight: 600;
+        font-size: 2rem;
+        font-weight: 700;
+        letter-spacing: -0.04em;
         margin-bottom: 8px;
-        letter-spacing: -0.02em;
       }
 
       .profile-bio {
-        color: var(--text-secondary-light);
-        line-height: 1.6;
-        margin-bottom: 16px;
+        font-size: 1.1rem;
+        color: var(--text-secondary);
+        margin-bottom: 12px;
       }
 
-      body.dark-mode .profile-bio {
-        color: var(--text-secondary-dark);
+      .tags {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      .tag {
+        font-size: 0.8rem;
+        padding: 4px 10px;
+        background-color: var(--bg-secondary);
+        border: 1px solid var(--border-color);
+        border-radius: 100px;
+        color: var(--text-secondary);
+        font-weight: 500;
+      }
+
+      /* 섹션 타이틀 */
+      .section-title {
+        font-size: 1.5rem;
+        font-weight: 600;
+        letter-spacing: -0.03em;
+        margin-bottom: 24px;
+        padding-bottom: 12px;
+        border-bottom: 1px solid var(--border-color);
       }
 
       /* 카드 그리드 */
       .cards-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-        margin-bottom: 24px;
-        align-items: stretch; /* 카드 높이 통일 */
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 24px;
       }
 
       .card {
-        background: var(--bg-card-light);
-        backdrop-filter: blur(20px) saturate(180%);
-        -webkit-backdrop-filter: blur(20px) saturate(180%);
-        border-radius: 16px;
+        background-color: var(--bg-main);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
         padding: 24px;
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        box-shadow:
-          0 1px 3px rgba(0, 0, 0, 0.05),
-          0 10px 40px rgba(0, 0, 0, 0.03);
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
         display: flex;
-        flex-direction: column; /* 내부 요소 세로 배치 */
+        flex-direction: column;
+        transition: all 0.2s ease;
       }
 
-      body.dark-mode .card {
-        background: var(--bg-card-dark);
-        border-color: rgba(255, 255, 255, 0.08);
-        box-shadow:
-          0 1px 3px rgba(0, 0, 0, 0.3),
-          0 10px 40px rgba(0, 0, 0, 0.2);
-      }
-
-      /* 시각적 계층 구조 강화: 호버 효과 개선 */
       .card:hover {
-        transform: translateY(-8px);
-        border-color: var(--accent-blue);
-        box-shadow: 0 20px 40px rgba(0, 122, 255, 0.15);
+        border-color: var(--border-hover);
+        transform: translateY(-2px);
+        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
       }
 
       body.dark-mode .card:hover {
-        border-color: var(--accent-blue);
-        box-shadow: 0 20px 40px rgba(0, 122, 255, 0.2);
+        box-shadow: 0 8px 30px rgba(255, 255, 255, 0.04);
       }
 
       .card-header {
@@ -422,74 +213,29 @@
       }
 
       .card-icon {
-        width: 48px;
-        height: 48px;
-        border-radius: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.4rem;
-        color: white;
-      }
-
-      .icon-blue {
-        background: linear-gradient(135deg, #007aff, #5ac8fa);
-      }
-      .icon-purple {
-        background: linear-gradient(135deg, #af52de, #bf5af2);
-      }
-      .icon-orange {
-        background: linear-gradient(135deg, #ff9500, #ff6b00);
-      }
-      .icon-green {
-        background: linear-gradient(135deg, #34c759, #30d158);
+        font-size: 1.2rem;
+        color: var(--text-primary);
       }
 
       .card-title {
-        font-size: 1.2rem;
+        font-size: 1.1rem;
         font-weight: 600;
-        letter-spacing: -0.01em;
+        letter-spacing: -0.02em;
       }
 
       .card-content {
-        color: var(--text-secondary-light);
-        line-height: 1.6;
-        margin-bottom: 16px;
-        flex-grow: 1; /* 콘텐츠 영역이 남은 공간을 차지하도록 설정 */
+        color: var(--text-secondary);
+        font-size: 0.95rem;
+        margin-bottom: 24px;
+        flex-grow: 1;
       }
 
-      body.dark-mode .card-content {
-        color: var(--text-secondary-dark);
-      }
-
-      .card-meta {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 12px;
-        font-size: 0.85rem;
-        color: var(--text-secondary-light);
-        margin-bottom: 20px;
-      }
-
-      body.dark-mode .card-meta {
-        color: var(--text-secondary-dark);
-      }
-
-      .card-meta span {
-        display: flex;
-        align-items: center;
-      }
-
-      .card-meta i {
-        margin-right: 4px;
-      }
-
-      /* 버튼 및 레이아웃 일관성 */
+      /* 버튼 및 레이아웃 */
       .btn-group {
         display: flex;
         flex-direction: column;
         gap: 8px;
-        margin-top: auto; /* 버튼 그룹을 항상 카드의 하단에 위치시킴 */
+        margin-top: auto;
       }
 
       .btn {
@@ -497,355 +243,206 @@
         align-items: center;
         justify-content: center;
         gap: 8px;
-        padding: 10px 20px;
-        border-radius: 10px;
+        padding: 10px 16px;
+        border-radius: 6px;
         text-decoration: none;
         font-weight: 500;
-        font-size: 0.95rem;
+        font-size: 0.9rem;
         transition: all 0.2s ease;
-        border: none;
-        cursor: pointer;
-        width: 100%; /* 버튼이 카드의 전체 너비를 채우도록 */
+        width: 100%;
       }
 
       .btn-primary {
-        background: var(--accent-blue);
-        color: white;
+        background-color: var(--btn-primary-bg);
+        color: var(--btn-primary-text);
+        border: 1px solid transparent;
       }
 
       .btn-primary:hover {
-        background: #0051d5;
-        transform: scale(1.02);
+        opacity: 0.9;
       }
 
       .btn-secondary {
-        background: rgba(0, 122, 255, 0.1);
-        color: var(--accent-blue);
-      }
-
-      body.dark-mode .btn-secondary {
-        background: rgba(0, 122, 255, 0.15);
+        background-color: var(--btn-secondary-bg);
+        color: var(--text-primary);
+        border: 1px solid var(--btn-secondary-border);
       }
 
       .btn-secondary:hover {
-        background: rgba(0, 122, 255, 0.2);
-        transform: scale(1.02);
+        border-color: var(--border-hover);
       }
 
-      /* 스크롤 버튼 */
-      .scroll-to-top {
-        position: fixed;
-        bottom: 32px;
-        right: 32px;
-        width: 48px;
-        height: 48px;
-        border-radius: 50%;
-        background: var(--bg-card-light);
-        backdrop-filter: blur(20px);
-        border: 1px solid rgba(0, 0, 0, 0.05);
-        color: var(--accent-blue);
-        cursor: pointer;
-        font-size: 1.2rem;
-        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-        transition: all 0.3s ease;
-        opacity: 0;
-        visibility: hidden;
-        z-index: 1000;
-      }
-
-      body.dark-mode .scroll-to-top {
-        background: var(--bg-card-dark);
-        border-color: rgba(255, 255, 255, 0.08);
-      }
-
-      .scroll-to-top.visible {
-        opacity: 1;
-        visibility: visible;
-      }
-
-      .scroll-to-top:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 8px 30px rgba(0, 122, 255, 0.3);
+      /* 데이터를 불러오는 동안 보여줄 로딩 텍스트 스타일 */
+      .loading-text {
+        color: var(--text-secondary);
+        font-size: 0.9rem;
+        text-align: center;
+        padding: 10px;
       }
 
       /* 반응형 */
-      @media (max-width: 768px) {
-        .navbar {
-          padding: 12px 16px;
-        }
-
-        .greeting {
-          font-size: 2rem;
-        }
-
+      @media (max-width: 600px) {
         .profile-section {
           flex-direction: column;
-          text-align: center;
-          padding: 24px;
+          text-align: left;
+          align-items: flex-start;
+          gap: 20px;
         }
-
-        .profile-avatar {
-          width: 100px;
-          height: 100px;
-        }
-
-        .cards-grid {
-          grid-template-columns: 1fr;
-        }
-
         .dashboard-container {
-          padding: 24px 16px 60px;
+          padding: 32px 20px 60px;
         }
       }
     </style>
   </head>
   <body>
-    <div id="loading-screen" class="loading-screen">
-      <div class="loading-logo">💻</div>
-      <div class="loading-bar">
-        <div class="loading-progress"></div>
-      </div>
-    </div>
-
     <nav class="navbar">
       <div class="navbar-content">
-        <div class="navbar-title">mooksys</div>
-        <div class="navbar-controls">
-          <button id="theme-toggle" class="control-btn" title="테마 전환">
-            <i class="fa-solid fa-moon"></i>
-          </button>
-        </div>
+        <div class="navbar-title">mooksys.dev</div>
+        <button id="theme-toggle" class="control-btn" title="테마 전환">
+          <i class="fa-solid fa-moon"></i>
+        </button>
       </div>
     </nav>
 
     <main class="dashboard-container">
-      <div class="header-section">
-        <h1 class="greeting">안녕하세요 👋</h1>
-        <p class="subtitle-text">
-          고등학교 정보교사 & 풀스택 개발자 & 기술 블로거
-        </p>
+      <div class="profile-section">
+        <img
+          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
+          alt="mooksys 프로필"
+          class="profile-avatar"
+        />
+        <div class="profile-info">
+          <h1 class="profile-name">안녕하세요, mooksys 입니다.</h1>
+          <p class="profile-bio">
+            코딩과 새로운 기술을 사랑하는 정보교사, 개발자입니다.
+          </p>
+          <div class="tags">
+            <span class="tag">#Educator</span>
+            <span class="tag">#Fullstack</span>
+            <span class="tag">#TechBlog</span>
+          </div>
+        </div>
       </div>
 
-      <div class="profile-section">
-        <div class="profile-avatar-container">
-          <img
-            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
-            alt="mooksys 프로필 사진"
-            class="profile-avatar"
-          />
-          <div class="status-badge">⚡</div>
-        </div>
-        <div class="profile-info">
-          <h2 class="profile-name">mooksys</h2>
-          <p class="profile-bio">
-            코딩과 새로운 기술을 사랑하는 정보교사, 개발자입니다.<br />
-            매일 성장하며 더 나은 세상을 만들어가고 있습니다.
-          </p>
-        </div>
-      </div>
+      <h2 class="section-title">Projects & Links</h2>
 
       <div class="cards-grid">
         <div class="card">
           <div class="card-header">
-            <div class="card-icon icon-orange">
-              <i class="fa-solid fa-newspaper"></i>
-            </div>
+            <i class="fa-solid fa-newspaper card-icon"></i>
             <h3 class="card-title">News Scrap</h3>
           </div>
-          <p class="card-content">
-            - 정보통신기술진흥원<br />
-            - 교육부 뉴스 스크랩
-          </p>
-          <div class="card-meta">
-            <span><i class="fa-solid fa-clock"></i>1일 전</span>
-            <span><i class="fa-solid fa-eye"></i>1.2K+ 조회</span>
+          <div class="card-content">
+            정보통신기술진흥원 및 교육부 주요 IT/교육 뉴스 스크랩
           </div>
-          <div class="btn-group">
-            <a
-              href="new_scrap"
-              target="_blank"
-              class="btn btn-primary"
-              title="뉴스 스크랩 새 창에서 열기"
-            >
-              <i class="fa-solid fa-arrow-right"></i>
-              바로가기
-            </a>
+          <div class="btn-group" id="links-newsScrap">
+            <div class="loading-text">Loading links...</div>
           </div>
         </div>
 
         <div class="card">
           <div class="card-header">
-            <div class="card-icon icon-purple">
-              <i class="fa-solid fa-graduation-cap"></i>
-            </div>
+            <i class="fa-solid fa-terminal card-icon"></i>
             <h3 class="card-title">IT Study</h3>
           </div>
-          <p class="card-content">IT실무, 자격증 공부하기</p>
-          <div class="card-meta">
-            <span><i class="fa-solid fa-code-branch"></i>42개 저장소</span>
-            <span><i class="fa-solid fa-star"></i>256개 스타</span>
-          </div>
-          <div class="btn-group">
-            <a
-              href="course_link/index_add.html"
-              target="_blank"
-              class="btn btn-primary"
-              title="Course Link 새 창에서 열기"
-            >
-              <i class="fa-solid fa-arrow-right"></i>
-              Course Link v1
-            </a>
-            <a
-              href="course_link/index_lec_v2.html"
-              target="_blank"
-              class="btn btn-secondary"
-              title="Course Add 새 창에서 열기"
-            >
-              <i class="fa-solid fa-plus"></i>
-              Course Lecture v2
-            </a>
+          <div class="card-content">IT 실무 및 자격증 공부 기록 보관소</div>
+          <div class="btn-group" id="links-itStudy">
+            <div class="loading-text">Loading links...</div>
           </div>
         </div>
 
         <div class="card">
           <div class="card-header">
-            <div class="card-icon icon-green">
-              <i class="fa-solid fa-church"></i>
-            </div>
+            <i class="fa-solid fa-church card-icon"></i>
             <h3 class="card-title">광교1동성당</h3>
           </div>
-          <p class="card-content">
-            광교1동성당 전례담당표 및 월별 성가표, 통독프로젝트, 통독기록장
-          </p>
-          <div class="card-meta">
-            <span><i class="fa-solid fa-users"></i>4지역 형제회, 해설단</span>
-            <span
-              ><i class="fa-solid fa-shield-halved"></i>크리스토폴 기사단</span
-            >
-            <span><i class="fa-solid fa-book-bible"></i>성경통독</span>
+          <div class="card-content">
+            전례담당표, 월별 성가표, 통독프로젝트 및 기록장 관리 시스템
           </div>
-          <div class="btn-group">
-            <a
-              href="gwanggyo_cathedral/index_liturgy.html"
-              target="_blank"
-              class="btn btn-primary"
-              title="월별 전례단 담당표 새 창에서 열기"
-            >
-              <i class="fa-solid fa-arrow-right"></i>
-              월별 전례단 담당표
-            </a>
-            <a
-              href="gwanggyo_cathedral/index_chant.html"
-              target="_blank"
-              class="btn btn-secondary"
-              title="월별 성가표 새 창에서 열기"
-            >
-              <i class="fa-solid fa-music"></i>
-              월별 성가표
-            </a>
-            <a
-              href="gwanggyo_cathedral/index_bible.html"
-              target="_blank"
-              class="btn btn-secondary"
-              title="성경통독 프로젝트 새 창에서 열기"
-            >
-              <i class="fa-solid fa-book-open"></i>
-              성경통독 읽기공지
-            </a>
-            <a
-              href="gwanggyo_cathedral/index_bible_write.html"
-              target="_blank"
-              class="btn btn-secondary"
-              title="성경통독 기록하기 새 창에서 열기"
-            >
-              <i class="fa-solid fa-pen"></i>
-              성경통독 기록하기
-            </a>
-            <!--  -->
-            <a
-              href="gwanggyo_cathedral/index_prayer.html"
-              target="_blank"
-              class="btn btn-secondary"
-              title="기도집계 기록하기 새 창에서 열기"
-            >
-              <i class="fa-solid fa-pen"></i>
-              울뜨레야 기도빨랑카 기록하기
-            </a>
-
+          <div class="btn-group" id="links-cathedral">
+            <div class="loading-text">Loading links...</div>
           </div>
         </div>
       </div>
     </main>
 
-    <button id="scroll-to-top" class="scroll-to-top" title="맨 위로 가기">
-      <i class="fa-solid fa-chevron-up"></i>
-    </button>
-
     <script>
       document.addEventListener("DOMContentLoaded", function () {
-        // 로딩 스크린
-        setTimeout(() => {
-          const loadingScreen = document.getElementById("loading-screen");
-          if (loadingScreen) {
-            loadingScreen.classList.add("hidden");
-          }
-        }, 1000); // 사용자 경험을 위해 로딩 시간을 살짝 줄임 (1.5초 -> 1.0초)
-
-        // 테마 토글 및 로컬 스토리지 연동 (Persistence 적용)
+        // --- 테마 설정 로직 ---
         const themeToggle = document.getElementById("theme-toggle");
         const body = document.body;
-        let icon = null;
+        const icon = themeToggle.querySelector("i");
 
-        if (themeToggle) {
-          icon = themeToggle.querySelector("i");
-        }
-
-        // 페이지 로드 시 저장된 테마 불러오기
         const currentTheme = localStorage.getItem("theme");
         if (currentTheme === "dark") {
           body.classList.add("dark-mode");
-          if (icon) icon.className = "fa-solid fa-sun";
+          icon.className = "fa-solid fa-sun";
         }
 
-        // 테마 변경 버튼 클릭 이벤트
-        if (themeToggle) {
-          themeToggle.addEventListener("click", function (e) {
-            e.preventDefault();
+        themeToggle.addEventListener("click", function () {
+          body.classList.toggle("dark-mode");
+          const isDarkMode = body.classList.contains("dark-mode");
+          icon.className = isDarkMode ? "fa-solid fa-sun" : "fa-solid fa-moon";
+          localStorage.setItem("theme", isDarkMode ? "dark" : "light");
+        });
 
-            body.classList.toggle("dark-mode");
-            const isDarkMode = body.classList.contains("dark-mode");
+        // --- JSON 데이터 불러오기 로직 ---
+        async function fetchAndRenderLinks() {
+          try {
+            // data.json 파일을 불러옵니다.
+            const response = await fetch("data.json");
 
-            if (icon) {
-              icon.className = isDarkMode
-                ? "fa-solid fa-sun"
-                : "fa-solid fa-moon";
+            if (!response.ok) {
+              throw new Error(`HTTP error! status: ${response.status}`);
             }
 
-            // 변경된 테마를 로컬 스토리지에 저장
-            localStorage.setItem("theme", isDarkMode ? "dark" : "light");
-          });
-        }
+            const data = await response.json();
 
-        // 스크롤 탑 버튼
-        const scrollToTopBtn = document.getElementById("scroll-to-top");
-
-        if (scrollToTopBtn) {
-          window.addEventListener("scroll", function () {
-            if (window.pageYOffset > 300) {
-              scrollToTopBtn.classList.add("visible");
-            } else {
-              scrollToTopBtn.classList.remove("visible");
-            }
-          });
-
-          scrollToTopBtn.addEventListener("click", function (e) {
-            e.preventDefault();
-            window.scrollTo({
-              top: 0,
-              behavior: "smooth",
+            // 각 카테고리별로 버튼 생성 함수 호출
+            renderButtons("links-newsScrap", data.newsScrap);
+            renderButtons("links-itStudy", data.itStudy);
+            renderButtons("links-cathedral", data.cathedral);
+          } catch (error) {
+            console.error("데이터를 불러오는 중 오류 발생:", error);
+            document.querySelectorAll(".btn-group").forEach((group) => {
+              group.innerHTML = `<div class="loading-text" style="color: red;">데이터를 불러올 수 없습니다.</div>`;
             });
+          }
+        }
+
+        // 버튼 생성 헬퍼 함수
+        function renderButtons(containerId, linksArray) {
+          const container = document.getElementById(containerId);
+          if (!container || !linksArray) return;
+
+          // 기존 'Loading...' 텍스트 제거
+          container.innerHTML = "";
+
+          // JSON 배열을 순회하며 <a> 태그 생성
+          linksArray.forEach((link) => {
+            const aTag = document.createElement("a");
+            aTag.href = link.url;
+            aTag.target = "_blank"; // 새 창에서 열기
+            aTag.className = `btn btn-${link.type}`; // primary 또는 secondary 클래스 적용
+
+            // 아이콘이 있는 경우 처리
+            let innerHTML = link.title;
+            if (link.icon) {
+              const iconHtml = `<i class="fa-solid ${link.icon}"></i>`;
+              if (link.iconPosition === "right") {
+                innerHTML = `${link.title} ${iconHtml}`;
+              } else {
+                innerHTML = `${iconHtml} ${link.title}`;
+              }
+            }
+
+            aTag.innerHTML = innerHTML;
+            container.appendChild(aTag);
           });
         }
+
+        // 페이지 로드 시 함수 실행
+        fetchAndRenderLinks();
       });
     </script>
   </body>
