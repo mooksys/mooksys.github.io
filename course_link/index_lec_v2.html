@@ -1,0 +1,1141 @@
+<!doctype html>
+<html lang="ko" data-theme="light">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>과목 링크 생성기 - Modern Pro</title>
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css"
+    />
+    <script src="https://unpkg.com/lucide@latest"></script>
+    <style>
+      :root {
+        /* 라이트 모드 (기본) */
+        --primary: #4f46e5;
+        --primary-hover: #4338ca;
+        --secondary: #10b981;
+        --secondary-hover: #059669;
+        --danger: #ef4444;
+        --bg-color: #f8fafc;
+        --card-bg: rgba(255, 255, 255, 0.85);
+        --card-border: rgba(255, 255, 255, 0.5);
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --input-bg: #ffffff;
+        --hover-bg: #f1f5f9;
+        --icon-bg: #eef2ff;
+        --badge-bg: #f1f5f9;
+        --title-gradient: linear-gradient(135deg, #1e1b4b, #4f46e5);
+
+        --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      [data-theme="dark"] {
+        /* 다크 모드 */
+        --primary: #818cf8;
+        --primary-hover: #6366f1;
+        --secondary: #34d399;
+        --secondary-hover: #10b981;
+        --danger: #f87171;
+        --bg-color: #0f172a;
+        --card-bg: rgba(30, 41, 59, 0.85);
+        --card-border: rgba(255, 255, 255, 0.1);
+        --text-main: #f8fafc;
+        --text-muted: #94a3b8;
+        --border-color: #334155;
+        --input-bg: #1e293b;
+        --hover-bg: #334155;
+        --icon-bg: rgba(79, 70, 229, 0.2);
+        --badge-bg: rgba(255, 255, 255, 0.05);
+        --title-gradient: linear-gradient(135deg, #c7d2fe, #818cf8);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family:
+          "Pretendard",
+          -apple-system,
+          BlinkMacSystemFont,
+          system-ui,
+          sans-serif;
+      }
+
+      body {
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        min-height: 100vh;
+        padding: 40px 24px;
+        position: relative;
+        overflow-x: hidden;
+        transition:
+          background-color 0.4s ease,
+          color 0.4s ease;
+      }
+
+      /* 메쉬 그라데이션 (다크모드 대응) */
+      body::before {
+        content: "";
+        position: fixed;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background:
+          radial-gradient(
+            circle at 15% 50%,
+            rgba(79, 70, 229, 0.08),
+            transparent 25%
+          ),
+          radial-gradient(
+            circle at 85% 30%,
+            rgba(16, 185, 129, 0.05),
+            transparent 25%
+          );
+        z-index: -1;
+        pointer-events: none;
+        transition: opacity 0.4s ease;
+      }
+      [data-theme="dark"] body::before {
+        background:
+          radial-gradient(
+            circle at 15% 50%,
+            rgba(129, 140, 248, 0.05),
+            transparent 25%
+          ),
+          radial-gradient(
+            circle at 85% 30%,
+            rgba(52, 211, 153, 0.03),
+            transparent 25%
+          );
+      }
+
+      /* 다크모드 토글 버튼 */
+      .theme-toggle {
+        position: absolute;
+        top: 24px;
+        right: 24px;
+        width: 48px;
+        height: 48px;
+        border-radius: 50%;
+        background: var(--card-bg);
+        border: 1px solid var(--border-color);
+        color: var(--text-main);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        cursor: pointer;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        z-index: 100;
+        transition: var(--transition);
+      }
+      .theme-toggle:hover {
+        transform: scale(1.05) rotate(15deg);
+        border-color: var(--primary);
+        color: var(--primary);
+      }
+
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      .main-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--card-border);
+        border-radius: 24px;
+        box-shadow: 0 10px 40px -10px rgba(0, 0, 0, 0.1);
+        overflow: hidden;
+        transition: var(--transition);
+      }
+
+      .header {
+        padding: 48px 40px 32px;
+        text-align: center;
+      }
+      .header h1 {
+        font-size: 32px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        margin-bottom: 12px;
+        background: var(--title-gradient);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .header p {
+        color: var(--text-muted);
+        font-size: 16px;
+        font-weight: 500;
+      }
+
+      .upload-section {
+        padding: 0 40px 40px;
+      }
+
+      .upload-area {
+        border: 2px dashed var(--border-color);
+        border-radius: 20px;
+        padding: 48px;
+        text-align: center;
+        cursor: pointer;
+        transition: var(--transition);
+        background: var(--badge-bg);
+      }
+      .upload-area:hover,
+      .upload-area.dragover {
+        border-color: var(--primary);
+        background: var(--icon-bg);
+        transform: scale(1.01);
+      }
+      .upload-icon {
+        width: 48px;
+        height: 48px;
+        margin: 0 auto 16px;
+        color: var(--primary);
+        opacity: 0.8;
+        transition: var(--transition);
+      }
+      .upload-area:hover .upload-icon {
+        transform: translateY(-4px);
+        opacity: 1;
+      }
+      .upload-text {
+        font-size: 18px;
+        font-weight: 700;
+        margin-bottom: 8px;
+      }
+      .upload-hint {
+        font-size: 14px;
+        color: var(--text-muted);
+      }
+
+      #fileInput {
+        display: none;
+      }
+
+      .storage-info {
+        margin-top: 24px;
+        padding: 20px;
+        background: var(--input-bg);
+        border-radius: 16px;
+        border: 1px solid var(--border-color);
+        display: none;
+        animation: fadeIn 0.4s ease;
+      }
+      .storage-info.active {
+        display: block;
+      }
+      .storage-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+      }
+      .storage-title {
+        font-size: 15px;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .storage-buttons {
+        display: flex;
+        gap: 8px;
+      }
+      .storage-details {
+        font-size: 14px;
+        color: var(--text-muted);
+      }
+
+      button {
+        font-family: inherit;
+        cursor: pointer;
+        transition: var(--transition);
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        outline: none;
+      }
+
+      .btn-sm {
+        padding: 8px 14px;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+        border: none;
+      }
+      .btn-load {
+        background: var(--icon-bg);
+        color: var(--primary);
+      }
+      .btn-load:hover {
+        filter: brightness(0.9);
+      }
+      .btn-clear {
+        background: rgba(239, 68, 68, 0.1);
+        color: var(--danger);
+      }
+      .btn-clear:hover {
+        background: rgba(239, 68, 68, 0.2);
+      }
+
+      .courses-section {
+        padding: 40px;
+        border-top: 1px solid var(--border-color);
+        display: none;
+      }
+      .courses-section.active {
+        display: block;
+        animation: fadeIn 0.5s ease;
+      }
+
+      .courses-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        margin-bottom: 32px;
+      }
+      .courses-header h2 {
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+      .courses-header h2 span {
+        color: var(--primary);
+      }
+
+      .btn-reset-all {
+        padding: 10px 18px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 600;
+        background: var(--input-bg);
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+      }
+      .btn-reset-all:hover {
+        background: var(--hover-bg);
+      }
+
+      .course-card {
+        background: var(--input-bg);
+        border: 1px solid var(--border-color);
+        border-radius: 20px;
+        padding: 32px;
+        margin-bottom: 24px;
+        transition: var(--transition);
+      }
+      .course-card:hover {
+        border-color: var(--primary);
+        box-shadow: 0 12px 24px -8px rgba(0, 0, 0, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .course-title-wrapper {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+      .course-title-icon {
+        width: 44px;
+        height: 44px;
+        background: var(--icon-bg);
+        color: var(--primary);
+        padding: 10px;
+        border-radius: 14px;
+      }
+      .course-title {
+        font-size: 20px;
+        font-weight: 700;
+        color: var(--text-main);
+      }
+
+      .course-info {
+        display: flex;
+        gap: 12px;
+        align-items: center;
+        margin-bottom: 24px;
+        flex-wrap: wrap;
+      }
+      .course-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        background: var(--badge-bg);
+        color: var(--text-muted);
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      .btn-group {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        width: 100%;
+      }
+      .btn-action {
+        padding: 12px 20px;
+        border-radius: 12px;
+        font-size: 14px;
+        font-weight: 700;
+        border: none;
+      }
+
+      .btn-generate {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 4px 12px rgba(79, 70, 229, 0.2);
+      }
+      .btn-generate:hover {
+        background: var(--primary-hover);
+        transform: translateY(-2px);
+      }
+
+      .btn-toggle-links {
+        background: var(--hover-bg);
+        color: var(--primary);
+        border: 1px solid var(--border-color);
+      }
+      .btn-toggle-links:hover {
+        filter: brightness(0.95);
+      }
+
+      .btn-copy-all {
+        background: var(--text-main);
+        color: var(--bg-color);
+        display: none;
+      }
+      .btn-copy-all:hover {
+        transform: translateY(-2px);
+        opacity: 0.9;
+      }
+
+      .btn-download-all {
+        background: var(--secondary);
+        color: white;
+        display: none;
+      }
+      .btn-download-all:hover {
+        background: var(--secondary-hover);
+        transform: translateY(-2px);
+      }
+
+      .btn-reset-course {
+        background: transparent;
+        color: var(--text-muted);
+        border: 1px solid var(--border-color);
+        margin-left: auto;
+      }
+      .btn-reset-course:hover {
+        background: rgba(239, 68, 68, 0.05);
+        color: var(--danger);
+        border-color: rgba(239, 68, 68, 0.3);
+      }
+
+      /* 아코디언 UI 스타일 (CSS Grid 활용) */
+      .links-wrapper {
+        display: grid;
+        grid-template-rows: 0fr;
+        transition:
+          grid-template-rows 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+          margin-top 0.35s ease;
+        margin-top: 0;
+      }
+      .links-wrapper.open {
+        grid-template-rows: 1fr;
+        margin-top: 24px;
+      }
+      .links-inner {
+        overflow: hidden;
+      }
+      .links-content {
+        background: var(--badge-bg);
+        border-radius: 16px;
+        max-height: 360px;
+        overflow-y: auto;
+        border: 1px solid var(--border-color);
+        padding: 8px;
+      }
+
+      .link-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 12px 16px;
+        border-radius: 12px;
+        margin-bottom: 4px;
+        transition: background 0.2s;
+        border: 1px solid transparent;
+      }
+      .link-item:hover {
+        background: var(--input-bg);
+        border-color: var(--border-color);
+      }
+
+      .link-url {
+        font-size: 14px;
+        color: var(--primary);
+        text-decoration: none;
+        font-weight: 500;
+        word-break: break-all;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+      .link-url::before {
+        content: "";
+        display: inline-block;
+        width: 6px;
+        height: 6px;
+        background: var(--primary);
+        border-radius: 50%;
+        opacity: 0.5;
+      }
+      .link-url:hover {
+        text-decoration: underline;
+      }
+      .link-url.visited {
+        color: var(--text-muted);
+        text-decoration: line-through;
+      }
+      .link-url.visited::before {
+        background: var(--text-muted);
+      }
+
+      .btn-copy-small {
+        padding: 6px 12px;
+        background: var(--input-bg);
+        color: var(--text-main);
+        border: 1px solid var(--border-color);
+        border-radius: 8px;
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+      }
+      .btn-copy-small:hover {
+        background: var(--hover-bg);
+        border-color: var(--text-muted);
+      }
+
+      .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        margin-top: 40px;
+      }
+      .pagination button {
+        padding: 8px 16px;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        border-radius: 999px;
+        font-size: 14px;
+        font-weight: 600;
+      }
+      .pagination button:hover:not(:disabled) {
+        background: var(--hover-bg);
+        color: var(--text-main);
+      }
+      .pagination button.active {
+        background: var(--primary);
+        color: white;
+        box-shadow: 0 4px 10px rgba(79, 70, 229, 0.2);
+      }
+      .pagination button:disabled {
+        opacity: 0.4;
+        cursor: not-allowed;
+      }
+      .pagination .page-info {
+        color: var(--text-muted);
+        font-size: 14px;
+        font-weight: 500;
+        margin: 0 4px;
+      }
+
+      /* 스크롤바 (다크모드 연동) */
+      ::-webkit-scrollbar {
+        width: 8px;
+      }
+      ::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      ::-webkit-scrollbar-thumb {
+        background: var(--border-color);
+        border-radius: 10px;
+        border: 2px solid var(--bg-color);
+      }
+      ::-webkit-scrollbar-thumb:hover {
+        background: var(--text-muted);
+      }
+
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <button
+      class="theme-toggle"
+      id="themeToggle"
+      aria-label="테마 전환"
+      onclick="toggleTheme()"
+    >
+      <i data-lucide="moon" id="themeIcon"></i>
+    </button>
+
+    <div class="container">
+      <div class="main-card">
+        <div class="header">
+          <h1>과목 링크 생성기</h1>
+          <p>JSON 데이터를 분석하여 안전하게 미디어 링크를 추출/관리하세요.</p>
+        </div>
+
+        <div class="upload-section">
+          <div
+            class="upload-area"
+            id="uploadArea"
+            onclick="document.getElementById('fileInput').click()"
+            tabindex="0"
+            role="button"
+          >
+            <i data-lucide="folder-up" class="upload-icon"></i>
+            <div class="upload-text">클릭하거나 파일을 이곳에 드래그하세요</div>
+            <div class="upload-hint">지원 형식: .json 파일</div>
+          </div>
+          <input
+            type="file"
+            id="fileInput"
+            accept=".json"
+            onchange="handleFileUpload(event)"
+          />
+
+          <div class="storage-info" id="storageInfo">
+            <div class="storage-header">
+              <div class="storage-title">
+                <i
+                  data-lucide="hard-drive"
+                  style="width: 18px; height: 18px"
+                ></i>
+                이전 작업 데이터 발견
+              </div>
+              <div class="storage-buttons">
+                <button class="btn-sm btn-load" onclick="loadFromStorage()">
+                  <i
+                    data-lucide="download-cloud"
+                    style="width: 14px; height: 14px"
+                  ></i>
+                  불러오기
+                </button>
+                <button class="btn-sm btn-clear" onclick="clearStorage()">
+                  <i data-lucide="trash" style="width: 14px; height: 14px"></i>
+                  비우기
+                </button>
+              </div>
+            </div>
+            <div class="storage-details" id="storageDetails"></div>
+          </div>
+        </div>
+
+        <div class="courses-section" id="coursesSection">
+          <div class="courses-header">
+            <h2>
+              추출된 강좌 <span><span id="courseCount">0</span>개</span>
+            </h2>
+            <button class="btn-reset-all" onclick="resetAll()">
+              <i
+                data-lucide="rotate-ccw"
+                style="width: 14px; height: 14px; margin-right: 6px"
+              ></i
+              >목록 초기화
+            </button>
+          </div>
+          <div id="coursesContainer"></div>
+          <div class="pagination" id="pagination"></div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // --- 테마(Dark/Light Mode) 관리 ---
+      function initTheme() {
+        const savedTheme = localStorage.getItem("theme") || "light";
+        document.documentElement.setAttribute("data-theme", savedTheme);
+        updateThemeIcon(savedTheme);
+      }
+
+      function toggleTheme() {
+        const currentTheme =
+          document.documentElement.getAttribute("data-theme");
+        const newTheme = currentTheme === "light" ? "dark" : "light";
+        document.documentElement.setAttribute("data-theme", newTheme);
+        localStorage.setItem("theme", newTheme);
+        updateThemeIcon(newTheme);
+      }
+
+      function updateThemeIcon(theme) {
+        const iconEl = document.getElementById("themeIcon");
+        if (iconEl) {
+          iconEl.setAttribute(
+            "data-lucide",
+            theme === "light" ? "moon" : "sun",
+          );
+          if (typeof lucide !== "undefined") lucide.createIcons();
+        }
+      }
+
+      // 초기 설정
+      let coursesData = [];
+      let currentPage = 1;
+      const itemsPerPage = 5;
+      let baseAddress = "";
+
+      document.addEventListener("DOMContentLoaded", function () {
+        initTheme();
+        if (typeof lucide !== "undefined") lucide.createIcons();
+        checkStorageAvailable();
+      });
+
+      // --- 데이터 보관(Storage) 로직 ---
+      function checkStorageAvailable() {
+        try {
+          const saved = localStorage.getItem("coursesData");
+          if (saved) {
+            const data = JSON.parse(saved);
+            const coursesCount = data.courses ? data.courses.length : 0;
+            document.getElementById("storageInfo").classList.add("active");
+            document.getElementById("storageDetails").innerHTML =
+              `강좌 ${coursesCount}개 저장됨 · 이어서 작업하시겠습니까?`;
+          }
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      function loadFromStorage() {
+        try {
+          const saved = localStorage.getItem("coursesData");
+          if (saved) {
+            const data = JSON.parse(saved);
+            if (data.base_address && Array.isArray(data.courses)) {
+              baseAddress = data.base_address;
+              coursesData = data.courses;
+              currentPage = 1;
+              displayCourses();
+              document.getElementById("storageInfo").classList.remove("active");
+            }
+          }
+        } catch (error) {
+          alert("데이터 불러오기에 실패했습니다.");
+        }
+      }
+
+      function saveToStorage() {
+        try {
+          const minimalData = {
+            base_address: baseAddress,
+            courses: coursesData.map((course) => ({
+              title: course.title,
+              code: course.code || course.Code || course.id,
+              lecture_count: course.lecture_count,
+            })),
+          };
+          localStorage.setItem("coursesData", JSON.stringify(minimalData));
+        } catch (error) {
+          console.error(error);
+        }
+      }
+
+      function clearStorage() {
+        localStorage.removeItem("coursesData");
+        document.getElementById("storageInfo").classList.remove("active");
+      }
+
+      // --- 파일 업로드 로직 (Drag & Drop 포함) ---
+      const uploadArea = document.getElementById("uploadArea");
+      uploadArea.addEventListener("dragover", (e) => {
+        e.preventDefault();
+        uploadArea.classList.add("dragover");
+      });
+      uploadArea.addEventListener("dragleave", (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove("dragover");
+      });
+      uploadArea.addEventListener("drop", (e) => {
+        e.preventDefault();
+        uploadArea.classList.remove("dragover");
+        if (e.dataTransfer.files.length > 0)
+          handleFile(e.dataTransfer.files[0]);
+      });
+      uploadArea.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          document.getElementById("fileInput").click();
+        }
+      });
+
+      function handleFileUpload(event) {
+        const file = event.target.files[0];
+        if (file) handleFile(file);
+      }
+
+      function handleFile(file) {
+        if (file.type !== "application/json" && !file.name.endsWith(".json")) {
+          alert("JSON 파일만 업로드 가능합니다.");
+          return;
+        }
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          try {
+            const data = JSON.parse(e.target.result);
+            if (
+              !data.base_address ||
+              !data.courses ||
+              !Array.isArray(data.courses)
+            )
+              throw new Error("올바른 JSON 구조가 아닙니다.");
+            baseAddress = data.base_address;
+            coursesData = data.courses;
+            if (coursesData.length > 0) {
+              currentPage = 1;
+              saveToStorage();
+              document.getElementById("storageInfo").classList.remove("active");
+              displayCourses();
+            }
+          } catch (error) {
+            alert(`파일 분석 오류:\n${error.message}`);
+          }
+        };
+        reader.readAsText(file);
+      }
+
+      // --- 강좌 목록 렌더링 ---
+      function displayCourses() {
+        const container = document.getElementById("coursesContainer");
+        if (!container) return;
+        container.innerHTML = "";
+
+        const fragment = document.createDocumentFragment();
+        const totalPages = Math.ceil(coursesData.length / itemsPerPage);
+        const startIndex = (currentPage - 1) * itemsPerPage;
+        const endIndex = Math.min(
+          startIndex + itemsPerPage,
+          coursesData.length,
+        );
+
+        coursesData.slice(startIndex, endIndex).forEach((course, i) => {
+          fragment.appendChild(createCourseCard(course, startIndex + i));
+        });
+
+        container.appendChild(fragment);
+        document.getElementById("courseCount").textContent = coursesData.length;
+        document.getElementById("coursesSection").classList.add("active");
+
+        renderPagination(totalPages);
+        if (typeof lucide !== "undefined") lucide.createIcons();
+      }
+
+      function createCourseCard(course, index) {
+        const card = document.createElement("div");
+        card.className = "course-card";
+
+        const titleWrapper = document.createElement("div");
+        titleWrapper.className = "course-title-wrapper";
+        titleWrapper.innerHTML = `<i data-lucide="play-circle" class="course-title-icon"></i><div class="course-title">${course.title || "제목 없음"}</div>`;
+
+        const info = document.createElement("div");
+        info.className = "course-info";
+        info.innerHTML = `
+                <span class="course-badge"><i data-lucide="tag" style="width:14px;height:14px;"></i> ${course.code || course.Code || course.id || "코드 없음"}</span>
+                <span class="course-badge"><i data-lucide="layers" style="width:14px;height:14px;"></i> 총 ${course.lecture_count || "0"}강</span>
+            `;
+
+        const btnGroup = document.createElement("div");
+        btnGroup.className = "btn-group";
+
+        // 메인 생성 버튼 (아코디언 토글 역할 겸용)
+        const generateBtn = document.createElement("button");
+        generateBtn.className = "btn-action btn-generate";
+        generateBtn.id = `btn-generate-${index}`;
+        generateBtn.dataset.state = "initial"; // initial, open, closed
+        generateBtn.innerHTML =
+          '<i data-lucide="zap" style="width:16px;height:16px;"></i> 링크 생성';
+        generateBtn.onclick = () => toggleOrGenerateLinks(index, generateBtn);
+
+        const copyAllBtn = document.createElement("button");
+        copyAllBtn.className = "btn-action btn-copy-all";
+        copyAllBtn.innerHTML =
+          '<i data-lucide="copy" style="width:16px;height:16px;"></i> 일괄 복사';
+        copyAllBtn.id = `copyAll-${index}`;
+        copyAllBtn.onclick = () => copyAllLinks(index);
+
+        const downloadAllBtn = document.createElement("button");
+        downloadAllBtn.className = "btn-action btn-download-all";
+        downloadAllBtn.innerHTML =
+          '<i data-lucide="download" style="width:16px;height:16px;"></i> TXT 저장';
+        downloadAllBtn.id = `downloadAll-${index}`;
+        downloadAllBtn.onclick = () => downloadLinksTxt(index, course.title);
+
+        const resetBtn = document.createElement("button");
+        resetBtn.className = "btn-action btn-reset-course";
+        resetBtn.innerHTML =
+          '<i data-lucide="rotate-ccw" style="width:16px;height:16px;"></i> 리셋';
+        resetBtn.onclick = () => resetCourseLinks(index);
+
+        btnGroup.append(generateBtn, copyAllBtn, downloadAllBtn, resetBtn);
+
+        // 아코디언 링크 래퍼
+        const linksWrapper = document.createElement("div");
+        linksWrapper.className = "links-wrapper";
+        linksWrapper.id = `wrapper-${index}`;
+
+        const linksInner = document.createElement("div");
+        linksInner.className = "links-inner";
+
+        const linksContent = document.createElement("div");
+        linksContent.className = "links-content";
+        linksContent.id = `links-${index}`;
+
+        linksInner.appendChild(linksContent);
+        linksWrapper.appendChild(linksInner);
+
+        card.append(titleWrapper, info, btnGroup, linksWrapper);
+        return card;
+      }
+
+      // --- 아코디언 및 링크 생성 로직 ---
+      function getNormalizedUrl(base, code, filename) {
+        return `${base.replace(/\/+$/, "")}/${code.replace(/^\/+|\/+$/g, "")}/${filename}`;
+      }
+
+      function toggleOrGenerateLinks(index, btnElement) {
+        const wrapper = document.getElementById(`wrapper-${index}`);
+        const state = btnElement.dataset.state;
+
+        // 이미 생성된 경우 토글만 수행
+        if (state === "open") {
+          wrapper.classList.remove("open");
+          btnElement.dataset.state = "closed";
+          btnElement.innerHTML =
+            '<i data-lucide="chevron-down" style="width:16px;height:16px;"></i> 링크 펼치기';
+          if (typeof lucide !== "undefined") lucide.createIcons();
+          return;
+        } else if (state === "closed") {
+          wrapper.classList.add("open");
+          btnElement.dataset.state = "open";
+          btnElement.innerHTML =
+            '<i data-lucide="chevron-up" style="width:16px;height:16px;"></i> 링크 접기';
+          if (typeof lucide !== "undefined") lucide.createIcons();
+          return;
+        }
+
+        // 최초 생성
+        const course = coursesData[index];
+        const code = course.code || course.Code || course.id || "";
+        const match = (
+          course.lecture_count ? course.lecture_count.toString() : ""
+        ).match(/\d+/);
+
+        if (!code || !match) {
+          alert("강의 코드 또는 횟수가 올바르지 않습니다.");
+          return;
+        }
+
+        const lectureCount = parseInt(match[0], 10);
+        const contentContainer = document.getElementById(`links-${index}`);
+        contentContainer.innerHTML = "";
+
+        const fragment = document.createDocumentFragment();
+        for (let i = 1; i <= lectureCount; i++) {
+          const fileName = `${i.toString().padStart(2, "0")}.mp4`;
+          const fullUrl = getNormalizedUrl(baseAddress, code, fileName);
+
+          const linkItem = document.createElement("div");
+          linkItem.className = "link-item";
+
+          const link = document.createElement("a");
+          link.className = "link-url";
+          link.href = fullUrl;
+          link.target = "_blank";
+          link.textContent = fileName;
+          link.onclick = function () {
+            this.classList.add("visited");
+          };
+
+          const copyBtn = document.createElement("button");
+          copyBtn.className = "btn-copy-small";
+          copyBtn.textContent = "복사";
+          copyBtn.onclick = function () {
+            navigator.clipboard.writeText(fullUrl).then(() => {
+              const orig = this.textContent;
+              this.textContent = "완료";
+              this.style.borderColor = "var(--secondary)";
+              this.style.color = "var(--secondary)";
+              link.classList.add("visited");
+              setTimeout(() => {
+                this.textContent = orig;
+                this.style.borderColor = "";
+                this.style.color = "";
+              }, 1500);
+            });
+          };
+          linkItem.append(link, copyBtn);
+          fragment.appendChild(linkItem);
+        }
+        contentContainer.appendChild(fragment);
+
+        // 상태 업데이트 및 애니메이션 실행 (requestAnimationFrame으로 DOM 업데이트 보장)
+        requestAnimationFrame(() => {
+          wrapper.classList.add("open");
+          btnElement.dataset.state = "open";
+          btnElement.classList.remove("btn-generate");
+          btnElement.classList.add("btn-toggle-links");
+          btnElement.innerHTML =
+            '<i data-lucide="chevron-up" style="width:16px;height:16px;"></i> 링크 접기';
+          document.getElementById(`copyAll-${index}`).style.display =
+            "inline-flex";
+          document.getElementById(`downloadAll-${index}`).style.display =
+            "inline-flex";
+          if (typeof lucide !== "undefined") lucide.createIcons();
+        });
+      }
+
+      // --- 부가 기능 ---
+      function copyAllLinks(index) {
+        const links = document.querySelectorAll(`#links-${index} .link-url`);
+        navigator.clipboard
+          .writeText(
+            Array.from(links)
+              .map((a) => a.href)
+              .join("\n"),
+          )
+          .then(() => {
+            const btn = document.getElementById(`copyAll-${index}`);
+            const orig = btn.innerHTML;
+            btn.innerHTML =
+              '<i data-lucide="check" style="width:16px;height:16px;"></i> 복사 완료';
+            if (typeof lucide !== "undefined") lucide.createIcons();
+            links.forEach((l) => l.classList.add("visited"));
+            setTimeout(() => {
+              btn.innerHTML = orig;
+              if (typeof lucide !== "undefined") lucide.createIcons();
+            }, 2000);
+          });
+      }
+
+      function downloadLinksTxt(index, title) {
+        const links = document.querySelectorAll(`#links-${index} .link-url`);
+        const blob = new Blob(
+          [
+            Array.from(links)
+              .map((a) => a.href)
+              .join("\n"),
+          ],
+          { type: "text/plain" },
+        );
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.style.display = "none";
+        a.href = url;
+        a.download = `${(title || "강좌").replace(/[\/\\?%*:|"<>]/g, "_")}_links.txt`;
+        document.body.appendChild(a);
+        a.click();
+        window.URL.revokeObjectURL(url);
+        document.body.removeChild(a);
+        links.forEach((l) => l.classList.add("visited"));
+      }
+
+      function resetCourseLinks(index) {
+        document.getElementById(`wrapper-${index}`).classList.remove("open");
+        setTimeout(() => {
+          document.getElementById(`links-${index}`).innerHTML = "";
+          const btn = document.getElementById(`btn-generate-${index}`);
+          btn.dataset.state = "initial";
+          btn.className = "btn-action btn-generate";
+          btn.innerHTML =
+            '<i data-lucide="zap" style="width:16px;height:16px;"></i> 링크 생성';
+          document.getElementById(`copyAll-${index}`).style.display = "none";
+          document.getElementById(`downloadAll-${index}`).style.display =
+            "none";
+          if (typeof lucide !== "undefined") lucide.createIcons();
+        }, 300); // 애니메이션 대기
+      }
+
+      // --- 페이지네이션 및 리셋 ---
+      function renderPagination(totalPages) {
+        const pagination = document.getElementById("pagination");
+        pagination.innerHTML = "";
+        if (totalPages <= 1) return;
+
+        const prevBtn = document.createElement("button");
+        prevBtn.innerHTML =
+          '<i data-lucide="chevron-left" style="width:18px;height:18px;"></i>';
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.onclick = () => changePage(currentPage - 1);
+        pagination.appendChild(prevBtn);
+
+        for (let i = 1; i <= totalPages; i++) {
+          if (
+            i === 1 ||
+            i === totalPages ||
+            (i >= currentPage - 1 && i <= currentPage + 1)
+          ) {
+            const pageBtn = document.createElement("button");
+            pageBtn.textContent = i;
+            if (i === currentPage) pageBtn.className = "active";
+            pageBtn.onclick = () => changePage(i);
+            pagination.appendChild(pageBtn);
+          } else if (i === currentPage - 2 || i === currentPage + 2) {
+            const dots = document.createElement("span");
+            dots.className = "page-info";
+            dots.textContent = "...";
+            pagination.appendChild(dots);
+          }
+        }
+
+        const nextBtn = document.createElement("button");
+        nextBtn.innerHTML =
+          '<i data-lucide="chevron-right" style="width:18px;height:18px;"></i>';
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.onclick = () => changePage(currentPage + 1);
+        pagination.appendChild(nextBtn);
+      }
+
+      function changePage(page) {
+        currentPage = page;
+        displayCourses();
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      function resetAll() {
+        document.getElementById("fileInput").value = "";
+        document.getElementById("coursesContainer").innerHTML = "";
+        document.getElementById("coursesSection").classList.remove("active");
+        coursesData = [];
+        baseAddress = "";
+        currentPage = 1;
+        checkStorageAvailable();
+      }
+    </script>
+  </body>
+</html>
