@@ -499,16 +499,16 @@
     </div>
 
     <script>
-      // ==================== 데이터 ====================
+      // ==================== 데이터 초기화 (표준형식 MM-DD 사용) ====================
       const verses = {
-        "1월 1일": {
+        "01-01": {
           bible: "요한 1서 1장",
           bible_verse_1:
             "생명의 말씀에 관하여 우리는 들었고 눈으로 보았습니다.",
           psalm: "시편 1편",
           psalm_verse_1: "행복하여라! 악인들의 뜻에 따라 걷지 않는 사람!",
         },
-        "1월 2일": {
+        "01-02": {
           bible: "요한 1서 2장",
           bible_verse_1:
             "나의 자녀들이여, 내가 이것을 여러분에게 쓰는 것은 여러분이 죄를 짓지 않게 하려는 것입니다.",
@@ -516,14 +516,14 @@
           psalm_verse_1:
             "어찌하여 민족들이 소란을 피우며 나라들이 헛된 일을 꾸미는가?",
         },
-        "1월 3일": {
+        "01-03": {
           bible: "요한 1서 3장",
           bible_verse_1:
             "보십시오, 하느님 아버지께서 우리에게 얼마나 큰 사랑을 베푸셨는지!",
           psalm: "시편 3편",
           psalm_verse_1: "주님, 저를 괴롭히는 자들이 어찌 이리 많습니까?",
         },
-        "1월 4일": {
+        "01-04": {
           bible: "요한 1서 4장",
           bible_verse_1:
             "사랑하는 여러분, 하느님께서 우리를 그토록 사랑하셨으니 우리도 서로 사랑해야 합니다.",
@@ -531,7 +531,7 @@
           psalm_verse_1:
             "내가 부르짖을 때 응답해 주소서, 나의 의로우신 하느님!",
         },
-        "1월 5일": {
+        "01-05": {
           bible: "요한 1서 5장",
           bible_verse_1:
             "예수님께서 그리스도이심을 믿는 사람은 누구나 하느님에게서 태어난 사람입니다.",
@@ -542,12 +542,19 @@
       };
 
       let currentDate = new Date();
-      let dateKeys = Object.keys(verses);
+      let dateKeys = [];
+      let currentIndex = 0;
 
+      // ==================== 유틸리티 함수 ====================
+
+      // Date 객체를 "MM-DD" 포맷으로 변환 (데이터 키로 사용)
       function formatDateToKey(date) {
-        return `${date.getMonth() + 1}월 ${date.getDate()}일`;
+        const m = String(date.getMonth() + 1).padStart(2, "0");
+        const d = String(date.getDate()).padStart(2, "0");
+        return `${m}-${d}`;
       }
 
+      // 화면에 보여줄 요일 포함 텍스트
       function formatDateDisplay(date) {
         const days = [
           "일요일",
@@ -561,13 +568,13 @@
         return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 ${days[date.getDay()]}`;
       }
 
+      // 날짜 키의 인덱스 찾기
       function findDateIndex(dateKey) {
         const index = dateKeys.indexOf(dateKey);
         return index !== -1 ? index : 0;
       }
 
-      let currentIndex = findDateIndex(formatDateToKey(currentDate));
-
+      // 요일에 따른 카드 색상 변경
       function updateDateCardColor(date) {
         const dateCard = document.getElementById("dateCard");
         dateCard.classList.remove("weekday", "saturday", "sunday");
@@ -577,47 +584,106 @@
         else dateCard.classList.add("weekday");
       }
 
+      // ==================== 핵심 로직 ====================
+
+      // 🔄 데이터 통합 및 정렬 함수 (DRY 원칙 적용)
+      function processNewVersesData(jsonData) {
+        if (Array.isArray(jsonData)) {
+          jsonData.forEach((item) => {
+            if (item.date) {
+              // "1월 1일" 형태가 들어와도 안전하게 처리하기 위한 방어 코드
+              let cleanDate = item.date;
+              if (cleanDate.includes("월")) {
+                const parts = cleanDate.replace("일", "").split("월");
+                cleanDate = `${String(parts[0].trim()).padStart(2, "0")}-${String(parts[1].trim()).padStart(2, "0")}`;
+              }
+              verses[cleanDate] = {
+                bible: item.bible || "",
+                bible_verse_1: item.bible_verse_1 || "",
+                psalm: item.psalm || "",
+                psalm_verse_1: item.psalm_verse_1 || "",
+              };
+            }
+          });
+        } else if (typeof jsonData === "object") {
+          // 객체 형태일 경우의 방어 코드
+          for (const key in jsonData) {
+            let cleanDate = key;
+            if (cleanDate.includes("월")) {
+              const parts = cleanDate.replace("일", "").split("월");
+              cleanDate = `${String(parts[0].trim()).padStart(2, "0")}-${String(parts[1].trim()).padStart(2, "0")}`;
+            }
+            verses[cleanDate] = jsonData[key];
+          }
+        }
+
+        // ✅ 개선점 1: 날짜 순서 정렬 (버그 방지)
+        dateKeys = Object.keys(verses).sort();
+
+        currentDate = new Date();
+        currentIndex = findDateIndex(formatDateToKey(currentDate));
+        loadVerse(currentIndex);
+      }
+
+      // 화면에 말씀 렌더링
       function loadVerse(index) {
+        if (dateKeys.length === 0) return; // 데이터가 아예 없을 경우 방어
+
         const container = document.getElementById("cardsContainer");
         container.classList.remove("fade-in");
+
         setTimeout(() => {
           const key = dateKeys[index];
           const data = verses[key] || {};
+
           document.getElementById("dateDisplay").textContent =
             formatDateDisplay(currentDate);
           updateDateCardColor(currentDate);
+
           document.getElementById("bibleRef").textContent = data.bible || "";
           document.getElementById("bibleVerse").textContent =
             data.bible_verse_1 || "말씀이 없습니다.";
           document.getElementById("psalmRef").textContent = data.psalm || "";
           document.getElementById("psalmVerse").textContent =
             data.psalm_verse_1 || "말씀이 없습니다.";
+
           updateDatePicker();
           container.classList.add("fade-in");
         }, 50);
       }
 
+      // Date Picker 갱신
       function updateDatePicker() {
         const y = currentDate.getFullYear();
-        const m = String(currentDate.getMonth() + 1).padStart(2, "0");
-        const d = String(currentDate.getDate()).padStart(2, "0");
-        document.getElementById("datePicker").value = `${y}-${m}-${d}`;
+        const key = formatDateToKey(currentDate);
+        document.getElementById("datePicker").value = `${y}-${key}`;
       }
 
-      // ==================== 이벤트 ====================
+      // ==================== 이벤트 리스너 ====================
+
       document.getElementById("prevBtn").addEventListener("click", () => {
         if (currentIndex > 0) {
           currentIndex--;
-          currentDate.setDate(currentDate.getDate() - 1);
+          const prevKey = dateKeys[currentIndex];
+          const parts = prevKey.split("-");
+          currentDate.setMonth(parseInt(parts[0]) - 1);
+          currentDate.setDate(parseInt(parts[1]));
           loadVerse(currentIndex);
+        } else {
+          showToast("첫 번째 말씀입니다.");
         }
       });
 
       document.getElementById("nextBtn").addEventListener("click", () => {
         if (currentIndex < dateKeys.length - 1) {
           currentIndex++;
-          currentDate.setDate(currentDate.getDate() + 1);
+          const nextKey = dateKeys[currentIndex];
+          const parts = nextKey.split("-");
+          currentDate.setMonth(parseInt(parts[0]) - 1);
+          currentDate.setDate(parseInt(parts[1]));
           loadVerse(currentIndex);
+        } else {
+          showToast("마지막 말씀입니다.");
         }
       });
 
@@ -627,15 +693,22 @@
           const selectedDate = new Date(e.target.value + "T00:00:00");
           const dateKey = formatDateToKey(selectedDate);
           const index = findDateIndex(dateKey);
-          if (index !== -1) {
+
+          if (verses[dateKey]) {
+            // 실제 데이터가 있는지 확인
             currentDate = selectedDate;
             currentIndex = index;
             loadVerse(currentIndex);
           } else {
-            alert(`${dateKey}의 말씀이 준비되지 않았습니다.`);
+            showToast(
+              `${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일의 말씀이 준비되지 않았습니다.`,
+              true,
+            );
+            updateDatePicker(); // 원래 날짜로 복구
           }
         });
 
+      // ✅ 파일 업로드 처리 (processNewVersesData 공통 함수 사용)
       document
         .getElementById("fileInput")
         .addEventListener("change", function (e) {
@@ -645,59 +718,46 @@
           reader.onload = function (event) {
             try {
               const jsonData = JSON.parse(event.target.result);
-              if (Array.isArray(jsonData)) {
-                jsonData.forEach((item) => {
-                  if (item.date)
-                    verses[item.date] = {
-                      bible: item.bible || "",
-                      bible_verse_1: item.bible_verse_1 || "",
-                      psalm: item.psalm || "",
-                      psalm_verse_1: item.psalm_verse_1 || "",
-                    };
-                });
-              } else if (typeof jsonData === "object") {
-                Object.assign(verses, jsonData);
-              }
-              dateKeys.length = 0;
-              dateKeys.push(...Object.keys(verses));
-              currentDate = new Date();
-              currentIndex = findDateIndex(formatDateToKey(currentDate));
-              loadVerse(currentIndex);
-              document.getElementById("uploadStatus").textContent =
-                `✅ ${dateKeys.length}일의 말씀이 로드되었습니다!`;
+              processNewVersesData(jsonData);
+
+              const msg = `✅ ${dateKeys.length}일의 말씀이 로드되었습니다!`;
+              document.getElementById("uploadStatus").textContent = msg;
+              showToast(msg);
+
               setTimeout(() => {
                 document.getElementById("uploadStatus").textContent = "";
               }, 3000);
             } catch (error) {
-              document.getElementById("uploadStatus").textContent =
+              console.error("JSON 파싱 에러:", error);
+              const errMsg =
                 "❌ 파일을 읽는데 실패했습니다. JSON 형식을 확인해주세요.";
+              document.getElementById("uploadStatus").textContent = errMsg;
+              showToast(errMsg, true);
             }
           };
           reader.readAsText(file);
         });
 
+      // ✅ 서버에서 데이터 로드 (에러 핸들링 강화)
       async function loadVersesFromFile() {
         try {
           const response = await fetch("verses.json");
-          if (!response.ok) return;
-          const jsonData = await response.json();
-          if (Array.isArray(jsonData)) {
-            jsonData.forEach((item) => {
-              if (item.date) verses[item.date] = { ...item };
-            });
-          } else {
-            Object.assign(verses, jsonData);
+          if (!response.ok) {
+            throw new Error(`HTTP error! status: ${response.status}`);
           }
-          dateKeys.length = 0;
-          dateKeys.push(...Object.keys(verses));
-          currentDate = new Date();
-          currentIndex = findDateIndex(formatDateToKey(currentDate));
-          loadVerse(currentIndex);
-        } catch (e) {}
+          const jsonData = await response.json();
+          processNewVersesData(jsonData);
+        } catch (e) {
+          console.warn(
+            "로컬 서버(verses.json)에서 데이터를 찾을 수 없어 기본 데이터를 사용합니다.",
+            e,
+          );
+          // 서버 파일 로드 실패 시, 소스코드 내 기본 verses를 사용하도록 초기화
+          processNewVersesData(verses);
+        }
       }
-      loadVersesFromFile();
 
-      // ==================== ✅ 완전 재작성: 고화질 이미지 저장 ====================
+      // ==================== 고화질 이미지 저장 (베젤 버그 수정 반영) ====================
       document
         .getElementById("saveImageBtn")
         .addEventListener("click", async function () {
@@ -707,12 +767,12 @@
           btn.innerHTML = "⏳ 저장 중...";
           btn.style.opacity = "0.7";
 
-          // ── 1. 캡처에서 제외할 요소들을 display:none으로 숨기기 ──
           const hideTargets = [
             document.getElementById("navigationSection"),
             document.getElementById("datePickerSection"),
             document.getElementById("uploadSection"),
           ];
+
           const savedDisplays = hideTargets.map((el) => {
             if (!el) return "";
             const prev = el.style.display;
@@ -720,15 +780,11 @@
             return prev;
           });
 
-          // ── 2. 렌더링 반영 대기 (2프레임) ──
           await new Promise((r) =>
             requestAnimationFrame(() => requestAnimationFrame(r)),
           );
 
-          // ── 3. 실제 화면의 컨테이너를 직접 캡처 ──
           const captureTarget = document.getElementById("mainContainer");
-
-          // 💡 현재 요소의 실제 렌더링 크기를 가져옵니다.
           const targetWidth = captureTarget.offsetWidth;
           const targetHeight = captureTarget.offsetHeight;
 
@@ -739,22 +795,17 @@
               backgroundColor: "#f5f7fa",
               cacheBust: true,
               skipFonts: false,
-
-              // 👇 [해결책 1] 최종 캡처 이미지의 캔버스 크기를 상하좌우 10px씩(총 20px) 늘립니다.
               width: targetWidth + 20,
               height: targetHeight + 20,
-
               style: {
                 padding: "10px",
-                // 👇 [해결책 2] 패딩이 들어갈 공간을 확보하기 위해 CSS 속성을 강제로 재정의합니다.
                 width: targetWidth + 20 + "px",
-                maxWidth: "none", // 원래 있던 max-width: 550px 제한을 캡처 시에만 해제
-                boxSizing: "border-box", // 늘어난 width 안에 padding이 안정적으로 포함되도록 설정
-                margin: "0", // 중앙 정렬용 여백이 캡처 화면에 영향을 주지 않도록 리셋
+                maxWidth: "none",
+                boxSizing: "border-box",
+                margin: "0",
               },
             });
 
-            // ── 4. 다운로드 ──
             const dateStr = `${currentDate.getFullYear()}-${String(currentDate.getMonth() + 1).padStart(2, "0")}-${String(currentDate.getDate()).padStart(2, "0")}`;
             const link = document.createElement("a");
             link.download = `오늘의_말씀_${dateStr}.png`;
@@ -764,9 +815,8 @@
             showToast("✅ 고화질 이미지가 저장되었습니다!");
           } catch (err) {
             console.error("이미지 저장 실패:", err);
-            showToast("❌ 저장 실패. Chrome 최신 버전에서 시도해주세요.", true);
+            showToast("❌ 저장 실패. 환경을 다시 확인해주세요.", true);
           } finally {
-            // ── 5. 숨긴 요소 원상 복구 (오류가 나도 반드시 실행) ──
             hideTargets.forEach((el, i) => {
               if (el) el.style.display = savedDisplays[i];
             });
@@ -797,9 +847,9 @@
         }, 2800);
       }
 
-      // 초기 로드
-      loadVerse(currentIndex);
-      updateDatePicker();
+      // ==================== 앱 시작 ====================
+      // 처음에 verses.json을 시도하고, 없으면 내장된 기본 객체(verses)로 렌더링
+      loadVersesFromFile();
     </script>
   </body>
 </html>
