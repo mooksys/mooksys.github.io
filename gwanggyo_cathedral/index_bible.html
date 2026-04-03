@@ -54,7 +54,6 @@
         position: relative;
         z-index: 1;
         padding: 30px 20px;
-        /* 라운드 크기 대폭 축소 (36px -> 16px) */
         border-radius: 16px;
         background-color: #f5f5f7;
         background-image:
@@ -98,7 +97,6 @@
         backdrop-filter: blur(16px);
         -webkit-backdrop-filter: blur(16px);
         border: 1px solid var(--glass-border);
-        /* 내부 카드 라운드도 작게 조절 (28px -> 20px) */
         border-radius: 20px;
         box-shadow: 0 8px 32px rgba(31, 38, 135, 0.04);
         padding: 28px;
@@ -159,7 +157,7 @@
       }
 
       .bible-reference {
-        font-size: 13px;
+        font-size: 16px;
         font-weight: 700;
         color: var(--primary-color);
         background: rgba(79, 70, 229, 0.1);
@@ -281,9 +279,36 @@
         border-color: #94a3b8;
       }
 
-      #datePicker,
       #fileInput {
         display: none;
+      }
+
+      /* ✅ 날짜 변경 버튼 수정 (투명하게 오버레이 처리) */
+      .date-picker-label {
+        position: relative;
+        overflow: hidden;
+      }
+
+      #datePicker {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        opacity: 0; /* 완전히 투명하지만 클릭은 됨 */
+        cursor: pointer;
+      }
+
+      #datePicker::-webkit-calendar-picker-indicator {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        cursor: pointer;
+        background: transparent;
       }
 
       .upload-status {
@@ -334,7 +359,7 @@
   <body>
     <div class="container" id="mainContainer">
       <div class="header" id="headerSection">
-        <h1>📖 광교1동성당 오늘의 성경말씀</h1>
+        <h1>📖 오늘의 성경말씀</h1>
       </div>
 
       <div class="glass-card date-card fade-in weekday" id="dateCard">
@@ -543,7 +568,10 @@
             currentIndex = findDateIndex(dateKey);
             loadVerse(currentIndex);
           } else {
-            showToast(`말씀이 준비되지 않았습니다.`, true);
+            showToast(
+              `${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일의 말씀이 준비되지 않았습니다.`,
+              true,
+            );
             updateDatePicker();
           }
         });
@@ -581,7 +609,6 @@
         }
       }
 
-      // ==================== ✅ 완벽하게 대칭되는 고화질 캡처 로직 ====================
       document
         .getElementById("saveImageBtn")
         .addEventListener("click", async function () {
@@ -607,16 +634,13 @@
               pixelRatio: 4,
               quality: 1.0,
               cacheBust: true,
-              // 캔버스 크기를 상하좌우 20px씩(총 40px) 늘림
               width: targetWidth + 40,
               height: targetHeight + 40,
               style: {
-                // 원래 요소의 내부 레이아웃이 깨지지 않도록 원래 너비/높이 고정
                 width: targetWidth + "px",
                 height: targetHeight + "px",
                 maxWidth: "none",
                 margin: "0",
-                // 늘어난 캔버스 영역의 정중앙으로 요소를 20px씩 이동시킴 (완벽한 대칭 유지)
                 transform: "translate(20px, 20px)",
               },
               backgroundColor: "#f8fafc",
