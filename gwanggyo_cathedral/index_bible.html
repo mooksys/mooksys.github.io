@@ -11,6 +11,14 @@
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
     />
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.13/html-to-image.min.js"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+
     <style>
       :root {
         --primary-color: #4f46e5;
@@ -157,7 +165,7 @@
       }
 
       .bible-reference {
-        font-size: 16px;
+        font-size: 13px;
         font-weight: 700;
         color: var(--primary-color);
         background: rgba(79, 70, 229, 0.1);
@@ -264,16 +272,15 @@
         gap: 12px;
       }
 
-      .date-picker-label,
+      .date-picker-btn,
       .upload-button {
         flex: 1;
         background: rgba(255, 255, 255, 0.5);
         color: var(--text-sub);
-        font-size: 14px;
         border: 1px dashed #cbd5e1;
       }
 
-      .date-picker-label:hover,
+      .date-picker-btn:hover,
       .upload-button:hover {
         background: white;
         border-color: #94a3b8;
@@ -283,34 +290,6 @@
         display: none;
       }
 
-      /* ✅ 날짜 변경 버튼 수정 (투명하게 오버레이 처리) */
-      .date-picker-label {
-        position: relative;
-        overflow: hidden;
-      }
-
-      #datePicker {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        opacity: 0; /* 완전히 투명하지만 클릭은 됨 */
-        cursor: pointer;
-      }
-
-      #datePicker::-webkit-calendar-picker-indicator {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        margin: 0;
-        padding: 0;
-        cursor: pointer;
-        background: transparent;
-      }
-
       .upload-status {
         text-align: center;
         margin-top: 8px;
@@ -318,6 +297,24 @@
         font-size: 13px;
         font-weight: 600;
         height: 18px;
+      }
+
+      /* ✅ Flatpickr 달력 커스텀 디자인 (앱 테마와 일치시킴) */
+      .flatpickr-calendar {
+        font-family: "Pretendard", sans-serif !important;
+        border-radius: 16px !important;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12) !important;
+        border: none !important;
+        padding: 10px !important;
+      }
+      .flatpickr-day.selected {
+        background: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        font-weight: bold;
+      }
+      .flatpickr-months .flatpickr-month {
+        color: var(--text-main) !important;
+        fill: var(--text-main) !important;
       }
 
       @keyframes fadeUp {
@@ -359,7 +356,7 @@
   <body>
     <div class="container" id="mainContainer">
       <div class="header" id="headerSection">
-        <h1>📖 오늘의 성경말씀</h1>
+        <h1>📖 광교1동성당 오늘의 성경말씀</h1>
       </div>
 
       <div class="glass-card date-card fade-in weekday" id="dateCard">
@@ -401,10 +398,10 @@
         </div>
 
         <div class="utils-container">
-          <label class="btn-style date-picker-label">
+          <button class="btn-style date-picker-btn" id="customDatePickerBtn">
             📅 날짜 변경
-            <input type="date" id="datePicker" />
-          </label>
+          </button>
+
           <button
             class="btn-style upload-button"
             onclick="document.getElementById('fileInput').click()"
@@ -446,6 +443,7 @@
       let currentDate = new Date();
       let dateKeys = [];
       let currentIndex = 0;
+      let fpInstance = null; // 달력 인스턴스 변수
 
       function formatDateToKey(date) {
         return `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
@@ -529,13 +527,12 @@
           document.getElementById("psalmRef").textContent = data.psalm || "";
           document.getElementById("psalmVerse").textContent =
             data.psalm_verse_1 || "말씀이 없습니다.";
-          updateDatePicker();
-        }, 50);
-      }
 
-      function updateDatePicker() {
-        document.getElementById("datePicker").value =
-          `${currentDate.getFullYear()}-${formatDateToKey(currentDate)}`;
+          // 달력 인스턴스가 생성되어 있다면 내부 날짜를 업데이트
+          if (fpInstance) {
+            fpInstance.setDate(currentDate);
+          }
+        }, 50);
       }
 
       document.getElementById("prevBtn").addEventListener("click", () => {
@@ -558,23 +555,32 @@
         } else showToast("마지막 말씀입니다.");
       });
 
-      document
-        .getElementById("datePicker")
-        .addEventListener("change", function (e) {
-          const selectedDate = new Date(e.target.value + "T00:00:00");
-          const dateKey = formatDateToKey(selectedDate);
-          if (verses[dateKey]) {
-            currentDate = selectedDate;
-            currentIndex = findDateIndex(dateKey);
-            loadVerse(currentIndex);
-          } else {
-            showToast(
-              `${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일의 말씀이 준비되지 않았습니다.`,
-              true,
-            );
-            updateDatePicker();
-          }
+      // ✅ Flatpickr 모던 달력 초기화
+      document.addEventListener("DOMContentLoaded", () => {
+        fpInstance = flatpickr("#customDatePickerBtn", {
+          locale: "ko", // 한국어 설정
+          defaultDate: currentDate,
+          disableMobile: true, // 모바일에서도 이 예쁜 디자인을 강제로 사용
+          onChange: function (selectedDates) {
+            if (selectedDates.length > 0) {
+              const selectedDate = selectedDates[0];
+              const dateKey = formatDateToKey(selectedDate);
+              if (verses[dateKey]) {
+                currentDate = selectedDate;
+                currentIndex = findDateIndex(dateKey);
+                loadVerse(currentIndex);
+              } else {
+                showToast(
+                  `${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일의 말씀이 준비되지 않았습니다.`,
+                  true,
+                );
+                // 없는 날짜를 선택하면 다시 이전 날짜로 시각적 롤백
+                fpInstance.setDate(currentDate);
+              }
+            }
+          },
         });
+      });
 
       document
         .getElementById("fileInput")
