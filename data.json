@@ -1,57 +1,76 @@
-{
-  "newsScrap": [
-    {
-      "title": "new_scrap",
-      "url": "new_scrap",
-      "type": "primary",
-      "icon": "fa-arrow-right",
-      "iconPosition": "right"
-    }
-  ],
-  "itStudy": [
-    {
-      "title": "Course Link v1",
-      "url": "course_link/index_add.html",
-      "type": "primary"
-    },
-    {
-      "title": "Course Lecture v2",
-      "url": "course_link/index_lec_v2.html",
-      "type": "secondary"
-    }
-  ],
-  "cathedral": [
-    {
-      "title": "월별 전례단 담당표",
-      "url": "gwanggyo_cathedral/index_liturgy.html",
-      "type": "primary"
-    },
-    {
-      "title": "월별 성가표",
-      "url": "gwanggyo_cathedral/index_chant.html",
-      "type": "secondary"
-    },
-    {
-      "title": "성경통독 프로젝트",
-      "url": "gwanggyo_cathedral/index_bible.html",
-      "type": "secondary"
-    },
-    {
-      "title": "성경통독 기록하기",
-      "url": "gwanggyo_cathedral/index_bible_write.html",
-      "type": "secondary"
-    },
-    {
-      "title": "울뜨레야 기도빨랑카",
-      "url": "gwanggyo_cathedral/index_prayer.html",
-      "type": "secondary"
-    }
-  ],
-    "itStudy": [
-    {
-      "title": "Course Link v1",
-      "url": "course_link/index_add.html",
-      "type": "primary"
-    }
-   ]
-}
+[
+  {
+    "id": "newsScrap",
+    "title": "News Scrap",
+    "icon": "fa-newspaper",
+    "description": "정보통신기술진흥원 및 교육부 주요 IT/교육 뉴스 스크랩",
+    "links": [
+      {
+        "title": "바로가기",
+        "url": "new_scrap",
+        "type": "primary",
+        "icon": "fa-arrow-right",
+        "iconPosition": "right"
+      }
+    ]
+  },
+  {
+    "id": "itStudy",
+    "title": "IT Study",
+    "icon": "fa-terminal",
+    "description": "IT 실무 및 자격증 공부 기록 보관소",
+    "links": [
+      {
+        "title": "Course make link v1",
+        "url": "course_link/index_add.html",
+        "type": "primary"
+      },
+      {
+        "title": "Course Lecture v2",
+        "url": "course_link/index_lec_v2.html",
+        "type": "secondary"
+      }
+    ]
+  },
+  {
+    "id": "cathedral",
+    "title": "광교1동성당",
+    "icon": "fa-church",
+    "description": "전례담당표, 월별 성가표, 통독프로젝트 및 기록장 관리 시스템",
+    "links": [
+      {
+        "title": "월별 전례단 담당표",
+        "url": "gwanggyo_cathedral/index_liturgy.html",
+        "type": "secondary"
+      },
+      {
+        "title": "월별 성가표",
+        "url": "gwanggyo_cathedral/index_chant.html",
+        "type": "secondary"
+      },
+      {
+        "title": "성경통독 프로젝트",
+        "url": "gwanggyo_cathedral/index_bible.html",
+        "type": "secondary"
+      }
+    ]
+  },
+  {
+    "id": "itStudy2"
+    "title": "IT Study",
+    "icon": "fa-terminal",
+    "description": "IT 실무 및 자격증 공부 기록 보관소",
+    "links": [
+      {
+        "title": "Course make link v1",
+        "url": "course_link/index_add.html",
+        "type": "primary"
+      },
+      {
+        "title": "Course Lecture v2",
+        "url": "course_link/index_lec_v2.html",
+        "type": "secondary"
+      }
+    ]
+  },  
+]
