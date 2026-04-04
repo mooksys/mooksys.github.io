@@ -6,7 +6,7 @@
     "description": "정보통신기술진흥원 및 교육부 주요 IT/교육 뉴스 스크랩",
     "links": [
       {
-        "title": "바로가기",
+        "title": "new_scrap",
         "url": "new_scrap",
         "type": "primary",
         "icon": "fa-arrow-right",
