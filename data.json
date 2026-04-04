@@ -52,6 +52,34 @@
         "title": "성경통독 프로젝트",
         "url": "gwanggyo_cathedral/index_bible.html",
         "type": "secondary"
+      },
+      {
+        "title": "성경통독 기도작성하기",
+        "url": "gwanggyo_cathedral/index_bible_write.html",
+        "type": "secondary"
+      },
+      {
+        "title": "울뜨레야 기도집계 기록하기",
+        "url": "gwanggyo_cathedral/index_prayer.html",
+        "type": "secondary"
+      }
+    ]
+  },
+  {
+    "id": "Gemini",
+    "title": "Gemini Project",
+    "icon": "fa-terminal",
+    "description": "Bave Coding Project",
+    "links": [
+      {
+        "title": "Project 1",
+        "url": "#",
+        "type": "primary"
+      },
+      {
+        "title": "Project 2",
+        "url": "#",
+        "type": "secondary"
       }
     ]
   }
