@@ -46,5 +46,11 @@
       "url": "gwanggyo_cathedral/index_prayer.html",
       "type": "secondary"
     }
-  ]
+  ],
+    "itStudy": [
+    {
+      "title": "Course Link v1",
+      "url": "course_link/index_add.html",
+      "type": "primary"
+    },
 }
