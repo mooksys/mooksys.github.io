@@ -1,449 +1,252 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mooksys Github Page</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
-    <link
-      rel="stylesheet"
-      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
-    />
-
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
+    
     <style>
-      * {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+        /* CSS는 미니멀 모던 테크 스타일을 그대로 유지합니다 */
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
-      :root {
-        /* Light Theme */
-        --bg-main: #ffffff;
-        --bg-secondary: #fafafa;
-        --text-primary: #111111;
-        --text-secondary: #666666;
-        --border-color: #eaeaea;
-        --border-hover: #000000;
-        --accent: #0070f3;
-        --btn-primary-bg: #000000;
-        --btn-primary-text: #ffffff;
-        --btn-secondary-bg: #ffffff;
-        --btn-secondary-border: #eaeaea;
-      }
-
-      body.dark-mode {
-        /* Dark Theme */
-        --bg-main: #0a0a0a;
-        --bg-secondary: #111111;
-        --text-primary: #ededed;
-        --text-secondary: #a1a1aa;
-        --border-color: #333333;
-        --border-hover: #ffffff;
-        --accent: #3291ff;
-        --btn-primary-bg: #ffffff;
-        --btn-primary-text: #000000;
-        --btn-secondary-bg: #0a0a0a;
-        --btn-secondary-border: #333333;
-      }
-
-      body {
-        font-family:
-          "Inter",
-          -apple-system,
-          BlinkMacSystemFont,
-          sans-serif;
-        background-color: var(--bg-main);
-        color: var(--text-primary);
-        min-height: 100vh;
-        line-height: 1.5;
-        -webkit-font-smoothing: antialiased;
-        transition:
-          background-color 0.2s ease,
-          color 0.2s ease;
-      }
-
-      /* 네비게이션 바 */
-      .navbar {
-        position: sticky;
-        top: 0;
-        background-color: rgba(var(--bg-main), 0.8);
-        backdrop-filter: blur(8px);
-        border-bottom: 1px solid var(--border-color);
-        padding: 16px 24px;
-        z-index: 100;
-      }
-
-      .navbar-content {
-        max-width: 900px;
-        margin: 0 auto;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-      }
-
-      .navbar-title {
-        font-size: 1.25rem;
-        font-weight: 700;
-        letter-spacing: -0.04em;
-      }
-
-      .control-btn {
-        background: none;
-        border: 1px solid var(--border-color);
-        border-radius: 6px;
-        width: 36px;
-        height: 36px;
-        color: var(--text-primary);
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: all 0.2s ease;
-      }
-
-      .control-btn:hover {
-        border-color: var(--border-hover);
-        color: var(--border-hover);
-      }
-
-      /* 메인 컨테이너 */
-      .dashboard-container {
-        max-width: 900px;
-        margin: 0 auto;
-        padding: 48px 24px 80px;
-      }
-
-      /* 프로필 섹션 */
-      .profile-section {
-        display: flex;
-        align-items: center;
-        gap: 32px;
-        margin-bottom: 64px;
-      }
-
-      .profile-avatar {
-        width: 100px;
-        height: 100px;
-        border-radius: 50%;
-        object-fit: cover;
-        border: 1px solid var(--border-color);
-      }
-
-      .profile-info {
-        flex: 1;
-      }
-
-      .profile-name {
-        font-size: 2rem;
-        font-weight: 700;
-        letter-spacing: -0.04em;
-        margin-bottom: 8px;
-      }
-
-      .profile-bio {
-        font-size: 1.1rem;
-        color: var(--text-secondary);
-        margin-bottom: 12px;
-      }
-
-      .tags {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-
-      .tag {
-        font-size: 0.8rem;
-        padding: 4px 10px;
-        background-color: var(--bg-secondary);
-        border: 1px solid var(--border-color);
-        border-radius: 100px;
-        color: var(--text-secondary);
-        font-weight: 500;
-      }
-
-      /* 섹션 타이틀 */
-      .section-title {
-        font-size: 1.5rem;
-        font-weight: 600;
-        letter-spacing: -0.03em;
-        margin-bottom: 24px;
-        padding-bottom: 12px;
-        border-bottom: 1px solid var(--border-color);
-      }
-
-      /* 카드 그리드 */
-      .cards-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-        gap: 24px;
-      }
-
-      .card {
-        background-color: var(--bg-main);
-        border: 1px solid var(--border-color);
-        border-radius: 8px;
-        padding: 24px;
-        display: flex;
-        flex-direction: column;
-        transition: all 0.2s ease;
-      }
-
-      .card:hover {
-        border-color: var(--border-hover);
-        transform: translateY(-2px);
-        box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04);
-      }
-
-      body.dark-mode .card:hover {
-        box-shadow: 0 8px 30px rgba(255, 255, 255, 0.04);
-      }
-
-      .card-header {
-        display: flex;
-        align-items: center;
-        gap: 12px;
-        margin-bottom: 16px;
-      }
-
-      .card-icon {
-        font-size: 1.2rem;
-        color: var(--text-primary);
-      }
-
-      .card-title {
-        font-size: 1.1rem;
-        font-weight: 600;
-        letter-spacing: -0.02em;
-      }
-
-      .card-content {
-        color: var(--text-secondary);
-        font-size: 0.95rem;
-        margin-bottom: 24px;
-        flex-grow: 1;
-      }
-
-      /* 버튼 및 레이아웃 */
-      .btn-group {
-        display: flex;
-        flex-direction: column;
-        gap: 8px;
-        margin-top: auto;
-      }
-
-      .btn {
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 10px 16px;
-        border-radius: 6px;
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 0.9rem;
-        transition: all 0.2s ease;
-        width: 100%;
-      }
-
-      .btn-primary {
-        background-color: var(--btn-primary-bg);
-        color: var(--btn-primary-text);
-        border: 1px solid transparent;
-      }
-
-      .btn-primary:hover {
-        opacity: 0.9;
-      }
-
-      .btn-secondary {
-        background-color: var(--btn-secondary-bg);
-        color: var(--text-primary);
-        border: 1px solid var(--btn-secondary-border);
-      }
-
-      .btn-secondary:hover {
-        border-color: var(--border-hover);
-      }
-
-      /* 데이터를 불러오는 동안 보여줄 로딩 텍스트 스타일 */
-      .loading-text {
-        color: var(--text-secondary);
-        font-size: 0.9rem;
-        text-align: center;
-        padding: 10px;
-      }
-
-      /* 반응형 */
-      @media (max-width: 600px) {
-        .profile-section {
-          flex-direction: column;
-          text-align: left;
-          align-items: flex-start;
-          gap: 20px;
+        :root {
+            /* Light Theme */
+            --bg-main: #ffffff;
+            --bg-secondary: #fafafa;
+            --text-primary: #111111;
+            --text-secondary: #666666;
+            --border-color: #eaeaea;
+            --border-hover: #000000;
+            --accent: #0070f3;
+            --btn-primary-bg: #000000;
+            --btn-primary-text: #ffffff;
+            --btn-secondary-bg: #ffffff;
+            --btn-secondary-border: #eaeaea;
         }
-        .dashboard-container {
-          padding: 32px 20px 60px;
+
+        body.dark-mode {
+            /* Dark Theme */
+            --bg-main: #0a0a0a;
+            --bg-secondary: #111111;
+            --text-primary: #ededed;
+            --text-secondary: #a1a1aa;
+            --border-color: #333333;
+            --border-hover: #ffffff;
+            --accent: #3291ff;
+            --btn-primary-bg: #ffffff;
+            --btn-primary-text: #000000;
+            --btn-secondary-bg: #0a0a0a;
+            --btn-secondary-border: #333333;
         }
-      }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background-color: var(--bg-main);
+            color: var(--text-primary);
+            min-height: 100vh;
+            line-height: 1.5;
+            -webkit-font-smoothing: antialiased;
+            transition: background-color 0.2s ease, color 0.2s ease;
+        }
+
+        .navbar {
+            position: sticky; top: 0; background-color: rgba(var(--bg-main), 0.8);
+            backdrop-filter: blur(8px); border-bottom: 1px solid var(--border-color);
+            padding: 16px 24px; z-index: 100;
+        }
+
+        .navbar-content {
+            max-width: 900px; margin: 0 auto; display: flex;
+            justify-content: space-between; align-items: center;
+        }
+
+        .navbar-title { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.04em; }
+
+        .control-btn {
+            background: none; border: 1px solid var(--border-color); border-radius: 6px;
+            width: 36px; height: 36px; color: var(--text-primary); cursor: pointer;
+            display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;
+        }
+
+        .control-btn:hover { border-color: var(--border-hover); color: var(--border-hover); }
+
+        .dashboard-container { max-width: 900px; margin: 0 auto; padding: 48px 24px 80px; }
+
+        .profile-section { display: flex; align-items: center; gap: 32px; margin-bottom: 64px; }
+        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-color); }
+        .profile-info { flex: 1; }
+        .profile-name { font-size: 2rem; font-weight: 700; letter-spacing: -0.04em; margin-bottom: 8px; }
+        .profile-bio { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 12px; }
+        
+        .tags { display: flex; gap: 8px; flex-wrap: wrap; }
+        .tag { font-size: 0.8rem; padding: 4px 10px; background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 100px; color: var(--text-secondary); font-weight: 500; }
+
+        .section-title { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.03em; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
+
+        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
+
+        .card {
+            background-color: var(--bg-main); border: 1px solid var(--border-color);
+            border-radius: 8px; padding: 24px; display: flex; flex-direction: column;
+            transition: all 0.2s ease;
+        }
+
+        .card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04); }
+        body.dark-mode .card:hover { box-shadow: 0 8px 30px rgba(255, 255, 255, 0.04); }
+
+        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
+        .card-icon { font-size: 1.2rem; color: var(--text-primary); }
+        .card-title { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.02em; }
+        .card-content { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 24px; flex-grow: 1; }
+
+        .btn-group { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
+        .btn {
+            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+            padding: 10px 16px; border-radius: 6px; text-decoration: none; font-weight: 500;
+            font-size: 0.9rem; transition: all 0.2s ease; width: 100%;
+        }
+
+        .btn-primary { background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border: 1px solid transparent; }
+        .btn-primary:hover { opacity: 0.9; }
+        .btn-secondary { background-color: var(--btn-secondary-bg); color: var(--text-primary); border: 1px solid var(--btn-secondary-border); }
+        .btn-secondary:hover { border-color: var(--border-hover); }
+
+        .loading-text { color: var(--text-secondary); font-size: 0.9rem; text-align: center; padding: 40px; grid-column: 1 / -1; }
+
+        @media (max-width: 600px) {
+            .profile-section { flex-direction: column; text-align: left; align-items: flex-start; gap: 20px; }
+            .dashboard-container { padding: 32px 20px 60px; }
+        }
     </style>
-  </head>
-  <body>
+</head>
+<body>
     <nav class="navbar">
-      <div class="navbar-content">
-        <div class="navbar-title">mooksys.dev</div>
-        <button id="theme-toggle" class="control-btn" title="테마 전환">
-          <i class="fa-solid fa-moon"></i>
-        </button>
-      </div>
+        <div class="navbar-content">
+            <div class="navbar-title">mooksys.dev</div>
+            <button id="theme-toggle" class="control-btn" title="테마 전환">
+                <i class="fa-solid fa-moon"></i>
+            </button>
+        </div>
     </nav>
 
     <main class="dashboard-container">
-      <div class="profile-section">
-        <img
-          src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
-          alt="mooksys 프로필"
-          class="profile-avatar"
-        />
-        <div class="profile-info">
-          <h1 class="profile-name">안녕하세요, mooksys 입니다.</h1>
-          <p class="profile-bio">
-            코딩과 새로운 기술을 사랑하는 정보교사, 개발자입니다.
-          </p>
-          <div class="tags">
-            <span class="tag">#Educator</span>
-            <span class="tag">#Fullstack</span>
-            <span class="tag">#TechBlog</span>
-          </div>
-        </div>
-      </div>
-
-      <h2 class="section-title">Projects & Links</h2>
-
-      <div class="cards-grid">
-        <div class="card">
-          <div class="card-header">
-            <i class="fa-solid fa-newspaper card-icon"></i>
-            <h3 class="card-title">News Scrap</h3>
-          </div>
-          <div class="card-content">
-            정보통신기술진흥원 및 교육부 주요 IT/교육 뉴스 스크랩
-          </div>
-          <div class="btn-group" id="links-newsScrap">
-            <div class="loading-text">Loading links...</div>
-          </div>
+        <div class="profile-section">
+            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face" 
+                 alt="mooksys 프로필" class="profile-avatar">
+            <div class="profile-info">
+                <h1 class="profile-name">안녕하세요, mooksys 입니다.</h1>
+                <p class="profile-bio">코딩과 새로운 기술을 사랑하는 정보교사, 개발자입니다.</p>
+                <div class="tags">
+                    <span class="tag">#Educator</span>
+                    <span class="tag">#Fullstack</span>
+                    <span class="tag">#TechBlog</span>
+                </div>
+            </div>
         </div>
 
-        <div class="card">
-          <div class="card-header">
-            <i class="fa-solid fa-terminal card-icon"></i>
-            <h3 class="card-title">IT Study</h3>
-          </div>
-          <div class="card-content">IT 실무 및 자격증 공부 기록 보관소</div>
-          <div class="btn-group" id="links-itStudy">
-            <div class="loading-text">Loading links...</div>
-          </div>
-        </div>
+        <h2 class="section-title">Projects & Links</h2>
 
-        <div class="card">
-          <div class="card-header">
-            <i class="fa-solid fa-church card-icon"></i>
-            <h3 class="card-title">광교1동성당</h3>
-          </div>
-          <div class="card-content">
-            전례담당표, 월별 성가표, 통독프로젝트 및 기록장 관리 시스템
-          </div>
-          <div class="btn-group" id="links-cathedral">
-            <div class="loading-text">Loading links...</div>
-          </div>
+        <div class="cards-grid" id="cards-container">
+            <div class="loading-text">데이터를 불러오는 중입니다...</div>
         </div>
-      </div>
     </main>
 
     <script>
-      document.addEventListener("DOMContentLoaded", function () {
-        // --- 테마 설정 로직 ---
-        const themeToggle = document.getElementById("theme-toggle");
-        const body = document.body;
-        const icon = themeToggle.querySelector("i");
-
-        const currentTheme = localStorage.getItem("theme");
-        if (currentTheme === "dark") {
-          body.classList.add("dark-mode");
-          icon.className = "fa-solid fa-sun";
-        }
-
-        themeToggle.addEventListener("click", function () {
-          body.classList.toggle("dark-mode");
-          const isDarkMode = body.classList.contains("dark-mode");
-          icon.className = isDarkMode ? "fa-solid fa-sun" : "fa-solid fa-moon";
-          localStorage.setItem("theme", isDarkMode ? "dark" : "light");
-        });
-
-        // --- JSON 데이터 불러오기 로직 ---
-        async function fetchAndRenderLinks() {
-          try {
-            // data.json 파일을 불러옵니다.
-            const response = await fetch("data.json");
-
-            if (!response.ok) {
-              throw new Error(`HTTP error! status: ${response.status}`);
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- 테마 설정 로직 ---
+            const themeToggle = document.getElementById('theme-toggle');
+            const body = document.body;
+            const icon = themeToggle.querySelector('i');
+            
+            const currentTheme = localStorage.getItem('theme');
+            if (currentTheme === 'dark') {
+                body.classList.add('dark-mode');
+                icon.className = 'fa-solid fa-sun';
             }
 
-            const data = await response.json();
-
-            // 각 카테고리별로 버튼 생성 함수 호출
-            renderButtons("links-newsScrap", data.newsScrap);
-            renderButtons("links-itStudy", data.itStudy);
-            renderButtons("links-cathedral", data.cathedral);
-          } catch (error) {
-            console.error("데이터를 불러오는 중 오류 발생:", error);
-            document.querySelectorAll(".btn-group").forEach((group) => {
-              group.innerHTML = `<div class="loading-text" style="color: red;">데이터를 불러올 수 없습니다.</div>`;
+            themeToggle.addEventListener('click', function() {
+                body.classList.toggle('dark-mode');
+                const isDarkMode = body.classList.contains('dark-mode');
+                icon.className = isDarkMode ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
+                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
             });
-          }
-        }
 
-        // 버튼 생성 헬퍼 함수
-        function renderButtons(containerId, linksArray) {
-          const container = document.getElementById(containerId);
-          if (!container || !linksArray) return;
+            // --- JSON 데이터로 카드 전체 생성하기 ---
+            async function fetchAndRenderCards() {
+                const container = document.getElementById('cards-container');
+                
+                try {
+                    const response = await fetch('data.json');
+                    if (!response.ok) throw new Error('네트워크 응답이 실패했습니다.');
+                    
+                    const cardsData = await response.json();
+                    container.innerHTML = ''; // 로딩 텍스트 제거
 
-          // 기존 'Loading...' 텍스트 제거
-          container.innerHTML = "";
+                    // 배열로 된 카드 데이터를 순회하며 HTML 조립
+                    cardsData.forEach(cardData => {
+                        // 1. 카드 뼈대 생성
+                        const cardDiv = document.createElement('div');
+                        cardDiv.className = 'card';
 
-          // JSON 배열을 순회하며 <a> 태그 생성
-          linksArray.forEach((link) => {
-            const aTag = document.createElement("a");
-            aTag.href = link.url;
-            aTag.target = "_blank"; // 새 창에서 열기
-            aTag.className = `btn btn-${link.type}`; // primary 또는 secondary 클래스 적용
+                        // 2. 카드 헤더 (아이콘, 제목)
+                        const headerDiv = document.createElement('div');
+                        headerDiv.className = 'card-header';
+                        headerDiv.innerHTML = `
+                            <i class="fa-solid ${cardData.icon} card-icon"></i>
+                            <h3 class="card-title">${cardData.title}</h3>
+                        `;
 
-            // 아이콘이 있는 경우 처리
-            let innerHTML = link.title;
-            if (link.icon) {
-              const iconHtml = `<i class="fa-solid ${link.icon}"></i>`;
-              if (link.iconPosition === "right") {
-                innerHTML = `${link.title} ${iconHtml}`;
-              } else {
-                innerHTML = `${iconHtml} ${link.title}`;
-              }
+                        // 3. 카드 설명 내용
+                        const contentDiv = document.createElement('div');
+                        contentDiv.className = 'card-content';
+                        contentDiv.textContent = cardData.description;
+
+                        // 4. 버튼(링크) 그룹 컨테이너
+                        const btnGroupDiv = document.createElement('div');
+                        btnGroupDiv.className = 'btn-group';
+
+                        // 5. 링크 데이터 순회하며 버튼 생성
+                        if (cardData.links && cardData.links.length > 0) {
+                            cardData.links.forEach(link => {
+                                const aTag = document.createElement('a');
+                                aTag.href = link.url;
+                                aTag.target = '_blank';
+                                aTag.className = `btn btn-${link.type}`;
+                                
+                                let innerHTML = link.title;
+                                if (link.icon) {
+                                    const iconHtml = `<i class="fa-solid ${link.icon}"></i>`;
+                                    innerHTML = link.iconPosition === 'right' 
+                                        ? `${link.title} ${iconHtml}` 
+                                        : `${iconHtml} ${link.title}`;
+                                }
+                                aTag.innerHTML = innerHTML;
+                                btnGroupDiv.appendChild(aTag);
+                            });
+                        }
+
+                        // 6. 조립된 요소들을 카드에 순서대로 부착
+                        cardDiv.appendChild(headerDiv);
+                        cardDiv.appendChild(contentDiv);
+                        cardDiv.appendChild(btnGroupDiv);
+
+                        // 7. 완성된 카드를 메인 그리드에 부착
+                        container.appendChild(cardDiv);
+                    });
+
+                } catch (error) {
+                    console.error("데이터 로드 오류:", error);
+                    container.innerHTML = `<div class="loading-text" style="color: red;">데이터를 불러올 수 없습니다. 로컬 서버(Live Server) 환경인지 확인해주세요.</div>`;
+                }
             }
 
-            aTag.innerHTML = innerHTML;
-            container.appendChild(aTag);
-          });
-        }
-
-        // 페이지 로드 시 함수 실행
-        fetchAndRenderLinks();
-      });
+            // 페이지 로드 시 실행
+            fetchAndRenderCards();
+        });
     </script>
-  </body>
+</body>
 </html>
