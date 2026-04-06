@@ -834,7 +834,7 @@
       };
 
       /* ==========================================
-         2. Store (상태 관리 모듈) & 버그 수정 반영
+         2. Store (상태 관리 모듈)
          ========================================== */
       const Store = {
         state: {
@@ -955,7 +955,7 @@
             const sd = JSON.parse(saved);
             this.state.monthData = pt.map((t) => {
               const existing = sd.find((d) => d.name === t.name);
-              // BUG FIX: 기존 저장된 데이터가 있어도 목표(goal)와 단위(unit)는 항상 최신 prayerTypes 기준 적용!
+              // BUG FIX: 기존 저장된 데이터가 있어도 목표(goal)와 단위(unit)는 항상 최신 기도 항목 설정(prayerTypes) 기준 적용
               return existing
                 ? { ...existing, goal: t.goal, unit: t.unit }
                 : { name: t.name, value: 0, goal: t.goal, unit: t.unit };
@@ -1025,7 +1025,7 @@
           UI.renderAll();
         },
 
-        // BUG FIX: 항목의 이름이 그대로더라도 목표치나 단위가 바뀌면 과거 로컬스토리지까지 업데이트 되도록 수정
+        // BUG FIX: 항목의 이름이 그대로더라도 목표치나 단위가 바뀌면 과거 로컬스토리지 기록까지 업데이트 되도록 수정
         saveItemSettings() {
           if (this.state.currentSettingsIndex === -1) return;
           const icon = document.getElementById("itemIcon").value.trim() || "🙏";
@@ -1358,13 +1358,17 @@
             return;
           }
 
+          // 데이터 크기(value)별로 중앙에서부터 정렬되도록 sort 적용
           const pack = d3
             .pack()
             .size([viewBoxWidth, viewBoxHeight])
-            .padding(12);
-          const root = d3.hierarchy({ children: data }).sum((d) => d.value);
-          const nodes = pack(root).leaves();
+            .padding(10);
+          const root = d3
+            .hierarchy({ children: data })
+            .sum((d) => d.value)
+            .sort((a, b) => b.value - a.value);
 
+          const nodes = pack(root).leaves();
           const tooltip = d3.select("#bubbleTooltip");
 
           const node = svg
@@ -1413,7 +1417,7 @@
             .text((d) => d.data.icon)
             .attr("text-anchor", "middle")
             .attr("dy", "-0.8em")
-            .attr("font-size", (d) => Math.max(20, d.r / 2.2) + "px")
+            .attr("font-size", (d) => Math.max(16, d.r / 2.5) + "px")
             .style("opacity", 0)
             .transition()
             .delay(500)
@@ -1427,7 +1431,7 @@
             .attr("dy", "0.6em")
             .attr("fill", "#ffffff")
             .attr("font-weight", "900")
-            .attr("font-size", (d) => Math.max(14, d.r / 5) + "px")
+            .attr("font-size", (d) => Math.max(12, d.r / 5) + "px")
             .style("text-shadow", "0 2px 4px rgba(0,0,0,0.5)")
             .style("opacity", 0)
             .transition()
@@ -1440,9 +1444,9 @@
             .text((d) => `${d.data.value}${d.data.unit}`)
             .attr("text-anchor", "middle")
             .attr("dy", "2.2em")
-            .attr("fill", "#fde047")
+            .attr("fill", "#fde047") // 강조 노란색
             .attr("font-weight", "900")
-            .attr("font-size", (d) => Math.max(12, d.r / 4) + "px")
+            .attr("font-size", (d) => Math.max(10, d.r / 5.5) + "px")
             .style("text-shadow", "0 2px 4px rgba(0,0,0,0.5)")
             .style("opacity", 0)
             .transition()
