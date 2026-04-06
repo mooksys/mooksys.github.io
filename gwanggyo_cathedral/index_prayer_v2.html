@@ -1,0 +1,1778 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>기도 기록표</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            fontFamily: {
+              sans: ['"Pretendard"', '"Noto Sans KR"', "sans-serif"],
+            },
+            boxShadow: {
+              glass: "0 8px 32px 0 rgba(31, 38, 135, 0.07)",
+              "glass-hover": "0 8px 32px 0 rgba(31, 38, 135, 0.15)",
+            },
+          },
+        },
+      };
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+
+    <style>
+      /* 글꼴 선명도 최적화 */
+      body {
+        -webkit-font-smoothing: antialiased;
+        -moz-osx-font-smoothing: grayscale;
+        text-rendering: optimizeLegibility;
+      }
+
+      /* 글래스모피즘 카드 스타일 & 애니메이션 */
+      .prayer-card {
+        background: rgba(255, 255, 255, 0.7);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid rgba(255, 255, 255, 0.5);
+        transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .dark .prayer-card {
+        background: rgba(30, 41, 59, 0.6);
+        border: 1px solid rgba(255, 255, 255, 0.05);
+      }
+      .prayer-card:hover {
+        transform: translateY(-5px) scale(1.02);
+        box-shadow: var(--tw-shadow-glass-hover);
+      }
+      .prayer-card.completed {
+        animation: pulse-glow-border 2.5s ease-in-out infinite;
+      }
+      @keyframes pulse-glow-border {
+        0%,
+        100% {
+          border-color: rgba(250, 204, 21, 0.3);
+          box-shadow: 0 0 15px rgba(250, 204, 21, 0.1);
+        }
+        50% {
+          border-color: rgba(250, 204, 21, 0.9);
+          box-shadow: 0 0 25px rgba(250, 204, 21, 0.4);
+        }
+      }
+
+      .progress-bar,
+      .overall-progress {
+        transition: width 1s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .btn-action {
+        transition: all 0.2s ease;
+      }
+      .btn-action:active {
+        transform: scale(0.92);
+      }
+
+      /* 세그먼트 컨트롤 스타일의 뷰 토글 */
+      .view-toggle-container {
+        background: rgba(241, 245, 249, 0.8);
+        backdrop-filter: blur(12px);
+      }
+      .dark .view-toggle-container {
+        background: rgba(15, 23, 42, 0.6);
+      }
+      .view-toggle {
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .view-toggle.active {
+        background: white;
+        color: #1e293b;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+      }
+      .dark .view-toggle.active {
+        background: #334155;
+        color: white;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+      }
+
+      /* 모달 스타일 */
+      .modal {
+        display: none;
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.6);
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+        z-index: 1000;
+        animation: fadeIn 0.3s ease;
+      }
+      .modal.active {
+        display: flex;
+      }
+      .modal-content {
+        animation: slideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes slideUp {
+        from {
+          transform: translateY(40px) scale(0.95);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0) scale(1);
+          opacity: 1;
+        }
+      }
+
+      .number-input {
+        -moz-appearance: textfield;
+      }
+      .number-input::-webkit-outer-spin-button,
+      .number-input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+      }
+
+      /* 차트 타이틀 배경 애니메이션 */
+      .chart-title-card {
+        background: linear-gradient(
+          120deg,
+          #6366f1 0%,
+          #a855f7 50%,
+          #ec4899 100%
+        );
+        position: relative;
+        overflow: hidden;
+      }
+      .chart-title-card::before {
+        content: "";
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        background: radial-gradient(
+          circle,
+          rgba(255, 255, 255, 0.15) 0%,
+          transparent 60%
+        );
+        animation: rotate 20s linear infinite;
+      }
+      @keyframes rotate {
+        0% {
+          transform: rotate(0deg);
+        }
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .chart-title-content {
+        position: relative;
+        z-index: 1;
+      }
+
+      .view-section {
+        display: none;
+      }
+      .view-section.active {
+        display: block;
+        animation: fadeIn 0.4s ease;
+      }
+
+      /* 버블 차트 툴팁 */
+      #bubbleTooltip {
+        position: absolute;
+        pointer-events: none;
+        background: rgba(15, 23, 42, 0.85);
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        color: #f8fafc;
+        padding: 12px 20px;
+        border-radius: 16px;
+        font-size: 14px;
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        white-space: nowrap;
+        opacity: 0;
+        transition: opacity 0.2s ease-out;
+        z-index: 9999;
+      }
+      #bubbleTooltip::after {
+        content: "";
+        position: absolute;
+        bottom: -6px;
+        left: 50%;
+        transform: translateX(-50%);
+        border-width: 6px 6px 0;
+        border-style: solid;
+        border-color: rgba(15, 23, 42, 0.85) transparent transparent transparent;
+        display: block;
+        width: 0;
+      }
+      .bubble-node {
+        cursor: pointer;
+      }
+      .bubble-node circle {
+        transition:
+          filter 0.3s,
+          transform 0.3s;
+      }
+      .bubble-node:hover circle {
+        filter: brightness(1.15) saturate(1.3)
+          drop-shadow(0 10px 20px rgba(0, 0, 0, 0.2));
+      }
+    </style>
+  </head>
+  <body
+    class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] dark:bg-none"
+  >
+    <header
+      class="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-white/20 dark:border-slate-800 sticky top-0 z-50 transition-colors duration-300"
+    >
+      <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6">
+        <div class="flex items-center justify-between flex-wrap gap-4">
+          <div class="flex items-center gap-3">
+            <h1
+              class="text-2xl sm:text-3xl font-black tracking-tight text-transparent bg-clip-text bg-gradient-to-br from-indigo-500 to-purple-600 dark:from-indigo-400 dark:to-purple-400 flex items-center gap-2"
+            >
+              🙏 <span id="headerTitle">기도 기록표</span>
+            </h1>
+            <button
+              onclick="UI.openModal('nameModal')"
+              aria-label="이름 설정"
+              class="p-2 rounded-full hover:bg-slate-200/50 dark:hover:bg-slate-800 text-slate-400 hover:text-indigo-500 transition-all"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"
+                ></path>
+              </svg>
+            </button>
+          </div>
+          <div class="flex gap-2 flex-wrap">
+            <button
+              onclick="App.exportData()"
+              class="px-4 py-2.5 bg-emerald-50 text-emerald-600 hover:bg-emerald-100 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20 rounded-[1rem] font-bold text-sm transition-all"
+            >
+              📋 복사
+            </button>
+            <button
+              onclick="App.downloadBackup()"
+              class="px-4 py-2.5 bg-blue-50 text-blue-600 hover:bg-blue-100 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20 rounded-[1rem] font-bold text-sm transition-all"
+            >
+              💾 백업
+            </button>
+            <label
+              class="px-4 py-2.5 bg-amber-50 text-amber-600 hover:bg-amber-100 dark:bg-amber-500/10 dark:text-amber-400 dark:hover:bg-amber-500/20 rounded-[1rem] font-bold cursor-pointer text-sm transition-all"
+            >
+              📂 복구<input
+                type="file"
+                id="restoreInput"
+                accept=".json"
+                class="hidden"
+                onchange="App.restoreBackup(event)"
+              />
+            </label>
+            <button
+              onclick="Charts.saveAsImage()"
+              class="px-4 py-2.5 bg-purple-50 text-purple-600 hover:bg-purple-100 dark:bg-purple-500/10 dark:text-purple-400 dark:hover:bg-purple-500/20 rounded-[1rem] font-bold text-sm transition-all"
+            >
+              🖼️ 이미지
+            </button>
+            <button
+              onclick="App.confirmReset()"
+              class="px-4 py-2.5 bg-rose-50 text-rose-600 hover:bg-rose-100 dark:bg-rose-500/10 dark:text-rose-400 dark:hover:bg-rose-500/20 rounded-[1rem] font-bold text-sm transition-all"
+            >
+              🔄 초기화
+            </button>
+            <button
+              onclick="App.toggleDarkMode()"
+              class="p-2.5 aspect-square bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700 rounded-[1rem] font-bold transition-all"
+            >
+              <span id="darkModeIcon">🌙</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div
+      class="bg-white/60 dark:bg-slate-900/60 backdrop-blur-md border-b border-white/20 dark:border-slate-800 transition-colors duration-300 relative z-40"
+    >
+      <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6">
+        <div class="flex items-center justify-between mb-3">
+          <span
+            class="text-sm font-bold text-slate-500 dark:text-slate-400 tracking-wide"
+            >이번 달 전체 목표 달성률</span
+          >
+          <span
+            id="overallPercent"
+            class="text-2xl font-black text-indigo-500 dark:text-indigo-400 tracking-tighter"
+            >0%</span
+          >
+        </div>
+        <div
+          class="w-full h-4 bg-slate-200/50 dark:bg-slate-800/80 rounded-full overflow-hidden shadow-inner"
+        >
+          <div
+            id="overallProgress"
+            class="overall-progress h-full bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400 rounded-full relative"
+          >
+            <div
+              class="absolute inset-0 bg-white/20"
+              style="
+                background: linear-gradient(
+                  90deg,
+                  transparent,
+                  rgba(255, 255, 255, 0.4),
+                  transparent
+                );
+              "
+            ></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <main class="max-w-7xl mx-auto px-4 py-10 sm:px-6">
+      <div
+        class="view-toggle-container p-1.5 mb-10 flex gap-1 w-full max-w-sm mx-auto rounded-full border border-white/40 dark:border-slate-700/50"
+      >
+        <button
+          onclick="UI.switchView('input')"
+          id="inputViewBtn"
+          class="view-toggle flex-1 py-3 rounded-full font-bold text-sm active"
+        >
+          📝 일일 기록
+        </button>
+        <button
+          onclick="UI.switchView('result')"
+          id="resultViewBtn"
+          class="view-toggle flex-1 py-3 text-slate-500 dark:text-slate-400 rounded-full font-bold text-sm"
+        >
+          📊 시각화 통계
+        </button>
+      </div>
+
+      <div id="inputView" class="view-section active">
+        <div
+          class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-[2rem] shadow-glass dark:shadow-none border border-white/60 dark:border-slate-700 p-6 mb-10 flex flex-col sm:flex-row items-center justify-between gap-6 transition-all duration-300"
+        >
+          <div
+            class="flex items-center gap-6 w-full sm:w-auto justify-between sm:justify-start"
+          >
+            <button
+              onclick="Store.changeMonth(-1)"
+              class="p-3.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-[1.25rem] font-bold transition-all shadow-sm"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.5"
+                  d="M15 19l-7-7 7-7"
+                ></path>
+              </svg>
+            </button>
+            <h2
+              id="currentMonth"
+              class="text-3xl font-black tracking-tight text-slate-800 dark:text-white min-w-[140px] text-center"
+            ></h2>
+            <button
+              onclick="Store.changeMonth(1)"
+              class="p-3.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-700 dark:hover:bg-slate-600 text-slate-700 dark:text-slate-200 rounded-[1.25rem] font-bold transition-all shadow-sm"
+            >
+              <svg
+                class="w-5 h-5"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2.5"
+                  d="M9 5l7 7-7 7"
+                ></path>
+              </svg>
+            </button>
+          </div>
+          <div class="flex gap-3 w-full sm:w-auto">
+            <button
+              onclick="UI.openModal('nameModal')"
+              class="flex-1 sm:flex-none px-6 py-3.5 bg-pink-50 text-pink-600 hover:bg-pink-100 dark:bg-pink-500/10 dark:text-pink-400 dark:hover:bg-pink-500/20 rounded-[1.25rem] font-bold text-sm transition-all flex items-center justify-center gap-2"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
+                ></path>
+              </svg>
+              내 정보
+            </button>
+            <button
+              onclick="UI.openModal('manageModal')"
+              class="flex-1 sm:flex-none px-6 py-3.5 bg-indigo-50 text-indigo-600 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20 rounded-[1.25rem] font-bold text-sm transition-all flex items-center justify-center gap-2"
+            >
+              <svg
+                class="w-4 h-4"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M4 6h16M4 12h16M4 18h7"
+                ></path>
+              </svg>
+              항목 관리
+            </button>
+          </div>
+        </div>
+
+        <div
+          id="cardsGrid"
+          class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+        ></div>
+      </div>
+
+      <div id="resultView" class="view-section">
+        <div
+          class="chart-title-card rounded-[2.5rem] shadow-xl shadow-indigo-500/20 dark:shadow-none p-8 md:p-10 mb-10 text-white border border-white/20"
+        >
+          <div
+            class="chart-title-content flex flex-col md:flex-row md:items-center justify-between gap-6"
+          >
+            <div class="flex items-center gap-5">
+              <div
+                class="w-16 h-16 bg-white/20 backdrop-blur-xl rounded-[1.5rem] flex items-center justify-center text-4xl shadow-inner border border-white/30"
+              >
+                🙏
+              </div>
+              <div>
+                <h2
+                  class="text-3xl md:text-4xl font-black tracking-tight leading-tight mb-2"
+                  id="resultTitle"
+                ></h2>
+                <p
+                  class="text-indigo-100 font-medium tracking-wide opacity-90"
+                  id="resultSubtitle"
+                ></p>
+              </div>
+            </div>
+            <div
+              class="flex items-center gap-6 text-sm font-bold bg-white/10 rounded-3xl px-6 py-4 backdrop-blur-md self-start md:self-auto border border-white/20"
+            >
+              <div class="flex items-center gap-2 text-indigo-50">
+                <span class="text-xl">📅</span><span id="resultDate"></span>
+              </div>
+              <div class="w-px h-6 bg-white/30"></div>
+              <div class="flex items-center gap-2 text-indigo-50">
+                <span class="text-xl">⏱️</span
+                ><span id="resultTotalTime"></span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div
+          class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-[2.5rem] shadow-glass dark:shadow-none border border-white/60 dark:border-slate-700 p-8 md:p-12 mb-10 transition-colors duration-300"
+        >
+          <h3
+            class="text-center text-3xl font-black tracking-tight text-slate-800 dark:text-slate-100 mb-3"
+          >
+            기도 항목별 달성량 비율
+          </h3>
+          <p
+            class="text-center text-sm font-medium text-slate-500 dark:text-slate-400 mb-8 tracking-wide"
+          >
+            원의 크기는 달성량에 비례합니다. 버블 위에 마우스를 올려보세요.
+          </p>
+
+          <div
+            id="packedChartWrap"
+            class="w-full flex justify-center relative min-h-[300px]"
+          >
+            <svg
+              id="packedSvg"
+              class="w-full max-w-4xl"
+              style="display: block; max-height: 800px"
+            ></svg>
+          </div>
+
+          <div
+            id="chartLegend"
+            class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mt-12 p-6 bg-slate-100/50 dark:bg-slate-900/50 rounded-[2rem] border border-white/50 dark:border-slate-800"
+          ></div>
+        </div>
+
+        <div
+          class="grid grid-cols-2 lg:grid-cols-4 gap-6 mb-10"
+          id="summaryCards"
+        ></div>
+
+        <div
+          class="bg-white/80 dark:bg-slate-800/80 backdrop-blur-xl rounded-[2.5rem] shadow-glass dark:shadow-none border border-white/60 dark:border-slate-700 p-8 md:p-12 transition-colors duration-300"
+        >
+          <h3
+            class="text-center text-3xl font-black tracking-tight text-slate-800 dark:text-slate-100 mb-3"
+          >
+            최근 6개월 달성률 추이
+          </h3>
+          <p
+            class="text-center text-sm font-medium text-slate-500 dark:text-slate-400 mb-10 tracking-wide"
+          >
+            지속적인 영적 성장의 흐름을 확인하세요.
+          </p>
+          <div id="trendChartWrap" class="w-full flex justify-center relative">
+            <svg
+              id="trendSvg"
+              class="w-full max-w-3xl"
+              style="display: block; overflow: visible"
+            ></svg>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="editModal" class="modal items-center justify-center">
+      <div
+        class="modal-content bg-white/90 dark:bg-slate-800/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-slate-700 p-8 w-11/12 max-w-sm"
+      >
+        <h3
+          class="text-2xl font-black text-center tracking-tight text-slate-800 dark:text-white mb-8"
+          id="modalTitle"
+        ></h3>
+        <div class="grid grid-cols-5 gap-3 mb-8">
+          <button
+            onclick="UI.quickUpdate(-5)"
+            class="quick-btn py-3.5 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 rounded-2xl font-black text-sm transition-all"
+          >
+            -5
+          </button>
+          <button
+            onclick="UI.quickUpdate(-1)"
+            class="quick-btn py-3.5 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 rounded-2xl font-black text-sm transition-all"
+          >
+            -1
+          </button>
+          <button
+            onclick="UI.quickUpdate(1)"
+            class="quick-btn py-3.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-2xl font-black text-sm transition-all"
+          >
+            +1
+          </button>
+          <button
+            onclick="UI.quickUpdate(5)"
+            class="quick-btn py-3.5 bg-indigo-50 hover:bg-indigo-100 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 text-indigo-600 dark:text-indigo-400 rounded-2xl font-black text-sm transition-all"
+          >
+            +5
+          </button>
+          <button
+            onclick="UI.quickUpdate(10)"
+            class="quick-btn py-3.5 bg-purple-50 hover:bg-purple-100 dark:bg-purple-500/10 dark:hover:bg-purple-500/20 text-purple-600 dark:text-purple-400 rounded-2xl font-black text-sm transition-all"
+          >
+            +10
+          </button>
+        </div>
+        <div class="mb-10">
+          <label
+            class="block text-sm font-bold text-slate-400 dark:text-slate-500 mb-3 text-center tracking-widest uppercase"
+            >DIRECT INPUT</label
+          >
+          <input
+            type="number"
+            id="modalInput"
+            class="number-input w-full px-4 py-5 bg-slate-100/50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-[1.5rem] focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/20 outline-none text-4xl font-black text-center tracking-tighter transition-all"
+            min="0"
+          />
+        </div>
+        <div class="flex gap-4">
+          <button
+            onclick="UI.closeModal('editModal')"
+            class="flex-1 py-4.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-[1.5rem] font-bold transition-all"
+          >
+            취소
+          </button>
+          <button
+            onclick="Store.saveEditValue()"
+            class="flex-1 py-4.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[1.5rem] font-bold transition-all shadow-lg shadow-indigo-600/30"
+          >
+            저장하기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="itemSettingsModal" class="modal items-center justify-center">
+      <div
+        class="modal-content bg-white/90 dark:bg-slate-800/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-slate-700 p-8 w-11/12 max-w-sm"
+      >
+        <h3
+          class="text-2xl font-black tracking-tight text-slate-800 dark:text-white mb-8"
+        >
+          기도 항목 설정
+        </h3>
+        <div class="space-y-6">
+          <div>
+            <label
+              class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-2 tracking-wide"
+              >아이콘 (이모지)</label
+            >
+            <input
+              type="text"
+              id="itemIcon"
+              class="w-full px-5 py-4 bg-slate-100/50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-2xl focus:border-indigo-500 outline-none text-2xl text-center transition-all"
+              placeholder="🙏"
+              maxlength="2"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-2 tracking-wide"
+              >항목 이름</label
+            >
+            <input
+              type="text"
+              id="itemName"
+              class="w-full px-5 py-4 bg-slate-100/50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-2xl focus:border-indigo-500 outline-none font-bold transition-all"
+              placeholder="미사"
+            />
+          </div>
+          <div class="grid grid-cols-2 gap-4">
+            <div>
+              <label
+                class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-2 tracking-wide"
+                >목표 수치</label
+              >
+              <input
+                type="number"
+                id="itemGoal"
+                class="number-input w-full px-5 py-4 bg-slate-100/50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-2xl focus:border-indigo-500 outline-none font-black transition-all"
+                min="1"
+                placeholder="30"
+              />
+            </div>
+            <div>
+              <label
+                class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-2 tracking-wide"
+                >단위</label
+              >
+              <input
+                type="text"
+                id="itemUnit"
+                class="w-full px-5 py-4 bg-slate-100/50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-2xl focus:border-indigo-500 outline-none font-bold transition-all"
+                placeholder="회"
+                maxlength="10"
+              />
+            </div>
+          </div>
+        </div>
+        <div class="flex gap-4 mt-10">
+          <button
+            onclick="UI.closeModal('itemSettingsModal')"
+            class="flex-1 py-4 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-[1.5rem] font-bold transition-all"
+          >
+            취소
+          </button>
+          <button
+            onclick="Store.saveItemSettings()"
+            class="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[1.5rem] font-bold transition-all shadow-lg shadow-indigo-600/30"
+          >
+            저장
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="manageModal" class="modal items-center justify-center">
+      <div
+        class="modal-content bg-white/90 dark:bg-slate-800/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-slate-700 p-8 w-11/12 max-w-2xl max-h-[85vh] overflow-hidden flex flex-col"
+      >
+        <h3
+          class="text-3xl font-black tracking-tight text-slate-800 dark:text-white mb-8 flex-shrink-0"
+        >
+          기도 항목 전체 관리
+        </h3>
+        <div class="mb-6 flex-shrink-0">
+          <button
+            onclick="Store.addNewItem()"
+            class="w-full py-4.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[1.5rem] font-bold text-lg flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 transition-all"
+          >
+            <svg
+              class="w-5 h-5"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="3"
+                d="M12 4v16m8-8H4"
+              ></path>
+            </svg>
+            새로운 항목 추가하기
+          </button>
+        </div>
+        <div
+          id="manageItemsList"
+          class="space-y-4 overflow-y-auto pr-2 pb-2"
+        ></div>
+        <div class="mt-8 flex-shrink-0">
+          <button
+            onclick="UI.closeModal('manageModal')"
+            class="w-full py-4.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-[1.5rem] font-bold text-lg transition-colors"
+          >
+            창 닫기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="nameModal" class="modal items-center justify-center">
+      <div
+        class="modal-content bg-white/90 dark:bg-slate-800/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-slate-700 p-8 w-11/12 max-w-sm"
+      >
+        <h3
+          class="text-2xl font-black tracking-tight text-slate-800 dark:text-white mb-8"
+        >
+          내 정보 설정
+        </h3>
+        <div class="space-y-6">
+          <div>
+            <label
+              class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-2 tracking-wide"
+              >이름 (필수)</label
+            >
+            <input
+              type="text"
+              id="userNameInput"
+              class="w-full px-5 py-4 bg-slate-100/50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-2xl focus:border-indigo-500 outline-none font-bold transition-all"
+              placeholder="홍길동"
+            />
+          </div>
+          <div>
+            <label
+              class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-2 tracking-wide"
+              >세례명 (선택)</label
+            >
+            <input
+              type="text"
+              id="baptismNameInput"
+              class="w-full px-5 py-4 bg-slate-100/50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-2xl focus:border-indigo-500 outline-none font-bold transition-all"
+              placeholder="안토니오"
+            />
+          </div>
+        </div>
+        <div class="flex gap-4 mt-10">
+          <button
+            onclick="UI.closeModal('nameModal')"
+            class="flex-1 py-4 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-[1.5rem] font-bold transition-all"
+          >
+            취소
+          </button>
+          <button
+            onclick="Store.saveUserName()"
+            class="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[1.5rem] font-bold transition-all shadow-lg shadow-indigo-600/30"
+          >
+            저장
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="bubbleTooltip"></div>
+
+    <script>
+      /* ==========================================
+         1. Utils (유틸리티 모음)
+         ========================================== */
+      const Utils = {
+        escapeHTML: (str) => {
+          const div = document.createElement("div");
+          div.appendChild(document.createTextNode(str));
+          return div.innerHTML;
+        },
+      };
+
+      /* ==========================================
+         2. Store (상태 관리 모듈)
+         ========================================== */
+      const Store = {
+        state: {
+          currentDate: new Date(),
+          currentEditIndex: -1,
+          currentSettingsIndex: -1,
+          userName: localStorage.getItem("userName") || "이상호",
+          baptismName: localStorage.getItem("baptismName") || "안토니오",
+          prayerTypes: [],
+          monthData: [],
+          isDarkMode: localStorage.getItem("darkMode") === "true",
+          currentView: "input",
+        },
+        DEFAULT_PRAYER_TYPES: [
+          { name: "미사", icon: "⛪", goal: 30, unit: "회", color: "#6366f1" },
+          {
+            name: "영성체",
+            icon: "🍞",
+            goal: 30,
+            unit: "회",
+            color: "#8b5cf6",
+          },
+          {
+            name: "성체조배",
+            icon: "🙏",
+            goal: 20,
+            unit: "회",
+            color: "#ec4899",
+          },
+          {
+            name: "십자가의 길",
+            icon: "✝️",
+            goal: 20,
+            unit: "회",
+            color: "#ef4444",
+          },
+          {
+            name: "묵주기도",
+            icon: "📿",
+            goal: 100,
+            unit: "단",
+            color: "#f59e0b",
+          },
+          {
+            name: "주모송",
+            icon: "📖",
+            goal: 50,
+            unit: "회",
+            color: "#10b981",
+          },
+          {
+            name: "화살기도",
+            icon: "🎯",
+            goal: 100,
+            unit: "회",
+            color: "#06b6d4",
+          },
+          { name: "묵상", icon: "🧠", goal: 30, unit: "회", color: "#3b82f6" },
+          { name: "선행", icon: "🤝", goal: 30, unit: "회", color: "#f97316" },
+          { name: "희생", icon: "🔥", goal: 30, unit: "회", color: "#e11d48" },
+          {
+            name: "사제를 위한 기도",
+            icon: "👨‍🦳",
+            goal: 30,
+            unit: "회",
+            color: "#0ea5e9",
+          },
+          {
+            name: "꾸르실리스타를 위한 기도",
+            icon: "❤️",
+            goal: 30,
+            unit: "회",
+            color: "#84cc16",
+          },
+          {
+            name: "기도시간",
+            icon: "⏰",
+            goal: 50,
+            unit: "시간",
+            color: "#d946ef",
+          },
+        ],
+        AVAILABLE_COLORS: [
+          "#ef4444",
+          "#f97316",
+          "#f59e0b",
+          "#84cc16",
+          "#10b981",
+          "#06b6d4",
+          "#3b82f6",
+          "#6366f1",
+          "#8b5cf6",
+          "#d946ef",
+          "#ec4899",
+        ],
+
+        init() {
+          const s = localStorage.getItem("prayer_types");
+          this.state.prayerTypes = s
+            ? JSON.parse(s)
+            : [...this.DEFAULT_PRAYER_TYPES];
+          this.loadMonthData();
+        },
+        getFullName() {
+          const b = this.state.baptismName;
+          return b ? `${this.state.userName} ${b}` : this.state.userName;
+        },
+        getMonthKey() {
+          const d = this.state.currentDate;
+          return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+        },
+        loadMonthData() {
+          const key = this.getMonthKey();
+          const saved = localStorage.getItem(`prayer_${key}`);
+          const pt = this.state.prayerTypes;
+
+          if (saved) {
+            const sd = JSON.parse(saved);
+            this.state.monthData = pt.map(
+              (t) =>
+                sd.find((d) => d.name === t.name) || {
+                  name: t.name,
+                  value: 0,
+                  goal: t.goal,
+                  unit: t.unit,
+                },
+            );
+          } else {
+            this.state.monthData = pt.map((t) => ({
+              name: t.name,
+              value: 0,
+              goal: t.goal,
+              unit: t.unit,
+            }));
+          }
+        },
+        saveMonthData() {
+          this.calculatePrayerTime();
+          localStorage.setItem(
+            `prayer_${this.getMonthKey()}`,
+            JSON.stringify(this.state.monthData),
+          );
+        },
+        calculatePrayerTime() {
+          const data = this.state.monthData;
+          const r = data.find((i) => i.name === "묵주기도");
+          const m = data.find((i) => i.name === "미사");
+          const p = data.find((i) => i.name === "기도시간");
+          if (r && m && p) {
+            p.value =
+              Math.round((((r.value / 5) * 25) / 60 + m.value) * 10) / 10;
+          }
+        },
+        changeMonth(delta) {
+          this.state.currentDate.setMonth(
+            this.state.currentDate.getMonth() + delta,
+          );
+          this.loadMonthData();
+          UI.renderAll();
+        },
+        updateValue(idx, delta) {
+          this.state.monthData[idx].value = Math.max(
+            0,
+            this.state.monthData[idx].value + delta,
+          );
+          this.saveMonthData();
+          UI.renderAll();
+        },
+        saveEditValue() {
+          if (this.state.currentEditIndex === -1) return;
+          const val =
+            parseInt(document.getElementById("modalInput").value) || 0;
+          this.state.monthData[this.state.currentEditIndex].value = Math.max(
+            0,
+            val,
+          );
+          this.saveMonthData();
+          UI.closeModal("editModal");
+          UI.renderAll();
+        },
+        saveUserName() {
+          const n = document.getElementById("userNameInput").value.trim();
+          const b = document.getElementById("baptismNameInput").value.trim();
+          if (!n) return alert("이름을 입력해주세요.");
+          this.state.userName = n;
+          this.state.baptismName = b;
+          localStorage.setItem("userName", n);
+          localStorage.setItem("baptismName", b);
+          UI.closeModal("nameModal");
+          UI.renderAll();
+        },
+        saveItemSettings() {
+          if (this.state.currentSettingsIndex === -1) return;
+          const icon = document.getElementById("itemIcon").value.trim() || "🙏";
+          const name =
+            document.getElementById("itemName").value.trim() || "기도";
+          const goal = parseInt(document.getElementById("itemGoal").value) || 1;
+          const unit = document.getElementById("itemUnit").value.trim() || "회";
+
+          const oldName =
+            this.state.prayerTypes[this.state.currentSettingsIndex].name;
+          this.state.prayerTypes[this.state.currentSettingsIndex] = {
+            ...this.state.prayerTypes[this.state.currentSettingsIndex],
+            icon,
+            name,
+            goal,
+            unit,
+          };
+          localStorage.setItem(
+            "prayer_types",
+            JSON.stringify(this.state.prayerTypes),
+          );
+
+          if (oldName !== name) {
+            for (let k in localStorage) {
+              if (k.startsWith("prayer_") && k !== "prayer_types") {
+                const d = JSON.parse(localStorage.getItem(k));
+                const it = d.find((x) => x.name === oldName);
+                if (it) {
+                  it.name = name;
+                  localStorage.setItem(k, JSON.stringify(d));
+                }
+              }
+            }
+          }
+          this.loadMonthData();
+          UI.closeModal("itemSettingsModal");
+          UI.renderAll();
+        },
+        deleteItem(idx) {
+          if (this.state.prayerTypes.length <= 1)
+            return alert("최소 1개 항목은 유지해야 합니다.");
+          const name = this.state.prayerTypes[idx].name;
+          if (!confirm(`"${name}" 항목을 삭제하시겠습니까?`)) return;
+          this.state.prayerTypes.splice(idx, 1);
+          localStorage.setItem(
+            "prayer_types",
+            JSON.stringify(this.state.prayerTypes),
+          );
+
+          for (let k in localStorage) {
+            if (k.startsWith("prayer_") && k !== "prayer_types") {
+              const d = JSON.parse(localStorage.getItem(k));
+              localStorage.setItem(
+                k,
+                JSON.stringify(d.filter((x) => x.name !== name)),
+              );
+            }
+          }
+          this.loadMonthData();
+          UI.renderManageList();
+          UI.renderAll();
+        },
+        addNewItem() {
+          this.state.prayerTypes.push({
+            name: "새 기도 항목",
+            icon: "✨",
+            goal: 30,
+            unit: "회",
+            color:
+              this.AVAILABLE_COLORS[
+                this.state.prayerTypes.length % this.AVAILABLE_COLORS.length
+              ],
+          });
+          localStorage.setItem(
+            "prayer_types",
+            JSON.stringify(this.state.prayerTypes),
+          );
+          this.loadMonthData();
+          this.saveMonthData();
+          UI.renderManageList();
+          UI.renderAll();
+        },
+      };
+
+      /* ==========================================
+         3. UI (화면 조작 모듈)
+         ========================================== */
+      const UI = {
+        openModal(id) {
+          document.getElementById(id).classList.add("active");
+          document.body.style.overflow = "hidden";
+          if (id === "nameModal") {
+            document.getElementById("userNameInput").value =
+              Store.state.userName;
+            document.getElementById("baptismNameInput").value =
+              Store.state.baptismName;
+            setTimeout(
+              () => document.getElementById("userNameInput").focus(),
+              100,
+            );
+          } else if (id === "manageModal") {
+            this.renderManageList();
+          }
+        },
+        closeModal(id) {
+          document.getElementById(id).classList.remove("active");
+          document.body.style.overflow = "";
+          Store.state.currentEditIndex = -1;
+          Store.state.currentSettingsIndex = -1;
+        },
+        openEditModal(idx) {
+          Store.state.currentEditIndex = idx;
+          const item = Store.state.monthData[idx];
+          document.getElementById("modalTitle").textContent =
+            `${Utils.escapeHTML(item.name)} 기록`;
+          document.getElementById("modalInput").value = item.value;
+          this.openModal("editModal");
+          setTimeout(() => {
+            document.getElementById("modalInput").focus();
+            document.getElementById("modalInput").select();
+          }, 100);
+        },
+        openItemSettings(idx) {
+          Store.state.currentSettingsIndex = idx;
+          const t = Store.state.prayerTypes[idx];
+          document.getElementById("itemIcon").value = t.icon;
+          document.getElementById("itemName").value = t.name;
+          document.getElementById("itemGoal").value = t.goal;
+          document.getElementById("itemUnit").value = t.unit;
+          this.closeModal("manageModal");
+          this.openModal("itemSettingsModal");
+        },
+        quickUpdate(delta) {
+          const inp = document.getElementById("modalInput");
+          inp.value = Math.max(0, (parseInt(inp.value) || 0) + delta);
+        },
+        switchView(view) {
+          Store.state.currentView = view;
+          const isInput = view === "input";
+          document
+            .getElementById("inputView")
+            .classList.toggle("active", isInput);
+          document
+            .getElementById("resultView")
+            .classList.toggle("active", !isInput);
+
+          const ib = document.getElementById("inputViewBtn");
+          const rb = document.getElementById("resultViewBtn");
+
+          if (isInput) {
+            ib.className =
+              "view-toggle flex-1 py-3 rounded-full font-bold text-sm active";
+            rb.className =
+              "view-toggle flex-1 py-3 text-slate-500 dark:text-slate-400 rounded-full font-bold text-sm hover:text-slate-800 dark:hover:text-slate-200 transition-colors";
+          } else {
+            ib.className =
+              "view-toggle flex-1 py-3 text-slate-500 dark:text-slate-400 rounded-full font-bold text-sm hover:text-slate-800 dark:hover:text-slate-200 transition-colors";
+            rb.className =
+              "view-toggle flex-1 py-3 rounded-full font-bold text-sm active";
+            Charts.renderAll();
+          }
+        },
+        renderHeader() {
+          document.getElementById("headerTitle").textContent =
+            `${Utils.escapeHTML(Store.state.userName)} 기도 기록표`;
+          const y = Store.state.currentDate.getFullYear();
+          const m = Store.state.currentDate.getMonth() + 1;
+          document.getElementById("currentMonth").textContent = `${y}년 ${m}월`;
+          document.getElementById("resultTitle").textContent =
+            `${Utils.escapeHTML(Store.getFullName())}님의 기도`;
+          document.getElementById("resultSubtitle").textContent =
+            `${y}년 ${m}월의 아름다운 영적 결실입니다.`;
+          document.getElementById("resultDate").textContent = `${y}년 ${m}월`;
+          const pt = Store.state.monthData.find((i) => i.name === "기도시간");
+          document.getElementById("resultTotalTime").textContent =
+            `총 ${pt ? pt.value : 0}시간`;
+        },
+
+        // ✨ 입력 카드 글래스모피즘 & 토널 UI 개편 ✨
+        renderCards() {
+          const data = Store.state.monthData;
+          const pt = Store.state.prayerTypes;
+          const grid = document.getElementById("cardsGrid");
+          grid.innerHTML = "";
+          let sumProgress = 0;
+
+          data.forEach((item, idx) => {
+            const type = pt[idx];
+            const progress = Math.min(
+              100,
+              Math.round((item.value / item.goal) * 100),
+            );
+            sumProgress += progress;
+            const done = progress >= 100;
+            const hexColor = type.color || "#6366f1";
+
+            const card = document.createElement("div");
+            card.className = `prayer-card rounded-[2rem] shadow-glass p-6 cursor-pointer relative overflow-hidden group ${done ? "completed" : ""}`;
+
+            card.innerHTML = `
+              <div class="absolute -top-10 -right-10 w-32 h-32 rounded-full blur-3xl opacity-20 pointer-events-none transition-transform duration-700 group-hover:scale-150" style="background-color: ${hexColor}"></div>
+              
+              <div class="flex items-center justify-between mb-5 relative z-10">
+                <div class="flex items-center gap-3">
+                  <div class="w-12 h-12 flex items-center justify-center text-2xl rounded-2xl border border-white/50 dark:border-slate-700/50 shadow-sm" style="background-color: ${hexColor}15; color: ${hexColor}">
+                    ${Utils.escapeHTML(type.icon)}
+                  </div>
+                  <div>
+                    <h3 class="font-bold text-slate-800 dark:text-slate-100 text-lg leading-tight tracking-tight">${Utils.escapeHTML(item.name)}</h3>
+                    <p class="text-xs font-bold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wider">목표 ${item.goal}${Utils.escapeHTML(item.unit)}</p>
+                  </div>
+                </div>
+                <button onclick="UI.openItemSettings(${idx});event.stopPropagation();" aria-label="설정" class="text-slate-300 hover:text-slate-600 dark:hover:text-slate-300 p-2 rounded-full hover:bg-slate-100/50 dark:hover:bg-slate-700/50 transition-all">
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                </button>
+              </div>
+
+              <div class="mb-5 relative z-10">
+                <div class="flex items-end justify-between mb-3">
+                  <div class="flex items-baseline gap-1.5">
+                    <span class="text-5xl font-black tracking-tighter text-slate-800 dark:text-white" id="val_${idx}">${item.value}</span>
+                    <span class="text-sm font-bold text-slate-400 dark:text-slate-500">${Utils.escapeHTML(item.unit)}</span>
+                  </div>
+                  ${done ? '<div class="px-3 py-1.5 bg-yellow-100/80 text-yellow-700 dark:bg-yellow-900/50 dark:text-yellow-400 text-xs font-bold rounded-xl flex items-center gap-1 shadow-sm backdrop-blur-sm">🎉 달성</div>' : `<span class="text-sm font-bold" style="color: ${hexColor}">${progress}%</span>`}
+                </div>
+                <div class="w-full h-3 bg-slate-200/50 dark:bg-slate-700/50 rounded-full overflow-hidden shadow-inner">
+                  <div class="progress-bar h-full rounded-full relative" style="width: ${progress}%; background-color: ${hexColor}">
+                    <div class="absolute inset-0 bg-white/20" style="background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 relative z-10">
+                <button class="btn-action py-3 rounded-[1rem] font-bold text-sm flex items-center justify-center gap-1 transition-all shadow-sm backdrop-blur-md" style="background-color: ${hexColor}15; color: ${hexColor};" onclick="Store.updateValue(${idx}, 1);event.stopPropagation();">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg> 1
+                </button>
+                <button class="btn-action py-3 rounded-[1rem] font-bold text-sm flex items-center justify-center gap-1 transition-all shadow-sm backdrop-blur-md" style="background-color: ${hexColor}15; color: ${hexColor};" onclick="Store.updateValue(${idx}, 5);event.stopPropagation();">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg> 5
+                </button>
+              </div>
+            `;
+            card.onclick = () => UI.openEditModal(idx);
+            grid.appendChild(card);
+          });
+
+          const overallP =
+            data.length > 0 ? Math.round(sumProgress / data.length) : 0;
+          document.getElementById("overallProgress").style.width =
+            `${overallP}%`;
+          document.getElementById("overallPercent").textContent =
+            `${overallP}%`;
+        },
+
+        renderManageList() {
+          const list = document.getElementById("manageItemsList");
+          list.innerHTML = "";
+          Store.state.prayerTypes.forEach((t, idx) => {
+            const el = document.createElement("div");
+            el.className =
+              "flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700";
+            el.innerHTML = `
+              <div class="flex items-center gap-4">
+                <div class="w-12 h-12 flex items-center justify-center text-2xl bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">${Utils.escapeHTML(t.icon)}</div>
+                <div>
+                  <div class="font-bold text-lg text-slate-800 dark:text-white">${Utils.escapeHTML(t.name)}</div>
+                  <div class="text-sm font-medium text-slate-500 dark:text-slate-400">목표: ${t.goal}${Utils.escapeHTML(t.unit)}</div>
+                </div>
+              </div>
+              <div class="flex gap-2">
+                <button onclick="UI.openItemSettings(${idx})" class="p-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 dark:text-indigo-400 rounded-xl text-sm font-bold transition-colors">수정</button>
+                <button onclick="Store.deleteItem(${idx})" class="p-3 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-500/10 dark:hover:bg-red-500/20 dark:text-red-400 rounded-xl text-sm font-bold transition-colors">삭제</button>
+              </div>
+            `;
+            list.appendChild(el);
+          });
+        },
+        renderAll() {
+          this.renderHeader();
+          this.renderCards();
+        },
+      };
+
+      const Charts = {
+        renderAll() {
+          this.renderPackedBubble();
+          this.renderSummaryCards();
+          this.renderTrendChart();
+        },
+        renderPackedBubble() {
+          const viewBoxWidth = 1000;
+          const viewBoxHeight = 800;
+
+          const svg = d3.select("#packedSvg");
+          svg.selectAll("*").remove();
+
+          svg
+            .attr("viewBox", `0 0 ${viewBoxWidth} ${viewBoxHeight}`)
+            .attr("preserveAspectRatio", "xMidYMid meet");
+
+          document.getElementById("chartLegend").innerHTML = "";
+
+          const pt = Store.state.prayerTypes;
+          const data = Store.state.monthData
+            .map((d, i) => ({
+              ...d,
+              color: pt[i] ? pt[i].color : "#6366f1",
+              icon: pt[i] ? pt[i].icon : "",
+            }))
+            .filter((d) => d.value > 0);
+
+          if (data.length === 0) {
+            svg
+              .append("text")
+              .attr("x", viewBoxWidth / 2)
+              .attr("y", viewBoxHeight / 2)
+              .attr("text-anchor", "middle")
+              .attr("font-size", "24px")
+              .attr("class", "fill-slate-400 dark:fill-slate-500 font-bold")
+              .text("기록된 데이터가 없습니다.");
+            return;
+          }
+
+          const pack = d3
+            .pack()
+            .size([viewBoxWidth, viewBoxHeight])
+            .padding(12);
+          const root = d3.hierarchy({ children: data }).sum((d) => d.value);
+          const nodes = pack(root).leaves();
+
+          const tooltip = d3.select("#bubbleTooltip");
+
+          const node = svg
+            .selectAll("g")
+            .data(nodes)
+            .enter()
+            .append("g")
+            .attr("class", "bubble-node")
+            .attr("transform", (d) => `translate(${d.x},${d.y})`)
+            .on("mouseover", function (e, d) {
+              tooltip.transition().duration(150).style("opacity", 1);
+              tooltip.html(`
+                <div class="font-bold text-lg mb-1">${Utils.escapeHTML(d.data.icon)} ${Utils.escapeHTML(d.data.name)}</div>
+                <div class="text-indigo-300 font-medium">달성: <span class="text-white font-black">${d.data.value}</span>${Utils.escapeHTML(d.data.unit)}</div>
+              `);
+
+              const tw = tooltip.node().offsetWidth;
+              const th = tooltip.node().offsetHeight;
+              tooltip
+                .style("left", e.pageX - tw / 2 + "px")
+                .style("top", e.pageY - th - 15 + "px");
+            })
+            .on("mousemove", function (e) {
+              const tw = tooltip.node().offsetWidth;
+              const th = tooltip.node().offsetHeight;
+              tooltip
+                .style("left", e.pageX - tw / 2 + "px")
+                .style("top", e.pageY - th - 15 + "px");
+            })
+            .on("mouseout", function () {
+              tooltip.transition().duration(150).style("opacity", 0);
+            });
+
+          node
+            .append("circle")
+            .attr("r", 0)
+            .attr("fill", (d) => d.data.color)
+            .attr("opacity", 0.9)
+            .transition()
+            .duration(1000)
+            .ease(d3.easeElasticOut.amplitude(1).period(0.6))
+            .attr("r", (d) => d.r);
+
+          node
+            .append("text")
+            .text((d) => d.data.icon)
+            .attr("text-anchor", "middle")
+            .attr("dy", "-0.8em")
+            .attr("font-size", (d) => Math.max(20, d.r / 2.2) + "px")
+            .style("opacity", 0)
+            .transition()
+            .delay(500)
+            .duration(500)
+            .style("opacity", 1);
+
+          node
+            .append("text")
+            .text((d) => d.data.name)
+            .attr("text-anchor", "middle")
+            .attr("dy", "0.6em")
+            .attr("fill", "#ffffff")
+            .attr("font-weight", "900")
+            .attr("font-size", (d) => Math.max(14, d.r / 5) + "px")
+            .style("text-shadow", "0 2px 4px rgba(0,0,0,0.5)")
+            .style("opacity", 0)
+            .transition()
+            .delay(700)
+            .duration(500)
+            .style("opacity", 1);
+
+          node
+            .append("text")
+            .text((d) => `${d.data.value}${d.data.unit}`)
+            .attr("text-anchor", "middle")
+            .attr("dy", "2.2em")
+            .attr("fill", "#fde047")
+            .attr("font-weight", "900")
+            .attr("font-size", (d) => Math.max(12, d.r / 4) + "px")
+            .style("text-shadow", "0 2px 4px rgba(0,0,0,0.5)")
+            .style("opacity", 0)
+            .transition()
+            .delay(900)
+            .duration(500)
+            .style("opacity", 1);
+
+          const legend = document.getElementById("chartLegend");
+          data
+            .sort((a, b) => b.value - a.value)
+            .forEach((d) => {
+              const perc = Math.round((d.value / d.goal) * 100);
+              const el = document.createElement("div");
+              el.className =
+                "flex items-center justify-between p-3.5 rounded-[1.25rem] bg-white dark:bg-slate-800 shadow-sm border border-slate-100 dark:border-slate-700";
+              el.innerHTML = `
+              <div class="flex items-center gap-2">
+                <span class="w-4 h-4 rounded-full shadow-inner" style="background-color: ${d.color}"></span>
+                <span class="text-sm font-bold text-slate-700 dark:text-slate-200">${Utils.escapeHTML(d.icon)} ${Utils.escapeHTML(d.name)}</span>
+              </div>
+              <span class="text-sm font-black text-slate-800 dark:text-white">${d.value}<span class="text-xs font-medium text-slate-400 ml-1">(${perc}%)</span></span>
+            `;
+              legend.appendChild(el);
+            });
+        },
+        renderSummaryCards() {
+          const wrap = document.getElementById("summaryCards");
+          wrap.innerHTML = "";
+          const data = Store.state.monthData;
+          if (data.length === 0) return;
+
+          let best = data[0];
+          let doneCnt = 0;
+          let sumP = 0;
+
+          data.forEach((d) => {
+            const p = (d.value / d.goal) * 100;
+            sumP += Math.min(100, p);
+            if (d.value >= d.goal) doneCnt++;
+            if (p > (best.value / best.goal) * 100) best = d;
+          });
+
+          const avgP = Math.round(sumP / data.length);
+          const tTime = data.find((d) => d.name === "기도시간")?.value || 0;
+
+          const cards = [
+            {
+              t: "평균 달성률",
+              v: `${avgP}%`,
+              i: "📈",
+              c: "text-indigo-600 dark:text-indigo-400",
+            },
+            {
+              t: "목표 달성 항목",
+              v: `${doneCnt}개`,
+              i: "🏆",
+              c: "text-emerald-600 dark:text-emerald-400",
+            },
+            {
+              t: "최고 달성 항목",
+              v: best.name,
+              i: "⭐",
+              c: "text-yellow-600 dark:text-yellow-400",
+            },
+            {
+              t: "총 기도시간",
+              v: `${tTime}h`,
+              i: "⏳",
+              c: "text-purple-600 dark:text-purple-400",
+            },
+          ];
+
+          cards.forEach((c) => {
+            const el = document.createElement("div");
+            el.className =
+              "bg-white/60 dark:bg-slate-900/60 backdrop-blur-md rounded-[2rem] p-6 text-center border border-white/50 dark:border-slate-800 shadow-sm";
+            el.innerHTML = `
+              <div class="text-4xl mb-4 drop-shadow-sm">${c.i}</div>
+              <div class="text-xs font-bold tracking-widest uppercase text-slate-500 dark:text-slate-400 mb-2">${c.t}</div>
+              <div class="text-3xl font-black tracking-tighter ${c.c} truncate">${Utils.escapeHTML(c.v)}</div>
+            `;
+            wrap.appendChild(el);
+          });
+        },
+        renderTrendChart() {
+          const viewBoxWidth = 800;
+          const viewBoxHeight = 300;
+          const svg = d3.select("#trendSvg");
+
+          svg.selectAll("*").remove();
+
+          svg
+            .attr("viewBox", `0 0 ${viewBoxWidth} ${viewBoxHeight}`)
+            .attr("preserveAspectRatio", "xMidYMid meet");
+
+          const curD = Store.state.currentDate;
+          const hist = [];
+          for (let i = 5; i >= 0; i--) {
+            const d = new Date(curD.getFullYear(), curD.getMonth() - i, 1);
+            const k = `prayer_${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}`;
+            const s = localStorage.getItem(k);
+            let avg = 0;
+            if (s) {
+              const jd = JSON.parse(s);
+              if (jd.length > 0) {
+                let sum = 0;
+                jd.forEach((item) => {
+                  sum += Math.min(100, (item.value / item.goal) * 100);
+                });
+                avg = Math.round(sum / jd.length);
+              }
+            }
+            hist.push({ m: `${d.getMonth() + 1}월`, v: avg });
+          }
+
+          const margin = { top: 30, right: 30, bottom: 40, left: 50 };
+          const iw = viewBoxWidth - margin.left - margin.right;
+          const ih = viewBoxHeight - margin.top - margin.bottom;
+
+          const g = svg
+            .append("g")
+            .attr("transform", `translate(${margin.left},${margin.top})`);
+          const x = d3
+            .scalePoint()
+            .domain(hist.map((d) => d.m))
+            .range([0, iw]);
+          const y = d3.scaleLinear().domain([0, 100]).range([ih, 0]);
+
+          const line = d3
+            .line()
+            .x((d) => x(d.m))
+            .y((d) => y(d.v))
+            .curve(d3.curveMonotoneX);
+          const area = d3
+            .area()
+            .x((d) => x(d.m))
+            .y0(ih)
+            .y1((d) => y(d.v))
+            .curve(d3.curveMonotoneX);
+
+          g.append("g")
+            .attr("transform", `translate(0,${ih})`)
+            .call(d3.axisBottom(x).tickSize(0).tickPadding(15))
+            .attr("class", "text-slate-500 font-bold text-sm tracking-wide")
+            .select(".domain")
+            .remove();
+
+          g.append("g")
+            .call(d3.axisLeft(y).ticks(5).tickSize(-iw).tickPadding(15))
+            .attr("class", "text-slate-400 font-medium text-sm")
+            .select(".domain")
+            .remove();
+
+          g.selectAll(".tick line")
+            .attr("stroke", Store.state.isDarkMode ? "#334155" : "#e2e8f0")
+            .attr("stroke-dasharray", "4,4");
+
+          g.append("path")
+            .datum(hist)
+            .attr("fill", "url(#trendGradient)")
+            .attr("d", area)
+            .style("opacity", 0)
+            .transition()
+            .duration(800)
+            .style("opacity", 1);
+
+          const defs = svg.append("defs");
+          const gradient = defs
+            .append("linearGradient")
+            .attr("id", "trendGradient")
+            .attr("x1", "0%")
+            .attr("y1", "0%")
+            .attr("x2", "0%")
+            .attr("y2", "100%");
+          gradient
+            .append("stop")
+            .attr("offset", "0%")
+            .attr("stop-color", "#6366f1")
+            .attr("stop-opacity", 0.4);
+          gradient
+            .append("stop")
+            .attr("offset", "100%")
+            .attr("stop-color", "#6366f1")
+            .attr("stop-opacity", 0);
+
+          g.append("path")
+            .datum(hist)
+            .attr("fill", "none")
+            .attr("stroke", "#6366f1")
+            .attr("stroke-width", 4)
+            .attr("stroke-linecap", "round")
+            .attr("d", line);
+
+          g.selectAll("circle")
+            .data(hist)
+            .enter()
+            .append("circle")
+            .attr("cx", (d) => x(d.m))
+            .attr("cy", (d) => y(d.v))
+            .attr("r", 0)
+            .attr("fill", Store.state.isDarkMode ? "#1e293b" : "#fff")
+            .attr("stroke", "#6366f1")
+            .attr("stroke-width", 3)
+            .transition()
+            .delay(400)
+            .duration(500)
+            .ease(d3.easeBackOut)
+            .attr("r", 6);
+
+          g.selectAll(".val-text")
+            .data(hist)
+            .enter()
+            .append("text")
+            .attr("x", (d) => x(d.m))
+            .attr("y", (d) => y(d.v) - 15)
+            .attr("text-anchor", "middle")
+            .attr("font-size", "15px")
+            .attr("font-weight", "900")
+            .attr("class", "fill-indigo-600 dark:fill-indigo-400")
+            .text((d) => d.v + "%")
+            .style("opacity", 0)
+            .transition()
+            .delay(600)
+            .duration(500)
+            .style("opacity", 1);
+        },
+        saveAsImage() {
+          const target = document.getElementById("resultView");
+          if (!target.classList.contains("active")) {
+            alert("결과 화면에서 이미지를 저장할 수 있습니다.");
+            return;
+          }
+          const isDark = document.documentElement.classList.contains("dark");
+          html2canvas(target, {
+            backgroundColor: isDark ? "#0f172a" : "#f8fafc",
+            scale: 2,
+          }).then((canvas) => {
+            const a = document.createElement("a");
+            a.href = canvas.toDataURL("image/png");
+            a.download = `prayer_record_${Store.getMonthKey()}.png`;
+            a.click();
+          });
+        },
+      };
+
+      const App = {
+        init() {
+          if (Store.state.isDarkMode) {
+            document.documentElement.classList.add("dark");
+          }
+          Store.init();
+          UI.renderAll();
+          this.bindEvents();
+        },
+        toggleDarkMode() {
+          const isDark = document.documentElement.classList.toggle("dark");
+          localStorage.setItem("darkMode", isDark);
+          Store.state.isDarkMode = isDark;
+        },
+        confirmReset() {
+          if (confirm("모든 데이터가 삭제됩니다. 정말 초기화하시겠습니까?")) {
+            localStorage.clear();
+            location.reload();
+          }
+        },
+        exportData() {
+          const txt = Store.state.monthData
+            .map((d) => `${d.name}: ${d.value}${d.unit}`)
+            .join("\n");
+          navigator.clipboard
+            .writeText(`[${Store.getMonthKey()} 기도 기록]\n${txt}`)
+            .then(() => {
+              alert("기록이 클립보드에 복사되었습니다.");
+            });
+        },
+        downloadBackup() {
+          const data = { ...localStorage };
+          const blob = new Blob([JSON.stringify(data)], {
+            type: "application/json",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = `prayer_backup_${new Date().toISOString().slice(0, 10)}.json`;
+          a.click();
+        },
+        restoreBackup(e) {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = (ev) => {
+            try {
+              const data = JSON.parse(ev.target.result);
+              localStorage.clear();
+              for (let k in data) {
+                localStorage.setItem(k, data[k]);
+              }
+              Store.init();
+              UI.renderAll();
+              alert("데이터가 성공적으로 복구되었습니다.");
+            } catch (err) {
+              alert("백업 파일을 읽는 중 오류가 발생했습니다.");
+            }
+          };
+          reader.readAsText(file);
+          e.target.value = "";
+        },
+        bindEvents() {
+          document
+            .getElementById("modalInput")
+            .addEventListener("keypress", (e) => {
+              if (e.key === "Enter") Store.saveEditValue();
+            });
+          document
+            .getElementById("userNameInput")
+            .addEventListener("keypress", (e) => {
+              if (e.key === "Enter")
+                document.getElementById("baptismNameInput").focus();
+            });
+          document
+            .getElementById("baptismNameInput")
+            .addEventListener("keypress", (e) => {
+              if (e.key === "Enter") Store.saveUserName();
+            });
+
+          [
+            "editModal",
+            "itemSettingsModal",
+            "manageModal",
+            "nameModal",
+          ].forEach((id) => {
+            document.getElementById(id).addEventListener("click", (e) => {
+              if (e.target === e.currentTarget) UI.closeModal(id);
+            });
+          });
+        },
+      };
+
+      // 앱 실행
+      window.addEventListener("DOMContentLoaded", () => App.init());
+    </script>
+  </body>
+</html>
