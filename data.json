@@ -6,11 +6,16 @@
     "description": "정보통신기술진흥원 및 교육부 주요 IT/교육 뉴스 스크랩",
     "links": [
       {
-        "title": "new_scrap",
+        "title": "new_scrap v2",
         "url": "new_scrap",
         "type": "primary",
         "icon": "fa-arrow-right",
         "iconPosition": "right"
+      },
+      {
+        "title": "news_scrap v1",
+        "url": "new_scrap/index_old.html",
+        "type": "secondary"
       }
     ]
   },
