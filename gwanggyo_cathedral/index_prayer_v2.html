@@ -834,7 +834,7 @@
       };
 
       /* ==========================================
-         2. Store (상태 관리 모듈)
+         2. Store (상태 관리 모듈) & 버그 수정 반영
          ========================================== */
       const Store = {
         state: {
@@ -953,15 +953,13 @@
 
           if (saved) {
             const sd = JSON.parse(saved);
-            this.state.monthData = pt.map(
-              (t) =>
-                sd.find((d) => d.name === t.name) || {
-                  name: t.name,
-                  value: 0,
-                  goal: t.goal,
-                  unit: t.unit,
-                },
-            );
+            this.state.monthData = pt.map((t) => {
+              const existing = sd.find((d) => d.name === t.name);
+              // BUG FIX: 기존 저장된 데이터가 있어도 목표(goal)와 단위(unit)는 항상 최신 prayerTypes 기준 적용!
+              return existing
+                ? { ...existing, goal: t.goal, unit: t.unit }
+                : { name: t.name, value: 0, goal: t.goal, unit: t.unit };
+            });
           } else {
             this.state.monthData = pt.map((t) => ({
               name: t.name,
@@ -1026,6 +1024,8 @@
           UI.closeModal("nameModal");
           UI.renderAll();
         },
+
+        // BUG FIX: 항목의 이름이 그대로더라도 목표치나 단위가 바뀌면 과거 로컬스토리지까지 업데이트 되도록 수정
         saveItemSettings() {
           if (this.state.currentSettingsIndex === -1) return;
           const icon = document.getElementById("itemIcon").value.trim() || "🙏";
@@ -1048,22 +1048,29 @@
             JSON.stringify(this.state.prayerTypes),
           );
 
-          if (oldName !== name) {
-            for (let k in localStorage) {
-              if (k.startsWith("prayer_") && k !== "prayer_types") {
+          // 모든 기도 기록들을 순회하며 해당 항목 정보 업데이트 적용
+          Object.keys(localStorage).forEach((k) => {
+            if (k.startsWith("prayer_") && k !== "prayer_types") {
+              try {
+                let isChanged = false;
                 const d = JSON.parse(localStorage.getItem(k));
                 const it = d.find((x) => x.name === oldName);
                 if (it) {
                   it.name = name;
-                  localStorage.setItem(k, JSON.stringify(d));
+                  it.goal = goal; // 목표 업데이트
+                  it.unit = unit; // 단위 업데이트
+                  isChanged = true;
                 }
-              }
+                if (isChanged) localStorage.setItem(k, JSON.stringify(d));
+              } catch (e) {}
             }
-          }
+          });
+
           this.loadMonthData();
           UI.closeModal("itemSettingsModal");
           UI.renderAll();
         },
+
         deleteItem(idx) {
           if (this.state.prayerTypes.length <= 1)
             return alert("최소 1개 항목은 유지해야 합니다.");
@@ -1075,15 +1082,18 @@
             JSON.stringify(this.state.prayerTypes),
           );
 
-          for (let k in localStorage) {
+          Object.keys(localStorage).forEach((k) => {
             if (k.startsWith("prayer_") && k !== "prayer_types") {
-              const d = JSON.parse(localStorage.getItem(k));
-              localStorage.setItem(
-                k,
-                JSON.stringify(d.filter((x) => x.name !== name)),
-              );
+              try {
+                const d = JSON.parse(localStorage.getItem(k));
+                localStorage.setItem(
+                  k,
+                  JSON.stringify(d.filter((x) => x.name !== name)),
+                );
+              } catch (e) {}
             }
-          }
+          });
+
           this.loadMonthData();
           UI.renderManageList();
           UI.renderAll();
