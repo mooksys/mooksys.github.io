@@ -528,12 +528,12 @@
 
           <div
             id="packedChartWrap"
-            class="w-full flex justify-center relative min-h-[300px]"
+            class="w-full flex justify-center relative w-full h-auto min-h-[300px]"
           >
             <svg
               id="packedSvg"
-              class="w-full max-w-4xl"
-              style="display: block; max-height: 800px"
+              class="w-full h-auto drop-shadow-md"
+              style="display: block"
             ></svg>
           </div>
 
@@ -564,7 +564,7 @@
           <div id="trendChartWrap" class="w-full flex justify-center relative">
             <svg
               id="trendSvg"
-              class="w-full max-w-3xl"
+              class="w-full h-auto drop-shadow-md"
               style="display: block; overflow: visible"
             ></svg>
           </div>
@@ -831,6 +831,17 @@
           div.appendChild(document.createTextNode(str));
           return div.innerHTML;
         },
+        debounce: (func, wait) => {
+          let timeout;
+          return function executedFunction(...args) {
+            const later = () => {
+              clearTimeout(timeout);
+              func(...args);
+            };
+            clearTimeout(timeout);
+            timeout = setTimeout(later, wait);
+          };
+        },
       };
 
       /* ==========================================
@@ -955,7 +966,7 @@
             const sd = JSON.parse(saved);
             this.state.monthData = pt.map((t) => {
               const existing = sd.find((d) => d.name === t.name);
-              // BUG FIX: 기존 저장된 데이터가 있어도 목표(goal)와 단위(unit)는 항상 최신 기도 항목 설정(prayerTypes) 기준 적용
+              // 목표(goal)와 단위(unit)는 항상 최신 prayerTypes 기준 적용
               return existing
                 ? { ...existing, goal: t.goal, unit: t.unit }
                 : { name: t.name, value: 0, goal: t.goal, unit: t.unit };
@@ -1025,7 +1036,6 @@
           UI.renderAll();
         },
 
-        // BUG FIX: 항목의 이름이 그대로더라도 목표치나 단위가 바뀌면 과거 로컬스토리지 기록까지 업데이트 되도록 수정
         saveItemSettings() {
           if (this.state.currentSettingsIndex === -1) return;
           const icon = document.getElementById("itemIcon").value.trim() || "🙏";
@@ -1048,7 +1058,7 @@
             JSON.stringify(this.state.prayerTypes),
           );
 
-          // 모든 기도 기록들을 순회하며 해당 항목 정보 업데이트 적용
+          // 과거 데이터의 항목 정보 동기화
           Object.keys(localStorage).forEach((k) => {
             if (k.startsWith("prayer_") && k !== "prayer_types") {
               try {
@@ -1057,8 +1067,8 @@
                 const it = d.find((x) => x.name === oldName);
                 if (it) {
                   it.name = name;
-                  it.goal = goal; // 목표 업데이트
-                  it.unit = unit; // 단위 업데이트
+                  it.goal = goal;
+                  it.unit = unit;
                   isChanged = true;
                 }
                 if (isChanged) localStorage.setItem(k, JSON.stringify(d));
@@ -1195,7 +1205,8 @@
               "view-toggle flex-1 py-3 text-slate-500 dark:text-slate-400 rounded-full font-bold text-sm hover:text-slate-800 dark:hover:text-slate-200 transition-colors";
             rb.className =
               "view-toggle flex-1 py-3 rounded-full font-bold text-sm active";
-            Charts.renderAll();
+            // 뷰 변경 시 차트 렌더링 지연 (렌더링 안정성 확보)
+            setTimeout(() => Charts.renderAll(), 50);
           }
         },
         renderHeader() {
@@ -1214,7 +1225,6 @@
             `총 ${pt ? pt.value : 0}시간`;
         },
 
-        // ✨ 입력 카드 글래스모피즘 & 토널 UI 개편 ✨
         renderCards() {
           const data = Store.state.monthData;
           const pt = Store.state.prayerTypes;
@@ -1269,10 +1279,10 @@
               </div>
 
               <div class="grid grid-cols-2 gap-3 relative z-10">
-                <button class="btn-action py-3 rounded-[1rem] font-bold text-sm flex items-center justify-center gap-1 transition-all shadow-sm backdrop-blur-md" style="background-color: ${hexColor}15; color: ${hexColor};" onclick="Store.updateValue(${idx}, 1);event.stopPropagation();">
+                <button class="btn-action py-3 rounded-[1rem] font-bold text-sm flex items-center justify-center gap-1 transition-all shadow-sm backdrop-blur-md" style="background-color: ${hexColor}15; color: ${hexColor}; border: 1px solid ${hexColor}20;" onclick="Store.updateValue(${idx}, 1);event.stopPropagation();">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg> 1
                 </button>
-                <button class="btn-action py-3 rounded-[1rem] font-bold text-sm flex items-center justify-center gap-1 transition-all shadow-sm backdrop-blur-md" style="background-color: ${hexColor}15; color: ${hexColor};" onclick="Store.updateValue(${idx}, 5);event.stopPropagation();">
+                <button class="btn-action py-3 rounded-[1rem] font-bold text-sm flex items-center justify-center gap-1 transition-all shadow-sm backdrop-blur-md" style="background-color: ${hexColor}15; color: ${hexColor}; border: 1px solid ${hexColor}20;" onclick="Store.updateValue(${idx}, 5);event.stopPropagation();">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path></svg> 5
                 </button>
               </div>
@@ -1318,6 +1328,9 @@
         },
       };
 
+      /* ==========================================
+         4. Charts (반응형 & 중앙 정렬 로직 적용 완료)
+         ========================================== */
       const Charts = {
         renderAll() {
           this.renderPackedBubble();
@@ -1325,14 +1338,19 @@
           this.renderTrendChart();
         },
         renderPackedBubble() {
-          const viewBoxWidth = 1000;
-          const viewBoxHeight = 800;
+          // 동적 SVG 뷰박스 계산을 위해 래퍼 컨테이너의 실제 크기 확인
+          const wrap = document.getElementById("packedChartWrap");
+          const containerWidth = wrap.clientWidth || 1000;
+
+          // 가로 길이에 맞추어 반응형 비율(높이) 계산 (약 80%)
+          const dynamicHeight = Math.max(400, containerWidth * 0.8);
 
           const svg = d3.select("#packedSvg");
           svg.selectAll("*").remove();
 
+          // 계산된 사이즈를 viewBox에 적용 (항상 꽉 차게 렌더링)
           svg
-            .attr("viewBox", `0 0 ${viewBoxWidth} ${viewBoxHeight}`)
+            .attr("viewBox", `0 0 ${containerWidth} ${dynamicHeight}`)
             .attr("preserveAspectRatio", "xMidYMid meet");
 
           document.getElementById("chartLegend").innerHTML = "";
@@ -1349,8 +1367,8 @@
           if (data.length === 0) {
             svg
               .append("text")
-              .attr("x", viewBoxWidth / 2)
-              .attr("y", viewBoxHeight / 2)
+              .attr("x", containerWidth / 2)
+              .attr("y", dynamicHeight / 2)
               .attr("text-anchor", "middle")
               .attr("font-size", "24px")
               .attr("class", "fill-slate-400 dark:fill-slate-500 font-bold")
@@ -1358,11 +1376,12 @@
             return;
           }
 
-          // 데이터 크기(value)별로 중앙에서부터 정렬되도록 sort 적용
+          // D3.js Pack 레이아웃을 실제 컨테이너 사이즈 기준으로 적용
+          // sort를 추가하여 달성량(value)이 큰 원이 항상 중앙에 오도록 배치
           const pack = d3
             .pack()
-            .size([viewBoxWidth, viewBoxHeight])
-            .padding(10);
+            .size([containerWidth, dynamicHeight])
+            .padding(containerWidth * 0.015);
           const root = d3
             .hierarchy({ children: data })
             .sum((d) => d.value)
@@ -1412,6 +1431,7 @@
             .ease(d3.easeElasticOut.amplitude(1).period(0.6))
             .attr("r", (d) => d.r);
 
+          // 이모지 폰트 사이즈 비례 조절
           node
             .append("text")
             .text((d) => d.data.icon)
@@ -1424,6 +1444,7 @@
             .duration(500)
             .style("opacity", 1);
 
+          // 항목 이름 폰트 사이즈 비례 조절
           node
             .append("text")
             .text((d) => d.data.name)
@@ -1439,12 +1460,13 @@
             .duration(500)
             .style("opacity", 1);
 
+          // 달성 수치 및 단위 표시
           node
             .append("text")
             .text((d) => `${d.data.value}${d.data.unit}`)
             .attr("text-anchor", "middle")
             .attr("dy", "2.2em")
-            .attr("fill", "#fde047") // 강조 노란색
+            .attr("fill", "#fde047") // 시인성 높은 노란색
             .attr("font-weight", "900")
             .attr("font-size", (d) => Math.max(10, d.r / 5.5) + "px")
             .style("text-shadow", "0 2px 4px rgba(0,0,0,0.5)")
@@ -1454,6 +1476,7 @@
             .duration(500)
             .style("opacity", 1);
 
+          // 범례 랜더링
           const legend = document.getElementById("chartLegend");
           data
             .sort((a, b) => b.value - a.value)
@@ -1532,10 +1555,11 @@
           });
         },
         renderTrendChart() {
-          const viewBoxWidth = 800;
-          const viewBoxHeight = 300;
-          const svg = d3.select("#trendSvg");
+          const wrap = document.getElementById("trendChartWrap");
+          const viewBoxWidth = wrap.clientWidth || 800;
+          const viewBoxHeight = Math.max(300, viewBoxWidth * 0.4);
 
+          const svg = d3.select("#trendSvg");
           svg.selectAll("*").remove();
 
           svg
@@ -1692,6 +1716,9 @@
         },
       };
 
+      /* ==========================================
+         5. App (앱 초기화 및 제어 모듈)
+         ========================================== */
       const App = {
         init() {
           if (Store.state.isDarkMode) {
@@ -1782,6 +1809,14 @@
               if (e.target === e.currentTarget) UI.closeModal(id);
             });
           });
+
+          // 화면 리사이즈 시 차트 재렌더링
+          window.addEventListener(
+            "resize",
+            Utils.debounce(() => {
+              if (Store.state.currentView === "result") Charts.renderAll();
+            }, 300),
+          );
         },
       };
 
