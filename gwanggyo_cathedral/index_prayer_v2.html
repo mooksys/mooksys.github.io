@@ -528,7 +528,7 @@
 
           <div
             id="packedChartWrap"
-            class="w-full flex justify-center relative w-full h-auto min-h-[300px]"
+            class="w-full flex justify-center relative min-h-[300px]"
           >
             <svg
               id="packedSvg"
@@ -966,7 +966,6 @@
             const sd = JSON.parse(saved);
             this.state.monthData = pt.map((t) => {
               const existing = sd.find((d) => d.name === t.name);
-              // 목표(goal)와 단위(unit)는 항상 최신 prayerTypes 기준 적용
               return existing
                 ? { ...existing, goal: t.goal, unit: t.unit }
                 : { name: t.name, value: 0, goal: t.goal, unit: t.unit };
@@ -1035,7 +1034,6 @@
           UI.closeModal("nameModal");
           UI.renderAll();
         },
-
         saveItemSettings() {
           if (this.state.currentSettingsIndex === -1) return;
           const icon = document.getElementById("itemIcon").value.trim() || "🙏";
@@ -1058,7 +1056,6 @@
             JSON.stringify(this.state.prayerTypes),
           );
 
-          // 과거 데이터의 항목 정보 동기화
           Object.keys(localStorage).forEach((k) => {
             if (k.startsWith("prayer_") && k !== "prayer_types") {
               try {
@@ -1080,7 +1077,6 @@
           UI.closeModal("itemSettingsModal");
           UI.renderAll();
         },
-
         deleteItem(idx) {
           if (this.state.prayerTypes.length <= 1)
             return alert("최소 1개 항목은 유지해야 합니다.");
@@ -1205,7 +1201,6 @@
               "view-toggle flex-1 py-3 text-slate-500 dark:text-slate-400 rounded-full font-bold text-sm hover:text-slate-800 dark:hover:text-slate-200 transition-colors";
             rb.className =
               "view-toggle flex-1 py-3 rounded-full font-bold text-sm active";
-            // 뷰 변경 시 차트 렌더링 지연 (렌더링 안정성 확보)
             setTimeout(() => Charts.renderAll(), 50);
           }
         },
@@ -1329,7 +1324,7 @@
       };
 
       /* ==========================================
-         4. Charts (반응형 & 중앙 정렬 로직 적용 완료)
+         4. Charts (차트 렌더링 모듈)
          ========================================== */
       const Charts = {
         renderAll() {
@@ -1338,17 +1333,13 @@
           this.renderTrendChart();
         },
         renderPackedBubble() {
-          // 동적 SVG 뷰박스 계산을 위해 래퍼 컨테이너의 실제 크기 확인
           const wrap = document.getElementById("packedChartWrap");
           const containerWidth = wrap.clientWidth || 1000;
-
-          // 가로 길이에 맞추어 반응형 비율(높이) 계산 (약 80%)
           const dynamicHeight = Math.max(400, containerWidth * 0.8);
 
           const svg = d3.select("#packedSvg");
           svg.selectAll("*").remove();
 
-          // 계산된 사이즈를 viewBox에 적용 (항상 꽉 차게 렌더링)
           svg
             .attr("viewBox", `0 0 ${containerWidth} ${dynamicHeight}`)
             .attr("preserveAspectRatio", "xMidYMid meet");
@@ -1376,8 +1367,6 @@
             return;
           }
 
-          // D3.js Pack 레이아웃을 실제 컨테이너 사이즈 기준으로 적용
-          // sort를 추가하여 달성량(value)이 큰 원이 항상 중앙에 오도록 배치
           const pack = d3
             .pack()
             .size([containerWidth, dynamicHeight])
@@ -1431,7 +1420,6 @@
             .ease(d3.easeElasticOut.amplitude(1).period(0.6))
             .attr("r", (d) => d.r);
 
-          // 이모지 폰트 사이즈 비례 조절
           node
             .append("text")
             .text((d) => d.data.icon)
@@ -1444,7 +1432,6 @@
             .duration(500)
             .style("opacity", 1);
 
-          // 항목 이름 폰트 사이즈 비례 조절
           node
             .append("text")
             .text((d) => d.data.name)
@@ -1460,13 +1447,12 @@
             .duration(500)
             .style("opacity", 1);
 
-          // 달성 수치 및 단위 표시
           node
             .append("text")
             .text((d) => `${d.data.value}${d.data.unit}`)
             .attr("text-anchor", "middle")
             .attr("dy", "2.2em")
-            .attr("fill", "#fde047") // 시인성 높은 노란색
+            .attr("fill", "#fde047")
             .attr("font-weight", "900")
             .attr("font-size", (d) => Math.max(10, d.r / 5.5) + "px")
             .style("text-shadow", "0 2px 4px rgba(0,0,0,0.5)")
@@ -1476,7 +1462,6 @@
             .duration(500)
             .style("opacity", 1);
 
-          // 범례 랜더링
           const legend = document.getElementById("chartLegend");
           data
             .sort((a, b) => b.value - a.value)
@@ -1733,12 +1718,34 @@
           localStorage.setItem("darkMode", isDark);
           Store.state.isDarkMode = isDark;
         },
+
+        // ✨ 불필요한 다른 앱의 데이터를 보호하는 안전한 초기화 로직 ✨
         confirmReset() {
-          if (confirm("모든 데이터가 삭제됩니다. 정말 초기화하시겠습니까?")) {
-            localStorage.clear();
+          if (
+            confirm(
+              "모든 기도 기록과 설정이 삭제됩니다. 정말 초기화하시겠습니까?",
+            )
+          ) {
+            const keysToRemove = [];
+            for (let i = 0; i < localStorage.length; i++) {
+              const k = localStorage.key(i);
+              if (
+                [
+                  "userName",
+                  "baptismName",
+                  "darkMode",
+                  "prayer_types",
+                ].includes(k) ||
+                k.startsWith("prayer_")
+              ) {
+                keysToRemove.push(k);
+              }
+            }
+            keysToRemove.forEach((k) => localStorage.removeItem(k));
             location.reload();
           }
         },
+
         exportData() {
           const txt = Store.state.monthData
             .map((d) => `${d.name}: ${d.value}${d.unit}`)
@@ -1749,9 +1756,30 @@
               alert("기록이 클립보드에 복사되었습니다.");
             });
         },
+
+        // ✨ 오직 기도 앱과 관련된 데이터만 필터링하여 다운로드 ✨
         downloadBackup() {
-          const data = { ...localStorage };
-          const blob = new Blob([JSON.stringify(data)], {
+          const exportData = {};
+          const validKeys = [
+            "userName",
+            "baptismName",
+            "darkMode",
+            "prayer_types",
+          ];
+
+          for (let i = 0; i < localStorage.length; i++) {
+            const key = localStorage.key(i);
+            if (validKeys.includes(key) || key.startsWith("prayer_")) {
+              const value = localStorage.getItem(key);
+              try {
+                exportData[key] = JSON.parse(value);
+              } catch (e) {
+                exportData[key] = value;
+              }
+            }
+          }
+
+          const blob = new Blob([JSON.stringify(exportData, null, 2)], {
             type: "application/json",
           });
           const url = URL.createObjectURL(blob);
@@ -1760,27 +1788,66 @@
           a.download = `prayer_backup_${new Date().toISOString().slice(0, 10)}.json`;
           a.click();
         },
+
+        // ✨ 복구 시에도 앱과 관련된 데이터만 지우고 덮어쓰도록 안전장치 강화 ✨
         restoreBackup(e) {
           const file = e.target.files[0];
           if (!file) return;
           const reader = new FileReader();
           reader.onload = (ev) => {
             try {
-              const data = JSON.parse(ev.target.result);
-              localStorage.clear();
-              for (let k in data) {
-                localStorage.setItem(k, data[k]);
+              const parsedData = JSON.parse(ev.target.result);
+
+              if (!parsedData || typeof parsedData !== "object") {
+                throw new Error("유효한 백업 파일이 아닙니다.");
               }
+
+              // 기존 앱 관련 데이터만 삭제
+              const keysToRemove = [];
+              for (let i = 0; i < localStorage.length; i++) {
+                const k = localStorage.key(i);
+                if (
+                  [
+                    "userName",
+                    "baptismName",
+                    "darkMode",
+                    "prayer_types",
+                  ].includes(k) ||
+                  k.startsWith("prayer_")
+                ) {
+                  keysToRemove.push(k);
+                }
+              }
+              keysToRemove.forEach((k) => localStorage.removeItem(k));
+
+              // 백업 파일에서 앱 관련 데이터만 복구
+              const validKeys = [
+                "userName",
+                "baptismName",
+                "darkMode",
+                "prayer_types",
+              ];
+              for (let k in parsedData) {
+                if (validKeys.includes(k) || k.startsWith("prayer_")) {
+                  const val = parsedData[k];
+                  const valueToStore =
+                    typeof val === "object" ? JSON.stringify(val) : String(val);
+                  localStorage.setItem(k, valueToStore);
+                }
+              }
+
               Store.init();
               UI.renderAll();
-              alert("데이터가 성공적으로 복구되었습니다.");
+              alert("데이터가 성공적으로 복구되었습니다. 🙏");
             } catch (err) {
-              alert("백업 파일을 읽는 중 오류가 발생했습니다.");
+              console.error(err);
+              alert("백업 파일이 손상되었거나 형식이 맞지 않습니다.");
             }
           };
           reader.readAsText(file);
           e.target.value = "";
         },
+
         bindEvents() {
           document
             .getElementById("modalInput")
@@ -1810,7 +1877,6 @@
             });
           });
 
-          // 화면 리사이즈 시 차트 재렌더링
           window.addEventListener(
             "resize",
             Utils.debounce(() => {
