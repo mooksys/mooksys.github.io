@@ -26,13 +26,13 @@
     "description": "IT 실무 및 자격증 공부 기록 보관소",
     "links": [
       {
-        "title": "Course Lecture link v1",
-        "url": "course_link/index_add.html",
+        "title": "Course Lecture link v2",
+        "url": "course_link/index_lec_v2.html",
         "type": "primary"
       },
       {
-        "title": "Course Lecture link v2",
-        "url": "course_link/index_lec_v2.html",
+        "title": "Course Lecture link v1",
+        "url": "course_link/index_add.html",
         "type": "secondary"
       }
     ]
@@ -56,7 +56,7 @@
       {
         "title": "성경통독 프로젝트",
         "url": "gwanggyo_cathedral/index_bible.html",
-        "type": "secondary"
+        "type": "primary"
       },
       {
         "title": "성경통독 기도작성하기",
@@ -84,17 +84,17 @@
       {
         "title": "Project 2",
         "url": "#",
-        "type": "secondary"
+        "type": "primary"
       },
       {
         "title": "Project 3",
         "url": "#",
-        "type": "secondary"
+        "type": "primary"
       },
       {
         "title": "Project 4",
         "url": "#",
-        "type": "secondary"
+        "type": "primary"
       }
     ]
   }
