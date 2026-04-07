@@ -104,6 +104,21 @@
         box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
       }
 
+      /* 커스텀 스크롤바 */
+      .custom-scrollbar::-webkit-scrollbar {
+        width: 6px;
+      }
+      .custom-scrollbar::-webkit-scrollbar-track {
+        background: transparent;
+      }
+      .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(156, 163, 175, 0.5);
+        border-radius: 10px;
+      }
+      .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+        background: rgba(71, 85, 105, 0.5);
+      }
+
       /* 모달 스타일 */
       .modal {
         display: none;
@@ -194,36 +209,37 @@
         animation: fadeIn 0.4s ease;
       }
 
-      /* 버블 차트 툴팁 */
+      /* 버블 차트 툴팁 스타일 */
       #bubbleTooltip {
         position: absolute;
         pointer-events: none;
-        background: rgba(15, 23, 42, 0.85);
+        background: rgba(15, 23, 42, 0.95);
         backdrop-filter: blur(8px);
         -webkit-backdrop-filter: blur(8px);
-        color: #f8fafc;
-        padding: 12px 20px;
-        border-radius: 16px;
-        font-size: 14px;
-        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.3);
-        border: 1px solid rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        padding: 12px 18px;
+        border-radius: 14px;
+        box-shadow: 0 10px 30px -5px rgba(0, 0, 0, 0.5);
         white-space: nowrap;
         opacity: 0;
-        transition: opacity 0.2s ease-out;
         z-index: 9999;
+        transform: translate(-50%, -100%);
+        margin-top: -12px;
+        transition: opacity 0.15s ease-out;
       }
       #bubbleTooltip::after {
         content: "";
         position: absolute;
-        bottom: -6px;
+        top: 100%;
         left: 50%;
         transform: translateX(-50%);
         border-width: 6px 6px 0;
         border-style: solid;
-        border-color: rgba(15, 23, 42, 0.85) transparent transparent transparent;
+        border-color: rgba(15, 23, 42, 0.95) transparent transparent transparent;
         display: block;
         width: 0;
       }
+
       .bubble-node {
         cursor: pointer;
       }
@@ -239,7 +255,7 @@
     </style>
   </head>
   <body
-    class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')] dark:bg-none"
+    class="bg-slate-50 dark:bg-slate-950 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-300"
   >
     <header
       class="bg-white/70 dark:bg-slate-900/70 backdrop-blur-xl border-b border-white/20 dark:border-slate-800 sticky top-0 z-50 transition-colors duration-300"
@@ -366,14 +382,14 @@
           id="inputViewBtn"
           class="view-toggle flex-1 py-3 rounded-full font-bold text-sm active"
         >
-          📝 일일 기록
+          📝 기도빨랑카 기록
         </button>
         <button
           onclick="UI.switchView('result')"
           id="resultViewBtn"
           class="view-toggle flex-1 py-3 text-slate-500 dark:text-slate-400 rounded-full font-bold text-sm"
         >
-          📊 시각화 통계
+          📊 기도빨랑카 시각화 통계
         </button>
       </div>
 
@@ -462,7 +478,7 @@
                   d="M4 6h16M4 12h16M4 18h7"
                 ></path>
               </svg>
-              항목 관리
+              전체 항목 관리
             </button>
           </div>
         </div>
@@ -574,22 +590,22 @@
 
     <div id="editModal" class="modal items-center justify-center">
       <div
-        class="modal-content bg-white/90 dark:bg-slate-800/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-slate-700 p-8 w-11/12 max-w-sm"
+        class="modal-content bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-slate-700 p-8 w-11/12 max-w-sm"
       >
         <h3
           class="text-2xl font-black text-center tracking-tight text-slate-800 dark:text-white mb-8"
           id="modalTitle"
         ></h3>
-        <div class="grid grid-cols-5 gap-3 mb-8">
+        <div class="grid grid-cols-5 gap-2 sm:gap-3 mb-8">
           <button
             onclick="UI.quickUpdate(-5)"
-            class="quick-btn py-3.5 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 rounded-2xl font-black text-sm transition-all"
+            class="quick-btn py-3.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded-2xl font-black text-sm transition-all"
           >
             -5
           </button>
           <button
             onclick="UI.quickUpdate(-1)"
-            class="quick-btn py-3.5 bg-red-50 hover:bg-red-100 dark:bg-red-500/10 dark:hover:bg-red-500/20 text-red-600 dark:text-red-400 rounded-2xl font-black text-sm transition-all"
+            class="quick-btn py-3.5 bg-rose-50 hover:bg-rose-100 dark:bg-rose-500/10 dark:hover:bg-rose-500/20 text-rose-600 dark:text-rose-400 rounded-2xl font-black text-sm transition-all"
           >
             -1
           </button>
@@ -615,7 +631,7 @@
         <div class="mb-10">
           <label
             class="block text-sm font-bold text-slate-400 dark:text-slate-500 mb-3 text-center tracking-widest uppercase"
-            >DIRECT INPUT</label
+            >직접 입력</label
           >
           <input
             type="number"
@@ -641,127 +657,58 @@
       </div>
     </div>
 
-    <div id="itemSettingsModal" class="modal items-center justify-center">
-      <div
-        class="modal-content bg-white/90 dark:bg-slate-800/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-slate-700 p-8 w-11/12 max-w-sm"
-      >
-        <h3
-          class="text-2xl font-black tracking-tight text-slate-800 dark:text-white mb-8"
-        >
-          기도 항목 설정
-        </h3>
-        <div class="space-y-6">
-          <div>
-            <label
-              class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-2 tracking-wide"
-              >아이콘 (이모지)</label
-            >
-            <input
-              type="text"
-              id="itemIcon"
-              class="w-full px-5 py-4 bg-slate-100/50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-2xl focus:border-indigo-500 outline-none text-2xl text-center transition-all"
-              placeholder="🙏"
-              maxlength="2"
-            />
-          </div>
-          <div>
-            <label
-              class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-2 tracking-wide"
-              >항목 이름</label
-            >
-            <input
-              type="text"
-              id="itemName"
-              class="w-full px-5 py-4 bg-slate-100/50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-2xl focus:border-indigo-500 outline-none font-bold transition-all"
-              placeholder="미사"
-            />
-          </div>
-          <div class="grid grid-cols-2 gap-4">
-            <div>
-              <label
-                class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-2 tracking-wide"
-                >목표 수치</label
-              >
-              <input
-                type="number"
-                id="itemGoal"
-                class="number-input w-full px-5 py-4 bg-slate-100/50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-2xl focus:border-indigo-500 outline-none font-black transition-all"
-                min="1"
-                placeholder="30"
-              />
-            </div>
-            <div>
-              <label
-                class="block text-sm font-bold text-slate-500 dark:text-slate-400 mb-2 tracking-wide"
-                >단위</label
-              >
-              <input
-                type="text"
-                id="itemUnit"
-                class="w-full px-5 py-4 bg-slate-100/50 dark:bg-slate-900/50 border-2 border-slate-200 dark:border-slate-700 text-slate-800 dark:text-white rounded-2xl focus:border-indigo-500 outline-none font-bold transition-all"
-                placeholder="회"
-                maxlength="10"
-              />
-            </div>
-          </div>
-        </div>
-        <div class="flex gap-4 mt-10">
-          <button
-            onclick="UI.closeModal('itemSettingsModal')"
-            class="flex-1 py-4 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-600 dark:text-slate-300 rounded-[1.5rem] font-bold transition-all"
-          >
-            취소
-          </button>
-          <button
-            onclick="Store.saveItemSettings()"
-            class="flex-1 py-4 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[1.5rem] font-bold transition-all shadow-lg shadow-indigo-600/30"
-          >
-            저장
-          </button>
-        </div>
-      </div>
-    </div>
-
     <div id="manageModal" class="modal items-center justify-center">
       <div
-        class="modal-content bg-white/90 dark:bg-slate-800/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-slate-700 p-8 w-11/12 max-w-2xl max-h-[85vh] overflow-hidden flex flex-col"
+        class="modal-content bg-white/95 dark:bg-slate-800/95 backdrop-blur-3xl rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-slate-700 p-6 sm:p-8 w-11/12 max-w-2xl max-h-[90vh] overflow-hidden flex flex-col relative"
       >
-        <h3
-          class="text-3xl font-black tracking-tight text-slate-800 dark:text-white mb-8 flex-shrink-0"
+        <button
+          onclick="UI.closeModal('manageModal')"
+          class="absolute top-6 right-6 p-2 bg-slate-100 dark:bg-slate-700 rounded-full text-slate-400 hover:text-slate-800 dark:text-slate-400 dark:hover:text-white transition-colors"
+          title="닫기"
         >
-          기도 항목 전체 관리
-        </h3>
-        <div class="mb-6 flex-shrink-0">
-          <button
-            onclick="Store.addNewItem()"
-            class="w-full py-4.5 bg-emerald-500 hover:bg-emerald-600 text-white rounded-[1.5rem] font-bold text-lg flex items-center justify-center gap-2 shadow-lg shadow-emerald-500/30 transition-all"
+          <svg
+            class="w-6 h-6"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
           >
-            <svg
-              class="w-5 h-5"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-            >
-              <path
-                stroke-linecap="round"
-                stroke-linejoin="round"
-                stroke-width="3"
-                d="M12 4v16m8-8H4"
-              ></path>
-            </svg>
-            새로운 항목 추가하기
-          </button>
-        </div>
+            <path
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              stroke-width="2"
+              d="M6 18L18 6M6 6l12 12"
+            ></path>
+          </svg>
+        </button>
+
+        <h3
+          class="text-2xl sm:text-3xl font-black tracking-tight text-slate-800 dark:text-white mb-2 flex-shrink-0"
+        >
+          기도 항목 관리
+        </h3>
+        <p
+          class="text-sm font-medium text-slate-500 dark:text-slate-400 mb-6 flex-shrink-0"
+        >
+          이름, 목표치, 단위를 수정하고 저장하면 과거 기록까지 즉시 반영됩니다.
+        </p>
+
         <div
           id="manageItemsList"
-          class="space-y-4 overflow-y-auto pr-2 pb-2"
+          class="space-y-4 overflow-y-auto pr-2 pb-4 custom-scrollbar flex-1"
         ></div>
-        <div class="mt-8 flex-shrink-0">
+
+        <div class="mt-6 flex-shrink-0 flex flex-col sm:flex-row gap-3">
           <button
-            onclick="UI.closeModal('manageModal')"
-            class="w-full py-4.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-[1.5rem] font-bold text-lg transition-colors"
+            onclick="Store.addTempItem()"
+            class="flex-1 py-4.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-white rounded-[1.5rem] font-bold text-lg transition-colors flex items-center justify-center gap-2"
           >
-            창 닫기
+            ➕ 새 항목 추가
+          </button>
+          <button
+            onclick="Store.saveManageSettings()"
+            class="flex-[2] py-4.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-[1.5rem] font-bold text-lg transition-all shadow-lg shadow-indigo-600/30"
+          >
+            변경사항 즉시 적용
           </button>
         </div>
       </div>
@@ -769,7 +716,7 @@
 
     <div id="nameModal" class="modal items-center justify-center">
       <div
-        class="modal-content bg-white/90 dark:bg-slate-800/90 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-slate-700 p-8 w-11/12 max-w-sm"
+        class="modal-content bg-white/95 dark:bg-slate-800/95 backdrop-blur-2xl rounded-[2.5rem] shadow-2xl border border-white/50 dark:border-slate-700 p-8 w-11/12 max-w-sm"
       >
         <h3
           class="text-2xl font-black tracking-tight text-slate-800 dark:text-white mb-8"
@@ -851,10 +798,10 @@
         state: {
           currentDate: new Date(),
           currentEditIndex: -1,
-          currentSettingsIndex: -1,
           userName: localStorage.getItem("userName") || "이상호",
           baptismName: localStorage.getItem("baptismName") || "안토니오",
           prayerTypes: [],
+          tempPrayerTypes: [],
           monthData: [],
           isDarkMode: localStorage.getItem("darkMode") === "true",
           currentView: "input",
@@ -1034,94 +981,107 @@
           UI.closeModal("nameModal");
           UI.renderAll();
         },
-        saveItemSettings() {
-          if (this.state.currentSettingsIndex === -1) return;
-          const icon = document.getElementById("itemIcon").value.trim() || "🙏";
-          const name =
-            document.getElementById("itemName").value.trim() || "기도";
-          const goal = parseInt(document.getElementById("itemGoal").value) || 1;
-          const unit = document.getElementById("itemUnit").value.trim() || "회";
 
-          const oldName =
-            this.state.prayerTypes[this.state.currentSettingsIndex].name;
-          this.state.prayerTypes[this.state.currentSettingsIndex] = {
-            ...this.state.prayerTypes[this.state.currentSettingsIndex],
-            icon,
-            name,
-            goal,
-            unit,
-          };
-          localStorage.setItem(
-            "prayer_types",
-            JSON.stringify(this.state.prayerTypes),
-          );
-
-          Object.keys(localStorage).forEach((k) => {
-            if (k.startsWith("prayer_") && k !== "prayer_types") {
-              try {
-                let isChanged = false;
-                const d = JSON.parse(localStorage.getItem(k));
-                const it = d.find((x) => x.name === oldName);
-                if (it) {
-                  it.name = name;
-                  it.goal = goal;
-                  it.unit = unit;
-                  isChanged = true;
-                }
-                if (isChanged) localStorage.setItem(k, JSON.stringify(d));
-              } catch (e) {}
+        // 인라인 편집 항목 관리 로직
+        syncManageDOM() {
+          const rows = document.querySelectorAll(".manage-item-row");
+          rows.forEach((row, i) => {
+            const t = this.state.tempPrayerTypes[i];
+            if (t) {
+              t.icon = row.querySelector(".i-icon").value.trim() || "🙏";
+              t.name = row.querySelector(".i-name").value.trim() || "기도";
+              t.goal = parseInt(row.querySelector(".i-goal").value) || 1;
+              t.unit = row.querySelector(".i-unit").value.trim() || "회";
             }
           });
-
-          this.loadMonthData();
-          UI.closeModal("itemSettingsModal");
-          UI.renderAll();
         },
-        deleteItem(idx) {
-          if (this.state.prayerTypes.length <= 1)
-            return alert("최소 1개 항목은 유지해야 합니다.");
-          const name = this.state.prayerTypes[idx].name;
-          if (!confirm(`"${name}" 항목을 삭제하시겠습니까?`)) return;
-          this.state.prayerTypes.splice(idx, 1);
-          localStorage.setItem(
-            "prayer_types",
-            JSON.stringify(this.state.prayerTypes),
-          );
-
-          Object.keys(localStorage).forEach((k) => {
-            if (k.startsWith("prayer_") && k !== "prayer_types") {
-              try {
-                const d = JSON.parse(localStorage.getItem(k));
-                localStorage.setItem(
-                  k,
-                  JSON.stringify(d.filter((x) => x.name !== name)),
-                );
-              } catch (e) {}
-            }
-          });
-
-          this.loadMonthData();
-          UI.renderManageList();
-          UI.renderAll();
-        },
-        addNewItem() {
-          this.state.prayerTypes.push({
-            name: "새 기도 항목",
+        addTempItem() {
+          this.syncManageDOM(); // 입력 중인 데이터 백업
+          this.state.tempPrayerTypes.push({
+            name: "", // 빈값으로 추가
+            originalName: null,
             icon: "✨",
             goal: 30,
             unit: "회",
             color:
               this.AVAILABLE_COLORS[
-                this.state.prayerTypes.length % this.AVAILABLE_COLORS.length
+                this.state.tempPrayerTypes.length % this.AVAILABLE_COLORS.length
               ],
           });
+          UI.renderManageList();
+          // 스크롤을 맨 아래로
+          setTimeout(() => {
+            const list = document.getElementById("manageItemsList");
+            list.scrollTop = list.scrollHeight;
+          }, 50);
+        },
+        deleteTempItem(idx) {
+          this.syncManageDOM();
+          if (this.state.tempPrayerTypes.length <= 1)
+            return alert("최소 1개 항목은 유지해야 합니다.");
+          this.state.tempPrayerTypes.splice(idx, 1);
+          UI.renderManageList();
+        },
+        saveManageSettings() {
+          this.syncManageDOM();
+
+          const oldTypes = this.state.prayerTypes;
+          const newTypes = this.state.tempPrayerTypes;
+
+          // 빈 이름 방지
+          for (let i = 0; i < newTypes.length; i++) {
+            if (!newTypes[i].name) newTypes[i].name = `기도 항목 ${i + 1}`;
+          }
+
+          // 삭제된 항목 찾기
+          const removedNames = oldTypes
+            .filter((old) => !newTypes.find((n) => n.originalName === old.name))
+            .map((old) => old.name);
+
+          // 로컬 스토리지 데이터 갱신
+          Object.keys(localStorage).forEach((k) => {
+            if (k.startsWith("prayer_") && k !== "prayer_types") {
+              try {
+                let d = JSON.parse(localStorage.getItem(k));
+                let isChanged = false;
+
+                if (removedNames.length > 0) {
+                  d = d.filter((x) => !removedNames.includes(x.name));
+                  isChanged = true;
+                }
+
+                d.forEach((it) => {
+                  const matchByOrig = newTypes.find(
+                    (n) => n.originalName === it.name,
+                  );
+                  if (matchByOrig) {
+                    if (
+                      it.name !== matchByOrig.name ||
+                      it.goal !== matchByOrig.goal ||
+                      it.unit !== matchByOrig.unit
+                    ) {
+                      it.name = matchByOrig.name;
+                      it.goal = matchByOrig.goal;
+                      it.unit = matchByOrig.unit;
+                      isChanged = true;
+                    }
+                  }
+                });
+
+                if (isChanged) localStorage.setItem(k, JSON.stringify(d));
+              } catch (e) {}
+            }
+          });
+
+          newTypes.forEach((t) => delete t.originalName);
+          this.state.prayerTypes = JSON.parse(JSON.stringify(newTypes));
           localStorage.setItem(
             "prayer_types",
             JSON.stringify(this.state.prayerTypes),
           );
+
           this.loadMonthData();
-          this.saveMonthData();
-          UI.renderManageList();
+          UI.closeModal("manageModal");
           UI.renderAll();
         },
       };
@@ -1143,6 +1103,12 @@
               100,
             );
           } else if (id === "manageModal") {
+            Store.state.tempPrayerTypes = JSON.parse(
+              JSON.stringify(Store.state.prayerTypes),
+            );
+            Store.state.tempPrayerTypes.forEach(
+              (t) => (t.originalName = t.name),
+            );
             this.renderManageList();
           }
         },
@@ -1150,7 +1116,6 @@
           document.getElementById(id).classList.remove("active");
           document.body.style.overflow = "";
           Store.state.currentEditIndex = -1;
-          Store.state.currentSettingsIndex = -1;
         },
         openEditModal(idx) {
           Store.state.currentEditIndex = idx;
@@ -1163,16 +1128,6 @@
             document.getElementById("modalInput").focus();
             document.getElementById("modalInput").select();
           }, 100);
-        },
-        openItemSettings(idx) {
-          Store.state.currentSettingsIndex = idx;
-          const t = Store.state.prayerTypes[idx];
-          document.getElementById("itemIcon").value = t.icon;
-          document.getElementById("itemName").value = t.name;
-          document.getElementById("itemGoal").value = t.goal;
-          document.getElementById("itemUnit").value = t.unit;
-          this.closeModal("manageModal");
-          this.openModal("itemSettingsModal");
         },
         quickUpdate(delta) {
           const inp = document.getElementById("modalInput");
@@ -1204,9 +1159,11 @@
             setTimeout(() => Charts.renderAll(), 50);
           }
         },
+
+        // 🚨 이름과 세례명이 상단 헤더에 모두 표시되도록 수정된 부분 🚨
         renderHeader() {
           document.getElementById("headerTitle").textContent =
-            `${Utils.escapeHTML(Store.state.userName)} 기도 기록표`;
+            `${Utils.escapeHTML(Store.getFullName())} 기도 기록표`;
           const y = Store.state.currentDate.getFullYear();
           const m = Store.state.currentDate.getMonth() + 1;
           document.getElementById("currentMonth").textContent = `${y}년 ${m}월`;
@@ -1253,9 +1210,6 @@
                     <p class="text-xs font-bold text-slate-400 dark:text-slate-500 mt-1 uppercase tracking-wider">목표 ${item.goal}${Utils.escapeHTML(item.unit)}</p>
                   </div>
                 </div>
-                <button onclick="UI.openItemSettings(${idx});event.stopPropagation();" aria-label="설정" class="text-slate-300 hover:text-slate-600 dark:hover:text-slate-300 p-2 rounded-full hover:bg-slate-100/50 dark:hover:bg-slate-700/50 transition-all">
-                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"></path><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
-                </button>
               </div>
 
               <div class="mb-5 relative z-10">
@@ -1297,21 +1251,25 @@
         renderManageList() {
           const list = document.getElementById("manageItemsList");
           list.innerHTML = "";
-          Store.state.prayerTypes.forEach((t, idx) => {
+          Store.state.tempPrayerTypes.forEach((t, idx) => {
             const el = document.createElement("div");
             el.className =
-              "flex items-center justify-between p-4 bg-slate-50 dark:bg-slate-900 rounded-2xl border border-slate-200 dark:border-slate-700";
+              "manage-item-row flex flex-col sm:flex-row items-stretch sm:items-center gap-4 p-5 bg-white dark:bg-slate-900/80 rounded-[1.5rem] border border-slate-200 dark:border-slate-700 shadow-sm relative transition-all";
+
             el.innerHTML = `
-              <div class="flex items-center gap-4">
-                <div class="w-12 h-12 flex items-center justify-center text-2xl bg-white dark:bg-slate-800 rounded-xl shadow-sm border border-slate-100 dark:border-slate-700">${Utils.escapeHTML(t.icon)}</div>
-                <div>
-                  <div class="font-bold text-lg text-slate-800 dark:text-white">${Utils.escapeHTML(t.name)}</div>
-                  <div class="text-sm font-medium text-slate-500 dark:text-slate-400">목표: ${t.goal}${Utils.escapeHTML(t.unit)}</div>
-                </div>
+              <div class="flex items-center gap-3 w-full sm:w-auto sm:flex-1">
+                <input type="text" class="i-icon w-14 h-14 flex-shrink-0 text-center text-2xl bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none transition-all shadow-inner" value="${Utils.escapeHTML(t.icon)}" maxlength="2" title="이모지 아이콘">
+                <input type="text" class="i-name w-full px-4 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-lg text-slate-800 dark:text-white transition-all" value="${Utils.escapeHTML(t.name)}" placeholder="항목 이름 (예: 미사)">
               </div>
-              <div class="flex gap-2">
-                <button onclick="UI.openItemSettings(${idx})" class="p-3 bg-indigo-50 hover:bg-indigo-100 text-indigo-600 dark:bg-indigo-500/10 dark:hover:bg-indigo-500/20 dark:text-indigo-400 rounded-xl text-sm font-bold transition-colors">수정</button>
-                <button onclick="Store.deleteItem(${idx})" class="p-3 bg-red-50 hover:bg-red-100 text-red-600 dark:bg-red-500/10 dark:hover:bg-red-500/20 dark:text-red-400 rounded-xl text-sm font-bold transition-colors">삭제</button>
+              <div class="flex items-center gap-3 w-full sm:w-auto">
+                <div class="flex items-center flex-1 sm:flex-none bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-2xl overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500 transition-all shadow-inner">
+                  <span class="px-4 py-3.5 text-sm font-bold text-slate-400 bg-slate-100/50 dark:bg-slate-700/50 border-r border-slate-200 dark:border-slate-600 flex items-center justify-center">목표</span>
+                  <input type="number" class="i-goal w-full sm:w-20 px-3 py-3.5 bg-transparent outline-none font-black text-indigo-600 dark:text-indigo-400 text-center text-lg" value="${t.goal}" min="1">
+                </div>
+                <input type="text" class="i-unit w-20 sm:w-16 flex-shrink-0 px-2 py-3.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-600 rounded-2xl focus:ring-2 focus:ring-indigo-500 outline-none font-bold text-center text-slate-600 dark:text-slate-300 transition-all shadow-inner" value="${Utils.escapeHTML(t.unit)}" placeholder="단위">
+                <button onclick="Store.deleteTempItem(${idx})" class="p-3.5 text-rose-500 hover:bg-rose-50 dark:hover:bg-rose-500/10 rounded-xl transition-colors flex-shrink-0" title="항목 삭제">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                </button>
               </div>
             `;
             list.appendChild(el);
@@ -1324,7 +1282,7 @@
       };
 
       /* ==========================================
-         4. Charts (차트 렌더링 모듈)
+         4. Charts (순수 CSS 툴팁 및 중앙 정렬 버블)
          ========================================== */
       const Charts = {
         renderAll() {
@@ -1389,22 +1347,22 @@
             .on("mouseover", function (e, d) {
               tooltip.transition().duration(150).style("opacity", 1);
               tooltip.html(`
-                <div class="font-bold text-lg mb-1">${Utils.escapeHTML(d.data.icon)} ${Utils.escapeHTML(d.data.name)}</div>
-                <div class="text-indigo-300 font-medium">달성: <span class="text-white font-black">${d.data.value}</span>${Utils.escapeHTML(d.data.unit)}</div>
+                <div style="display:flex; align-items:center; justify-content:center; gap:6px; margin-bottom:4px;">
+                  <span style="font-size:1.3rem;">${Utils.escapeHTML(d.data.icon)}</span>
+                  <span style="font-size:1.1rem; font-weight:bold; color:#ffffff;">${Utils.escapeHTML(d.data.name)}</span>
+                </div>
+                <div style="font-size:0.9rem; font-weight:500; color:#a5b4fc; text-align:center;">
+                  달성: <span style="font-size:1.15rem; font-weight:900; color:#fde047; margin:0 4px;">${d.data.value}</span>${Utils.escapeHTML(d.data.unit)}
+                </div>
               `);
-
-              const tw = tooltip.node().offsetWidth;
-              const th = tooltip.node().offsetHeight;
               tooltip
-                .style("left", e.pageX - tw / 2 + "px")
-                .style("top", e.pageY - th - 15 + "px");
+                .style("left", e.pageX + "px")
+                .style("top", e.pageY + "px");
             })
             .on("mousemove", function (e) {
-              const tw = tooltip.node().offsetWidth;
-              const th = tooltip.node().offsetHeight;
               tooltip
-                .style("left", e.pageX - tw / 2 + "px")
-                .style("top", e.pageY - th - 15 + "px");
+                .style("left", e.pageX + "px")
+                .style("top", e.pageY + "px");
             })
             .on("mouseout", function () {
               tooltip.transition().duration(150).style("opacity", 0);
@@ -1718,8 +1676,6 @@
           localStorage.setItem("darkMode", isDark);
           Store.state.isDarkMode = isDark;
         },
-
-        // ✨ 불필요한 다른 앱의 데이터를 보호하는 안전한 초기화 로직 ✨
         confirmReset() {
           if (
             confirm(
@@ -1745,7 +1701,6 @@
             location.reload();
           }
         },
-
         exportData() {
           const txt = Store.state.monthData
             .map((d) => `${d.name}: ${d.value}${d.unit}`)
@@ -1756,8 +1711,6 @@
               alert("기록이 클립보드에 복사되었습니다.");
             });
         },
-
-        // ✨ 오직 기도 앱과 관련된 데이터만 필터링하여 다운로드 ✨
         downloadBackup() {
           const exportData = {};
           const validKeys = [
@@ -1788,8 +1741,6 @@
           a.download = `prayer_backup_${new Date().toISOString().slice(0, 10)}.json`;
           a.click();
         },
-
-        // ✨ 복구 시에도 앱과 관련된 데이터만 지우고 덮어쓰도록 안전장치 강화 ✨
         restoreBackup(e) {
           const file = e.target.files[0];
           if (!file) return;
@@ -1802,7 +1753,6 @@
                 throw new Error("유효한 백업 파일이 아닙니다.");
               }
 
-              // 기존 앱 관련 데이터만 삭제
               const keysToRemove = [];
               for (let i = 0; i < localStorage.length; i++) {
                 const k = localStorage.key(i);
@@ -1820,7 +1770,6 @@
               }
               keysToRemove.forEach((k) => localStorage.removeItem(k));
 
-              // 백업 파일에서 앱 관련 데이터만 복구
               const validKeys = [
                 "userName",
                 "baptismName",
@@ -1847,7 +1796,6 @@
           reader.readAsText(file);
           e.target.value = "";
         },
-
         bindEvents() {
           document
             .getElementById("modalInput")
@@ -1866,12 +1814,7 @@
               if (e.key === "Enter") Store.saveUserName();
             });
 
-          [
-            "editModal",
-            "itemSettingsModal",
-            "manageModal",
-            "nameModal",
-          ].forEach((id) => {
+          ["editModal", "manageModal", "nameModal"].forEach((id) => {
             document.getElementById(id).addEventListener("click", (e) => {
               if (e.target === e.currentTarget) UI.closeModal(id);
             });
