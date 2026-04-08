@@ -1,0 +1,654 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
+    />
+    <title>광교1동성당 전례 대시보드 (구글 시트 연동)</title>
+    <style>
+      /* =========================================
+           1. 기본 디자인 변수 및 초기화
+           ========================================= */
+      :root {
+        --primary: #4f46e5;
+        --primary-hover: #4338ca;
+        --bg-color: #f8fafc;
+        --card-bg: #ffffff;
+        --text-main: #0f172a;
+        --text-muted: #64748b;
+        --border-color: #e2e8f0;
+        --danger: #ef4444;
+        --success: #10b981;
+        --radius-lg: 16px;
+        --radius-md: 12px;
+      }
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      /* 모바일 우선(Mobile-First) 기본 폰트 및 패딩 */
+      body {
+        font-family:
+          "Pretendard",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        padding: 10px;
+        font-size: 14px;
+      }
+
+      .container {
+        max-width: 1400px;
+        margin: 0 auto;
+      }
+
+      .main-title {
+        text-align: center;
+        font-size: 22px;
+        font-weight: 800;
+        margin-bottom: 16px;
+        color: #1e293b;
+      }
+
+      /* =========================================
+           2. 상단 헤더 및 컨트롤 바
+           ========================================= */
+      .header {
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+      }
+
+      .month-navigation {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+      }
+
+      .nav-button {
+        background: #f1f5f9;
+        border: 1px solid var(--border-color);
+        padding: 8px 12px;
+        border-radius: 50px;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+      }
+
+      .month-label {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--primary);
+      }
+
+      /* 모바일에서는 버튼과 텍스트가 세로로 배치되도록 설정 */
+      .info-bar {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 12px;
+        padding-top: 16px;
+        border-top: 1px solid var(--border-color);
+      }
+
+      #eventStatus {
+        text-align: center;
+        font-size: 12px;
+        color: var(--text-muted);
+      }
+
+      .button-group {
+        display: flex;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+
+      /* 모바일에서 버튼이 화면을 꽉 채우도록 flex: 1 적용 */
+      .action-button {
+        flex: 1;
+        min-width: 100px;
+        padding: 10px 12px;
+        border-radius: var(--radius-md);
+        border: none;
+        cursor: pointer;
+        font-weight: 600;
+        font-size: 13px;
+        color: white;
+        transition: 0.2s;
+        text-align: center;
+      }
+
+      .btn-sync {
+        background: var(--primary);
+      }
+      .btn-sheet {
+        background: var(--success);
+      }
+      .btn-print {
+        background: #64748b;
+      }
+
+      .message {
+        padding: 12px;
+        border-radius: var(--radius-md);
+        margin-top: 10px;
+        display: none;
+        font-size: 13px;
+        font-weight: 500;
+        text-align: center;
+      }
+      .message.show {
+        display: block;
+      }
+      .message.error {
+        background: #fee2e2;
+        color: #991b1b;
+      }
+      .message.success {
+        background: #d1fae5;
+        color: #065f46;
+      }
+
+      /* =========================================
+           3. 캘린더 영역 (높이 자동 조절)
+           ========================================= */
+      .calendar-wrapper {
+        background: var(--card-bg);
+        border-radius: var(--radius-lg);
+        padding: 12px;
+        box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
+        border: 1px solid var(--border-color);
+        overflow-x: auto; /* 작은 화면에서 가로 스크롤 허용 */
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        min-width: 600px; /* 테이블이 너무 찌그러지지 않도록 최소 너비 보장 */
+        table-layout: fixed;
+      }
+
+      th {
+        padding: 8px 4px;
+        font-size: 13px;
+        color: var(--text-muted);
+        border-bottom: 2px solid var(--border-color);
+        text-align: center;
+      }
+
+      /* 칸의 기본 높이를 없애고 내용물(미사 개수)에 맞게 늘어나도록 변경 (height: auto) */
+      td {
+        border: 1px solid var(--border-color);
+        height: auto;
+        min-height: 85px;
+        vertical-align: top;
+        padding: 4px;
+      }
+
+      .date-number {
+        font-weight: 700;
+        margin-bottom: 4px;
+        padding: 2px 4px;
+        display: inline-block;
+        font-size: 13px;
+      }
+      .sunday .date-number {
+        color: var(--danger);
+      }
+      .saturday .date-number {
+        color: #3b82f6;
+      }
+      .today {
+        background-color: #eff6ff;
+      }
+      .today .date-number {
+        background: var(--primary);
+        color: white;
+        border-radius: 4px;
+      }
+      .other-month {
+        background: #f8fafc;
+        color: #cbd5e1;
+      }
+
+      /* 일정 목록이 칸 안에서 스크롤되지 않고 밖으로 쭉 길어지도록 변경 (overflow-y: visible) */
+      .events-container {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        overflow-y: visible;
+        height: auto;
+      }
+
+      .event {
+        font-size: 10px;
+        padding: 4px;
+        border-radius: 4px;
+        background: #e0e7ff;
+        border-left: 3px solid var(--primary);
+        cursor: pointer;
+        line-height: 1.2;
+      }
+      .event-time {
+        font-weight: 700;
+        color: #4338ca;
+        font-size: 9px;
+      }
+      .event-title {
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* =========================================
+           4. 모달 창 (팝업)
+           ========================================= */
+      .modal {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+        backdrop-filter: blur(3px);
+        padding: 20px;
+      }
+      .modal.show {
+        display: flex;
+      }
+      .modal-content {
+        background: white;
+        padding: 20px;
+        border-radius: 16px;
+        width: 100%;
+        max-width: 400px;
+        box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        max-height: 90vh;
+        overflow-y: auto;
+      }
+      .modal-title {
+        font-size: 16px;
+        font-weight: 800;
+        margin-bottom: 15px;
+        padding-bottom: 10px;
+        border-bottom: 1px solid #eee;
+      }
+      .modal-info {
+        margin-bottom: 10px;
+      }
+      .modal-info label {
+        display: block;
+        font-size: 11px;
+        color: var(--primary);
+        font-weight: 700;
+        margin-bottom: 2px;
+      }
+      .modal-info p {
+        font-size: 14px;
+        font-weight: 500;
+        border-bottom: 1px dashed #eee;
+        padding-bottom: 4px;
+      }
+      .btn-close {
+        width: 100%;
+        padding: 12px;
+        background: #f1f5f9;
+        border: none;
+        border-radius: 8px;
+        cursor: pointer;
+        font-weight: 600;
+        margin-top: 15px;
+        font-size: 14px;
+      }
+
+      /* =========================================
+           5. PC/태블릿 화면을 위한 미디어 쿼리 (반응형)
+           ========================================= */
+      @media (min-width: 768px) {
+        body {
+          padding: 30px;
+          font-size: 16px;
+        }
+        .main-title {
+          font-size: 26px;
+          margin-bottom: 24px;
+        }
+        .header {
+          padding: 24px;
+        }
+        .month-label {
+          font-size: 24px;
+        }
+        .nav-button {
+          padding: 10px 18px;
+          font-size: 14px;
+        }
+
+        /* PC에서는 컨트롤 바를 가로로 넓게 배치 */
+        .info-bar {
+          flex-direction: row;
+          justify-content: space-between;
+        }
+        #eventStatus {
+          text-align: left;
+          font-size: 14px;
+        }
+        .action-button {
+          flex: 0 1 auto;
+          font-size: 14px;
+        }
+
+        .calendar-wrapper {
+          padding: 24px;
+          overflow-x: visible;
+        }
+
+        /* PC 화면에서도 달력 칸이 자동 조절되도록 height: auto로 변경 */
+        td {
+          height: auto;
+          min-height: 120px;
+          padding: 6px;
+        }
+
+        .date-number {
+          font-size: 15px;
+          margin-bottom: 6px;
+        }
+        .event {
+          font-size: 11px;
+          padding: 4px 6px;
+        }
+        .event-time {
+          font-size: 10px;
+        }
+        .modal-content {
+          padding: 25px;
+        }
+        .modal-title {
+          font-size: 18px;
+        }
+      }
+
+      /* 인쇄 최적화 */
+      @media print {
+        .nav-button,
+        .button-group,
+        .message,
+        .btn-close {
+          display: none !important;
+        }
+        body {
+          padding: 0;
+          background: white;
+        }
+        .calendar-wrapper {
+          border: none;
+          box-shadow: none;
+          padding: 0;
+        }
+        td {
+          height: auto;
+          min-height: 100px;
+        }
+        .events-container {
+          height: auto;
+          overflow: visible;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1 class="main-title">✝️ 광교1동성당 전례 대시보드</h1>
+
+      <div class="header">
+        <div class="month-navigation">
+          <button class="nav-button" onclick="changeMonth(-1)">
+            ◀ 이전 달
+          </button>
+          <div class="month-label" id="monthLabel">불러오는 중...</div>
+          <button class="nav-button" onclick="changeMonth(1)">다음 달 ▶</button>
+        </div>
+        <div class="info-bar">
+          <div id="eventStatus">데이터 동기화가 필요합니다.</div>
+          <div class="button-group">
+            <button class="action-button btn-sync" onclick="syncData()">
+              🔄 일정 동기화
+            </button>
+            <button class="action-button btn-sheet" id="openSheetBtn">
+              📝 시트 열기
+            </button>
+            <button class="action-button btn-print" onclick="window.print()">
+              🖨️ 인쇄
+            </button>
+          </div>
+        </div>
+        <div id="msgBox" class="message"></div>
+      </div>
+
+      <div class="calendar-wrapper">
+        <table>
+          <thead>
+            <tr>
+              <th style="color: var(--danger)">일</th>
+              <th>월</th>
+              <th>화</th>
+              <th>수</th>
+              <th>목</th>
+              <th>금</th>
+              <th style="color: #3b82f6">토</th>
+            </tr>
+          </thead>
+          <tbody id="calendarBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <div id="modal" class="modal" onclick="closeModal()">
+      <div class="modal-content" onclick="event.stopPropagation()">
+        <div class="modal-title">📅 미사 상세 일정</div>
+        <div id="modalBody"></div>
+        <button class="btn-close" onclick="closeModal()">닫기</button>
+      </div>
+    </div>
+
+    <script>
+      // =========================================
+      // ⭐ 여기에 본인의 구글 시트 ID를 붙여넣으세요!
+      // =========================================
+      const GOOGLE_SHEET_ID = "1SQwjkDfA6W7pqGD7YyKh0IebfggQDt1q23RVToed9Zc";
+
+      let events = [];
+      let currentDate = new Date();
+
+      // 메세지 팝업 함수
+      function showMessage(msg, isError = false) {
+        const box = document.getElementById("msgBox");
+        box.textContent = msg;
+        box.className = `message show ${isError ? "error" : "success"}`;
+        setTimeout(() => (box.className = "message"), 3000);
+      }
+
+      // 구글 시트 데이터 연동 함수
+      async function syncData() {
+        if (GOOGLE_SHEET_ID.includes("입력") || !GOOGLE_SHEET_ID) {
+          showMessage("소스 코드에서 시트 ID를 먼저 설정해주세요.", true);
+          return;
+        }
+
+        try {
+          const url = `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv`;
+          const response = await fetch(url);
+          const text = await response.text();
+
+          const rows = text.split("\n").map((row) => {
+            return row
+              .split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/)
+              .map((cell) => cell.replace(/^"|"$/g, "").trim());
+          });
+
+          events = rows
+            .slice(1)
+            .map((r) => ({
+              date: r[0],
+              title: r[1],
+              time: r[2],
+              해설: r[3],
+              독1: r[4],
+              독2: r[5],
+            }))
+            .filter((e) => e.date);
+
+          showMessage("최신 일정을 성공적으로 불러왔습니다.");
+
+          // 모바일에서도 잘 보이게 동기화 시간 짧게 표시
+          const now = new Date();
+          const timeStr = `${now.getHours()}:${String(now.getMinutes()).padStart(2, "0")}`;
+          document.getElementById("eventStatus").textContent =
+            `마지막 동기화: 오늘 ${timeStr}`;
+
+          renderCalendar();
+        } catch (e) {
+          showMessage(
+            "데이터 로드 실패. 공유 설정이 '링크가 있는 모든 사용자'인지 확인하세요.",
+            true,
+          );
+        }
+      }
+
+      // 캘린더 그리기 로직
+      function renderCalendar() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+        document.getElementById("monthLabel").textContent =
+          `${year}년 ${month + 1}월`;
+
+        const firstDay = new Date(year, month, 1).getDay();
+        const lastDate = new Date(year, month + 1, 0).getDate();
+        const prevLastDate = new Date(year, month, 0).getDate();
+
+        // 로컬 시간대 기준 오늘 날짜 구하기
+        const todayObj = new Date();
+        const todayStr = `${todayObj.getFullYear()}-${String(todayObj.getMonth() + 1).padStart(2, "0")}-${String(todayObj.getDate()).padStart(2, "0")}`;
+
+        let html = "<tr>";
+
+        // 이전 달 날짜 채우기
+        for (let i = firstDay; i > 0; i--) {
+          html += `<td class="other-month"><div class="date-number">${prevLastDate - i + 1}</div></td>`;
+        }
+
+        // 이번 달 날짜 채우기
+        for (let d = 1; d <= lastDate; d++) {
+          const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+          const isToday = dateStr === todayStr ? "today" : "";
+          const dayOfWeek = new Date(year, month, d).getDay();
+          const dayClass =
+            dayOfWeek === 0 ? "sunday" : dayOfWeek === 6 ? "saturday" : "";
+
+          html += `<td class="${isToday} ${dayClass}">
+                            <div class="date-number">${d}</div>
+                            <div class="events-container">`;
+
+          const dayEvents = events.filter((e) => e.date === dateStr);
+          dayEvents.forEach((ev) => {
+            // XSS 방지를 위한 escape 처리 및 데이터 전달
+            const safeEv = JSON.stringify(ev).replace(/'/g, "&#39;");
+            html += `
+                        <div class="event" onclick='showDetail(${safeEv})'>
+                            <div class="event-time">${ev.time}</div>
+                            <div class="event-title">${ev.title}</div>
+                        </div>`;
+          });
+
+          html += `</div></td>`;
+          if ((d + firstDay) % 7 === 0 && d < lastDate) html += "</tr><tr>";
+        }
+
+        html += "</tr>";
+        document.getElementById("calendarBody").innerHTML = html;
+      }
+
+      // 모달 표시 함수
+      function showDetail(ev) {
+        let body = "";
+        const labels = {
+          title: "미사명",
+          date: "날짜",
+          time: "시간",
+          해설: "해설자",
+          독1: "제1독서",
+          독2: "제2독서",
+        };
+
+        for (let key in labels) {
+          if (ev[key] && ev[key].trim() !== "") {
+            // HTML 태그 이스케이프 (보안)
+            const safeValue = ev[key]
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;");
+            body += `<div class="modal-info"><label>${labels[key]}</label><p>${safeValue}</p></div>`;
+          }
+        }
+
+        if (body === "") body = "<p>등록된 세부 정보가 없습니다.</p>";
+
+        document.getElementById("modalBody").innerHTML = body;
+        document.getElementById("modal").classList.add("show");
+      }
+
+      function closeModal() {
+        document.getElementById("modal").classList.remove("show");
+      }
+
+      function changeMonth(diff) {
+        currentDate.setMonth(currentDate.getMonth() + diff);
+        renderCalendar();
+      }
+
+      // =========================================
+      // ✅ 시트 열기 버튼 동작 (비밀번호 기능 추가됨)
+      // =========================================
+      document.getElementById("openSheetBtn").onclick = () => {
+        if (GOOGLE_SHEET_ID.includes("입력") || GOOGLE_SHEET_ID === "") {
+          showMessage("시트 ID가 설정되어 있지 않습니다.", true);
+          return;
+        }
+
+        // 비밀번호 입력창 띄우기
+        const inputPw = prompt(
+          "🔒 관리자 전용입니다. 비밀번호 4자리를 입력하세요.",
+        );
+
+        // 비밀번호가 맞을 때만 구글 시트 열기
+        if (inputPw === "    ") {
+          window.open(
+            `https://docs.google.com/spreadsheets/d/${GOOGLE_SHEET_ID}/edit`,
+            "_blank",
+          );
+        } else if (inputPw !== null) {
+          // 사용자가 취소(null)를 누르지 않고, 틀린 문자를 입력했을 때
+          showMessage("비밀번호가 일치하지 않습니다.", true);
+        }
+      };
+
+      // 페이지가 열리면 즉시 데이터 동기화 실행
+      window.onload = syncData;
+    </script>
+  </body>
+</html>
