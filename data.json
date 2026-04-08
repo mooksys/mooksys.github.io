@@ -82,9 +82,9 @@
         "type": "primary"
       },
       {
-        "title": "Project 2",
-        "url": "#",
-        "type": "primary"
+        "title": "Project 2 전례단 봉사자 일정",
+        "url": "gwanggyo_cathedral/index_liturgy_v2.html",
+        "type": "secondary"
       },
       {
         "title": "Project 3",
