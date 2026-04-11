@@ -45,7 +45,6 @@
             min-height: 100vh
         }
 
-        /* HEADER */
         header {
             background: linear-gradient(135deg, #5b6af0, #7c3aed);
             padding: 0 20px;
@@ -101,7 +100,6 @@
             background: #eef0ff
         }
 
-        /* LAYOUT */
         .wrap {
             max-width: 420px;
             margin: 0 auto;
@@ -116,7 +114,6 @@
             display: block
         }
 
-        /* CARD */
         .card {
             background: #fff;
             border-radius: var(--r);
@@ -175,7 +172,6 @@
             margin-top: 1px
         }
 
-        /* FORM */
         .field {
             margin-bottom: 14px
         }
@@ -235,7 +231,6 @@
             pointer-events: none
         }
 
-        /* BUTTONS */
         .btn {
             width: 100%;
             padding: 13px;
@@ -259,8 +254,7 @@
         }
 
         .bp:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 6px 20px rgba(91, 106, 240, .4)
+            transform: translateY(-1px)
         }
 
         .bo {
@@ -308,15 +302,13 @@
             text-align: center;
             margin-top: 10px;
             width: 100%;
-            padding: 6px;
-            transition: color .2s
+            padding: 6px
         }
 
         .lbtn:hover {
             color: var(--g700)
         }
 
-        /* USER BAR */
         .ubar {
             background: linear-gradient(135deg, #5b6af0, #7c3aed);
             border-radius: var(--r);
@@ -380,7 +372,6 @@
             background: rgba(255, 255, 255, .35)
         }
 
-        /* TIME TABS */
         .tgrid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -409,11 +400,9 @@
         .ttab.sel {
             background: var(--pr);
             border-color: var(--pr);
-            color: #fff;
-            box-shadow: 0 2px 8px rgba(91, 106, 240, .3)
+            color: #fff
         }
 
-        /* TODAY */
         .tcard {
             background: linear-gradient(135deg, #f0f2ff, #f5f0ff);
             border: 1.5px solid #e0e4ff;
@@ -454,8 +443,7 @@
 
         .dwork {
             background: linear-gradient(135deg, var(--pr), #7c3aed);
-            color: #fff;
-            box-shadow: 0 2px 10px rgba(91, 106, 240, .3)
+            color: #fff
         }
 
         .doff {
@@ -482,7 +470,6 @@
             color: var(--g400)
         }
 
-        /* BEACON */
         .bgrid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -558,12 +545,6 @@
             transform: translateY(-1px)
         }
 
-        .bbb:disabled {
-            opacity: .35;
-            cursor: not-allowed;
-            transform: none !important
-        }
-
         .tbadge {
             display: inline-block;
             padding: 5px 12px;
@@ -599,7 +580,6 @@
             margin-top: 4px
         }
 
-        /* RESULT */
         .sgrid {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -717,7 +697,7 @@
             color: var(--g400)
         }
 
-        /* ===== TEACHER ===== */
+        /* ─── TEACHER ─── */
         .t-top {
             display: flex;
             align-items: flex-start;
@@ -727,8 +707,7 @@
 
         .t-title {
             font-size: 17px;
-            font-weight: 900;
-            color: var(--g900)
+            font-weight: 900
         }
 
         .t-sub {
@@ -737,7 +716,6 @@
             margin-top: 3px
         }
 
-        /* 요약 카드 4개 */
         .stat4 {
             display: grid;
             grid-template-columns: repeat(4, 1fr);
@@ -750,7 +728,6 @@
             padding: 14px 6px;
             text-align: center;
             border: 1.5px solid transparent;
-            position: relative;
             cursor: pointer;
             transition: all .15s
         }
@@ -791,7 +768,6 @@
             margin-top: 4px
         }
 
-        /* 알림 배너 */
         .alert-banner {
             background: var(--da-l);
             border: 1.5px solid #fca5a5;
@@ -810,7 +786,6 @@
             display: none
         }
 
-        /* 필터 바 */
         .filter-bar {
             display: flex;
             gap: 6px;
@@ -881,7 +856,7 @@
         }
 
         .search-row .sel-w {
-            flex: 0 0 160px
+            flex: 0 0 158px
         }
 
         .search-row .sel-w select {
@@ -901,7 +876,6 @@
             border-color: var(--pr)
         }
 
-        /* TAB */
         .tabs {
             display: flex;
             gap: 0;
@@ -916,7 +890,7 @@
             padding: 9px 0;
             border: none;
             border-radius: var(--rxs);
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             cursor: pointer;
             background: transparent;
@@ -931,7 +905,6 @@
             font-weight: 700
         }
 
-        /* 테이블 정렬 */
         th.sortable {
             cursor: pointer;
             user-select: none;
@@ -958,7 +931,7 @@
         }
 
         .ttbl {
-            min-width: 600px;
+            min-width: 620px;
             width: 100%
         }
 
@@ -972,7 +945,103 @@
             background: #fafbff
         }
 
-        /* 출결 수정 모달 */
+        /* 차트 */
+        .chart-wrap {
+            padding: 4px 0 8px
+        }
+
+        .chart-bar-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 7px
+        }
+
+        .chart-label {
+            font-size: 11px;
+            color: var(--g500);
+            width: 52px;
+            text-align: right;
+            flex-shrink: 0;
+            font-weight: 600
+        }
+
+        .chart-bar-bg {
+            flex: 1;
+            height: 22px;
+            background: var(--g100);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative
+        }
+
+        .chart-bar-fill {
+            height: 100%;
+            border-radius: 6px;
+            transition: width .5s cubic-bezier(.4, 0, .2, 1);
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+            padding-right: 6px;
+            min-width: 4px
+        }
+
+        .chart-bar-val {
+            font-size: 10px;
+            font-weight: 700;
+            color: #fff;
+            white-space: nowrap
+        }
+
+        .chart-legend {
+            display: flex;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-top: 10px
+        }
+
+        .cl-item {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+            font-size: 11px;
+            color: var(--g500)
+        }
+
+        .cl-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 3px;
+            flex-shrink: 0
+        }
+
+        /* 사유 */
+        .memo-badge {
+            display: inline-block;
+            max-width: 100px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+            vertical-align: middle;
+            background: #f0f2ff;
+            color: var(--pr);
+            border-radius: 6px;
+            padding: 2px 7px;
+            font-size: 10px;
+            cursor: pointer
+        }
+
+        .memo-empty {
+            font-size: 11px;
+            color: var(--g400);
+            cursor: pointer
+        }
+
+        .memo-empty:hover {
+            color: var(--pr)
+        }
+
+        /* 수정 모달 */
         .modal-bg {
             position: fixed;
             inset: 0;
@@ -1001,7 +1070,7 @@
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 16px
+            margin-bottom: 14px
         }
 
         .modal-title {
@@ -1016,13 +1085,13 @@
             background: var(--g100);
             border-radius: 50%;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
             display: flex;
             align-items: center;
             justify-content: center
         }
 
-        .modal-row {
+        .mrow {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 10px;
@@ -1039,26 +1108,49 @@
             letter-spacing: .4px
         }
 
-        .mfield input {
+        .mfield input,
+        .mfield textarea {
             width: 100%;
             padding: 10px 12px;
             border: 1.5px solid var(--g200);
             border-radius: var(--rxs);
-            font-size: 14px;
+            font-size: 13px;
             outline: none;
             transition: border .2s;
-            font-weight: 600;
-            text-align: center
+            font-weight: 500
         }
 
-        .mfield input:focus {
+        .mfield input {
+            text-align: center;
+            font-weight: 600
+        }
+
+        .mfield textarea {
+            text-align: left;
+            resize: none;
+            height: 64px;
+            font-family: inherit;
+            line-height: 1.5
+        }
+
+        .mfield input:focus,
+        .mfield textarea:focus {
             border-color: var(--pr)
+        }
+
+        .mhint {
+            font-size: 11px;
+            color: var(--g400);
+            background: var(--g50);
+            border-radius: var(--rxs);
+            padding: 8px 12px;
+            margin-bottom: 12px
         }
 
         .modal-btns {
             display: flex;
             gap: 8px;
-            margin-top: 14px
+            margin-top: 4px
         }
 
         .modal-btns .btn {
@@ -1066,7 +1158,7 @@
             flex: 1
         }
 
-        /* 학생 관리 탭 */
+        /* 학생 관리 */
         .stbl {
             min-width: 460px;
             width: 100%
@@ -1104,15 +1196,14 @@
             border-radius: 20px;
             padding: 3px 10px;
             cursor: pointer;
-            font-weight: 700;
-            transition: all .2s
+            font-weight: 700
         }
 
         .pw-reset-btn:hover {
             background: var(--da-l)
         }
 
-        /* CSV/GAS */
+        /* 인쇄 */
         .gas-box {
             background: linear-gradient(135deg, #fffbeb, #fef9c3);
             border: 1.5px solid #fde68a;
@@ -1173,7 +1264,6 @@
             min-height: 14px
         }
 
-        /* GAS 가이드 */
         .guide-box {
             background: #fff;
             border: 1px solid var(--g200);
@@ -1182,7 +1272,28 @@
             margin-top: 12px
         }
 
-        /* PW */
+        .nodata {
+            text-align: center;
+            color: var(--g400);
+            padding: 30px;
+            font-size: 13px
+        }
+
+        .seclbl {
+            font-size: 11px;
+            font-weight: 700;
+            color: var(--g400);
+            text-transform: uppercase;
+            letter-spacing: .6px;
+            margin-bottom: 10px
+        }
+
+        .divider {
+            height: 1px;
+            background: var(--g100);
+            margin: 14px 0
+        }
+
         .pw-pg {
             text-align: center;
             padding: 8px 0
@@ -1201,7 +1312,6 @@
             line-height: 1.7
         }
 
-        /* TOAST */
         .toast {
             position: fixed;
             bottom: 26px;
@@ -1226,33 +1336,10 @@
             transform: translateX(-50%) translateY(0)
         }
 
-        .seclbl {
-            font-size: 11px;
-            font-weight: 700;
-            color: var(--g400);
-            text-transform: uppercase;
-            letter-spacing: .6px;
-            margin-bottom: 10px
-        }
-
-        .divider {
-            height: 1px;
-            background: var(--g100);
-            margin: 14px 0
-        }
-
-        .nodata {
-            text-align: center;
-            color: var(--g400);
-            padding: 30px;
-            font-size: 13px
-        }
-
         @media print {
 
             header,
             .ubar,
-            .uacts,
             .lbtn,
             .btn,
             .tabs,
@@ -1261,7 +1348,11 @@
             .action-row,
             .gas-box,
             .guide-box,
-            .modal-bg {
+            .modal-bg,
+            .stat4,
+            .alert-banner,
+            .chart-wrap,
+            .t-top {
                 display: none !important
             }
 
@@ -1272,7 +1363,8 @@
             .card {
                 box-shadow: none;
                 border: 1px solid #ddd;
-                margin-bottom: 8px
+                margin-bottom: 8px;
+                break-inside: avoid
             }
 
             .wrap {
@@ -1287,6 +1379,41 @@
             table {
                 font-size: 11px
             }
+
+            .twrap,
+            .stbl {
+                overflow: visible;
+                min-width: 0
+            }
+
+            .ttbl,
+            .stbl {
+                min-width: 0;
+                width: 100%
+            }
+
+            .ttbl th,
+            .ttbl td,
+            .stbl th,
+            .stbl td {
+                padding: 5px 6px
+            }
+
+            .badge {
+                border-radius: 3px;
+                padding: 1px 5px
+            }
+
+            h2.print-title {
+                display: block !important;
+                font-size: 14px;
+                margin-bottom: 8px;
+                color: #000
+            }
+        }
+
+        h2.print-title {
+            display: none
         }
     </style>
 </head>
@@ -1302,7 +1429,7 @@
 
     <div class="wrap">
 
-        <!-- ===== 로그인 ===== -->
+        <!-- 로그인 -->
         <div class="page active" id="page-login">
             <div style="text-align:center;padding:18px 0 22px">
                 <div style="font-size:40px;margin-bottom:10px">👋</div>
@@ -1330,7 +1457,7 @@
             </div>
         </div>
 
-        <!-- ===== 시간 설정 ===== -->
+        <!-- 시간 설정 -->
         <div class="page" id="page-timeset">
             <div class="card">
                 <div class="card-hd">
@@ -1361,7 +1488,7 @@
             </div>
         </div>
 
-        <!-- ===== 출결 체크 ===== -->
+        <!-- 출결 체크 -->
         <div class="page" id="page-check">
             <div class="ubar">
                 <div class="av" id="av1"></div>
@@ -1407,7 +1534,7 @@
             <button class="lbtn" onclick="logout()">로그아웃</button>
         </div>
 
-        <!-- ===== 비번 변경 ===== -->
+        <!-- 비번 변경 -->
         <div class="page" id="page-changepw">
             <div class="card">
                 <div class="card-hd">
@@ -1424,7 +1551,7 @@
             </div>
         </div>
 
-        <!-- ===== 결과 ===== -->
+        <!-- 결과 -->
         <div class="page" id="page-result">
             <div class="ubar">
                 <div class="av" id="av2"></div>
@@ -1470,7 +1597,7 @@
             <button class="lbtn" onclick="logout()">로그아웃</button>
         </div>
 
-        <!-- ===== 선생님 로그인 ===== -->
+        <!-- 선생님 로그인 -->
         <div class="page" id="page-teacher-login">
             <div class="card">
                 <div class="pw-pg">
@@ -1485,28 +1612,49 @@
             </div>
         </div>
 
-        <!-- ===== 선생님 대시보드 ===== -->
+        <!-- 선생님 대시보드 -->
         <div class="page" id="page-teacher">
-
             <div class="t-top">
                 <div>
                     <div class="t-title">👩‍🏫 출결 현황</div>
                     <div class="t-sub" id="teacherWeekLabel"></div>
                 </div>
-                <div style="display:flex;gap:6px">
+                <div style="display:flex;gap:6px;flex-wrap:wrap">
                     <button class="btn btn-sm bg" onclick="downloadCSV()">📥 CSV</button>
                     <button class="btn btn-sm bg" onclick="window.print()">🖨️ 인쇄</button>
                     <button class="btn btn-sm bg" onclick="showPage('page-login')">나가기</button>
                 </div>
             </div>
 
-            <!-- 알림 배너 -->
             <div class="alert-banner hide" id="alertBanner">⚠️ <span id="alertMsg"></span></div>
-
-            <!-- 오늘 요약 카드 4개 -->
             <div class="stat4" id="stat4"></div>
 
-            <!-- Google Sheets 연동 -->
+            <!-- 출석률 차트 -->
+            <div class="card">
+                <div class="card-hd">
+                    <div class="ci ci-b">📈</div>
+                    <div>
+                        <div class="ct">출결 현황 차트</div>
+                        <div class="cs" id="chartWeekLabel"></div>
+                    </div>
+                </div>
+                <div class="chart-wrap" id="chartWrap"></div>
+                <div class="chart-legend">
+                    <div class="cl-item">
+                        <div class="cl-dot" style="background:#059669"></div>정상
+                    </div>
+                    <div class="cl-item">
+                        <div class="cl-dot" style="background:#d97706"></div>지각
+                    </div>
+                    <div class="cl-item">
+                        <div class="cl-dot" style="background:#dc2626"></div>조기퇴실
+                    </div>
+                    <div class="cl-item">
+                        <div class="cl-dot" style="background:var(--g200)"></div>미체크
+                    </div>
+                </div>
+            </div>
+
             <div class="gas-box">
                 <div class="gas-title">⚙️ Google Sheets 연동</div>
                 <div class="gas-row">
@@ -1516,19 +1664,17 @@
                 <div class="gas-status" id="gasUrlStatus"></div>
             </div>
             <div class="action-row">
-                <button class="btn bg" id="syncBtn" onclick="syncToSheets()" disabled
-                    style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;box-shadow:0 3px 12px rgba(16,185,129,.3)">📤
-                    구글 시트 내보내기</button>
+                <button class="btn" id="syncBtn" onclick="syncToSheets()" disabled
+                    style="margin-top:0;background:linear-gradient(135deg,#10b981,#059669);color:#fff">📤 구글 시트
+                    내보내기</button>
             </div>
             <div class="sync-st" id="syncStatus"></div>
 
-            <!-- 주차 + 검색 -->
             <div class="search-row">
                 <div class="sel-w"><select id="teacherWeekSelect" onchange="renderTeacher()"></select></div>
                 <input type="text" id="teacherSearch" placeholder="🔍 이름 / 학번" oninput="renderTeacher()">
             </div>
 
-            <!-- 필터 -->
             <div class="filter-bar">
                 <button class="fbtn active" data-f="all" onclick="setFilter('all',this)">전체</button>
                 <button class="fbtn" data-f="ok" onclick="setFilter('ok',this)">✅ 정상</button>
@@ -1537,7 +1683,6 @@
                 <button class="fbtn f-none" data-f="none" onclick="setFilter('none',this)">— 미체크</button>
             </div>
 
-            <!-- 탭 -->
             <div class="tabs">
                 <button class="tabbt active" id="tab-summary" onclick="switchTab('summary')">요약</button>
                 <button class="tabbt" id="tab-detail" onclick="switchTab('detail')">상세</button>
@@ -1546,22 +1691,23 @@
 
             <!-- 요약 탭 -->
             <div id="view-summary">
+                <h2 class="print-title" id="printTitle"></h2>
                 <div class="card" style="padding:0;overflow:hidden">
                     <div class="twrap">
                         <table class="ttbl">
                             <thead>
                                 <tr>
-                                    <th class="sortable" onclick="sortTable('no')">학번</th>
-                                    <th class="sortable" onclick="sortTable('name')">이름</th>
+                                    <th class="sortable" onclick="sortBy('no')">학번</th>
+                                    <th class="sortable" onclick="sortBy('name')">이름</th>
                                     <th>입실</th>
                                     <th>퇴실</th>
                                     <th>화</th>
                                     <th>수</th>
                                     <th>목</th>
-                                    <th class="sortable" onclick="sortTable('ok')">정상</th>
-                                    <th class="sortable" onclick="sortTable('late')">지각</th>
-                                    <th class="sortable" onclick="sortTable('early')">조기퇴</th>
-                                    <th class="sortable" onclick="sortTable('none')">미체크</th>
+                                    <th class="sortable" onclick="sortBy('ok')">정상</th>
+                                    <th class="sortable" onclick="sortBy('late')">지각</th>
+                                    <th class="sortable" onclick="sortBy('early')">조기퇴</th>
+                                    <th class="sortable" onclick="sortBy('none')">미체크</th>
                                     <th>수정</th>
                                 </tr>
                             </thead>
@@ -1586,6 +1732,7 @@
                                     <th>입실상태</th>
                                     <th>퇴실</th>
                                     <th>퇴실상태</th>
+                                    <th>사유</th>
                                     <th>수정</th>
                                 </tr>
                             </thead>
@@ -1615,7 +1762,6 @@
                 </div>
             </div>
 
-            <!-- GAS 가이드 -->
             <div class="guide-box">
                 <div style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:10px">📖 Google Sheets 연동 가이드
                 </div>
@@ -1631,30 +1777,31 @@
             </div>
         </div>
 
-    </div><!-- /wrap -->
+    </div>
 
-    <!-- ===== 출결 수정 모달 ===== -->
+    <!-- 출결 수정 모달 -->
     <div class="modal-bg hide" id="editModal">
         <div class="modal">
             <div class="modal-hd">
                 <div class="modal-title" id="modalTitle">출결 수정</div>
                 <button class="modal-close" onclick="closeModal()">✕</button>
             </div>
-            <div style="font-size:12px;color:var(--g400);margin-bottom:14px" id="modalSub"></div>
-            <div class="modal-row">
-                <div class="mfield">
-                    <label>입실 시간</label>
-                    <input type="time" id="editIn">
-                </div>
-                <div class="mfield">
-                    <label>퇴실 시간</label>
-                    <input type="time" id="editOut">
-                </div>
+            <div style="margin-bottom:12px">
+                <select id="editDateSel"
+                    style="width:100%;padding:9px 12px;border:1.5px solid var(--g200);border-radius:var(--rxs);font-size:13px;outline:none;background:#fff;appearance:none;font-weight:600"
+                    onchange="onEditDateChange()"></select>
             </div>
-            <div
-                style="font-size:11px;color:var(--g400);background:var(--g50);border-radius:var(--rxs);padding:8px 12px">
-                ※ 시간을 비워두면 미체크 상태로 저장됩니다
+            <div class="mrow">
+                <div class="mfield"><label>입실 시간</label><input type="time" id="editIn"></div>
+                <div class="mfield"><label>퇴실 시간</label><input type="time" id="editOut"></div>
             </div>
+            <!-- 사유 입력 -->
+            <div class="mfield" style="margin-bottom:12px">
+                <label>사유 메모 <span
+                        style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--g400)">(선택)</span></label>
+                <textarea id="editMemo" placeholder="지각·조기퇴실·결석 등 사유를 입력하세요"></textarea>
+            </div>
+            <div class="mhint">시간을 비워두면 미체크 상태로 저장됩니다</div>
             <div class="modal-btns">
                 <button class="btn bg" onclick="closeModal()">취소</button>
                 <button class="btn bp" onclick="saveEdit()">저장</button>
@@ -1678,19 +1825,18 @@
         const WDAYS = [2, 3, 4], DMAP = { 2: '화', 3: '수', 4: '목' };
         let cs = null, tempIn = null, tempOut = null;
         let curFilter = 'all', sortCol = 'no', sortAsc = true;
-        let editTarget = null; // {no, dateKey}
+        let editTarget = null;
 
         /* ── 스토리지 ── */
         const p2 = n => String(n).padStart(2, '0');
         const fmtDate = d => `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
         const nowStr = () => { const n = new Date(); return `${p2(n.getHours())}:${p2(n.getMinutes())}` };
         const t2m = t => { if (!t) return 0; const [h, m] = t.split(':').map(Number); return h * 60 + m };
-        const lsd = no => { try { return JSON.parse(localStorage.getItem('att6_' + no)) || def() } catch { return def() } };
-        const ssd = (no, d) => localStorage.setItem('att6_' + no, JSON.stringify(d));
+        const lsd = no => { try { return JSON.parse(localStorage.getItem('att7_' + no)) || def() } catch { return def() } };
+        const ssd = (no, d) => localStorage.setItem('att7_' + no, JSON.stringify(d));
         const def = () => ({ pw: DEFAULT_PW, inTime: '', outTime: '', records: {} });
-
-        function inSt(time, base) { return t2m(time) <= t2m(base) ? 'ok' : 'late' }
-        function outSt(time, base) { return t2m(time) >= t2m(base) ? 'ok' : 'early' }
+        function inSt(t, b) { return t2m(t) <= t2m(b) ? 'ok' : 'late' }
+        function outSt(t, b) { return t2m(t) >= t2m(b) ? 'ok' : 'early' }
 
         /* ── 날짜 ── */
         function getWD(ref) {
@@ -1706,25 +1852,22 @@
             return [...set].sort().reverse().map(k => ({ key: k, ref: ref[k] }));
         }
 
-        /* ── 헤더 날짜 ── */
+        /* ── 헤더 ── */
         (() => {
             const n = new Date(), days = ['일', '월', '화', '수', '목', '금', '토'];
             document.getElementById('headerDate').textContent = `${n.getFullYear()}.${p2(n.getMonth() + 1)}.${p2(n.getDate())} ${days[n.getDay()]}`;
         })();
-
-        /* ── 드롭다운 ── */
         (() => {
-            const sel = document.getElementById('studentSelect');
-            sel.innerHTML = '<option value="">-- 학생을 선택하세요 --</option>';
-            STUDENTS.forEach(s => { const o = document.createElement('option'); o.value = s.no; o.textContent = `${s.no}  ${s.name}`; sel.appendChild(o) });
+            const s = document.getElementById('studentSelect');
+            s.innerHTML = '<option value="">-- 학생을 선택하세요 --</option>';
+            STUDENTS.forEach(st => { const o = document.createElement('option'); o.value = st.no; o.textContent = `${st.no}  ${st.name}`; s.appendChild(o) });
         })();
 
         /* ── 로그인 ── */
         function doLogin() {
             const no = document.getElementById('studentSelect').value;
             if (!no) { showToast('학생을 선택해 주세요'); return }
-            const pw = document.getElementById('loginPw').value;
-            const data = lsd(no);
+            const pw = document.getElementById('loginPw').value, data = lsd(no);
             if (pw !== data.pw) { showToast('비밀번호가 틀렸습니다 ❌'); return }
             const s = STUDENTS.find(x => x.no === no);
             cs = { no: s.no, name: s.name };
@@ -1740,8 +1883,7 @@
 
         /* ── 시간 탭 ── */
         function selTime(type, val, el) {
-            const id = type === 'in' ? 'inTimeTabs' : 'outTimeTabs';
-            document.querySelectorAll(`#${id} .ttab`).forEach(t => t.classList.remove('sel'));
+            document.querySelectorAll(`#${type === 'in' ? 'inTimeTabs' : 'outTimeTabs'} .ttab`).forEach(t => t.classList.remove('sel'));
             el.classList.add('sel');
             if (type === 'in') tempIn = val; else tempOut = val;
         }
@@ -1772,7 +1914,6 @@
             });
             renderToday(); showPage('page-check');
         }
-
         function renderToday() {
             const now = new Date(), dow = now.getDay();
             const dFull = ['일요일', '월요일', '화요일', '수요일', '목요일', '금요일', '토요일'];
@@ -1787,15 +1928,15 @@
             const bs = document.getElementById('beaconSection');
             if (!isWork) { bs.style.display = 'none'; return }
             bs.style.display = 'block';
-            const dateKey = fmtDate(now), data = lsd(cs.no), rec = (data.records || {})[dateKey] || {}, inT = data.inTime, outT = data.outTime;
-            document.getElementById('stdIn').textContent = `기준 ${inT}`;
-            document.getElementById('stdOut').textContent = `기준 ${outT}`;
+            const dateKey = fmtDate(now), data = lsd(cs.no), rec = (data.records || {})[dateKey] || {};
+            document.getElementById('stdIn').textContent = `기준 ${data.inTime}`;
+            document.getElementById('stdOut').textContent = `기준 ${data.outTime}`;
             const applyB = (id, stId, boxId, time, isIn) => {
                 const b = document.getElementById(id), s = document.getElementById(stId), box = document.getElementById(boxId);
                 b.className = 'tbadge';
                 if (time) {
                     b.textContent = time;
-                    const ok = isIn ? (t2m(time) <= t2m(inT)) : (t2m(time) >= t2m(outT));
+                    const ok = isIn ? (t2m(time) <= t2m(data.inTime)) : (t2m(time) >= t2m(data.outTime));
                     b.classList.add(ok ? 'tbok' : (isIn ? 'tblate' : 'tbearly'));
                     s.textContent = ok ? (isIn ? '✅ 정상 입실' : '✅ 정상 퇴실') : (isIn ? '⚠️ 지각' : '❗ 조기퇴실');
                     box.className = `bbox ${isIn ? 'di' : 'do'}`;
@@ -1804,7 +1945,6 @@
             applyB('badgeIn', 'statusIn', 'boxIn', rec.in, true);
             applyB('badgeOut', 'statusOut', 'boxOut', rec.out, false);
         }
-
         function checkBeacon(type) {
             const now = new Date(), dateKey = fmtDate(now), t = nowStr();
             const data = lsd(cs.no);
@@ -1812,8 +1952,7 @@
             if (!data.records[dateKey]) data.records[dateKey] = {};
             const rec = data.records[dateKey], label = type === 'in' ? '입실' : '퇴실';
             if (rec[type] && !confirm(`이미 ${label} 체크(${rec[type]}). 다시 체크할까요?`)) return;
-            rec[type] = t; ssd(cs.no, data);
-            showToast(`${label} 체크 완료 ✅  ${t}`); renderToday();
+            rec[type] = t; ssd(cs.no, data); showToast(`${label} 체크 완료 ✅  ${t}`); renderToday();
         }
 
         /* ── 비번 변경 ── */
@@ -1842,8 +1981,7 @@
             const body = document.getElementById('resultBody'); body.innerHTML = '';
             dates.forEach(({ day, date, key }) => {
                 const rec = (data.records || {})[key] || {};
-                const iSt = rec.in ? inSt(rec.in, data.inTime) : null;
-                const oSt = rec.out ? outSt(rec.out, data.outTime) : null;
+                const iSt = rec.in ? inSt(rec.in, data.inTime) : null, oSt = rec.out ? outSt(rec.out, data.outTime) : null;
                 if (!rec.in && !rec.out) none++;
                 else { if (iSt === 'ok' && oSt === 'ok') ok++; if (iSt === 'late') late++; if (oSt === 'early') early++ }
                 body.innerHTML += `<tr>
@@ -1872,7 +2010,6 @@
             document.getElementById('syncBtn').disabled = !url;
             buildWeekSel(); renderTeacher(); showPage('page-teacher');
         }
-
         function buildWeekSel() {
             const sel = document.getElementById('teacherWeekSelect'); sel.innerHTML = '';
             getWeeks().forEach(w => {
@@ -1882,24 +2019,65 @@
             });
         }
 
+        /* ── 차트 ── */
+        function buildChart(students, dates) {
+            const wk = document.getElementById('teacherWeekSelect').value;
+            const found = getWeeks().find(w => w.key === wk);
+            if (found) {
+                const ds = getWD(found.ref);
+                document.getElementById('chartWeekLabel').textContent = `${ds[0].key.slice(5).replace('-', '/')} ~ ${ds[2].key.slice(5).replace('-', '/')}`;
+            }
+            const total = students.length;
+            const dayStats = dates.map(({ day, key }) => {
+                let ok = 0, late = 0, early = 0, none = 0;
+                students.forEach(s => {
+                    const data = lsd(s.no), inT = data.inTime || '09:00', outT = data.outTime || '18:00';
+                    const rec = (data.records || {})[key] || {};
+                    if (!rec.in && !rec.out) { none++ }
+                    else {
+                        const iSt = rec.in ? inSt(rec.in, inT) : null, oSt = rec.out ? outSt(rec.out, outT) : null;
+                        if (iSt === 'ok' && oSt === 'ok') ok++;
+                        if (iSt === 'late') late++;
+                        if (oSt === 'early') early++;
+                    }
+                });
+                return { day, ok, late, early, none, total };
+            });
+            const wrap = document.getElementById('chartWrap');
+            wrap.innerHTML = dayStats.map(({ day, ok, late, early, none, total }) => {
+                const pct = (v) => total ? Math.round(v / total * 100) : 0;
+                const segs = [
+                    { v: ok, c: '#059669', label: ok },
+                    { v: late, c: '#d97706', label: late },
+                    { v: early, c: '#dc2626', label: early },
+                    { v: none, c: '#e5e7eb', label: none }
+                ].filter(s => s.v > 0);
+                const bars = segs.map(s => `<div class="chart-bar-fill" style="width:${pct(s.v)}%;background:${s.c};flex-shrink:0">
+      ${pct(s.v) >= 8 ? `<span class="chart-bar-val">${s.label}</span>` : ''}
+    </div>`).join('');
+                return `<div class="chart-bar-row">
+      <div class="chart-label">${day}요일</div>
+      <div class="chart-bar-bg"><div style="display:flex;height:100%">${bars}</div></div>
+      <div style="font-size:11px;color:var(--g400);flex-shrink:0;width:40px;text-align:right">${total}명</div>
+    </div>`;
+            }).join('');
+        }
+
         /* ── 필터 & 정렬 ── */
         function setFilter(f, el) {
             curFilter = f;
             document.querySelectorAll('.fbtn').forEach(b => b.classList.remove('active'));
-            el.classList.add('active');
+            if (el) el.classList.add('active');
             renderTeacher();
         }
-
-        function sortTable(col) {
-            if (sortCol === col) sortAsc = !sortAsc;
-            else { sortCol = col; sortAsc = true }
-            document.querySelectorAll('th.sortable').forEach(th => { th.classList.remove('asc', 'desc') });
-            const th = document.querySelector(`th.sortable[onclick="sortTable('${col}')"]`);
+        function sortBy(col) {
+            if (sortCol === col) sortAsc = !sortAsc; else { sortCol = col; sortAsc = true }
+            document.querySelectorAll('th.sortable').forEach(th => th.classList.remove('asc', 'desc'));
+            const th = document.querySelector(`th.sortable[onclick="sortBy('${col}')"]`);
             if (th) th.classList.add(sortAsc ? 'asc' : 'desc');
             renderTeacher();
         }
 
-        /* ── 요약 카드 ── */
         function buildStat4(students, dates) {
             let ok = 0, late = 0, early = 0, none = 0;
             students.forEach(s => {
@@ -1908,86 +2086,48 @@
                     const rec = (data.records || {})[key] || {};
                     if (!rec.in && !rec.out) { none++ }
                     else {
-                        const iSt = rec.in ? inSt(rec.in, inT) : null;
-                        const oSt = rec.out ? outSt(rec.out, outT) : null;
-                        if (iSt === 'ok' && oSt === 'ok') ok++;
-                        if (iSt === 'late') late++;
-                        if (oSt === 'early') early++;
+                        const iSt = rec.in ? inSt(rec.in, inT) : null, oSt = rec.out ? outSt(rec.out, outT) : null;
+                        if (iSt === 'ok' && oSt === 'ok') ok++; if (iSt === 'late') late++; if (oSt === 'early') early++;
                     }
                 });
             });
             document.getElementById('stat4').innerHTML = `
-    <div class="s4box s4-ok" onclick="setFilter('ok',document.querySelector('[data-f=ok]'))">
-      <div class="s4num c-ok">${ok}</div><div class="s4lbl c-ok">정상</div></div>
-    <div class="s4box s4-late" onclick="setFilter('late',document.querySelector('[data-f=late]'))">
-      <div class="s4num c-late">${late}</div><div class="s4lbl c-late">지각</div></div>
-    <div class="s4box s4-early" onclick="setFilter('early',document.querySelector('[data-f=early]'))">
-      <div class="s4num c-early">${early}</div><div class="s4lbl c-early">조기퇴실</div></div>
-    <div class="s4box s4-none" onclick="setFilter('none',document.querySelector('[data-f=none]'))">
-      <div class="s4num c-none">${none}</div><div class="s4lbl c-none">미체크</div></div>`;
-            // 알림
+    <div class="s4box s4-ok" onclick="setFilter('ok',document.querySelector('[data-f=ok]'))"><div class="s4num c-ok">${ok}</div><div class="s4lbl c-ok">정상</div></div>
+    <div class="s4box s4-late" onclick="setFilter('late',document.querySelector('[data-f=late]'))"><div class="s4num c-late">${late}</div><div class="s4lbl c-late">지각</div></div>
+    <div class="s4box s4-early" onclick="setFilter('early',document.querySelector('[data-f=early]'))"><div class="s4num c-early">${early}</div><div class="s4lbl c-early">조기퇴</div></div>
+    <div class="s4box s4-none" onclick="setFilter('none',document.querySelector('[data-f=none]'))"><div class="s4num c-none">${none}</div><div class="s4lbl c-none">미체크</div></div>`;
             const banner = document.getElementById('alertBanner');
-            if (none > 0) {
-                document.getElementById('alertMsg').textContent = `이번 주 미체크 ${none}건이 있습니다`;
-                banner.classList.remove('hide');
-            } else banner.classList.add('hide');
+            if (none > 0) { document.getElementById('alertMsg').textContent = `이번 주 미체크 ${none}건`; banner.classList.remove('hide') }
+            else banner.classList.add('hide');
         }
 
-        /* ── 학생 필터링 ── */
-        function getStudentStatus(s, dates) {
+        function getStudentStat(s, dates) {
             const data = lsd(s.no), inT = data.inTime || '09:00', outT = data.outTime || '18:00';
-            let hasOk = false, hasLate = false, hasEarly = false, hasNone = false;
+            let ok = 0, late = 0, early = 0, none = 0;
             dates.forEach(({ key }) => {
                 const rec = (data.records || {})[key] || {};
-                if (!rec.in && !rec.out) { hasNone = true }
+                if (!rec.in && !rec.out) { none++ }
                 else {
-                    const iSt = rec.in ? inSt(rec.in, inT) : null;
-                    const oSt = rec.out ? outSt(rec.out, outT) : null;
-                    if (iSt === 'ok' && oSt === 'ok') hasOk = true;
-                    if (iSt === 'late') hasLate = true;
-                    if (oSt === 'early') hasEarly = true;
+                    const iSt = rec.in ? inSt(rec.in, inT) : null, oSt = rec.out ? outSt(rec.out, outT) : null;
+                    if (iSt === 'ok' && oSt === 'ok') ok++; if (iSt === 'late') late++; if (oSt === 'early') early++
                 }
             });
-            return { hasOk, hasLate, hasEarly, hasNone };
+            return { ok, late, early, none };
         }
-
         function filterStudents(students, dates) {
             if (curFilter === 'all') return students;
             return students.filter(s => {
-                const st = getStudentStatus(s, dates);
-                if (curFilter === 'ok') return st.hasOk;
-                if (curFilter === 'late') return st.hasLate;
-                if (curFilter === 'early') return st.hasEarly;
-                if (curFilter === 'none') return st.hasNone;
-                return true;
+                const st = getStudentStat(s, dates);
+                return curFilter === 'ok' ? st.ok > 0 : curFilter === 'late' ? st.late > 0 : curFilter === 'early' ? st.early > 0 : st.none > 0;
             });
         }
-
-        /* ── 정렬 ── */
         function sortStudents(students, dates) {
             return [...students].sort((a, b) => {
                 let va, vb;
                 if (sortCol === 'no') { va = a.no; vb = b.no }
                 else if (sortCol === 'name') { va = a.name; vb = b.name }
-                else {
-                    const calcStat = (s) => {
-                        const data = lsd(s.no), inT = data.inTime || '09:00', outT = data.outTime || '18:00';
-                        let ok = 0, late = 0, early = 0, none = 0;
-                        dates.forEach(({ key }) => {
-                            const rec = (data.records || {})[key] || {};
-                            if (!rec.in && !rec.out) { none++ }
-                            else {
-                                const iSt = rec.in ? inSt(rec.in, inT) : null, oSt = rec.out ? outSt(rec.out, outT) : null;
-                                if (iSt === 'ok' && oSt === 'ok') ok++; if (iSt === 'late') late++; if (oSt === 'early') early++
-                            }
-                        });
-                        return { ok, late, early, none };
-                    };
-                    va = calcStat(a)[sortCol]; vb = calcStat(b)[sortCol];
-                }
-                if (va < vb) return sortAsc ? -1 : 1;
-                if (va > vb) return sortAsc ? 1 : -1;
-                return 0;
+                else { va = getStudentStat(a, dates)[sortCol]; vb = getStudentStat(b, dates)[sortCol] }
+                return (va < vb ? -1 : va > vb ? 1 : 0) * (sortAsc ? 1 : -1);
             });
         }
 
@@ -1997,13 +2137,14 @@
             const search = document.getElementById('teacherSearch').value.trim();
             const found = getWeeks().find(w => w.key === wk); if (!found) return;
             const dates = getWD(found.ref);
-            document.getElementById('teacherWeekLabel').textContent =
-                `${dates[0].key.slice(5).replace('-', '/')} ~ ${dates[2].key.slice(5).replace('-', '/')} (화~목)`;
+            const wLabel = `${dates[0].key.slice(5).replace('-', '/')} ~ ${dates[2].key.slice(5).replace('-', '/')} (화~목)`;
+            document.getElementById('teacherWeekLabel').textContent = wLabel;
+            document.getElementById('printTitle').textContent = `출결 현황 — ${wLabel}`;
 
-            let students = STUDENTS.filter(s => !search || s.name.includes(search) || s.no.includes(search));
-            buildStat4(students, dates);
-            students = filterStudents(students, dates);
-            students = sortStudents(students, dates);
+            let all = STUDENTS.filter(s => !search || s.name.includes(search) || s.no.includes(search));
+            buildStat4(all, dates);
+            buildChart(all, dates);
+            const students = filterStudents(sortStudents(all, dates), dates);
 
             // 요약
             const sb = document.getElementById('summaryBody'); sb.innerHTML = '';
@@ -2013,8 +2154,7 @@
                 const cells = dates.map(({ key }) => {
                     const rec = (data.records || {})[key] || {};
                     if (!rec.in && !rec.out) { none++; return `<td><span class="badge bnone">미체크</span></td>` }
-                    const iSt = rec.in ? inSt(rec.in, inT) : null;
-                    const oSt = rec.out ? outSt(rec.out, outT) : null;
+                    const iSt = rec.in ? inSt(rec.in, inT) : null, oSt = rec.out ? outSt(rec.out, outT) : null;
                     if (iSt === 'ok' && oSt === 'ok') ok++; if (iSt === 'late') late++; if (oSt === 'early') early++;
                     return `<td style="font-size:11px">${rec.in ? (iSt === 'ok' ? '✅' : '⚠️') + rec.in : '—'}<br>${rec.out ? (oSt === 'ok' ? '✅' : '❗') + rec.out : '—'}</td>`;
                 });
@@ -2024,35 +2164,39 @@
       <td><span class="badge blate">${late}</span></td>
       <td><span class="badge bearly">${early}</span></td>
       <td><span class="badge bnone">${none}</span></td>
-      <td><button class="btn btn-sm bg" onclick="openEditModal('${s.no}',null,'${wk}')">✏️ 수정</button></td>
+      <td><button class="btn btn-sm bg" onclick="openEditModal('${s.no}','${wk}',null)">✏️</button></td>
     </tr>`;
             });
             if (!students.length) sb.innerHTML = '<tr><td colspan="12" class="nodata">해당 조건의 학생이 없습니다</td></tr>';
 
-            // 상세
+            // 상세 (사유 컬럼 포함)
             const db = document.getElementById('detailBody'); db.innerHTML = '';
             students.forEach(s => {
                 const data = lsd(s.no), inT = data.inTime || '09:00', outT = data.outTime || '18:00';
                 dates.forEach(({ key, day, date }) => {
                     const rec = (data.records || {})[key] || {};
-                    const iSt = rec.in ? inSt(rec.in, inT) : null;
-                    const oSt = rec.out ? outSt(rec.out, outT) : null;
+                    const iSt = rec.in ? inSt(rec.in, inT) : null, oSt = rec.out ? outSt(rec.out, outT) : null;
+                    const memo = rec.memo || '';
+                    const memoCell = memo
+                        ? `<td><span class="memo-badge" title="${memo}" onclick="openEditModal('${s.no}','${wk}','${key}')">${memo}</span></td>`
+                        : `<td><span class="memo-empty" onclick="openEditModal('${s.no}','${wk}','${key}')">+ 사유</span></td>`;
                     db.innerHTML += `<tr><td>${s.no}</td><td><b>${s.name}</b></td>
         <td>${date.getMonth() + 1}/${date.getDate()}</td><td>${day}요일</td>
         <td>${rec.in || '-'}</td>
         <td>${rec.in ? `<span class="badge ${iSt === 'ok' ? 'bok' : 'blate'}">${iSt === 'ok' ? '정상' : '지각'}</span>` : '<span class="badge bnone">-</span>'}</td>
         <td>${rec.out || '-'}</td>
         <td>${rec.out ? `<span class="badge ${oSt === 'ok' ? 'bok' : 'bearly'}">${oSt === 'ok' ? '정상' : '조기퇴실'}</span>` : '<span class="badge bnone">-</span>'}</td>
-        <td><button class="btn btn-sm bg" onclick="openEditModal('${s.no}','${key}','${wk}')">✏️</button></td>
+        ${memoCell}
+        <td><button class="btn btn-sm bg" onclick="openEditModal('${s.no}','${wk}','${key}')">✏️</button></td>
       </tr>`;
                 });
             });
-            if (!students.length) db.innerHTML = '<tr><td colspan="9" class="nodata">해당 조건의 학생이 없습니다</td></tr>';
+            if (!students.length) db.innerHTML = '<tr><td colspan="10" class="nodata">해당 조건의 학생이 없습니다</td></tr>';
 
-            // 학생 관리
             renderStudents();
         }
 
+        /* ── 학생 관리 ── */
         function renderStudents() {
             const sb = document.getElementById('studentsBody'); sb.innerHTML = '';
             STUDENTS.forEach(s => {
@@ -2061,101 +2205,63 @@
                 const outOpts = ['15:00', '15:30', '16:00', '18:00'].map(v => `<option value="${v}"${data.outTime === v ? ' selected' : ''}>${v}</option>`).join('');
                 sb.innerHTML += `<tr>
       <td>${s.no}</td><td><b>${s.name}</b></td>
-      <td><select class="time-sel" onchange="updateStudentTime('${s.no}','in',this.value)">${inOpts}</select></td>
-      <td><select class="time-sel" onchange="updateStudentTime('${s.no}','out',this.value)">${outOpts}</select></td>
+      <td><select class="time-sel" onchange="updTime('${s.no}','in',this.value)">${inOpts}</select></td>
+      <td><select class="time-sel" onchange="updTime('${s.no}','out',this.value)">${outOpts}</select></td>
       <td><button class="pw-reset-btn" onclick="resetPw('${s.no}','${s.name}')">초기화</button></td>
     </tr>`;
             });
         }
-
-        function updateStudentTime(no, type, val) {
-            const data = lsd(no);
-            if (type === 'in') data.inTime = val; else data.outTime = val;
-            ssd(no, data); showToast('시간이 업데이트되었습니다 ✅');
+        function updTime(no, type, val) {
+            const data = lsd(no); if (type === 'in') data.inTime = val; else data.outTime = val; ssd(no, data); showToast('시간 업데이트 ✅');
         }
-
         function resetPw(no, name) {
             if (!confirm(`${name} 학생의 비밀번호를 0000으로 초기화할까요?`)) return;
-            const data = lsd(no); data.pw = DEFAULT_PW; ssd(no, data);
-            showToast(`${name} 비밀번호 초기화 완료 ✅`);
+            const data = lsd(no); data.pw = DEFAULT_PW; ssd(no, data); showToast(`${name} 비밀번호 초기화 ✅`);
         }
 
         /* ── 출결 수정 모달 ── */
-        function openEditModal(no, dateKey, wk) {
+        function openEditModal(no, wk, dateKey) {
             const s = STUDENTS.find(x => x.no === no);
-            const weeks = getWeeks(); const found = weeks.find(w => w.key === wk);
-            const dates = found ? getWD(found.ref) : getWD(new Date());
-
-            if (!dateKey) {
-                // 날짜 선택 팝업: 가장 최근 날짜 사용
-                const today = fmtDate(new Date());
-                const match = dates.find(d => d.key === today) || dates[dates.length - 1];
-                dateKey = match.key;
-            }
-            const data = lsd(no), rec = (data.records || {})[dateKey] || {};
-            editTarget = { no, dateKey };
+            const found = getWeeks().find(w => w.key === wk) || { ref: new Date() };
+            const dates = getWD(found.ref);
             document.getElementById('modalTitle').textContent = `출결 수정 — ${s.name}`;
-            const dObj = new Date(dateKey);
-            document.getElementById('modalSub').textContent = `${dObj.getMonth() + 1}/${dObj.getDate()} · 입실기준 ${data.inTime || '-'} · 퇴실기준 ${data.outTime || '-'}`;
-            document.getElementById('editIn').value = rec.in || '';
-            document.getElementById('editOut').value = rec.out || '';
 
-            // 날짜 선택 드롭다운 동적 추가
-            const sub = document.getElementById('modalSub');
-            sub.innerHTML = `
-    <select id="editDateSel" style="font-size:12px;padding:5px 10px;border:1.5px solid var(--g200);border-radius:8px;outline:none;background:#fff;margin-bottom:6px" onchange="changeEditDate('${no}')">
-      ${dates.map(d => `<option value="${d.key}"${d.key === dateKey ? ' selected' : ''}>${d.date.getMonth() + 1}/${d.date.getDate()} ${d.day}요일</option>`).join('')}
-    </select>
-    <span style="margin-left:6px;font-size:11px;color:var(--g400)">입실기준 ${data.inTime || '-'} · 퇴실기준 ${data.outTime || '-'}</span>`;
+            const sel = document.getElementById('editDateSel');
+            sel.innerHTML = dates.map(d => `<option value="${d.key}"${d.key === dateKey ? ' selected' : ''}>${d.date.getMonth() + 1}/${d.date.getDate()} ${d.day}요일</option>`).join('');
+            if (!dateKey) {
+                const today = fmtDate(new Date());
+                const m = dates.find(d => d.key === today);
+                sel.value = m ? m.key : dates[dates.length - 1].key;
+            }
 
+            editTarget = { no, wk };
+            loadEditFields();
             document.getElementById('editModal').classList.remove('hide');
         }
-
-        function changeEditDate(no) {
+        function loadEditFields() {
             const dateKey = document.getElementById('editDateSel').value;
-            editTarget = { no, dateKey };
-            const data = lsd(no), rec = (data.records || {})[dateKey] || {};
+            const data = lsd(editTarget.no), rec = (data.records || {})[dateKey] || {};
             document.getElementById('editIn').value = rec.in || '';
             document.getElementById('editOut').value = rec.out || '';
+            document.getElementById('editMemo').value = rec.memo || '';
         }
-
+        function onEditDateChange() { loadEditFields() }
         function saveEdit() {
             if (!editTarget) return;
-            const { no, dateKey } = editTarget;
+            const dateKey = document.getElementById('editDateSel').value;
             const inVal = document.getElementById('editIn').value;
             const outVal = document.getElementById('editOut').value;
-            const data = lsd(no);
+            const memo = document.getElementById('editMemo').value.trim();
+            const data = lsd(editTarget.no);
             if (!data.records) data.records = {};
             if (!data.records[dateKey]) data.records[dateKey] = {};
-            if (inVal) data.records[dateKey].in = inVal; else delete data.records[dateKey].in;
-            if (outVal) data.records[dateKey].out = outVal; else delete data.records[dateKey].out;
-            ssd(no, data);
-            closeModal(); showToast('출결이 수정되었습니다 ✅');
-            renderTeacher();
+            const rec = data.records[dateKey];
+            if (inVal) rec.in = inVal; else delete rec.in;
+            if (outVal) rec.out = outVal; else delete rec.out;
+            if (memo) rec.memo = memo; else delete rec.memo;
+            ssd(editTarget.no, data); closeModal(); showToast('출결 수정 완료 ✅'); renderTeacher();
         }
         function closeModal() { document.getElementById('editModal').classList.add('hide'); editTarget = null }
-
-        /* ── CSV 다운로드 ── */
-        function downloadCSV() {
-            const wk = document.getElementById('teacherWeekSelect').value;
-            const found = getWeeks().find(w => w.key === wk); if (!found) return;
-            const dates = getWD(found.ref);
-            const rows = [['학번', '이름', '날짜', '요일', '입실기준', '퇴실기준', '입실시간', '입실상태', '퇴실시간', '퇴실상태']];
-            STUDENTS.forEach(s => {
-                const data = lsd(s.no), inT = data.inTime || '09:00', outT = data.outTime || '18:00';
-                dates.forEach(({ key, day }) => {
-                    const rec = (data.records || {})[key] || {};
-                    const iSt = rec.in ? (inSt(rec.in, inT) === 'ok' ? '정상' : '지각') : '-';
-                    const oSt = rec.out ? (outSt(rec.out, outT) === 'ok' ? '정상' : '조기퇴실') : '-';
-                    rows.push([s.no, s.name, key, day + '요일', inT, outT, rec.in || '-', iSt, rec.out || '-', oSt]);
-                });
-            });
-            const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
-            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
-            a.download = `출결_${wk}.csv`; a.click();
-            showToast('CSV 다운로드 완료 📥');
-        }
 
         /* ── 탭 ── */
         function switchTab(tab) {
@@ -2163,6 +2269,29 @@
                 document.getElementById('view-' + t).style.display = t === tab ? 'block' : 'none';
                 document.getElementById('tab-' + t).classList.toggle('active', t === tab);
             });
+        }
+
+        /* ── CSV ── */
+        function downloadCSV() {
+            const wk = document.getElementById('teacherWeekSelect').value;
+            const found = getWeeks().find(w => w.key === wk); if (!found) return;
+            const dates = getWD(found.ref);
+            const rows = [['학번', '이름', '날짜', '요일', '입실기준', '퇴실기준', '입실시간', '입실상태', '퇴실시간', '퇴실상태', '사유']];
+            STUDENTS.forEach(s => {
+                const data = lsd(s.no), inT = data.inTime || '09:00', outT = data.outTime || '18:00';
+                dates.forEach(({ key, day }) => {
+                    const rec = (data.records || {})[key] || {};
+                    rows.push([s.no, s.name, key, day + '요일', inT, outT,
+                    rec.in || '-', rec.in ? (inSt(rec.in, inT) === 'ok' ? '정상' : '지각') : '-',
+                    rec.out || '-', rec.out ? (outSt(rec.out, outT) === 'ok' ? '정상' : '조기퇴실') : '-',
+                    rec.memo || ''
+                    ]);
+                });
+            });
+            const csv = rows.map(r => r.map(v => `"${v}"`).join(',')).join('\n');
+            const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8' });
+            const a = document.createElement('a'); a.href = URL.createObjectURL(blob);
+            a.download = `출결_${wk}.csv`; a.click(); showToast('CSV 다운로드 완료 📥');
         }
 
         /* ── 구글 시트 ── */
@@ -2173,7 +2302,6 @@
             document.getElementById('gasUrlStatus').textContent = '✅ 저장 완료';
             document.getElementById('syncBtn').disabled = false; showToast('URL 저장 완료 ✅');
         }
-
         async function syncToSheets() {
             const url = localStorage.getItem('gas_url'); if (!url) return;
             const btn = document.getElementById('syncBtn'); btn.disabled = true;
@@ -2188,19 +2316,40 @@
                     rows.push({
                         학번: s.no, 이름: s.name, 날짜: key, 요일: day + '요일', 입실기준: inT, 퇴실기준: outT,
                         입실시간: rec.in || '-', 입실상태: rec.in ? (inSt(rec.in, inT) === 'ok' ? '정상' : '지각') : '-',
-                        퇴실시간: rec.out || '-', 퇴실상태: rec.out ? (outSt(rec.out, outT) === 'ok' ? '정상' : '조기퇴실') : '-'
+                        퇴실시간: rec.out || '-', 퇴실상태: rec.out ? (outSt(rec.out, outT) === 'ok' ? '정상' : '조기퇴실') : '-',
+                        사유: rec.memo || ''
                     });
                 });
             });
             try {
-                const res = await fetch(url, { method: 'POST', body: JSON.stringify({ action: 'sync', weekKey: wk, rows }), headers: { 'Content-Type': 'application/json' } });
-                const json = await res.json();
-                if (json.result === 'ok') { document.getElementById('syncStatus').textContent = `✅ ${rows.length}건 저장 완료`; showToast('구글 시트 저장 완료 ✅') }
-                else document.getElementById('syncStatus').textContent = '❌ 오류: ' + (json.message || '알 수 없음');
-            } catch (e) { document.getElementById('syncStatus').textContent = '❌ 연결 실패'; showToast('연결 실패. URL을 확인해 주세요') }
+                // no-cors 모드: 응답을 읽을 수 없지만 전송은 성공
+                // hidden form으로 POST → GAS는 응답 필요 없이 시트에 저장
+                const payload = JSON.stringify({ action: 'sync', weekKey: wk, rows });
+                const form = document.createElement('form');
+                form.method = 'POST'; form.action = url; form.target = 'gas_iframe'; form.style.display = 'none';
+                const inp = document.createElement('input');
+                inp.type = 'hidden'; inp.name = 'payload'; inp.value = payload;
+                form.appendChild(inp); document.body.appendChild(form);
+
+                // iframe으로 응답 받기
+                let iframe = document.getElementById('gas_iframe');
+                if (!iframe) { iframe = document.createElement('iframe'); iframe.name = 'gas_iframe'; iframe.id = 'gas_iframe'; iframe.style.display = 'none'; document.body.appendChild(iframe) }
+
+                await new Promise(resolve => {
+                    iframe.onload = resolve;
+                    setTimeout(resolve, 8000); // 8초 타임아웃
+                    form.submit();
+                });
+                document.body.removeChild(form);
+
+                document.getElementById('syncStatus').textContent = `✅ ${rows.length}건 전송 완료 (${new Date().toLocaleTimeString()})`;
+                showToast('구글 시트 저장 완료 ✅');
+            } catch (e) {
+                document.getElementById('syncStatus').textContent = '❌ 전송 실패: ' + e.message;
+                showToast('전송 실패. URL을 확인해 주세요');
+            }
             btn.disabled = false;
         }
-
         function copyGasCode() {
             const c = `const SHEET_NAME='출결데이터';
 function doPost(e){
@@ -2209,12 +2358,12 @@ function doPost(e){
   let sheet=ss.getSheetByName(SHEET_NAME);
   if(!sheet)sheet=ss.insertSheet(SHEET_NAME);
   if(data.action==='sync'){
-    const h=['학번','이름','날짜','요일','입실기준','퇴실기준','입실시간','입실상태','퇴실시간','퇴실상태'];
+    const h=['학번','이름','날짜','요일','입실기준','퇴실기준','입실시간','입실상태','퇴실시간','퇴실상태','사유'];
     if(sheet.getLastRow()===0)sheet.appendRow(h);
     const last=sheet.getLastRow();
     if(last>1){const v=sheet.getRange(2,3,last-1,1).getValues();const ym=data.weekKey.slice(0,7);
       for(let i=last-1;i>=1;i--){if(String(v[i-1][0]).startsWith(ym))sheet.deleteRow(i+1)}}
-    data.rows.forEach(r=>sheet.appendRow(h.map(k=>r[k]||'-')));
+    data.rows.forEach(r=>sheet.appendRow(h.map(k=>r[k]||'')));
     return ContentService.createTextOutput(JSON.stringify({result:'ok'})).setMimeType(ContentService.MimeType.JSON);
   }
   return ContentService.createTextOutput(JSON.stringify({result:'error'})).setMimeType(ContentService.MimeType.JSON);
