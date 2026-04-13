@@ -1,0 +1,1653 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>성당 봉사자 스케줄</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <style>
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+      body {
+        font-family: "Segoe UI", sans-serif;
+        background: #f5f6fa;
+        color: #2d3436;
+        min-height: 100vh;
+      }
+      header {
+        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        color: white;
+        padding: 28px 32px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 20px rgba(108, 92, 231, 0.3);
+        flex-wrap: wrap;
+        gap: 12px;
+      }
+      header h1 {
+        font-size: 1.6rem;
+        font-weight: 700;
+        letter-spacing: -0.5px;
+      }
+      header h1 span {
+        font-size: 0.9rem;
+        display: block;
+        font-weight: 400;
+        opacity: 0.85;
+        margin-top: 4px;
+      }
+      .header-right {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        flex-wrap: wrap;
+      }
+      .date-badge {
+        background: rgba(255, 255, 255, 0.2);
+        border-radius: 12px;
+        padding: 8px 18px;
+        font-size: 0.85rem;
+        backdrop-filter: blur(4px);
+      }
+      .btn-header {
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+        border: 1.5px solid rgba(255, 255, 255, 0.5);
+        border-radius: 10px;
+        padding: 8px 16px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .btn-header:hover {
+        background: rgba(255, 255, 255, 0.4);
+      }
+
+      main {
+        max-width: 1000px;
+        margin: 0 auto;
+        padding: 32px 20px;
+      }
+
+      #toast {
+        position: fixed;
+        bottom: 28px;
+        left: 50%;
+        transform: translateX(-50%) translateY(80px);
+        background: #2d3436;
+        color: white;
+        padding: 12px 24px;
+        border-radius: 30px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        transition: transform 0.3s ease;
+        z-index: 999;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+      }
+      #toast.show {
+        transform: translateX(-50%) translateY(0);
+      }
+
+      .this-week,
+      .schedule {
+        margin-bottom: 40px;
+      }
+      .section-title {
+        font-size: 0.85rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #6c5ce7;
+        margin-bottom: 14px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .no-week {
+        background: white;
+        border-radius: 20px;
+        padding: 36px 32px;
+        text-align: center;
+        box-shadow: 0 8px 30px rgba(108, 92, 231, 0.08);
+        color: #b2bec3;
+        font-size: 0.95rem;
+      }
+      .no-week strong {
+        display: block;
+        font-size: 1.1rem;
+        color: #6c5ce7;
+        margin-bottom: 8px;
+      }
+
+      .capture-container {
+        background: white;
+        border-radius: 20px;
+        padding: 28px 32px;
+        box-shadow: 0 8px 30px rgba(108, 92, 231, 0.12);
+        border-left: 5px solid #6c5ce7;
+      }
+
+      .week-highlight h2 {
+        font-size: 1.2rem;
+        color: #6c5ce7;
+        margin-bottom: 4px;
+      }
+      .week-highlight .date-range {
+        font-size: 0.95rem;
+        color: #2d3436;
+        font-weight: 700;
+        margin-bottom: 24px;
+        display: inline-block;
+        background: #f0eeff;
+        padding: 4px 12px;
+        border-radius: 20px;
+      }
+
+      .volunteer-cards {
+        display: flex;
+        gap: 16px;
+        flex-wrap: wrap;
+      }
+      .vol-card {
+        flex: 1;
+        min-width: 220px;
+        background: white;
+        border-radius: 16px;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+        border: 1px solid #f1f2f6;
+        display: flex;
+        flex-direction: column;
+        padding: 20px 22px;
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+        position: relative;
+      }
+      .vol-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 24px rgba(108, 92, 231, 0.12);
+      }
+
+      .theme-0 {
+        border-left: 6px solid #6c5ce7;
+      }
+      .theme-0 .vol-avatar {
+        background: #f0eeff;
+        color: #6c5ce7;
+      }
+      .theme-1 {
+        border-left: 6px solid #00b894;
+      }
+      .theme-1 .vol-avatar {
+        background: #e6f8f3;
+        color: #00b894;
+      }
+      .theme-2 {
+        border-left: 6px solid #e55039;
+      }
+      .theme-2 .vol-avatar {
+        background: #fdedec;
+        color: #e55039;
+      }
+      .theme-3 {
+        border-left: 6px solid #d35400;
+      }
+      .theme-3 .vol-avatar {
+        background: #fdf3e8;
+        color: #d35400;
+      }
+
+      .vol-card-top {
+        display: flex;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 16px;
+      }
+
+      .vol-avatar {
+        width: 64px;
+        height: 64px;
+        border-radius: 50%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
+      }
+      .vol-avatar .av-name {
+        font-size: 0.95rem;
+        font-weight: 800;
+        line-height: 1.1;
+        text-align: center;
+        word-break: keep-all;
+      }
+      .vol-avatar .av-role {
+        font-size: 0.75rem;
+        font-weight: 700;
+        opacity: 0.8;
+        margin-top: 2px;
+      }
+
+      .vol-info-main {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .vol-order {
+        font-size: 0.75rem;
+        font-weight: 700;
+        letter-spacing: 0.5px;
+        color: #b2bec3;
+        text-transform: uppercase;
+      }
+      .vol-name {
+        font-size: 1.25rem;
+        font-weight: 800;
+        color: #2d3436;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        line-height: 1.2;
+      }
+      .vol-baptism {
+        font-size: 0.85rem;
+        color: #a29bfe;
+        font-weight: 600;
+      }
+
+      .vol-card-bottom {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 14px;
+        border-top: 1.5px dashed #f1f2f6;
+      }
+      .vol-contact {
+        font-size: 0.8rem;
+        color: #636e72;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+      }
+
+      .role-badge {
+        display: inline-block;
+        border-radius: 20px;
+        padding: 4px 14px;
+        font-size: 0.75rem;
+        font-weight: 700;
+      }
+      .role-독서 {
+        background: #dfe6ff;
+        color: #3d5af1;
+      }
+      .role-복사 {
+        background: #ffeaa7;
+        color: #b07c00;
+      }
+      .role-성가대 {
+        background: #d4f8e8;
+        color: #00875a;
+      }
+      .role-안내 {
+        background: #ffe0f0;
+        color: #c0006a;
+      }
+      .role-기타 {
+        background: #eeeaff;
+        color: #6c5ce7;
+      }
+
+      .month-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+      }
+      .month-nav-controls {
+        display: flex;
+        align-items: center;
+        gap: 14px;
+      }
+      .month-nav button,
+      .btn-export {
+        background: white;
+        border: 1.5px solid #e0e0e0;
+        border-radius: 8px;
+        padding: 5px 14px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 700;
+        color: #6c5ce7;
+        transition: all 0.2s;
+      }
+      .month-nav button:hover,
+      .btn-export:hover {
+        background: #6c5ce7;
+        color: white;
+        border-color: #6c5ce7;
+      }
+      .btn-export {
+        background: #f0eeff;
+        border-color: #dcd6ff;
+      }
+      .month-nav span {
+        font-size: 0.8rem;
+        font-weight: 700;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        color: #6c5ce7;
+      }
+
+      .table-title-wrap {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        padding: 5px 10px 20px 10px;
+        border-bottom: 2px solid #f1f2f6;
+        margin-bottom: 15px;
+      }
+      .table-title-wrap h2 {
+        font-size: 1.5rem;
+        color: #2d3436;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+        position: relative;
+        padding-left: 16px;
+        margin: 0;
+      }
+      .table-title-wrap h2::before {
+        content: "";
+        position: absolute;
+        left: 0;
+        top: 10%;
+        height: 80%;
+        width: 6px;
+        background: linear-gradient(to bottom, #ff7675, #d63031);
+        border-radius: 4px;
+      }
+      .table-subtitle {
+        font-size: 0.85rem;
+        color: #b2bec3;
+        font-weight: 500;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: separate;
+        border-spacing: 0 10px;
+        background: transparent;
+      }
+      thead {
+        background: transparent;
+        color: #636e72;
+      }
+      thead th {
+        padding: 10px 18px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        text-align: left;
+        letter-spacing: 0.5px;
+        border-bottom: 2px solid #dfe6e9;
+      }
+
+      tbody tr {
+        background: white;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+        transition:
+          transform 0.2s,
+          box-shadow 0.2s;
+      }
+      tbody tr:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 20px rgba(108, 92, 231, 0.1);
+      }
+
+      tbody tr td {
+        padding: 16px 18px;
+        font-size: 0.9rem;
+        line-height: 1.4;
+        border-top: 1.5px solid #dcdde1;
+        border-bottom: 1.5px solid #dcdde1;
+      }
+      tbody tr td:first-child {
+        border-left: 1.5px solid #dcdde1;
+        border-radius: 14px 0 0 14px;
+      }
+      tbody tr td:last-child {
+        border-right: 1.5px solid #dcdde1;
+        border-radius: 0 14px 14px 0;
+      }
+
+      tbody tr.current-week td {
+        border-color: #fab1a0;
+        background: #fffdfd;
+      }
+      tbody tr.current-week td:first-child {
+        border-left: 6px solid #e55039;
+      }
+      tbody tr.past-week {
+        opacity: 0.6;
+        box-shadow: none;
+      }
+
+      .week-label {
+        font-weight: 800;
+        color: #2d3436;
+        white-space: nowrap;
+        font-size: 0.95rem;
+      }
+      .date-text {
+        color: #636e72;
+        font-weight: 700;
+        font-size: 0.95rem;
+        letter-spacing: 0.5px;
+      } /* 💡 주일 폰트 강조 */
+
+      .vol-tag {
+        display: inline-block;
+        background: #eeeaff;
+        color: #6c5ce7;
+        border-radius: 20px;
+        padding: 5px 14px;
+        font-size: 0.85rem;
+        font-weight: 700;
+        margin: 3px;
+        box-shadow: 0 2px 6px rgba(108, 92, 231, 0.1);
+      }
+      .current-badge {
+        display: inline-block;
+        background: #e55039;
+        color: white;
+        border-radius: 20px;
+        padding: 3px 12px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        margin-left: 8px;
+        vertical-align: middle;
+      }
+      .unassigned {
+        color: #b2bec3;
+        font-size: 0.85rem;
+        font-style: italic;
+        background: #f1f2f6;
+        padding: 4px 12px;
+        border-radius: 20px;
+      }
+
+      .btn-toggle-manage {
+        width: 100%;
+        background: white;
+        border: 1.5px solid #e0e0e0;
+        border-radius: 16px;
+        padding: 20px 24px;
+        font-size: 1.05rem;
+        font-weight: 800;
+        color: #2d3436;
+        cursor: pointer;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        transition: all 0.2s;
+        margin-bottom: 20px;
+      }
+      .btn-toggle-manage:hover {
+        border-color: #6c5ce7;
+        color: #6c5ce7;
+        box-shadow: 0 6px 20px rgba(108, 92, 231, 0.1);
+      }
+
+      .form-section {
+        background: white;
+        border-radius: 20px;
+        padding: 28px 32px;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+        margin-bottom: 24px;
+      }
+      .form-section h3 {
+        font-size: 1rem;
+        font-weight: 700;
+        margin-bottom: 20px;
+      }
+      .form-grid {
+        display: grid;
+        grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
+        gap: 12px;
+        align-items: end;
+      }
+      label {
+        font-size: 0.78rem;
+        font-weight: 600;
+        color: #636e72;
+        display: block;
+        margin-bottom: 6px;
+      }
+      select,
+      input[type="text"] {
+        width: 100%;
+        padding: 10px 14px;
+        border: 1.5px solid #e0e0e0;
+        border-radius: 10px;
+        font-size: 0.88rem;
+        outline: none;
+        transition: border 0.2s;
+        background: #fafafa;
+      }
+      select:focus,
+      input:focus {
+        border-color: #6c5ce7;
+        background: white;
+      }
+
+      .btn {
+        padding: 10px 22px;
+        border: none;
+        border-radius: 10px;
+        cursor: pointer;
+        font-size: 0.88rem;
+        font-weight: 700;
+        transition: all 0.2s;
+      }
+      .btn-primary {
+        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        color: white;
+      }
+      .btn-primary:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
+      }
+      .btn-danger {
+        background: #fff0f0;
+        color: #e17055;
+        font-size: 0.75rem;
+        padding: 4px 10px;
+        border-radius: 8px;
+        border: none;
+        cursor: pointer;
+      }
+      .btn-danger:hover {
+        background: #ffe0e0;
+      }
+      .btn-success {
+        background: linear-gradient(135deg, #00b894, #55efc4);
+        color: white;
+      }
+      .btn-success:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
+      }
+      .btn-warn {
+        background: #f1f2f6;
+        color: #636e72;
+        font-size: 0.8rem;
+        padding: 10px 14px;
+      }
+      .btn-warn:hover {
+        background: #dfe6e9;
+      }
+
+      .msg {
+        margin-top: 12px;
+        font-size: 0.82rem;
+        color: #6c5ce7;
+        font-weight: 600;
+        display: none;
+      }
+
+      .special-group-section {
+        background: #fffcf9;
+        border: 1.5px dashed #fab1a0;
+        border-radius: 12px;
+        padding: 20px;
+        margin-top: 24px;
+      }
+      .special-group-section h4 {
+        color: #d35400;
+        font-size: 0.85rem;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .backup-section {
+        margin-top: 28px;
+        border-top: 1px solid #f1f2f6;
+        padding-top: 24px;
+      }
+      .backup-section h4 {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #636e72;
+        margin-bottom: 14px;
+      }
+      .backup-btns {
+        display: flex;
+        gap: 10px;
+        flex-wrap: wrap;
+        align-items: center;
+      }
+      .backup-btns input[type="file"] {
+        display: none;
+      }
+      .storage-info {
+        font-size: 0.78rem;
+        color: #b2bec3;
+        margin-top: 10px;
+      }
+      .storage-info span {
+        color: #6c5ce7;
+        font-weight: 700;
+      }
+
+      .vol-list {
+        margin-top: 24px;
+        border-top: 1px solid #f1f2f6;
+        padding-top: 20px;
+      }
+      .vol-list h4 {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: #636e72;
+        margin-bottom: 12px;
+      }
+      .vol-chips {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .vol-chip {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        background: #f8f7ff;
+        border: 1.5px solid #e0e0e0;
+        border-radius: 20px;
+        padding: 6px 14px;
+        font-size: 0.82rem;
+        transition: background 0.2s;
+      }
+      .vol-chip:hover {
+        background: #f0eeff;
+      }
+      .vol-chip .chip-role {
+        font-size: 0.7rem;
+        color: #a29bfe;
+        font-weight: 600;
+      }
+      .chip-actions {
+        display: flex;
+        gap: 4px;
+        margin-left: 6px;
+      }
+
+      @media (max-width: 768px) {
+        .form-grid {
+          grid-template-columns: 1fr 1fr 1fr;
+        }
+        .form-grid div:first-child {
+          grid-column: span 3;
+        }
+        .form-grid div:last-child {
+          grid-column: span 3;
+          margin-top: 10px;
+        }
+        .form-grid div:last-child button {
+          width: 100%;
+        }
+        .volunteer-cards {
+          flex-direction: column;
+        }
+        header {
+          flex-direction: column;
+          text-align: center;
+        }
+        .month-nav {
+          flex-direction: column;
+          gap: 10px;
+          align-items: stretch;
+          text-align: center;
+        }
+        .month-nav-controls {
+          justify-content: center;
+        }
+        thead {
+          display: none;
+        }
+        tbody tr {
+          display: block;
+          margin-bottom: 14px;
+          border-radius: 14px !important;
+          border: 1.5px solid #dcdde1 !important;
+          box-shadow: none;
+        }
+        tbody tr td {
+          display: block;
+          text-align: center;
+          padding: 12px;
+          border: none !important;
+          border-radius: 0 !important;
+        }
+        tbody tr.current-week {
+          border-color: #fab1a0 !important;
+          border-top: 6px solid #e55039 !important;
+        }
+        .table-title-wrap {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 5px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>
+        ⛪ 성당 봉사자 스케줄
+        <span id="header-sub"></span>
+      </h1>
+      <div class="header-right">
+        <div class="date-badge" id="today-badge"></div>
+        <button class="btn-header" onclick="resetAll()">🗑 초기화</button>
+      </div>
+    </header>
+
+    <main>
+      <div class="this-week">
+        <div class="section-title">
+          <span>📌 이번 주 담당자</span>
+          <button
+            class="btn-export"
+            style="padding: 4px 12px; font-size: 0.75rem"
+            onclick="exportCardsImage()"
+          >
+            📸 고화질 카드 저장
+          </button>
+        </div>
+        <div id="hw-container"></div>
+      </div>
+
+      <div id="capture-area" class="schedule">
+        <div class="month-nav">
+          <div class="month-nav-controls">
+            <button onclick="changeMonth(-1)">◀</button>
+            <span id="month-label"></span>
+            <button onclick="changeMonth(1)">▶</button>
+          </div>
+          <button class="btn-export" onclick="exportScheduleImage()">
+            📊 고화질 스케줄표 저장
+          </button>
+        </div>
+
+        <div
+          id="capture-table-area"
+          style="background: white; border-radius: 20px; padding: 20px"
+        >
+          <div class="table-title-wrap">
+            <h2 id="dynamic-table-title">📅 스케줄표</h2>
+            <span class="table-subtitle"
+              >* 붉은색으로 표시된 부분이 이번 주 스케줄입니다.</span
+            >
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>주차</th>
+                <th>주일</th>
+                <th>담당 봉사자</th>
+              </tr>
+            </thead>
+            <tbody id="schedule-body"></tbody>
+          </table>
+        </div>
+      </div>
+
+      <button class="btn-toggle-manage" onclick="toggleManageSection()">
+        <span>⚙️ 관리자 메뉴 (배정 및 명단 관리)</span>
+        <span id="toggle-icon">▼</span>
+      </button>
+
+      <div id="manage-section" style="display: none">
+        <div class="form-section">
+          <h3>✏️ 봉사자 배정 관리</h3>
+          <div class="form-grid">
+            <div>
+              <label>주차 선택</label>
+              <select id="sel-week"></select>
+            </div>
+            <div>
+              <label>1번 봉사자</label>
+              <select id="sel-vol1"></select>
+            </div>
+            <div>
+              <label>2번 봉사자</label>
+              <select id="sel-vol2"></select>
+            </div>
+            <div>
+              <label>3번 봉사자</label>
+              <select id="sel-vol3"></select>
+            </div>
+            <div>
+              <button class="btn btn-primary" onclick="assignVolunteers()">
+                배정
+              </button>
+            </div>
+          </div>
+          <div class="msg" id="assign-msg">✅ 배정 완료 및 저장되었습니다!</div>
+
+          <div class="special-group-section">
+            <h4>🚩 4주차 고정 특별담당 설정</h4>
+            <div
+              style="
+                display: flex;
+                gap: 10px;
+                align-items: stretch;
+                flex-wrap: wrap;
+              "
+            >
+              <div style="flex: 1; min-width: 150px">
+                <input
+                  type="text"
+                  id="sg-name"
+                  placeholder="단체/이름 (예: 연령회)"
+                />
+              </div>
+              <div style="flex: 2; min-width: 200px">
+                <input
+                  type="text"
+                  id="sg-details"
+                  placeholder="상세내용 (예: 회원 일동)"
+                />
+              </div>
+              <div>
+                <button
+                  class="btn btn-primary"
+                  style="background: #e55039; height: 100%"
+                  onclick="saveSpecialGroup()"
+                >
+                  수정 저장
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div class="vol-list">
+            <h4>봉사자 명단 관리</h4>
+            <div
+              style="
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(130px, 1fr));
+                gap: 10px;
+                margin-bottom: 14px;
+              "
+            >
+              <div>
+                <label>이름</label
+                ><input type="text" id="new-name" placeholder="홍길동" />
+              </div>
+              <div>
+                <label>세례명</label
+                ><input type="text" id="new-baptism" placeholder="요한" />
+              </div>
+              <div>
+                <label>역할</label
+                ><input type="text" id="new-role" placeholder="독서, 복사 등" />
+              </div>
+              <div>
+                <label
+                  >연락처
+                  <span style="font-weight: 400; color: #b2bec3"
+                    >(선택)</span
+                  ></label
+                ><input
+                  type="text"
+                  id="new-contact"
+                  placeholder="010-0000-0000"
+                />
+              </div>
+              <div style="display: flex; align-items: flex-end; gap: 6px">
+                <button
+                  class="btn btn-primary"
+                  id="btn-submit-vol"
+                  style="flex: 1"
+                  onclick="submitVolunteer()"
+                >
+                  + 추가
+                </button>
+                <button
+                  class="btn btn-warn"
+                  id="btn-cancel-edit"
+                  style="display: none"
+                  onclick="cancelEdit()"
+                >
+                  취소
+                </button>
+              </div>
+            </div>
+            <div class="vol-chips" id="vol-chips"></div>
+          </div>
+
+          <div class="backup-section">
+            <h4>💾 데이터 관리 (구글 시트 연동)</h4>
+            <div class="backup-btns">
+              <button class="btn btn-success" onclick="exportJSON()">
+                ⬇ 수동 백업(JSON) 내보내기
+              </button>
+              <button
+                class="btn btn-warn"
+                style="
+                  background: #fff0f0;
+                  color: #e17055;
+                  border: 1px solid #ffe0e0;
+                "
+                onclick="document.getElementById('import-file').click()"
+              >
+                ⬆ 수동 백업 불러오기
+              </button>
+              <input
+                type="file"
+                id="import-file"
+                accept=".json"
+                onchange="importJSON(event)"
+              />
+            </div>
+            <div class="storage-info" id="storage-info">
+              마지막 동기화: <span>대기 중...</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <div id="toast"></div>
+
+    <script>
+      // 🚨 [필수입력] 구글 웹앱 URL (배포 후 변경 필요)
+      const API_URL = "https://script.google.com/macros/s/AKfycbzINtvwbgJuRrGLkOX8FXf1Mq7lZzP04e32ezZrrr6q2qOC7zeCJD4Sa-XUNvKijjOukw/exec";
+
+      const DAY_KO = ["일", "월", "화", "수", "목", "금", "토"];
+
+      let editingVolId = null;
+
+      function toggleManageSection() {
+        const section = document.getElementById("manage-section");
+        const icon = document.getElementById("toggle-icon");
+
+        if (section.style.display === "none" || section.style.display === "") {
+          section.style.display = "block";
+          icon.textContent = "▲";
+          section.scrollIntoView({ behavior: "smooth", block: "start" });
+        } else {
+          section.style.display = "none";
+          icon.textContent = "▼";
+        }
+      }
+
+      function escapeHTML(str) {
+        if (!str) return "";
+        return String(str).replace(
+          /[&<>'"]/g,
+          (tag) =>
+            ({
+              "&": "&amp;",
+              "<": "&lt;",
+              ">": "&gt;",
+              "'": "&#39;",
+              '"': "&quot;",
+            })[tag] || tag,
+        );
+      }
+
+      // 💡 3. 일요일(주일)만 추출 & 5주차 일요일이 다음달이면 삭제하는 로직
+      function getWeeksOfMonth(year, month) {
+        const weeks = [];
+        const first = new Date(year, month, 1);
+        let dayOfWeek = first.getDay();
+        if (dayOfWeek === 0) dayOfWeek = 7;
+
+        let monday = new Date(year, month, 2 - dayOfWeek);
+
+        let weekNum = 1;
+        while (true) {
+          const wStart = new Date(monday);
+          const wEnd = new Date(monday);
+          wEnd.setDate(wEnd.getDate() + 6); // 일요일
+
+          const monthStart = new Date(year, month, 1);
+          const monthEnd = new Date(year, month + 1, 0);
+
+          // 해당 주 시작일이 다음 달이면 반복 종료
+          if (wStart > monthEnd) break;
+
+          // 💡 만약 해당 주차의 '일요일(wEnd)'이 이번 달을 벗어났다면, 그 주차는 포함시키지 않고 즉시 종료!
+          if (wEnd > monthEnd) break;
+
+          // 💡 2. 기간 표시 형태를 'M/D(일)' 로 단일화
+          const rangeStr = `${wEnd.getMonth() + 1}/${wEnd.getDate()}(일)`;
+
+          weeks.push({
+            weekNum,
+            start: wStart,
+            end: wEnd,
+            label: `${weekNum}주차`,
+            range: rangeStr,
+            key: `${year}-${month}-W${weekNum}`,
+          });
+
+          monday.setDate(monday.getDate() + 7);
+          weekNum++;
+        }
+        return weeks;
+      }
+
+      function isCurrentWeek(w) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return today >= w.start && today <= w.end;
+      }
+
+      function isPastWeek(w) {
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        return w.end < today;
+      }
+
+      const today = new Date();
+      let viewYear = today.getFullYear();
+      let viewMonth = today.getMonth();
+
+      let volunteers, schedule, nextId, specialGroup;
+
+      const DEFAULT_VOLUNTEERS = [
+        {
+          id: 1,
+          name: "김민준",
+          baptism: "요셉",
+          role: "독서",
+          contact: "010-1234-5678",
+        },
+        {
+          id: 2,
+          name: "이서연",
+          baptism: "마리아",
+          role: "복사",
+          contact: "010-2345-6789",
+        },
+        {
+          id: 3,
+          name: "박지훈",
+          baptism: "안드레아",
+          role: "성가대",
+          contact: "010-3456-7890",
+        },
+        {
+          id: 4,
+          name: "최수아",
+          baptism: "세실리아",
+          role: "안내",
+          contact: "010-4567-8901",
+        },
+      ];
+
+      const DEFAULT_SPECIAL = { name: "연령회", details: "연령회 회원 일동" };
+
+      async function loadData() {
+        if (API_URL === "여기에_웹앱_URL을_붙여넣으세요") {
+          resetToDefault(false);
+          return;
+        }
+        try {
+          showToast("데이터를 불러오는 중...");
+          const response = await fetch(API_URL);
+          const data = await response.json();
+
+          volunteers = data.volunteers || [];
+          schedule = data.schedule || {};
+          nextId = data.nextId || 1;
+          specialGroup =
+            data.specialGroup || Object.assign({}, DEFAULT_SPECIAL);
+
+          renderAll();
+          showToast("☁️ 데이터를 불러왔습니다.");
+          updateStorageInfo(new Date().toISOString());
+        } catch (error) {
+          console.error(error);
+          resetToDefault(false);
+        }
+      }
+
+      async function saveData() {
+        if (API_URL === "여기에_웹앱_URL을_붙여넣으세요") return;
+
+        const payload = { volunteers, schedule, nextId, specialGroup };
+        updateStorageInfo(new Date().toISOString());
+
+        try {
+          await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify(payload),
+            headers: { "Content-Type": "text/plain;charset=utf-8" },
+          });
+        } catch (error) {
+          showToast("⚠️ 저장 실패");
+        }
+      }
+
+      function resetToDefault(ask = true) {
+        if (ask && !confirm("모든 데이터를 초기화할까요?")) return;
+        volunteers = JSON.parse(JSON.stringify(DEFAULT_VOLUNTEERS));
+        schedule = {};
+        nextId = 5;
+        specialGroup = Object.assign({}, DEFAULT_SPECIAL);
+        cancelEdit();
+        saveData();
+        renderAll();
+        if (ask) showToast("🗑 초기화되었습니다.");
+      }
+      function resetAll() {
+        resetToDefault(true);
+      }
+
+      function updateStorageInfo(dateStr) {
+        const date = dateStr
+          ? new Date(dateStr).toLocaleString("ko-KR")
+          : new Date().toLocaleString("ko-KR");
+        document.getElementById("storage-info").innerHTML =
+          `마지막 동기화: <span>${date}</span> · <span>구글 시트와 연결됨</span>`;
+      }
+
+      function getVol(id) {
+        return volunteers.find((v) => v.id === id);
+      }
+
+      function renderHeader() {
+        document.getElementById("header-sub").textContent =
+          `${viewYear}년 ${viewMonth + 1}월 · 주별 담당자 현황`;
+        document.getElementById("month-label").textContent =
+          `📅 ${viewYear}년 ${viewMonth + 1}월`;
+        document.getElementById("today-badge").textContent =
+          today.toLocaleDateString("ko-KR", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+            weekday: "short",
+          });
+
+        document.getElementById("dynamic-table-title").textContent =
+          `📅 ${viewYear}년 ${viewMonth + 1}월 스케줄`;
+      }
+
+      function renderHighlight() {
+        const weeks = getWeeksOfMonth(today.getFullYear(), today.getMonth());
+        const curWeek = weeks.find((w) => isCurrentWeek(w));
+        const container = document.getElementById("hw-container");
+
+        if (!curWeek) {
+          container.innerHTML = `<div class="no-week"><strong>이번 주 해당 없음</strong>현재 날짜가 이번 달 스케줄 범위를 벗어났습니다.</div>`;
+          return;
+        }
+
+        const assigned = schedule[curWeek.key] || [];
+        const volOrders = ["첫번째 봉사자", "두번째 봉사자", "세번째 봉사자"];
+
+        let cardsHTML = assigned.length
+          ? assigned
+              .map((id, i) => {
+                const v = getVol(id);
+                if (!v) return "";
+                const roleClass = ["독서", "복사", "성가대", "안내"].includes(
+                  v.role,
+                )
+                  ? v.role
+                  : "기타";
+                const themeClass = `theme-${i % 3}`;
+                const dispName = v.baptism
+                  ? escapeHTML(v.baptism)
+                  : escapeHTML(v.name);
+
+                return `<div class="vol-card ${themeClass}">
+          <div class="vol-card-top">
+            <div class="vol-avatar">
+              <span class="av-name">${dispName}</span>
+              <span class="av-role">${escapeHTML(v.role)}</span>
+            </div>
+            <div class="vol-info-main">
+              <div class="vol-order">${volOrders[i] || "봉사자"}</div>
+              <div class="vol-name">
+                ${escapeHTML(v.name)}
+                ${v.baptism ? `<span class="vol-baptism">✝ ${escapeHTML(v.baptism)}</span>` : ""}
+              </div>
+            </div>
+          </div>
+          <div class="vol-card-bottom">
+            <span class="role-badge role-${roleClass}">${escapeHTML(v.role)}</span>
+            ${v.contact ? `<span class="vol-contact">${escapeHTML(v.contact)}</span>` : '<span class="vol-contact" style="color:#dfe6e9;">연락처 없음</span>'}
+          </div>
+        </div>`;
+              })
+              .join("")
+          : ``;
+
+        let extraSectionHTML = "";
+        if (curWeek.weekNum === 4) {
+          const sName = escapeHTML(specialGroup.name || "특별담당");
+          const sDetails = escapeHTML(
+            specialGroup.details || "담당자 지정 안됨",
+          );
+
+          extraSectionHTML = `
+                <div style="margin-top: 24px; border-top: 1.5px dashed #dcdde1; padding-top: 20px;">
+                  <h3 style="font-size: 0.95rem; color: #d35400; margin-bottom: 14px; display:flex; align-items:center; gap:6px; font-weight: 800;">
+                    <span style="font-size:1.1rem;">↳</span> 4주차 고정 특별담당
+                  </h3>
+                  <div class="volunteer-cards" style="justify-content: flex-start;">
+                    <div class="vol-card theme-3" style="flex: 0 1 300px; border-color: #ffeaa7;">
+                      <div class="vol-card-top">
+                        <div class="vol-avatar">
+                          <span class="av-name">${sName}</span>
+                          <span class="av-role">특별담당</span>
+                        </div>
+                        <div class="vol-info-main">
+                          <div class="vol-order">단체/고정 봉사</div>
+                          <div class="vol-name" style="font-size: 1.1rem;">${sDetails}</div>
+                        </div>
+                      </div>
+                      <div class="vol-card-bottom">
+                        <span class="role-badge" style="background:#fff4e6; color:#d35400;">4주차 고정</span>
+                      </div>
+                    </div>
+                  </div>
+                </div>`;
+        }
+
+        if (!cardsHTML) {
+          cardsHTML = `<div style="color:#b2bec3;font-size:0.9rem;">아직 배정된 개인 봉사자가 없습니다.</div>`;
+        }
+
+        container.innerHTML = `<div id="capture-cards-area" class="week-highlight capture-container">
+    <h2 style="margin-bottom: 4px;">${curWeek.label} · ${today.getFullYear()}년 ${today.getMonth() + 1}월</h2>
+    <div class="date-range" style="margin-bottom: 24px;">${curWeek.range}</div>
+    <div class="volunteer-cards">${cardsHTML}</div>
+    ${extraSectionHTML}
+  </div>`;
+      }
+
+      function renderTable() {
+        const weeks = getWeeksOfMonth(viewYear, viewMonth);
+        document.getElementById("schedule-body").innerHTML = weeks
+          .map((w) => {
+            const assigned = schedule[w.key] || [];
+            let tagsHTML = assigned.length
+              ? assigned
+                  .map((id) => {
+                    const v = getVol(id);
+                    if (!v) return "";
+                    const baptismStr = v.baptism
+                      ? ` (${escapeHTML(v.baptism)})`
+                      : "";
+                    return `<span class="vol-tag">${escapeHTML(v.name)}${baptismStr}</span>`;
+                  })
+                  .join("")
+              : `<span class="unassigned">미배정</span>`;
+
+            const cur = isCurrentWeek(w);
+            const past = isPastWeek(w);
+
+            let rowHTML = `<tr class="${cur ? "current-week" : past ? "past-week" : ""}">
+      <td class="week-label">
+        ${w.label}
+        ${cur ? '<br><span class="current-badge">이번 주</span>' : ""}
+      </td>
+      <td class="date-text">${w.range}</td>
+      <td>${tagsHTML}</td>
+    </tr>`;
+
+            if (w.weekNum === 4) {
+              const sName = escapeHTML(specialGroup.name || "특별담당");
+              const sDetails = escapeHTML(specialGroup.details || "");
+              const displayTag = sDetails ? `${sName} (${sDetails})` : sName;
+
+              rowHTML += `<tr class="${cur ? "current-week" : past ? "past-week" : ""}" style="background: #fffcf9;">
+      <td class="week-label" style="padding-left: 28px; font-size: 0.85rem; color: #d35400; border-top: 1px dashed #e0e0e0;">
+        ↳ 4주차 특별
+      </td>
+      <td class="date-text" style="border-top: 1px dashed #e0e0e0; color:#d35400;">상시 배정</td>
+      <td style="border-top: 1px dashed #e0e0e0;">
+        <span class="vol-tag" style="background:#fff4e6; color:#d35400; border: 1px solid #ffeaa7; margin-left:0;">${displayTag}</span>
+      </td>
+    </tr>`;
+            }
+
+            return rowHTML;
+          })
+          .join("");
+      }
+
+      function renderWeekSelect() {
+        const weeks = getWeeksOfMonth(viewYear, viewMonth);
+        document.getElementById("sel-week").innerHTML = weeks
+          .map(
+            (w) => `<option value="${w.key}">${w.label} (${w.range})</option>`,
+          )
+          .join("");
+      }
+
+      function renderVolSelects() {
+        const opts =
+          `<option value="">-- 선택 안 함 --</option>` +
+          volunteers
+            .map(
+              (v) =>
+                `<option value="${v.id}">${escapeHTML(v.name)} (${escapeHTML(v.role)})</option>`,
+            )
+            .join("");
+        document.getElementById("sel-vol1").innerHTML = opts;
+        document.getElementById("sel-vol2").innerHTML = opts;
+        document.getElementById("sel-vol3").innerHTML = opts;
+      }
+
+      function renderChips() {
+        document.getElementById("vol-chips").innerHTML = volunteers
+          .map(
+            (v) =>
+              `<div class="vol-chip">
+      <span class="chip-role">${escapeHTML(v.role)}</span>
+      <span>${escapeHTML(v.name)}${v.baptism ? ' <span style="color:#a29bfe;font-size:0.75rem;">· ' + escapeHTML(v.baptism) + "</span>" : ""}</span>
+      ${v.contact ? `<span style="font-size:0.75rem;color:#b2bec3;">${escapeHTML(v.contact)}</span>` : ""}
+      <div class="chip-actions">
+          <button class="btn btn-primary" style="padding: 2px 8px; font-size: 0.7rem; background: #a29bfe;" onclick="editVol(${v.id})">✎</button>
+          <button class="btn btn-danger" style="padding: 2px 8px; font-size: 0.7rem;" onclick="removeVol(${v.id})">✕</button>
+      </div>
+    </div>`,
+          )
+          .join("");
+
+        document.getElementById("sg-name").value = specialGroup.name || "";
+        document.getElementById("sg-details").value =
+          specialGroup.details || "";
+      }
+
+      function renderAll() {
+        renderHeader();
+        renderHighlight();
+        renderTable();
+        renderWeekSelect();
+        renderVolSelects();
+        renderChips();
+      }
+
+      function changeMonth(dir) {
+        viewMonth += dir;
+        if (viewMonth > 11) {
+          viewMonth = 0;
+          viewYear++;
+        }
+        if (viewMonth < 0) {
+          viewMonth = 11;
+          viewYear--;
+        }
+        renderHeader();
+        renderTable();
+        renderWeekSelect();
+      }
+
+      function saveSpecialGroup() {
+        const name = document.getElementById("sg-name").value.trim();
+        const details = document.getElementById("sg-details").value.trim();
+
+        if (!name) {
+          alert("단체명 또는 이름을 입력해주세요.");
+          return;
+        }
+
+        specialGroup = { name, details };
+        saveData();
+        renderHighlight();
+        renderTable();
+        showToast("✅ 4주차 특별담당 설정이 변경되었습니다.");
+      }
+
+      function assignVolunteers() {
+        const key = document.getElementById("sel-week").value;
+        const v1 = parseInt(document.getElementById("sel-vol1").value) || null;
+        const v2 = parseInt(document.getElementById("sel-vol2").value) || null;
+        const v3 = parseInt(document.getElementById("sel-vol3").value) || null;
+
+        const selectedVols = [v1, v2, v3].filter((v) => v !== null);
+
+        const uniqueVols = new Set(selectedVols);
+        if (selectedVols.length !== uniqueVols.size) {
+          alert("⚠️ 같은 봉사자를 중복해서 선택할 수 없습니다.");
+          return;
+        }
+
+        const weeks = getWeeksOfMonth(viewYear, viewMonth);
+        const curIndex = weeks.findIndex((w) => w.key === key);
+        if (curIndex > 0) {
+          const prevKey = weeks[curIndex - 1].key;
+          const prevAssigned = schedule[prevKey] || [];
+          const isContinuous = selectedVols.some((id) =>
+            prevAssigned.includes(id),
+          );
+          if (isContinuous) {
+            if (
+              !confirm(
+                "⚠️ 선택하신 봉사자 중 직전 주차에 연속 배정된 분이 있습니다. 배정하시겠습니까?",
+              )
+            )
+              return;
+          }
+        }
+
+        schedule[key] = selectedVols;
+        saveData();
+        renderHighlight();
+        renderTable();
+
+        const msg = document.getElementById("assign-msg");
+        msg.style.display = "block";
+        setTimeout(() => (msg.style.display = "none"), 2500);
+        showToast("✅ 배정이 완료되었습니다.");
+      }
+
+      function submitVolunteer() {
+        const name = document.getElementById("new-name").value.trim();
+        const baptism = document.getElementById("new-baptism").value.trim();
+        const role = document.getElementById("new-role").value.trim() || "봉사";
+        const contact = document.getElementById("new-contact").value.trim();
+
+        if (!name) {
+          alert("이름을 입력해 주세요.");
+          return;
+        }
+
+        if (editingVolId) {
+          const v = getVol(editingVolId);
+          if (v) {
+            v.name = name;
+            v.baptism = baptism;
+            v.role = role;
+            v.contact = contact;
+          }
+          showToast(`👤 ${escapeHTML(name)} 봉사자 정보가 수정되었습니다.`);
+        } else {
+          volunteers.push({ id: nextId++, name, baptism, role, contact });
+          showToast(`👤 ${escapeHTML(name)} 봉사자가 추가되었습니다.`);
+        }
+
+        cancelEdit();
+        saveData();
+        renderAll();
+      }
+
+      function editVol(id) {
+        const v = getVol(id);
+        if (!v) return;
+        editingVolId = id;
+        document.getElementById("new-name").value = v.name || "";
+        document.getElementById("new-baptism").value = v.baptism || "";
+        document.getElementById("new-role").value = v.role || "";
+        document.getElementById("new-contact").value = v.contact || "";
+
+        const btnSubmit = document.getElementById("btn-submit-vol");
+        btnSubmit.textContent = "✓ 수정 완료";
+        btnSubmit.classList.replace("btn-primary", "btn-success");
+        document.getElementById("btn-cancel-edit").style.display = "block";
+
+        const manageSec = document.getElementById("manage-section");
+        if (manageSec.style.display === "none") {
+          toggleManageSection();
+        }
+      }
+
+      function cancelEdit() {
+        editingVolId = null;
+        ["new-name", "new-baptism", "new-role", "new-contact"].forEach(
+          (id) => (document.getElementById(id).value = ""),
+        );
+
+        const btnSubmit = document.getElementById("btn-submit-vol");
+        btnSubmit.textContent = "+ 추가";
+        btnSubmit.classList.replace("btn-success", "btn-primary");
+        document.getElementById("btn-cancel-edit").style.display = "none";
+      }
+
+      function removeVol(id) {
+        const v = getVol(id);
+        if (!confirm(`'${v?.name}' 봉사자를 명단에서 삭제할까요?`)) return;
+        volunteers = volunteers.filter((v) => v.id !== id);
+        Object.keys(schedule).forEach((k) => {
+          schedule[k] = schedule[k].filter((vid) => vid !== id);
+        });
+
+        if (editingVolId === id) cancelEdit();
+
+        saveData();
+        renderAll();
+        showToast("🗑 봉사자가 삭제되었습니다.");
+      }
+
+      function applyBezelAndCapture(targetElement, filename) {
+        const btnsToHide = targetElement.querySelectorAll("button");
+        btnsToHide.forEach((btn) => (btn.style.display = "none"));
+
+        const originalBoxShadow = targetElement.style.boxShadow;
+        const originalPadding = targetElement.style.padding;
+        const originalBackground = targetElement.style.background;
+        const originalBorderRadius = targetElement.style.borderRadius;
+
+        targetElement.style.boxShadow = "none";
+        targetElement.style.padding = "24px";
+        targetElement.style.background = "#ffffff";
+        targetElement.style.borderRadius = "0px";
+
+        showToast("고화질 이미지를 생성 중입니다...");
+
+        html2canvas(targetElement, { scale: 4, backgroundColor: "#ffffff" })
+          .then((canvas) => {
+            targetElement.style.boxShadow = originalBoxShadow;
+            targetElement.style.padding = originalPadding;
+            targetElement.style.background = originalBackground;
+            targetElement.style.borderRadius = originalBorderRadius;
+            btnsToHide.forEach((btn) => (btn.style.display = ""));
+
+            const link = document.createElement("a");
+            link.download = filename;
+            link.href = canvas.toDataURL("image/png");
+            link.click();
+            showToast("🖼️ 고화질 이미지가 저장되었습니다.");
+          })
+          .catch((err) => {
+            targetElement.style.boxShadow = originalBoxShadow;
+            targetElement.style.padding = originalPadding;
+            targetElement.style.background = originalBackground;
+            targetElement.style.borderRadius = originalBorderRadius;
+            btnsToHide.forEach((btn) => (btn.style.display = ""));
+
+            console.error(err);
+            alert("이미지 저장 중 오류가 발생했습니다.");
+          });
+      }
+
+      function exportCardsImage() {
+        const targetElement = document.getElementById("capture-cards-area");
+        if (!targetElement) {
+          alert("이번 주 배정된 봉사자 카드가 없습니다.");
+          return;
+        }
+        applyBezelAndCapture(
+          targetElement,
+          `이번주_봉사자카드_${viewYear}년${viewMonth + 1}월.png`,
+        );
+      }
+
+      function exportScheduleImage() {
+        const targetElement = document.getElementById("capture-table-area");
+        applyBezelAndCapture(
+          targetElement,
+          `성당스케줄전체_${viewYear}년${viewMonth + 1}월.png`,
+        );
+      }
+
+      let toastTimer;
+      function showToast(msg) {
+        const t = document.getElementById("toast");
+        t.textContent = msg;
+        t.classList.add("show");
+        clearTimeout(toastTimer);
+        toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
+      }
+
+      function exportJSON() {
+        const data = {
+          volunteers,
+          schedule,
+          nextId,
+          specialGroup,
+          exportedAt: new Date().toISOString(),
+        };
+        const blob = new Blob([JSON.stringify(data, null, 2)], {
+          type: "application/json",
+        });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = `성당봉사자백업_${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}.json`;
+        a.click();
+        showToast("⬇ JSON 다운로드 완료.");
+      }
+
+      function importJSON(e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (ev) => {
+          try {
+            const d = JSON.parse(ev.target.result);
+            if (!d.volunteers) throw new Error();
+            volunteers = d.volunteers;
+            schedule = d.schedule || {};
+            nextId = d.nextId || Math.max(...d.volunteers.map((v) => v.id)) + 1;
+            specialGroup = d.specialGroup || Object.assign({}, DEFAULT_SPECIAL);
+            cancelEdit();
+            saveData();
+            renderAll();
+            showToast("⬆ 백업 데이터를 불러왔습니다.");
+          } catch {
+            alert("올바른 백업 파일이 아닙니다.");
+          }
+          e.target.value = "";
+        };
+        reader.readAsText(file);
+      }
+
+      loadData();
+    </script>
+  </body>
+</html>
