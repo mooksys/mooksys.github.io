@@ -1190,7 +1190,7 @@ function renderTeacher(){
       ${cells.join('')}
       <td><span class="badge bok">${ok}</span></td><td><span class="badge blate">${late}</span></td>
       <td><span class="badge bearly">${early}</span></td><td><span class="badge bnone">${none}</span></td>
-      <td><button class="btn btn-sm bg" onclick="openEditModal('${s.no}','${wk}',null)">✏️</button></td>
+      <td><button class="btn btn-sm bg" onclick="openEditModal('${s.no}',null)">✏️</button></td>
     </tr>`;
   });
   if(!students.length)sb.innerHTML='<tr><td colspan="12" class="nodata">데이터 없음</td></tr>';
@@ -1203,12 +1203,12 @@ function renderTeacher(){
       const rec=data.records[key]||{};
       const iSt=rec.in?inSt(rec.in,data.inTime):null,oSt=rec.out?outSt(rec.out,data.outTime):null;
       const memo=rec.memo||'';
-      const memoCell=memo?`<td><span class="memo-badge" title="${memo}" onclick="openEditModal('${s.no}','${wk}','${key}')">${memo}</span></td>`:`<td><span class="memo-empty" onclick="openEditModal('${s.no}','${wk}','${key}')">+ 사유</span></td>`;
+      const memoCell=memo?`<td><span class="memo-badge" title="${memo}" onclick="openEditModal('${s.no}','${key}')">${memo}</span></td>`:`<td><span class="memo-empty" onclick="openEditModal('${s.no}','${key}')">+ 사유</span></td>`;
       db.innerHTML+=`<tr><td>${s.no}</td><td><b>${s.name}</b></td>
         <td>${date.getMonth()+1}/${date.getDate()}</td><td>${day}요일</td>
         <td>${rec.in||'-'}</td><td>${rec.in?`<span class="badge ${iSt==='ok'?'bok':'blate'}">${iSt==='ok'?'정상':'지각'}</span>`:'<span class="badge bnone">-</span>'}</td>
         <td>${rec.out||'-'}</td><td>${rec.out?`<span class="badge ${oSt==='ok'?'bok':'bearly'}">${oSt==='ok'?'정상':'조기퇴실'}</span>`:'<span class="badge bnone">-</span>'}</td>
-        ${memoCell}<td><button class="btn btn-sm bg" onclick="openEditModal('${s.no}','${wk}','${key}')">✏️</button></td>
+        ${memoCell}<td><button class="btn btn-sm bg" onclick="openEditModal('${s.no}','${key}')">✏️</button></td>
       </tr>`;
     });
   });
@@ -1246,7 +1246,7 @@ async function resetPw(no,name){
 /* ══════════════════════════════════════════
    출결 수정 모달 (GAS에 저장)
 ══════════════════════════════════════════ */
-function openEditModal(no,wk,dateKey){
+function openEditModal(no,dateKey){
   const s=STUDENTS.find(x=>x.no===no);
   const dates=getWeekDatesFromSel();
   document.getElementById('modalTitle').textContent=`출결 수정 — ${s.name}`;
