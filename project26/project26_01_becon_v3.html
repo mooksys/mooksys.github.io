@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>일학습병행 출결</title>
-    <style>
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>일학습병행 출결</title>
+        <style>
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
 *{box-sizing:border-box;margin:0;padding:0}
 :root{
@@ -181,422 +181,422 @@ th.sortable.asc::after{content:' ↑';color:var(--pr)}.th.sortable.desc::after{c
 }
 h2.print-title{display:none}
 </style>
-  </head>
-  <body>
+    </head>
+    <body>
 
-    <header>
-      <div class="hlogo">🏫</div>
-      <h1>일학습병행 출결</h1>
-      <span class="hdate" id="headerDate"></span>
-      <button class="tbtn" onclick="showTeacherLogin()">👩‍🏫 선생님</button>
-    </header>
+        <header>
+            <div class="hlogo">🏫</div>
+            <h1>일학습병행 출결</h1>
+            <span class="hdate" id="headerDate"></span>
+            <button class="tbtn" onclick="showTeacherLogin()">👩‍🏫 선생님</button>
+        </header>
 
-    <div class="loading-overlay hide" id="loadingOverlay">
-      <div class="spinner"></div>
-      <div class="loading-txt" id="loadingTxt">처리 중...</div>
-    </div>
-
-    <div class="wrap">
-
-      <!-- GAS URL 미설정 안내 (최초 1회) -->
-      <div id="gasSetupNotice" class="gas-setup-banner hide"
-        style="margin-bottom:0">
-        <div class="gas-hd"><div class="gas-dot off"></div><div
-            class="gas-title">⚙️ Google Apps Script 연동
-            필요</div></div>
-        <div
-          style="font-size:12px;color:#92400e;margin-bottom:10px;line-height:1.7">출결
-          데이터를 실시간으로 공유하려면 Apps Script URL을 먼저 설정해 주세요.</div>
-        <div class="gas-row">
-          <input type="text" id="setupUrlInput"
-            placeholder="https://script.google.com/macros/s/.../exec">
-          <button class="btn btn-sm bp"
-            onclick="saveSetupUrl()">저장</button>
+        <div class="loading-overlay hide" id="loadingOverlay">
+            <div class="spinner"></div>
+            <div class="loading-txt" id="loadingTxt">처리 중...</div>
         </div>
-      </div>
 
-      <!-- ===== 로그인 ===== -->
-      <div class="page active" id="page-login">
-        <div style="text-align:center;padding:18px 0 22px">
-          <div style="font-size:40px;margin-bottom:10px">👋</div>
-          <div style="font-size:20px;font-weight:900">출결 체크 시스템</div>
-          <div
-            style="font-size:13px;color:var(--g400);margin-top:5px">학생을
-            선택하고 로그인해 주세요</div>
-        </div>
-        <div class="card">
-          <div class="card-hd"><div class="ci ci-b">🎓</div><div><div
-                class="ct">학생 로그인</div></div></div>
-          <div class="sec-badge">🔒 SHA-256 암호화</div>
-          <div class="field"><label>학생 선택</label><div
-              class="sel-w"><select id="studentSelect"
-                onchange="document.getElementById('loginPw').focus()"></select></div></div>
-          <div class="field">
-            <label>비밀번호 <span
-                style="color:var(--g400);font-weight:400;text-transform:none;letter-spacing:0">(초기:
-                0000)</span></label>
-            <div class="pw-wrap"><input type="password" id="loginPw"
-                placeholder="비밀번호 입력" maxlength="20"
-                onkeydown="if(event.key==='Enter')doLogin()"><button
-                class="pw-toggle" type="button"
-                onclick="togglePw('loginPw',this)">👁</button></div>
-          </div>
-          <button class="btn bp" id="loginBtn" onclick="doLogin()">로그인
-            →</button>
-        </div>
-      </div>
+        <div class="wrap">
 
-      <!-- ===== 시간 설정 ===== -->
-      <div class="page" id="page-timeset">
-        <div class="card">
-          <div class="card-hd"><div class="ci ci-p">⏰</div><div><div
-                class="ct">출퇴근 시간 설정</div><div class="cs">본인의 기준
-                시간을 선택해 주세요</div></div></div>
-          <div class="seclbl">입실 기준 시간</div>
-          <div class="tgrid" id="inTimeTabs">
-            <div class="ttab" data-val="09:00"
-              onclick="selTime('in','09:00',this)">09:00</div>
-            <div class="ttab" data-val="09:30"
-              onclick="selTime('in','09:30',this)">09:30</div>
-            <div class="ttab" data-val="10:00"
-              onclick="selTime('in','10:00',this)">10:00</div>
-            <div class="ttab" data-val="13:00"
-              onclick="selTime('in','13:00',this)">13:00</div>
-          </div>
-          <div style="margin-top:18px"></div>
-          <div class="seclbl">퇴실 기준 시간</div>
-          <div class="tgrid" id="outTimeTabs">
-            <div class="ttab" data-val="15:00"
-              onclick="selTime('out','15:00',this)">15:00</div>
-            <div class="ttab" data-val="15:30"
-              onclick="selTime('out','15:30',this)">15:30</div>
-            <div class="ttab" data-val="16:00"
-              onclick="selTime('out','16:00',this)">16:00</div>
-            <div class="ttab" data-val="18:00"
-              onclick="selTime('out','18:00',this)">18:00</div>
-          </div>
-          <button class="btn bp" id="timeSetBtn"
-            onclick="saveTimeSet()" style="margin-top:20px">저장하고
-            시작</button>
-          <button class="lbtn" id="timeSetCancel"
-            onclick="showPage('page-check')" style="display:none">←
-            취소</button>
-        </div>
-      </div>
-
-      <!-- ===== 출결 체크 ===== -->
-      <div class="page" id="page-check">
-        <div class="ubar">
-          <div class="av" id="av1"></div>
-          <div style="flex:1"><div class="un" id="un1"></div><div
-              class="us" id="us1"></div></div>
-          <div class="uacts">
-            <button class="ubtn" onclick="goTimeSet()">⏰
-              시간변경</button>
-            <button class="ubtn" onclick="showChangePw()">🔑
-              비번변경</button>
-          </div>
-        </div>
-        <!-- 전송 상태 표시 -->
-        <div id="syncIndicatorWrap"
-          style="margin-bottom:10px;text-align:right;display:none">
-          <span class="sync-indicator" id="syncIndicator"></span>
-        </div>
-        <div id="todayDisplay"></div>
-        <div id="beaconSection" style="display:none">
-          <div class="card">
-            <div class="card-hd"><div
-                class="ci ci-g">📡</div><div><div class="ct">오늘
-                  출결 체크</div></div></div>
-            <div class="bgrid">
-              <div class="bbox" id="boxIn">
-                <div class="bbl">입실</div><div><span class="bbs"
-                    id="stdIn"></span></div>
-                <button class="bbb bbin" id="btnIn"
-                  onclick="checkBeacon('in')">📡 입실
-                  체크</button>
-                <div><span class="tbadge tbnone"
-                    id="badgeIn">미체크</span><div
-                    class="bstatus"
-                    id="statusIn"></div></div>
-              </div>
-              <div class="bbox" id="boxOut">
-                <div class="bbl">퇴실</div><div><span class="bbs"
-                    id="stdOut"></span></div>
-                <button class="bbb bbout" id="btnOut"
-                  onclick="checkBeacon('out')">📡 퇴실
-                  체크</button>
-                <div><span class="tbadge tbnone"
-                    id="badgeOut">미체크</span><div
-                    class="bstatus"
-                    id="statusOut"></div></div>
-              </div>
+            <!-- GAS URL 미설정 안내 (최초 1회) -->
+            <div id="gasSetupNotice" class="gas-setup-banner hide"
+                style="margin-bottom:0">
+                <div class="gas-hd"><div class="gas-dot off"></div><div
+                        class="gas-title">⚙️ Google Apps Script 연동
+                        필요</div></div>
+                <div
+                    style="font-size:12px;color:#92400e;margin-bottom:10px;line-height:1.7">출결
+                    데이터를 실시간으로 공유하려면 Apps Script URL을 먼저 설정해 주세요.</div>
+                <div class="gas-row">
+                    <input type="text" id="setupUrlInput"
+                        placeholder="https://script.google.com/macros/s/.../exec">
+                    <button class="btn btn-sm bp"
+                        onclick="saveSetupUrl()">저장</button>
+                </div>
             </div>
-          </div>
-        </div>
-        <button class="btn bo" onclick="showPage('page-result')">📊 내 출결
-          결과 보기</button>
-        <button class="lbtn" onclick="logout()">로그아웃</button>
-      </div>
 
-      <!-- ===== 비번 변경 ===== -->
-      <div class="page" id="page-changepw">
-        <div class="card">
-          <div class="card-hd"><div class="ci ci-p">🔑</div><div><div
-                class="ct">비밀번호 변경</div></div></div>
-          <div class="sec-badge">🔒 SHA-256 암호화 저장</div>
-          <div class="field"><label>현재 비밀번호</label><div
-              class="pw-wrap"><input type="password" id="curPw"
-                placeholder="현재 비밀번호"><button class="pw-toggle"
-                type="button"
-                onclick="togglePw('curPw',this)">👁</button></div></div>
-          <div class="field"><label>새 비밀번호</label><div
-              class="pw-wrap"><input type="password" id="newPw"
-                placeholder="4자리 이상"><button class="pw-toggle"
-                type="button"
-                onclick="togglePw('newPw',this)">👁</button></div></div>
-          <div class="field"><label>새 비밀번호 확인</label><div
-              class="pw-wrap"><input type="password" id="newPw2"
-                placeholder="재입력"><button class="pw-toggle"
-                type="button"
-                onclick="togglePw('newPw2',this)">👁</button></div></div>
-          <button class="btn bp" onclick="doChangePw()">변경하기</button>
-          <button class="lbtn" onclick="showPage('page-check')">←
-            돌아가기</button>
-        </div>
-      </div>
+            <!-- ===== 로그인 ===== -->
+            <div class="page active" id="page-login">
+                <div style="text-align:center;padding:18px 0 22px">
+                    <div style="font-size:40px;margin-bottom:10px">👋</div>
+                    <div style="font-size:20px;font-weight:900">출결 체크 시스템</div>
+                    <div
+                        style="font-size:13px;color:var(--g400);margin-top:5px">학생을
+                        선택하고 로그인해 주세요</div>
+                </div>
+                <div class="card">
+                    <div class="card-hd"><div class="ci ci-b">🎓</div><div><div
+                                class="ct">학생 로그인</div></div></div>
+                    <div class="sec-badge">🔒 SHA-256 암호화</div>
+                    <div class="field"><label>학생 선택</label><div
+                            class="sel-w"><select id="studentSelect"
+                                onchange="document.getElementById('loginPw').focus()"></select></div></div>
+                    <div class="field">
+                        <label>비밀번호 <span
+                                style="color:var(--g400);font-weight:400;text-transform:none;letter-spacing:0">(초기:
+                                0000)</span></label>
+                        <div class="pw-wrap"><input type="password" id="loginPw"
+                                placeholder="비밀번호 입력" maxlength="20"
+                                onkeydown="if(event.key==='Enter')doLogin()"><button
+                                class="pw-toggle" type="button"
+                                onclick="togglePw('loginPw',this)">👁</button></div>
+                    </div>
+                    <button class="btn bp" id="loginBtn" onclick="doLogin()">로그인
+                        →</button>
+                </div>
+            </div>
 
-      <!-- ===== 결과 ===== -->
-      <div class="page" id="page-result">
-        <div class="ubar"><div class="av" id="av2"></div><div><div
-              class="un" id="un2"></div><div class="us"
-              id="us2"></div></div></div>
-        <div class="card">
-          <div class="card-hd"><div class="ci ci-b">📊</div><div><div
-                class="ct">이번 주 요약</div><div class="cs"
-                id="resultWeekSub"></div></div></div>
-          <div class="sgrid" id="summaryRow"></div>
-        </div>
-        <div class="card">
-          <div class="card-hd"><div class="ci ci-g">📋</div><div><div
-                class="ct">상세 출결</div></div></div>
-          <div
-            style="overflow-x:auto"><table><thead><tr><th>날짜</th><th>요일</th><th>입실</th><th>입실상태</th><th>퇴실</th><th>퇴실상태</th></tr></thead><tbody
-                id="resultBody"></tbody></table></div>
-        </div>
-        <button class="btn bp" onclick="showPage('page-check')">← 출결
-          체크로</button>
-        <button class="lbtn" onclick="logout()">로그아웃</button>
-      </div>
+            <!-- ===== 시간 설정 ===== -->
+            <div class="page" id="page-timeset">
+                <div class="card">
+                    <div class="card-hd"><div class="ci ci-p">⏰</div><div><div
+                                class="ct">출퇴근 시간 설정</div><div class="cs">본인의 기준
+                                시간을 선택해 주세요</div></div></div>
+                    <div class="seclbl">입실 기준 시간</div>
+                    <div class="tgrid" id="inTimeTabs">
+                        <div class="ttab" data-val="09:00"
+                            onclick="selTime('in','09:00',this)">09:00</div>
+                        <div class="ttab" data-val="09:30"
+                            onclick="selTime('in','09:30',this)">09:30</div>
+                        <div class="ttab" data-val="10:00"
+                            onclick="selTime('in','10:00',this)">10:00</div>
+                        <div class="ttab" data-val="13:00"
+                            onclick="selTime('in','13:00',this)">13:00</div>
+                    </div>
+                    <div style="margin-top:18px"></div>
+                    <div class="seclbl">퇴실 기준 시간</div>
+                    <div class="tgrid" id="outTimeTabs">
+                        <div class="ttab" data-val="15:00"
+                            onclick="selTime('out','15:00',this)">15:00</div>
+                        <div class="ttab" data-val="15:30"
+                            onclick="selTime('out','15:30',this)">15:30</div>
+                        <div class="ttab" data-val="16:00"
+                            onclick="selTime('out','16:00',this)">16:00</div>
+                        <div class="ttab" data-val="18:00"
+                            onclick="selTime('out','18:00',this)">18:00</div>
+                    </div>
+                    <button class="btn bp" id="timeSetBtn"
+                        onclick="saveTimeSet()" style="margin-top:20px">저장하고
+                        시작</button>
+                    <button class="lbtn" id="timeSetCancel"
+                        onclick="showPage('page-check')" style="display:none">←
+                        취소</button>
+                </div>
+            </div>
 
-      <!-- ===== 선생님 로그인 ===== -->
-      <div class="page" id="page-teacher-login">
-        <div class="card">
-          <div class="pw-pg">
-            <span class="pwico">🔐</span>
-            <div
-              style="font-size:17px;font-weight:900;margin-bottom:8px">선생님
-              전용</div>
-            <div class="sec-badge" style="margin:0 auto 14px">🔒
-              SHA-256 암호화</div>
-            <p class="pwdesc">선생님 비밀번호를 입력해 주세요</p>
-            <div class="field"><div class="pw-wrap"><input
-                  type="password" id="teacherPw"
-                  placeholder="비밀번호" style="text-align:center"
-                  onkeydown="if(event.key==='Enter')teacherLogin()"><button
-                  class="pw-toggle" type="button"
-                  onclick="togglePw('teacherPw',this)">👁</button></div></div>
-            <button class="btn bp" id="teacherLoginBtn"
-              onclick="teacherLogin()">확인</button>
-            <button class="lbtn" onclick="showPage('page-login')">←
-              학생 화면으로</button>
-          </div>
-        </div>
-      </div>
+            <!-- ===== 출결 체크 ===== -->
+            <div class="page" id="page-check">
+                <div class="ubar">
+                    <div class="av" id="av1"></div>
+                    <div style="flex:1"><div class="un" id="un1"></div><div
+                            class="us" id="us1"></div></div>
+                    <div class="uacts">
+                        <button class="ubtn" onclick="goTimeSet()">⏰
+                            시간변경</button>
+                        <button class="ubtn" onclick="showChangePw()">🔑
+                            비번변경</button>
+                    </div>
+                </div>
+                <!-- 전송 상태 표시 -->
+                <div id="syncIndicatorWrap"
+                    style="margin-bottom:10px;text-align:right;display:none">
+                    <span class="sync-indicator" id="syncIndicator"></span>
+                </div>
+                <div id="todayDisplay"></div>
+                <div id="beaconSection" style="display:none">
+                    <div class="card">
+                        <div class="card-hd"><div
+                                class="ci ci-g">📡</div><div><div class="ct">오늘
+                                    출결 체크</div></div></div>
+                        <div class="bgrid">
+                            <div class="bbox" id="boxIn">
+                                <div class="bbl">입실</div><div><span class="bbs"
+                                        id="stdIn"></span></div>
+                                <button class="bbb bbin" id="btnIn"
+                                    onclick="checkBeacon('in')">📡 입실
+                                    체크</button>
+                                <div><span class="tbadge tbnone"
+                                        id="badgeIn">미체크</span><div
+                                        class="bstatus"
+                                        id="statusIn"></div></div>
+                            </div>
+                            <div class="bbox" id="boxOut">
+                                <div class="bbl">퇴실</div><div><span class="bbs"
+                                        id="stdOut"></span></div>
+                                <button class="bbb bbout" id="btnOut"
+                                    onclick="checkBeacon('out')">📡 퇴실
+                                    체크</button>
+                                <div><span class="tbadge tbnone"
+                                        id="badgeOut">미체크</span><div
+                                        class="bstatus"
+                                        id="statusOut"></div></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn bo" onclick="showPage('page-result')">📊 내 출결
+                    결과 보기</button>
+                <button class="lbtn" onclick="logout()">로그아웃</button>
+            </div>
 
-      <!-- ===== 선생님 대시보드 ===== -->
-      <div class="page" id="page-teacher">
-        <div class="t-top">
-          <div><div class="t-title">👩‍🏫 출결 현황</div><div
-              class="t-sub" id="teacherWeekLabel"></div></div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap">
-            <button class="btn btn-sm bg"
-              onclick="refreshTeacherData()">🔄 새로고침</button>
-            <button class="btn btn-sm bg" onclick="downloadCSV()">📥
-              CSV</button>
-            <button class="btn btn-sm bg"
-              onclick="window.print()">🖨️ 인쇄</button>
-            <button class="btn btn-sm bg"
-              onclick="showPage('page-login')">나가기</button>
-          </div>
+            <!-- ===== 비번 변경 ===== -->
+            <div class="page" id="page-changepw">
+                <div class="card">
+                    <div class="card-hd"><div class="ci ci-p">🔑</div><div><div
+                                class="ct">비밀번호 변경</div></div></div>
+                    <div class="sec-badge">🔒 SHA-256 암호화 저장</div>
+                    <div class="field"><label>현재 비밀번호</label><div
+                            class="pw-wrap"><input type="password" id="curPw"
+                                placeholder="현재 비밀번호"><button class="pw-toggle"
+                                type="button"
+                                onclick="togglePw('curPw',this)">👁</button></div></div>
+                    <div class="field"><label>새 비밀번호</label><div
+                            class="pw-wrap"><input type="password" id="newPw"
+                                placeholder="4자리 이상"><button class="pw-toggle"
+                                type="button"
+                                onclick="togglePw('newPw',this)">👁</button></div></div>
+                    <div class="field"><label>새 비밀번호 확인</label><div
+                            class="pw-wrap"><input type="password" id="newPw2"
+                                placeholder="재입력"><button class="pw-toggle"
+                                type="button"
+                                onclick="togglePw('newPw2',this)">👁</button></div></div>
+                    <button class="btn bp" onclick="doChangePw()">변경하기</button>
+                    <button class="lbtn" onclick="showPage('page-check')">←
+                        돌아가기</button>
+                </div>
+            </div>
+
+            <!-- ===== 결과 ===== -->
+            <div class="page" id="page-result">
+                <div class="ubar"><div class="av" id="av2"></div><div><div
+                            class="un" id="un2"></div><div class="us"
+                            id="us2"></div></div></div>
+                <div class="card">
+                    <div class="card-hd"><div class="ci ci-b">📊</div><div><div
+                                class="ct">이번 주 요약</div><div class="cs"
+                                id="resultWeekSub"></div></div></div>
+                    <div class="sgrid" id="summaryRow"></div>
+                </div>
+                <div class="card">
+                    <div class="card-hd"><div class="ci ci-g">📋</div><div><div
+                                class="ct">상세 출결</div></div></div>
+                    <div
+                        style="overflow-x:auto"><table><thead><tr><th>날짜</th><th>요일</th><th>입실</th><th>입실상태</th><th>퇴실</th><th>퇴실상태</th></tr></thead><tbody
+                                id="resultBody"></tbody></table></div>
+                </div>
+                <button class="btn bp" onclick="showPage('page-check')">← 출결
+                    체크로</button>
+                <button class="lbtn" onclick="logout()">로그아웃</button>
+            </div>
+
+            <!-- ===== 선생님 로그인 ===== -->
+            <div class="page" id="page-teacher-login">
+                <div class="card">
+                    <div class="pw-pg">
+                        <span class="pwico">🔐</span>
+                        <div
+                            style="font-size:17px;font-weight:900;margin-bottom:8px">선생님
+                            전용</div>
+                        <div class="sec-badge" style="margin:0 auto 14px">🔒
+                            SHA-256 암호화</div>
+                        <p class="pwdesc">선생님 비밀번호를 입력해 주세요</p>
+                        <div class="field"><div class="pw-wrap"><input
+                                    type="password" id="teacherPw"
+                                    placeholder="비밀번호" style="text-align:center"
+                                    onkeydown="if(event.key==='Enter')teacherLogin()"><button
+                                    class="pw-toggle" type="button"
+                                    onclick="togglePw('teacherPw',this)">👁</button></div></div>
+                        <button class="btn bp" id="teacherLoginBtn"
+                            onclick="teacherLogin()">확인</button>
+                        <button class="lbtn" onclick="showPage('page-login')">←
+                            학생 화면으로</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ===== 선생님 대시보드 ===== -->
+            <div class="page" id="page-teacher">
+                <div class="t-top">
+                    <div><div class="t-title">👩‍🏫 출결 현황</div><div
+                            class="t-sub" id="teacherWeekLabel"></div></div>
+                    <div style="display:flex;gap:6px;flex-wrap:wrap">
+                        <button class="btn btn-sm bg"
+                            onclick="refreshTeacherData()">🔄 새로고침</button>
+                        <button class="btn btn-sm bg" onclick="downloadCSV()">📥
+                            CSV</button>
+                        <button class="btn btn-sm bg"
+                            onclick="window.print()">🖨️ 인쇄</button>
+                        <button class="btn btn-sm bg"
+                            onclick="showPage('page-login')">나가기</button>
+                    </div>
+                </div>
+
+                <!-- GAS 연결 상태 표시 -->
+                <div class="gas-setup-banner" id="teacherGasBox">
+                    <div class="gas-hd"><div class="gas-dot"
+                            id="teacherGasDot"></div><div class="gas-title"
+                            id="teacherGasTitle"></div></div>
+                    <div class="gas-row">
+                        <input type="text" id="teacherGasUrl"
+                            placeholder="https://script.google.com/macros/s/.../exec"
+                            style="border-color:#fde68a">
+                        <button class="btn btn-sm bp"
+                            onclick="saveTeacherGasUrl()">저장</button>
+                    </div>
+                    <div class="gas-status" id="teacherGasStatus"></div>
+                </div>
+
+                <div class="alert-banner hide" id="alertBanner">⚠️ <span
+                        id="alertMsg"></span></div>
+                <div class="stat4" id="stat4"></div>
+
+                <!-- 차트 -->
+                <div class="card">
+                    <div class="card-hd"><div class="ci ci-b">📈</div><div><div
+                                class="ct">출결 현황 차트</div><div class="cs"
+                                id="chartWeekLabel"></div></div></div>
+                    <div class="chart-wrap" id="chartWrap"></div>
+                    <div class="chart-legend">
+                        <div class="cl-item"><div class="cl-dot"
+                                style="background:#059669"></div>정상</div>
+                        <div class="cl-item"><div class="cl-dot"
+                                style="background:#d97706"></div>지각</div>
+                        <div class="cl-item"><div class="cl-dot"
+                                style="background:#dc2626"></div>조기퇴실</div>
+                        <div class="cl-item"><div class="cl-dot"
+                                style="background:var(--g200)"></div>미체크</div>
+                    </div>
+                </div>
+
+                <div class="search-row">
+                    <div class="sel-w"><select id="teacherWeekSelect"
+                            onchange="renderTeacher()"></select></div>
+                    <input type="text" id="teacherSearch"
+                        placeholder="🔍 이름 / 학번" oninput="renderTeacher()">
+                </div>
+                <div class="filter-bar">
+                    <button class="fbtn active" data-f="all"
+                        onclick="setFilter('all',this)">전체</button>
+                    <button class="fbtn" data-f="ok"
+                        onclick="setFilter('ok',this)">✅ 정상</button>
+                    <button class="fbtn f-late" data-f="late"
+                        onclick="setFilter('late',this)">⚠️ 지각</button>
+                    <button class="fbtn f-early" data-f="early"
+                        onclick="setFilter('early',this)">❗ 조기퇴</button>
+                    <button class="fbtn f-none" data-f="none"
+                        onclick="setFilter('none',this)">— 미체크</button>
+                </div>
+                <div class="tabs">
+                    <button class="tabbt active" id="tab-summary"
+                        onclick="switchTab('summary')">요약</button>
+                    <button class="tabbt" id="tab-detail"
+                        onclick="switchTab('detail')">상세</button>
+                    <button class="tabbt" id="tab-students"
+                        onclick="switchTab('students')">학생 관리</button>
+                </div>
+
+                <div id="view-summary">
+                    <h2 class="print-title" id="printTitle"></h2>
+                    <div class="card" style="padding:0;overflow:hidden">
+                        <div class="twrap"><table class="ttbl">
+                                <thead><tr>
+                                        <th class="sortable"
+                                            onclick="sortBy('no')">학번</th><th
+                                            class="sortable"
+                                            onclick="sortBy('name')">이름</th>
+                                        <th>입실</th><th>퇴실</th><th>화</th><th>수</th><th>목</th>
+                                        <th class="sortable"
+                                            onclick="sortBy('ok')">정상</th><th
+                                            class="sortable"
+                                            onclick="sortBy('late')">지각</th>
+                                        <th class="sortable"
+                                            onclick="sortBy('early')">조기퇴</th><th
+                                            class="sortable"
+                                            onclick="sortBy('none')">미체크</th>
+                                        <th>수정</th>
+                                    </tr></thead>
+                                <tbody id="summaryBody"></tbody>
+                            </table></div>
+                    </div>
+                </div>
+
+                <div id="view-detail" style="display:none">
+                    <div class="card" style="padding:0;overflow:hidden">
+                        <div class="twrap"><table class="ttbl">
+                                <thead><tr><th>학번</th><th>이름</th><th>날짜</th><th>요일</th><th>입실</th><th>입실상태</th><th>퇴실</th><th>퇴실상태</th><th>사유</th><th>수정</th></tr></thead>
+                                <tbody id="detailBody"></tbody>
+                            </table></div>
+                    </div>
+                </div>
+
+                <div id="view-students" style="display:none">
+                    <div class="card" style="padding:0;overflow:hidden">
+                        <div class="twrap"><table class="stbl">
+                                <thead><tr><th>학번</th><th>이름</th><th>입실기준</th><th>퇴실기준</th><th>비밀번호</th></tr></thead>
+                                <tbody id="studentsBody"></tbody>
+                            </table></div>
+                    </div>
+                </div>
+
+                <!-- Apps Script 가이드 -->
+                <div class="guide-card">
+                    <div
+                        style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:10px">📖
+                        Apps Script 설치 가이드</div>
+                    <div
+                        style="font-size:12px;color:var(--g500);line-height:2.2">
+                        <b style="color:var(--pr)">1.</b> <a
+                            href="https://script.google.com" target="_blank"
+                            style="color:var(--pr);font-weight:600">script.google.com</a>
+                        → 새 프로젝트<br>
+                        <b style="color:var(--pr)">2.</b> 아래 코드 복사 → 붙여넣기 →
+                        저장<br>
+                        <b style="color:var(--pr)">3.</b> 배포 → 웹앱으로 배포 → 액세스:
+                        <b>모든 사용자</b><br>
+                        <b style="color:var(--pr)">4.</b> 생성된 URL → 위 입력란에 붙여넣고
+                        저장
+                    </div>
+                    <button class="btn bg"
+                        style="margin-top:10px;font-size:12px"
+                        onclick="copyGasCode()">📋 Apps Script 코드 복사</button>
+                </div>
+            </div>
+
+        </div><!-- /wrap -->
+
+        <!-- 출결 수정 모달 -->
+        <div class="modal-bg hide" id="editModal">
+            <div class="modal">
+                <div class="modal-hd"><div class="modal-title"
+                        id="modalTitle">출결 수정</div><button class="modal-close"
+                        onclick="closeModal()">✕</button></div>
+                <div style="margin-bottom:12px">
+                    <select id="editDateSel"
+                        style="width:100%;padding:9px 12px;border:1.5px solid var(--g200);border-radius:var(--rxs);font-size:13px;outline:none;background:#fff;appearance:none;font-weight:600"
+                        onchange="loadEditFields()"></select>
+                </div>
+                <div class="mrow">
+                    <div class="mfield"><label>입실 시간</label><input type="time"
+                            id="editIn"></div>
+                    <div class="mfield"><label>퇴실 시간</label><input type="time"
+                            id="editOut"></div>
+                </div>
+                <div class="mfield" style="margin-bottom:12px">
+                    <label>사유 <span
+                            style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--g400)">(선택)</span></label>
+                    <textarea id="editMemo"
+                        placeholder="지각·조기퇴실·결석 등 사유"></textarea>
+                </div>
+                <div class="mhint">시간을 비워두면 미체크 상태로 저장됩니다</div>
+                <div class="modal-btns"><button class="btn bg"
+                        onclick="closeModal()">취소</button><button class="btn bp"
+                        onclick="saveEdit()">저장</button></div>
+            </div>
         </div>
 
-        <!-- GAS 연결 상태 표시 -->
-        <div class="gas-setup-banner" id="teacherGasBox">
-          <div class="gas-hd"><div class="gas-dot"
-              id="teacherGasDot"></div><div class="gas-title"
-              id="teacherGasTitle"></div></div>
-          <div class="gas-row">
-            <input type="text" id="teacherGasUrl"
-              placeholder="https://script.google.com/macros/s/.../exec"
-              style="border-color:#fde68a">
-            <button class="btn btn-sm bp"
-              onclick="saveTeacherGasUrl()">저장</button>
-          </div>
-          <div class="gas-status" id="teacherGasStatus"></div>
-        </div>
+        <div class="toast" id="toast"></div>
 
-        <div class="alert-banner hide" id="alertBanner">⚠️ <span
-            id="alertMsg"></span></div>
-        <div class="stat4" id="stat4"></div>
-
-        <!-- 차트 -->
-        <div class="card">
-          <div class="card-hd"><div class="ci ci-b">📈</div><div><div
-                class="ct">출결 현황 차트</div><div class="cs"
-                id="chartWeekLabel"></div></div></div>
-          <div class="chart-wrap" id="chartWrap"></div>
-          <div class="chart-legend">
-            <div class="cl-item"><div class="cl-dot"
-                style="background:#059669"></div>정상</div>
-            <div class="cl-item"><div class="cl-dot"
-                style="background:#d97706"></div>지각</div>
-            <div class="cl-item"><div class="cl-dot"
-                style="background:#dc2626"></div>조기퇴실</div>
-            <div class="cl-item"><div class="cl-dot"
-                style="background:var(--g200)"></div>미체크</div>
-          </div>
-        </div>
-
-        <div class="search-row">
-          <div class="sel-w"><select id="teacherWeekSelect"
-              onchange="renderTeacher()"></select></div>
-          <input type="text" id="teacherSearch"
-            placeholder="🔍 이름 / 학번" oninput="renderTeacher()">
-        </div>
-        <div class="filter-bar">
-          <button class="fbtn active" data-f="all"
-            onclick="setFilter('all',this)">전체</button>
-          <button class="fbtn" data-f="ok"
-            onclick="setFilter('ok',this)">✅ 정상</button>
-          <button class="fbtn f-late" data-f="late"
-            onclick="setFilter('late',this)">⚠️ 지각</button>
-          <button class="fbtn f-early" data-f="early"
-            onclick="setFilter('early',this)">❗ 조기퇴</button>
-          <button class="fbtn f-none" data-f="none"
-            onclick="setFilter('none',this)">— 미체크</button>
-        </div>
-        <div class="tabs">
-          <button class="tabbt active" id="tab-summary"
-            onclick="switchTab('summary')">요약</button>
-          <button class="tabbt" id="tab-detail"
-            onclick="switchTab('detail')">상세</button>
-          <button class="tabbt" id="tab-students"
-            onclick="switchTab('students')">학생 관리</button>
-        </div>
-
-        <div id="view-summary">
-          <h2 class="print-title" id="printTitle"></h2>
-          <div class="card" style="padding:0;overflow:hidden">
-            <div class="twrap"><table class="ttbl">
-                <thead><tr>
-                    <th class="sortable"
-                      onclick="sortBy('no')">학번</th><th
-                      class="sortable"
-                      onclick="sortBy('name')">이름</th>
-                    <th>입실</th><th>퇴실</th><th>화</th><th>수</th><th>목</th>
-                    <th class="sortable"
-                      onclick="sortBy('ok')">정상</th><th
-                      class="sortable"
-                      onclick="sortBy('late')">지각</th>
-                    <th class="sortable"
-                      onclick="sortBy('early')">조기퇴</th><th
-                      class="sortable"
-                      onclick="sortBy('none')">미체크</th>
-                    <th>수정</th>
-                  </tr></thead>
-                <tbody id="summaryBody"></tbody>
-              </table></div>
-          </div>
-        </div>
-
-        <div id="view-detail" style="display:none">
-          <div class="card" style="padding:0;overflow:hidden">
-            <div class="twrap"><table class="ttbl">
-                <thead><tr><th>학번</th><th>이름</th><th>날짜</th><th>요일</th><th>입실</th><th>입실상태</th><th>퇴실</th><th>퇴실상태</th><th>사유</th><th>수정</th></tr></thead>
-                <tbody id="detailBody"></tbody>
-              </table></div>
-          </div>
-        </div>
-
-        <div id="view-students" style="display:none">
-          <div class="card" style="padding:0;overflow:hidden">
-            <div class="twrap"><table class="stbl">
-                <thead><tr><th>학번</th><th>이름</th><th>입실기준</th><th>퇴실기준</th><th>비밀번호</th></tr></thead>
-                <tbody id="studentsBody"></tbody>
-              </table></div>
-          </div>
-        </div>
-
-        <!-- Apps Script 가이드 -->
-        <div class="guide-card">
-          <div
-            style="font-size:13px;font-weight:700;color:var(--g700);margin-bottom:10px">📖
-            Apps Script 설치 가이드</div>
-          <div
-            style="font-size:12px;color:var(--g500);line-height:2.2">
-            <b style="color:var(--pr)">1.</b> <a
-              href="https://script.google.com" target="_blank"
-              style="color:var(--pr);font-weight:600">script.google.com</a>
-            → 새 프로젝트<br>
-            <b style="color:var(--pr)">2.</b> 아래 코드 복사 → 붙여넣기 →
-            저장<br>
-            <b style="color:var(--pr)">3.</b> 배포 → 웹앱으로 배포 → 액세스:
-            <b>모든 사용자</b><br>
-            <b style="color:var(--pr)">4.</b> 생성된 URL → 위 입력란에 붙여넣고
-            저장
-          </div>
-          <button class="btn bg"
-            style="margin-top:10px;font-size:12px"
-            onclick="copyGasCode()">📋 Apps Script 코드 복사</button>
-        </div>
-      </div>
-
-    </div><!-- /wrap -->
-
-    <!-- 출결 수정 모달 -->
-    <div class="modal-bg hide" id="editModal">
-      <div class="modal">
-        <div class="modal-hd"><div class="modal-title"
-            id="modalTitle">출결 수정</div><button class="modal-close"
-            onclick="closeModal()">✕</button></div>
-        <div style="margin-bottom:12px">
-          <select id="editDateSel"
-            style="width:100%;padding:9px 12px;border:1.5px solid var(--g200);border-radius:var(--rxs);font-size:13px;outline:none;background:#fff;appearance:none;font-weight:600"
-            onchange="loadEditFields()"></select>
-        </div>
-        <div class="mrow">
-          <div class="mfield"><label>입실 시간</label><input type="time"
-              id="editIn"></div>
-          <div class="mfield"><label>퇴실 시간</label><input type="time"
-              id="editOut"></div>
-        </div>
-        <div class="mfield" style="margin-bottom:12px">
-          <label>사유 <span
-              style="font-weight:400;text-transform:none;letter-spacing:0;color:var(--g400)">(선택)</span></label>
-          <textarea id="editMemo"
-            placeholder="지각·조기퇴실·결석 등 사유"></textarea>
-        </div>
-        <div class="mhint">시간을 비워두면 미체크 상태로 저장됩니다</div>
-        <div class="modal-btns"><button class="btn bg"
-            onclick="closeModal()">취소</button><button class="btn bp"
-            onclick="saveEdit()">저장</button></div>
-      </div>
-    </div>
-
-    <div class="toast" id="toast"></div>
-
-    <script>
+        <script>
 /* ══════════════════════════════════════════
    상수 & 학생 목록
 ══════════════════════════════════════════ */
@@ -639,17 +639,43 @@ function hasGasUrl(){return!!getGasUrl()}
    - 조회: fetch GET + ?action=...&no=...
 ══════════════════════════════════════════ */
 
-// 선생님용: GET으로 전체 데이터 조회
+// 선생님용 & 학생 조회용: GET으로 데이터 요청
+// GAS 웹앱은 리디렉션을 하므로 redirect:'follow' 필수
 async function gasGet(params){
   const url=getGasUrl();if(!url) return null;
   const qs=Object.entries(params).map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
-  const res=await fetch(`${url}?${qs}`);
-  const text=await res.text();
-  return JSON.parse(text);
+  try{
+    const res=await fetch(`${url}?${qs}`,{redirect:'follow'});
+    const text=await res.text();
+    // 응답이 HTML이면 GAS 설정 오류
+    if(text.trim().startsWith('<')){console.error('GAS가 HTML을 반환했습니다. 배포 설정을 확인하세요.');return null;}
+    return JSON.parse(text);
+  }catch(e){
+    console.error('gasGet 오류:',e);
+    throw e;
+  }
 }
 
-// 학생용: form POST로 출결 데이터 전송 (CORS 우회)
-function gasPost(data){
+// 학생용: GET 방식으로 출결 데이터 전송 (CORS 완전 우회)
+// form POST는 iframe에서 응답 확인 불가하고 불안정함 → GET으로 통일
+async function gasPost(data){
+  const url=getGasUrl();if(!url) return {result:'error',message:'URL 없음'};
+  try{
+    // GET 방식으로 payload 전달 (GAS doGet에서 처리)
+    const qs=Object.entries(data).map(([k,v])=>`${encodeURIComponent(k)}=${encodeURIComponent(v)}`).join('&');
+    const res=await fetch(`${url}?${qs}`,{redirect:'follow'});
+    const text=await res.text();
+    if(text.trim().startsWith('<')) return {result:'ok'}; // 리디렉션 후 HTML → 정상 처리됨으로 간주
+    try{return JSON.parse(text);}catch{return {result:'ok'};}
+  }catch(e){
+    // fetch 자체가 실패한 경우(네트워크 오류)에만 iframe form fallback 사용
+    console.warn('gasPost fetch 실패, iframe fallback 사용:',e.message);
+    return gasPostIframe(data);
+  }
+}
+
+// fallback: iframe form POST (CORS 우회, 응답 확인 불가)
+function gasPostIframe(data){
   return new Promise((resolve)=>{
     const url=getGasUrl();if(!url){resolve({result:'error',message:'URL 없음'});return}
     let iframe=document.getElementById('gas_iframe');
@@ -663,7 +689,7 @@ function gasPost(data){
     const inp=document.createElement('input');
     inp.type='hidden';inp.name='payload';inp.value=JSON.stringify(data);
     form.appendChild(inp);document.body.appendChild(form);
-    const timer=setTimeout(()=>{cleanup();resolve({result:'ok'})},6000);
+    const timer=setTimeout(()=>{cleanup();resolve({result:'ok'})},8000);
     iframe.onload=()=>{clearTimeout(timer);cleanup();resolve({result:'ok'})};
     form.submit();
     function cleanup(){try{document.body.removeChild(form)}catch(e){}}
@@ -693,7 +719,8 @@ function getWD(ref){
   mon.setDate(d.getDate()-((dow+6)%7));
   return[2,3,4].map((dn,i)=>{const dt=new Date(mon);dt.setDate(mon.getDate()+i+1);return{day:DMAP[dn],date:dt,key:fmtDate(dt)}});
 }
-function wKey(d){const ds=getWD(d);return ds[0].key.slice(0,8)+'W'+ds[0].key.slice(8,10)}
+// weekKey: "2025-04-15W15" 형식 → 화요일 날짜 기준
+function wKey(d){const ds=getWD(d);return ds[0].key} // 화요일 dateKey를 weekKey로 사용 (YYYY-MM-DD)
 
 /* ══════════════════════════════════════════
    선생님용 인메모리 캐시
@@ -928,8 +955,8 @@ async function renderResult(){
   let records={};
   if(hasGasUrl()){
     try{
-      const wk=wKey(new Date());
-      const res=await gasGet({action:'getStudentRecords',no:cs.no,weekKey:wk});
+      const dates=getWD(new Date());
+      const res=await gasGet({action:'getStudentRecords',no:cs.no,weekStart:dates[0].key,weekEnd:dates[2].key});
       if(res&&res.result==='ok') records=res.records||{};
     }catch(e){}
   }
@@ -1004,11 +1031,13 @@ async function refreshTeacherData(){
   }
   showLoading('출결 데이터 불러오는 중...');
   try{
-    const wk=document.getElementById('teacherWeekSelect')?.value || wKey(new Date());
-    const res=await gasGet({action:'getAllRecords',weekKey:wk});
+    const dates=getWeekDatesFromSel();
+    // weekKey: 화요일 dateKey 전달 (GAS에서 날짜 범위로 필터링)
+    const weekStart=dates[0].key; // 화요일
+    const weekEnd=dates[2].key;   // 목요일
+    const res=await gasGet({action:'getAllRecords',weekStart,weekEnd});
     if(res&&res.result==='ok'){
       teacherCache={};
-      // GAS 응답: {result:'ok', data:{no:{inTime,outTime,records:{dateKey:{in,out,memo}}}}}
       (res.data||[]).forEach(row=>{
         if(!teacherCache[row.no]) teacherCache[row.no]={records:{},inTime:row.inTime||'',outTime:row.outTime||''};
         if(row.dateKey&&(row.in||row.out||row.memo)){
@@ -1016,12 +1045,15 @@ async function refreshTeacherData(){
             in:row.in||'',out:row.out||'',memo:row.memo||''
           };
         }
+        // inTime/outTime 최신값 업데이트
+        if(row.inTime) teacherCache[row.no].inTime=row.inTime;
+        if(row.outTime) teacherCache[row.no].outTime=row.outTime;
       });
       hideLoading();renderTeacher();
     } else {
       hideLoading();showToast('데이터 불러오기 실패');
     }
-  }catch(e){hideLoading();showToast('GAS 연결 실패: '+e.message)}
+  }catch(e){hideLoading();showToast('GAS 연결 실패: '+e.message);console.error(e);}
 }
 
 /* ══════════════════════════════════════════
@@ -1029,20 +1061,32 @@ async function refreshTeacherData(){
 ══════════════════════════════════════════ */
 function buildWeekSel(){
   const sel=document.getElementById('teacherWeekSelect');sel.innerHTML='';
-  // 현재 주 포함 최근 8주
   const now=new Date();
   for(let i=0;i<8;i++){
     const d=new Date(now);d.setDate(d.getDate()-i*7);
-    const ds=getWD(d),wk=wKey(d),opt=document.createElement('option');
-    opt.value=wk;opt.textContent=`${ds[0].key.slice(5).replace('-','/')}~${ds[2].key.slice(5).replace('-','/')}`;
+    const ds=getWD(d);
+    const wk=wKey(d); // 화요일 dateKey
+    const opt=document.createElement('option');
+    // value에 "화요일dateKey|목요일dateKey" 저장 → 파싱 확실
+    opt.value=`${ds[0].key}|${ds[2].key}`;
+    opt.textContent=`${ds[0].key.slice(5).replace('-','/')}~${ds[2].key.slice(5).replace('-','/')}`;
     if(i===0)opt.selected=true;
     sel.appendChild(opt);
   }
 }
 
-/* ══════════════════════════════════════════
-   선생님 대시보드 렌더 (캐시 데이터 사용)
-══════════════════════════════════════════ */
+// 선택된 주의 화~목 날짜 배열 반환 (option.value = "YYYY-MM-DD|YYYY-MM-DD")
+function getWeekDatesFromSel(){
+  const sel=document.getElementById('teacherWeekSelect');
+  if(!sel||!sel.value) return getWD(new Date());
+  const parts=sel.value.split('|');
+  if(parts.length===2){
+    // 화요일 날짜로부터 주 계산
+    const tue=new Date(parts[0]+'T00:00:00');
+    if(!isNaN(tue.getTime())) return getWD(tue);
+  }
+  return getWD(new Date());
+}
 function getStudentData(no){
   const local=lsd(no);
   const cached=teacherCache[no]||{};
@@ -1087,8 +1131,8 @@ function buildStat4(students,dates){
 }
 
 function buildChart(students,dates){
-  const found=buildWeekSel&&document.getElementById('teacherWeekSelect');
-  if(found){const ds=getWD(new Date(dates[0].date));document.getElementById('chartWeekLabel').textContent=`${ds[0].key.slice(5).replace('-','/')} ~ ${ds[2].key.slice(5).replace('-','/')}`;}
+  // dates[0]는 화요일 Date 객체 → 그대로 라벨에 사용 (getWD 재호출 금지)
+  document.getElementById('chartWeekLabel').textContent=`${dates[0].key.slice(5).replace('-','/')} ~ ${dates[2].key.slice(5).replace('-','/')}`;
   document.getElementById('chartWrap').innerHTML=dates.map(({day,key})=>{
     let ok=0,late=0,early=0,none=0;
     students.forEach(s=>{
@@ -1108,22 +1152,8 @@ function buildChart(students,dates){
 }
 
 function renderTeacher(){
-  const wk=document.getElementById('teacherWeekSelect')?.value||wKey(new Date());
   const search=document.getElementById('teacherSearch')?.value.trim()||'';
-  const found=getWD(new Date()); // 기본: 이번 주
-  // 선택된 주의 날짜 계산
-  const refDate=new Date();
-  const sel=document.getElementById('teacherWeekSelect');
-  let dates=getWD(refDate);
-  if(sel){
-    // weekKey에서 날짜 복원
-    const opts=[...sel.options];const chosen=opts.find(o=>o.value===wk);
-    if(chosen){
-      // "04/14~04/16" 파싱해서 월요일 구하기
-      const parts=chosen.textContent.split('~')[0].split('/');
-      if(parts.length===2){const d=new Date(refDate.getFullYear(),parseInt(parts[0])-1,parseInt(parts[1]));dates=getWD(d)}
-    }
-  }
+  const dates=getWeekDatesFromSel();
   const wLabel=`${dates[0].key.slice(5).replace('-','/')} ~ ${dates[2].key.slice(5).replace('-','/')} (화~목)`;
   document.getElementById('teacherWeekLabel').textContent=wLabel;
   document.getElementById('printTitle').textContent=`출결 현황 — ${wLabel}`;
@@ -1218,17 +1248,12 @@ async function resetPw(no,name){
 ══════════════════════════════════════════ */
 function openEditModal(no,wk,dateKey){
   const s=STUDENTS.find(x=>x.no===no);
-  const refDate=new Date();
-  const sel=document.getElementById('teacherWeekSelect');
-  let dates=getWD(refDate);
-  if(sel){const opts=[...sel.options];const chosen=opts.find(o=>o.value===wk);
-    if(chosen){const parts=chosen.textContent.split('~')[0].split('/');
-      if(parts.length===2){const d=new Date(refDate.getFullYear(),parseInt(parts[0])-1,parseInt(parts[1]));dates=getWD(d)}}}
+  const dates=getWeekDatesFromSel();
   document.getElementById('modalTitle').textContent=`출결 수정 — ${s.name}`;
   const dsel=document.getElementById('editDateSel');
   dsel.innerHTML=dates.map(d=>`<option value="${d.key}"${d.key===dateKey?' selected':''}>${d.date.getMonth()+1}/${d.date.getDate()} ${d.day}요일</option>`).join('');
   if(!dateKey){const today=fmtDate(new Date());const m=dates.find(d=>d.key===today);dsel.value=m?m.key:dates[dates.length-1].key}
-  editTarget={no,wk};loadEditFields();
+  editTarget={no};loadEditFields();
   document.getElementById('editModal').classList.remove('hide');
 }
 function loadEditFields(){
@@ -1258,12 +1283,8 @@ function closeModal(){document.getElementById('editModal').classList.add('hide')
    CSV 다운로드
 ══════════════════════════════════════════ */
 function downloadCSV(){
-  const wk=document.getElementById('teacherWeekSelect')?.value||wKey(new Date());
-  const refDate=new Date();const sel=document.getElementById('teacherWeekSelect');
-  let dates=getWD(refDate);
-  if(sel){const opts=[...sel.options];const chosen=opts.find(o=>o.value===wk);
-    if(chosen){const parts=chosen.textContent.split('~')[0].split('/');
-      if(parts.length===2){const d=new Date(refDate.getFullYear(),parseInt(parts[0])-1,parseInt(parts[1]));dates=getWD(d)}}}
+  const dates=getWeekDatesFromSel();
+  const wLabel=`${dates[0].key}~${dates[2].key}`;
   const rows=[['학번','이름','날짜','요일','입실기준','퇴실기준','입실시간','입실상태','퇴실시간','퇴실상태','사유']];
   STUDENTS.forEach(s=>{
     const data=getStudentData(s.no);
@@ -1276,7 +1297,7 @@ function downloadCSV(){
   });
   const csv=rows.map(r=>r.map(v=>`"${v}"`).join(',')).join('\n');
   const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`출결_${wk}.csv`;a.click();
+  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`출결_${wLabel}.csv`;a.click();
   showToast('CSV 다운로드 완료 📥');
 }
 
@@ -1396,11 +1417,15 @@ function getRecord(p) {
 function getStudentRecords(p) {
   const sheet = getOrCreateSheet(SHEET);
   const data = sheet.getDataRange().getValues();
-  const ym = p.weekKey?.slice(0,7)||'';
+  // weekKey = 화요일 dateKey (YYYY-MM-DD), 화~목 3일 범위로 필터
+  const weekStart = p.weekStart || p.weekKey || '';
+  const weekEnd = p.weekEnd || (weekStart ? dateAddDays(weekStart, 2) : '');
   const records = {};
   for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]) === String(p.no) && String(data[i][2]).startsWith(ym)) {
-      records[data[i][2]] = { in:data[i][6]||'', out:data[i][8]||'', memo:data[i][10]||'' };
+    if (String(data[i][0]) !== String(p.no)) continue;
+    const dk = String(data[i][2]);
+    if (!weekStart || (dk >= weekStart && dk <= weekEnd)) {
+      records[dk] = { in:data[i][6]||'', out:data[i][8]||'', memo:data[i][10]||'' };
     }
   }
   return json({ result:'ok', records });
@@ -1412,7 +1437,9 @@ function getAllRecords(p) {
   const cfgSheet = getOrCreateSheet(CONFIG_SHEET);
   const data = sheet.getDataRange().getValues();
   const cfgData = cfgSheet.getDataRange().getValues();
-  const ym = p.weekKey?.slice(0,7)||'';
+  // weekStart/weekEnd: 화요일~목요일 dateKey (YYYY-MM-DD)
+  const weekStart = p.weekStart || '';
+  const weekEnd = p.weekEnd || (weekStart ? dateAddDays(weekStart, 2) : '');
   // 설정 맵
   const cfgMap = {};
   for (let i = 1; i < cfgData.length; i++) {
@@ -1423,7 +1450,8 @@ function getAllRecords(p) {
   for (let i = 1; i < data.length; i++) {
     const no = String(data[i][0]);
     const dateKey = String(data[i][2]);
-    if (!dateKey.startsWith(ym)) continue;
+    // 날짜 범위 필터 (weekStart/weekEnd가 없으면 전체 반환)
+    if (weekStart && weekEnd && (dateKey < weekStart || dateKey > weekEnd)) continue;
     const cfg = cfgMap[no] || {};
     result.push({
       no, name:data[i][1]||'', dateKey,
@@ -1433,6 +1461,14 @@ function getAllRecords(p) {
     });
   }
   return json({ result:'ok', data:result });
+}
+
+// 날짜 문자열에 n일 더하기 (YYYY-MM-DD)
+function dateAddDays(dateStr, n) {
+  const d = new Date(dateStr + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  const pad = v => String(v).padStart(2,'0');
+  return \`\${d.getFullYear()}-\${pad(d.getMonth()+1)}-\${pad(d.getDate())}\`;
 }
 
 // 학생 설정 (입실/퇴실 기준 시간) 저장
@@ -1505,5 +1541,5 @@ function showToast(msg){
 // 선생님 페이지 진입 시 주차 셀렉터 초기화
 buildWeekSel();
 </script>
-  </body>
+    </body>
 </html>
