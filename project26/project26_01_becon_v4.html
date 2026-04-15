@@ -2082,9 +2082,30 @@
           .join("");
       }
 
-      /* ══ GAS URL ════════════════════════════════════════════════ */
-      const getGasUrl = () => localStorage.getItem("gas_url") || "";
-      const setGasUrl = (url) => localStorage.setItem("gas_url", url);
+      /* ══ GAS URL (gas_url.json 파일에서 로드) ═══════════════════ */
+      let _gasUrlCache = null; // 로드된 URL 캐시
+      let _gasUrlLoaded = false;
+
+      async function loadGasUrl() {
+        if (_gasUrlLoaded) return _gasUrlCache;
+        try {
+          const res = await fetch("gas_url.json?_=" + Date.now());
+          if (!res.ok) throw new Error("gas_url.json not found");
+          const json = await res.json();
+          _gasUrlCache = (json.gas_url || "").trim();
+        } catch (e) {
+          console.warn("gas_url.json 로드 실패:", e.message);
+          _gasUrlCache = "";
+        }
+        _gasUrlLoaded = true;
+        return _gasUrlCache;
+      }
+
+      const getGasUrl = () => _gasUrlCache || "";
+      const setGasUrl = (url) => {
+        // gas_url.json 파일을 직접 수정하세요: { "gas_url": "https://script.google.com/..." }
+        console.warn("setGasUrl: gas_url.json 파일을 직접 수정해 주세요.");
+      };
       const hasGasUrl = () => !!getGasUrl();
 
       /* ══════════════════════════════════════════════════════════
@@ -2348,9 +2369,12 @@
           showToast("올바른 GAS URL을 입력해 주세요");
           return;
         }
-        setGasUrl(url);
-        initStudentGasBanner();
-        showToast("GAS URL 저장 완료 ✅");
+        // gas_url.json 파일로 관리: 직접 파일을 수정하세요
+        showToast("gas_url.json 파일에 URL을 저장해 주세요 📄");
+        const hint = document.getElementById("studentGasStatus");
+        if (hint)
+          hint.textContent =
+            '※ gas_url.json 파일을 { "gas_url": "' + url + '" } 로 저장하세요.';
       }
       const showLoading = (msg) => {
         document.getElementById("loadingTxt").textContent = msg || "처리 중...";
@@ -2369,9 +2393,15 @@
           showToast("올바른 URL을 입력해 주세요");
           return;
         }
-        setGasUrl(url);
+        // gas_url.json 파일로 관리: 직접 파일을 수정하세요
         document.getElementById("gasSetupNotice").classList.add("hide");
-        showToast("URL 저장 완료 ✅");
+        showToast("gas_url.json 파일에 URL을 저장해 주세요 📄");
+        const notice = document.getElementById("gasSetupNotice");
+        if (notice)
+          notice.innerHTML =
+            '※ <b>gas_url.json</b> 파일을 아래 내용으로 저장하세요:<br><code>{ "gas_url": "' +
+            url +
+            '" }</code>';
       }
 
       /* ══ 학생 로그인 ══════════════════════════════════════════ */
@@ -3661,7 +3691,12 @@ function setTeacherPw(p) {
         t.classList.add("show");
         setTimeout(() => t.classList.remove("show"), 2600);
       }
-      buildWeekSel();
+      /* ══ 앱 초기화: gas_url.json 로드 후 시작 ══════════════════ */
+      (async function init() {
+        await loadGasUrl();
+        buildWeekSel();
+        if (typeof initStudentGasBanner === "function") initStudentGasBanner();
+      })();
     </script>
   </body>
 </html>
