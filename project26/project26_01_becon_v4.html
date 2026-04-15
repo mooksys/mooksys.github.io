@@ -2082,58 +2082,85 @@
           .join("");
       }
 
-      /* ══ GAS URL (gas_url.json 파일에서 로드) ═══════════════════ */
-      let _gasUrlCache = null; // 로드된 URL 캐시
-      let _gasUrlLoaded = false;
+      /* ══ GAS URL 관리 (localStorage 저장) ═══════════════════════ */
+      const GAS_URL_KEY = "gas_url_becon";
 
-      async function loadGasUrl() {
-        if (_gasUrlLoaded) return _gasUrlCache;
-        try {
-          const res = await fetch("gas_url.json?_=" + Date.now());
-          if (!res.ok) throw new Error("gas_url.json not found");
-          const json = await res.json();
-          _gasUrlCache = (json.gas_url || "").trim();
-        } catch (e) {
-          console.warn("gas_url.json 로드 실패:", e.message);
-          _gasUrlCache = "";
-        }
-        _gasUrlLoaded = true;
-        return _gasUrlCache;
+      // localStorage에서 즉시 읽기
+      function getGasUrl() {
+        return localStorage.getItem(GAS_URL_KEY) || "";
       }
-
-      const getGasUrl = () => _gasUrlCache || "";
-      const setGasUrl = (url) => {
-        // gas_url.json 파일을 직접 수정하세요: { "gas_url": "https://script.google.com/..." }
-        console.warn("setGasUrl: gas_url.json 파일을 직접 수정해 주세요.");
-      };
+      function setGasUrl(url) {
+        if (url) {
+          localStorage.setItem(GAS_URL_KEY, url.trim());
+        } else {
+          localStorage.removeItem(GAS_URL_KEY);
+        }
+      }
       const hasGasUrl = () => !!getGasUrl();
 
+      // gas_url.json 파일도 지원 (파일 서버 환경)
+      async function loadGasUrl() {
+        if (getGasUrl()) return getGasUrl(); // localStorage 우선
+        try {
+          const res = await fetch("gas_url.json?_=" + Date.now());
+          if (!res.ok) return "";
+          const json = await res.json();
+          const url = (json.gas_url || "").trim();
+          if (url) setGasUrl(url); // 파일에서 읽으면 localStorage에도 저장
+          return url;
+        } catch (e) {
+          return "";
+        }
+      }
+
       /* ══════════════════════════════════════════════════════════
-   ✅ gasGet — no-cors fetch → 응답 불가 시 로컬 폴백
-   JSONP/fetch 모두 Google이 403 반환 → 에러를 조용히 처리.
-   선생님 대시보드는 localStorage 폴백으로 동작.
+   ✅ gasGet — fetch 우선, JSONP 폴백
+   GAS 웹앱을 "모든 사용자(익명 포함)"으로 배포하면
+   fetch로 직접 JSON 응답을 받을 수 있습니다.
+   fetch 실패 시 JSONP(script 태그)로 재시도합니다.
 ══════════════════════════════════════════════════════════ */
       let _jsonpSeq = 0;
-      function gasGet(params, timeout) {
-        timeout = timeout || 15000;
-        return new Promise(function (resolve, reject) {
-          var url = getGasUrl();
-          if (!url) {
-            resolve(null);
-            return;
-          }
 
-          // 1차 시도: JSONP (script 태그, CORS 우회 가능성)
+      async function gasGet(params, timeout) {
+        timeout = timeout || 15000;
+        const url = getGasUrl();
+        if (!url) return null;
+
+        const qs = Object.keys(params)
+          .map(
+            (k) =>
+              encodeURIComponent(k) +
+              "=" +
+              encodeURIComponent(String(params[k])),
+          )
+          .join("&");
+        const fullUrl = url + "?" + qs;
+
+        // ── 1차: fetch (GAS 배포가 올바르면 바로 JSON 응답) ──────────
+        try {
+          const controller = new AbortController();
+          const tid = setTimeout(() => controller.abort(), timeout);
+          const res = await fetch(fullUrl, { signal: controller.signal });
+          clearTimeout(tid);
+          const text = await res.text();
+          // HTML이 오면 로그인 리다이렉트 → 2차로 넘김
+          if (text.trim().startsWith("<")) throw new Error("HTML response");
+          return JSON.parse(text);
+        } catch (fetchErr) {
+          // fetch 실패 → JSONP 시도
+        }
+
+        // ── 2차: JSONP (script 태그, script.google.com 우회) ─────────
+        return new Promise(function (resolve, reject) {
           var cbName = "__gasCb_" + ++_jsonpSeq + "_" + Date.now();
           var allParams = Object.assign({}, params, { callback: cbName });
-          var qs = Object.keys(allParams)
-            .map(function (k) {
-              return (
+          var qs2 = Object.keys(allParams)
+            .map(
+              (k) =>
                 encodeURIComponent(k) +
                 "=" +
-                encodeURIComponent(String(allParams[k]))
-              );
-            })
+                encodeURIComponent(String(allParams[k])),
+            )
             .join("&");
 
           var done = false;
@@ -2143,8 +2170,11 @@
             if (done) return;
             done = true;
             cleanup();
-            // JSONP 타임아웃 → reject (폴백은 호출부에서 catch로 처리)
-            reject(new Error("GAS 응답 없음 (로컬 데이터 사용)"));
+            reject(
+              new Error(
+                "GAS 응답 없음 — 배포 설정(액세스: 모든 사용자)을 확인하세요",
+              ),
+            );
           }, timeout);
 
           window[cbName] = function (data) {
@@ -2155,14 +2185,13 @@
             resolve(data);
           };
 
-          script.src = url + "?" + qs;
-          // onerror: 403/네트워크 오류 → 즉시 reject (타임아웃 대기 불필요)
+          script.src = url + "?" + qs2;
           script.onerror = function () {
             if (done) return;
             done = true;
             clearTimeout(tid);
             cleanup();
-            reject(new Error("GAS 접근 불가 (로컬 데이터 사용)"));
+            reject(new Error("GAS 접근 불가 (403) — 배포 설정을 확인하세요"));
           };
           document.head.appendChild(script);
 
@@ -2906,13 +2935,13 @@
       function saveTeacherGasUrl() {
         const url = document.getElementById("teacherGasUrl").value.trim();
         if (!url.startsWith("https://script.google.com")) {
-          showToast("올바른 URL을 입력해 주세요");
+          showToast("올바른 GAS URL을 입력해 주세요");
           return;
         }
         setGasUrl(url);
         initTeacherPage();
-        initStudentGasBanner(); // 학생 배너도 동기화
-        showToast("URL 저장 완료 ✅");
+        if (typeof initStudentGasBanner === "function") initStudentGasBanner();
+        showToast("URL 저장 완료 ✅ — 데이터 불러오는 중...");
         refreshTeacherData();
       }
 
@@ -2963,14 +2992,15 @@
           } else throw new Error(res?.message || "GAS 응답 오류");
         } catch (e) {
           hideLoading();
-          // GAS 배포 설정 문제(403)면 안내 메시지 표시, 로컬로 조용히 폴백
-          const is403 =
-            e.message.includes("접근 불가") || e.message.includes("로드 실패");
-          if (is403) {
-            stEl.innerHTML = `⚠️ GAS 연동 불가 — <b>Apps Script 배포 설정 확인 필요</b><br>
-              <small style="color:var(--g500)">배포 → 웹앱 → 액세스: <b>모든 사용자(익명 포함)</b> 로 변경 후 새 버전 배포</small>`;
+          const msg = e.message || "";
+          if (msg.includes("403") || msg.includes("접근 불가")) {
+            stEl.innerHTML = `❌ GAS 403 오류 — Apps Script 배포 설정 확인 필요<br>
+              <small style="color:var(--da)">배포 → 웹앱 → <b>액세스: 모든 사용자(익명 포함)</b> → 새 버전 배포</small>`;
+          } else if (msg.includes("배포 설정")) {
+            stEl.innerHTML = `❌ ${msg}<br>
+              <small style="color:var(--da)">배포 → 웹앱 → <b>액세스: 모든 사용자(익명 포함)</b> → 새 버전 배포</small>`;
           } else {
-            stEl.textContent = `⚠️ GAS 조회 실패 — 로컬 데이터로 표시 중`;
+            stEl.textContent = `⚠️ GAS 연결 실패: ${msg}`;
           }
           buildCacheFromLocal();
           renderTeacher();
@@ -3416,8 +3446,9 @@
       /* ══ GAS 코드 복사 ══════════════════════════════════════ */
       function copyGasCode() {
         const code = `// =====================================================
-// 일학습병행 출결 시스템 - Apps Script (JSONP 지원)
-// 배포: 웹앱 → 액세스: 모든 사용자(익명 포함)
+// 일학습병행 출결 시스템 - Apps Script v11
+// 배포 설정: 웹앱 → 실행: 나 → 액세스: 모든 사용자(익명 포함)
+// ※ 반드시 "새 버전"으로 배포해야 적용됩니다
 // =====================================================
 const SHEET = '출결데이터';
 const CFG   = '학생설정';
@@ -3427,41 +3458,37 @@ function getOrCreate(name) {
   return ss.getSheetByName(name) || ss.insertSheet(name);
 }
 
-/* JSON 응답 */
-function jsonOut(obj) {
+/* 응답 헬퍼 — callback 있으면 JSONP, 없으면 JSON */
+function out(obj, cb) {
+  const str = JSON.stringify(obj);
+  if (cb) {
+    return ContentService
+      .createTextOutput(cb + '(' + str + ');')
+      .setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
   return ContentService
-    .createTextOutput(JSON.stringify(obj))
+    .createTextOutput(str)
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-/* JSONP 응답 — callback 파라미터가 있을 때 */
-function jsonpOut(cb, obj) {
-  return ContentService
-    .createTextOutput(cb + '(' + JSON.stringify(obj) + ');')
-    .setMimeType(ContentService.MimeType.JAVASCRIPT);
-}
-
+/* doPost: 학생 체크/수정 저장용 */
 function doPost(e) {
   try {
     const raw = e.parameter?.payload || (e.postData && e.postData.contents) || '{}';
-    return jsonOut(handle(JSON.parse(raw)));
+    return out(handle(JSON.parse(raw)));
   } catch(err) {
-    return jsonOut({ result:'error', message: err.message });
+    return out({ result:'error', message: err.message });
   }
 }
 
-/* ✅ doGet: ?callback=함수명 이 있으면 JSONP 응답 → 403/CORS 완전 우회 */
+/* doGet: 조회용 — fetch & JSONP 모두 지원 */
 function doGet(e) {
+  const p  = e.parameter || {};
+  const cb = p.callback  || '';
   try {
-    const p  = e.parameter || {};
-    const cb = p.callback  || '';
-    const res = handle(p);
-    return cb ? jsonpOut(cb, res) : jsonOut(res);
+    return out(handle(p), cb);
   } catch(err) {
-    const p  = e.parameter || {};
-    const cb = p.callback  || '';
-    const er = { result:'error', message: err.message };
-    return cb ? jsonpOut(cb, er) : jsonOut(er);
+    return out({ result:'error', message: err.message }, cb);
   }
 }
 
@@ -3476,7 +3503,7 @@ function handle(p) {
     case 'setStudentPw':      return setStudentPw(p);
     case 'getTeacherPw':      return getTeacherPw(p);
     case 'setTeacherPw':      return setTeacherPw(p);
-    default: return { result:'ok', message:'Apps Script 동작 중' };
+    default: return { result:'ok', message:'Apps Script v11 동작 중' };
   }
 }
 
