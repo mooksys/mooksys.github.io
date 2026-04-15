@@ -605,18 +605,16 @@
         background: var(--g100);
         color: var(--g400);
       }
-
-      /* GAS 설정 배너 */
-      .gas-setup-banner {
-        background: linear-gradient(135deg, #fffbeb, #fef9c3);
-        border: 1.5px solid #fde68a;
+      .gas-banner {
         border-radius: var(--r);
         padding: 16px;
         margin-bottom: 14px;
+        border: 1.5px solid #fde68a;
+        background: linear-gradient(135deg, #fffbeb, #fef9c3);
       }
-      .gas-setup-banner.connected {
-        background: linear-gradient(135deg, #f0fdf9, #d1fae5);
+      .gas-banner.ok {
         border-color: #6ee7b7;
+        background: linear-gradient(135deg, #f0fdf9, #d1fae5);
       }
       .gas-hd {
         display: flex;
@@ -656,13 +654,12 @@
       .gas-row input:focus {
         border-color: var(--pr);
       }
-      .gas-status {
+      .gas-st {
         font-size: 11px;
         margin-top: 6px;
         min-height: 14px;
+        color: var(--g500);
       }
-
-      /* 선생님 */
       .t-top {
         display: flex;
         align-items: flex-start;
@@ -838,14 +835,14 @@
         user-select: none;
         white-space: nowrap;
       }
-      .th.sortable:hover {
+      th.sortable:hover {
         color: var(--pr);
       }
       th.sortable.asc::after {
         content: " ↑";
         color: var(--pr);
       }
-      .th.sortable.desc::after {
+      th.sortable.desc::after {
         content: " ↓";
         color: var(--pr);
       }
@@ -1119,7 +1116,6 @@
         margin-bottom: 18px;
         line-height: 1.7;
       }
-      /* 로딩 */
       .loading-overlay {
         position: fixed;
         inset: 0;
@@ -1152,8 +1148,7 @@
         color: var(--g500);
         font-weight: 600;
       }
-      /* 전송 상태 */
-      .sync-indicator {
+      .sync-ind {
         display: inline-flex;
         align-items: center;
         gap: 5px;
@@ -1196,7 +1191,6 @@
         opacity: 1;
         transform: translateX(-50%) translateY(0);
       }
-      /* 가이드 */
       .guide-card {
         background: #fff;
         border: 1px solid var(--g200);
@@ -1216,7 +1210,7 @@
         .alert-banner,
         .chart-wrap,
         .t-top,
-        .gas-setup-banner,
+        .gas-banner,
         .modal-bg {
           display: none !important;
         }
@@ -1264,44 +1258,12 @@
       <span class="hdate" id="headerDate"></span>
       <button class="tbtn" onclick="showTeacherLogin()">👩‍🏫 선생님</button>
     </header>
-
     <div class="loading-overlay hide" id="loadingOverlay">
       <div class="spinner"></div>
       <div class="loading-txt" id="loadingTxt">처리 중...</div>
     </div>
 
     <div class="wrap">
-      <!-- GAS URL 미설정 안내 (최초 1회) -->
-      <div
-        id="gasSetupNotice"
-        class="gas-setup-banner hide"
-        style="margin-bottom: 0"
-      >
-        <div class="gas-hd">
-          <div class="gas-dot off"></div>
-          <div class="gas-title">⚙️ Google Apps Script 연동 필요</div>
-        </div>
-        <div
-          style="
-            font-size: 12px;
-            color: #92400e;
-            margin-bottom: 10px;
-            line-height: 1.7;
-          "
-        >
-          출결 데이터를 실시간으로 공유하려면 Apps Script URL을 먼저 설정해
-          주세요.
-        </div>
-        <div class="gas-row">
-          <input
-            type="text"
-            id="setupUrlInput"
-            placeholder="https://script.google.com/macros/s/.../exec"
-          />
-          <button class="btn btn-sm bp" onclick="saveSetupUrl()">저장</button>
-        </div>
-      </div>
-
       <!-- ===== 로그인 ===== -->
       <div class="page active" id="page-login">
         <div style="text-align: center; padding: 18px 0 22px">
@@ -1466,12 +1428,11 @@
             <button class="ubtn" onclick="showChangePw()">🔑 비번변경</button>
           </div>
         </div>
-        <!-- 전송 상태 표시 -->
         <div
-          id="syncIndicatorWrap"
+          id="syncWrap"
           style="margin-bottom: 10px; text-align: right; display: none"
         >
-          <span class="sync-indicator" id="syncIndicator"></span>
+          <span class="sync-ind" id="syncInd"></span>
         </div>
         <div id="todayDisplay"></div>
         <div id="beaconSection" style="display: none">
@@ -1523,15 +1484,11 @@
             <div class="ci ci-p">🔑</div>
             <div><div class="ct">비밀번호 변경</div></div>
           </div>
-          <div class="sec-badge">🔒 SHA-256 암호화 저장</div>
+          <div class="sec-badge">🔒 SHA-256 암호화</div>
           <div class="field">
             <label>현재 비밀번호</label>
             <div class="pw-wrap">
-              <input
-                type="password"
-                id="curPw"
-                placeholder="현재 비밀번호"
-              /><button
+              <input type="password" id="curPw" /><button
                 class="pw-toggle"
                 type="button"
                 onclick="togglePw('curPw', this)"
@@ -1681,14 +1638,17 @@
             <button class="btn btn-sm bg" onclick="window.print()">
               🖨️ 인쇄
             </button>
+            <button class="btn btn-sm bg" onclick="showTeacherChangePw()">
+              🔑 비번변경
+            </button>
             <button class="btn btn-sm bg" onclick="showPage('page-login')">
               나가기
             </button>
           </div>
         </div>
 
-        <!-- GAS 연결 상태 표시 -->
-        <div class="gas-setup-banner" id="teacherGasBox">
+        <!-- GAS 연결 상태 -->
+        <div class="gas-banner" id="teacherGasBox">
           <div class="gas-hd">
             <div class="gas-dot" id="teacherGasDot"></div>
             <div class="gas-title" id="teacherGasTitle"></div>
@@ -1698,13 +1658,12 @@
               type="text"
               id="teacherGasUrl"
               placeholder="https://script.google.com/macros/s/.../exec"
-              style="border-color: #fde68a"
             />
             <button class="btn btn-sm bp" onclick="saveTeacherGasUrl()">
               저장
             </button>
           </div>
-          <div class="gas-status" id="teacherGasStatus"></div>
+          <div class="gas-st" id="teacherGasStatus"></div>
         </div>
 
         <div class="alert-banner hide" id="alertBanner">
@@ -1712,7 +1671,6 @@
         </div>
         <div class="stat4" id="stat4"></div>
 
-        <!-- 차트 -->
         <div class="card">
           <div class="card-hd">
             <div class="ci ci-b">📈</div>
@@ -1744,7 +1702,10 @@
 
         <div class="search-row">
           <div class="sel-w">
-            <select id="teacherWeekSelect" onchange="renderTeacher()"></select>
+            <select
+              id="teacherWeekSelect"
+              onchange="refreshTeacherData()"
+            ></select>
           </div>
           <input
             type="text"
@@ -1876,7 +1837,6 @@
           </div>
         </div>
 
-        <!-- Apps Script 가이드 -->
         <div class="guide-card">
           <div
             style="
@@ -1888,6 +1848,25 @@
           >
             📖 Apps Script 설치 가이드
           </div>
+          <!-- 403 오류 해결 안내 -->
+          <div
+            style="
+              background: #fff7ed;
+              border: 1.5px solid #fed7aa;
+              border-radius: 8px;
+              padding: 10px 12px;
+              margin-bottom: 12px;
+              font-size: 12px;
+              color: #92400e;
+              line-height: 1.9;
+            "
+          >
+            <b>⚠️ 403 오류 / GAS 연결 안 될 때</b><br />
+            배포 설정에서 액세스 권한을 반드시<br />
+            <b style="color: #dc2626">「모든 사용자(익명 포함)」</b>으로
+            선택해야 합니다.<br />
+            <small>변경 후 → 버전 새로 생성 → 배포 → URL 다시 저장</small>
+          </div>
           <div style="font-size: 12px; color: var(--g500); line-height: 2.2">
             <b style="color: var(--pr)">1.</b>
             <a
@@ -1897,12 +1876,12 @@
               >script.google.com</a
             >
             → 새 프로젝트<br />
-            <b style="color: var(--pr)">2.</b> 아래 코드 복사 → 붙여넣기 →
-            저장<br />
-            <b style="color: var(--pr)">3.</b> 배포 → 웹앱으로 배포 → 액세스:
-            <b>모든 사용자</b><br />
-            <b style="color: var(--pr)">4.</b> 생성된 URL → 위 입력란에 붙여넣고
-            저장
+            <b style="color: var(--pr)">2.</b> 코드 복사 → 붙여넣기 → 저장<br />
+            <b style="color: var(--pr)">3.</b> 배포 → 웹앱으로 배포<br />
+            &nbsp;&nbsp;&nbsp;· 실행 계정: <b>나</b><br />
+            &nbsp;&nbsp;&nbsp;· 액세스 권한:
+            <b style="color: #dc2626">모든 사용자(익명 포함)</b><br />
+            <b style="color: var(--pr)">4.</b> 생성된 URL → 위 입력란에 저장
           </div>
           <button
             class="btn bg"
@@ -1973,13 +1952,72 @@
         </div>
       </div>
     </div>
+    <!-- 선생님 비밀번호 변경 모달 -->
+    <div class="modal-bg hide" id="teacherPwModal">
+      <div class="modal">
+        <div class="modal-hd">
+          <div class="modal-title">🔑 선생님 비밀번호 변경</div>
+          <button class="modal-close" onclick="closeTeacherPwModal()">✕</button>
+        </div>
+        <div class="mfield" style="margin-bottom: 12px">
+          <label>현재 비밀번호</label>
+          <div class="pw-wrap">
+            <input type="password" id="tCurPw" placeholder="현재 비밀번호" />
+            <button
+              class="pw-toggle"
+              type="button"
+              onclick="togglePw('tCurPw', this)"
+            >
+              👁
+            </button>
+          </div>
+        </div>
+        <div class="mfield" style="margin-bottom: 12px">
+          <label>새 비밀번호</label>
+          <div class="pw-wrap">
+            <input
+              type="password"
+              id="tNewPw"
+              placeholder="새 비밀번호 (4자 이상)"
+            />
+            <button
+              class="pw-toggle"
+              type="button"
+              onclick="togglePw('tNewPw', this)"
+            >
+              👁
+            </button>
+          </div>
+        </div>
+        <div class="mfield" style="margin-bottom: 16px">
+          <label>새 비밀번호 확인</label>
+          <div class="pw-wrap">
+            <input
+              type="password"
+              id="tNewPw2"
+              placeholder="다시 입력"
+              onkeydown="if (event.key === 'Enter') doTeacherChangePw();"
+            />
+            <button
+              class="pw-toggle"
+              type="button"
+              onclick="togglePw('tNewPw2', this)"
+            >
+              👁
+            </button>
+          </div>
+        </div>
+        <div class="modal-btns">
+          <button class="btn bg" onclick="closeTeacherPwModal()">취소</button>
+          <button class="btn bp" onclick="doTeacherChangePw()">변경하기</button>
+        </div>
+      </div>
+    </div>
 
     <div class="toast" id="toast"></div>
 
     <script>
-      /* ══════════════════════════════════════════
-   상수 & 학생 목록
-══════════════════════════════════════════ */
+      /* ══ 상수 ══════════════════════════════════════════════════ */
       const STUDENTS = [
         { no: "31201", name: "기대현" },
         { no: "31202", name: "김련호" },
@@ -2005,16 +2043,15 @@
       ];
       const WDAYS = [2, 3, 4],
         DMAP = { 2: "화", 3: "수", 4: "목" };
-      // 교사 비밀번호
-      const TEACHER_PW_HASH =
-        "a037a7dfaf26abe1265bd5d51447be3bb1fdaef7c4c7a14bcf0d819818fb80b0";
-      // 학생 초기 비밀번호 "0000"
+      // 교사 비번 "1234" SHA-256 (localStorage에 저장된 값 우선)
+      let TEACHER_PW_HASH =
+        localStorage.getItem("teacher_pw_hash") ||
+        "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
+      // 학생 초기 비번 "0000" SHA-256
       const DEFAULT_PW_HASH =
         "9af15b336e6a9619928537df30b2e6a2376569fcf9d7e773eccede65606529a0";
 
-      /* ══════════════════════════════════════════
-   SHA-256 (Web Crypto API)
-══════════════════════════════════════════ */
+      /* ══ SHA-256 ════════════════════════════════════════════════ */
       async function sha256(str) {
         const buf = await crypto.subtle.digest(
           "SHA-256",
@@ -2025,87 +2062,90 @@
           .join("");
       }
 
-      /* ══════════════════════════════════════════
-   GAS URL 관리
-   - 학생/선생님 모두 같은 URL 사용
-   - localStorage에 'gas_url' 키로 저장
-══════════════════════════════════════════ */
-      function getGasUrl() {
-        return localStorage.getItem("gas_url") || "";
-      }
-      function setGasUrl(url) {
-        localStorage.setItem("gas_url", url);
-      }
-      function hasGasUrl() {
-        return !!getGasUrl();
-      }
+      /* ══ GAS URL ════════════════════════════════════════════════ */
+      const getGasUrl = () => localStorage.getItem("gas_url") || "";
+      const setGasUrl = (url) => localStorage.setItem("gas_url", url);
+      const hasGasUrl = () => !!getGasUrl();
 
-      /* ══════════════════════════════════════════
-   GAS 통신 핵심 함수
-   - action: 'checkIn'|'checkOut'|'getRecords'|'updateRecord'|'getStudentConfig'|'setStudentConfig'
-   - 학생 체크: form submit (CORS 우회)
-   - 조회: fetch GET + ?action=...&no=...
-══════════════════════════════════════════ */
-
-      // ══════════════════════════════════════════
-      // GAS 통신 - iframe + postMessage 방식
-      // GAS doGet이 HTML 페이지를 반환할 때 parent.postMessage로 데이터 전달
-      // CORS 완전 우회, 응답 수신 가능
-      // ══════════════════════════════════════════
-
-      // GET 조회: iframe에 GAS URL 로드 → GAS가 postMessage로 응답
-      function gasGet(params) {
-        return new Promise((resolve, reject) => {
-          const url = getGasUrl();
+      /* ══════════════════════════════════════════════════════════
+   ✅ gasGet — no-cors fetch → 응답 불가 시 로컬 폴백
+   JSONP/fetch 모두 Google이 403 반환 → 에러를 조용히 처리.
+   선생님 대시보드는 localStorage 폴백으로 동작.
+══════════════════════════════════════════════════════════ */
+      let _jsonpSeq = 0;
+      function gasGet(params, timeout) {
+        timeout = timeout || 15000;
+        return new Promise(function (resolve, reject) {
+          var url = getGasUrl();
           if (!url) {
             resolve(null);
             return;
           }
 
-          const qs = Object.entries(params)
-            .map(
-              ([k, v]) => `${encodeURIComponent(k)}=${encodeURIComponent(v)}`,
-            )
+          // 1차 시도: JSONP (script 태그, CORS 우회 가능성)
+          var cbName = "__gasCb_" + ++_jsonpSeq + "_" + Date.now();
+          var allParams = Object.assign({}, params, { callback: cbName });
+          var qs = Object.keys(allParams)
+            .map(function (k) {
+              return (
+                encodeURIComponent(k) +
+                "=" +
+                encodeURIComponent(String(allParams[k]))
+              );
+            })
             .join("&");
 
-          // 응답 수신용 iframe
-          const iframe = document.createElement("iframe");
-          iframe.style.display = "none";
-          document.body.appendChild(iframe);
+          var done = false;
+          var script = document.createElement("script");
 
-          const timeoutId = setTimeout(() => {
-            window.removeEventListener("message", handler);
-            try {
-              document.body.removeChild(iframe);
-            } catch (e) {}
-            reject(new Error("GAS 응답 타임아웃 (10초)"));
-          }, 10000);
+          var tid = setTimeout(function () {
+            if (done) return;
+            done = true;
+            cleanup();
+            // JSONP 타임아웃 → reject (폴백은 호출부에서 catch로 처리)
+            reject(new Error("GAS 응답 없음 (로컬 데이터 사용)"));
+          }, timeout);
 
-          function handler(e) {
-            // GAS에서 보낸 메시지인지 확인
-            if (!e.data || e.data.__gas !== true) return;
-            clearTimeout(timeoutId);
-            window.removeEventListener("message", handler);
+          window[cbName] = function (data) {
+            if (done) return;
+            done = true;
+            clearTimeout(tid);
+            cleanup();
+            resolve(data);
+          };
+
+          script.src = url + "?" + qs;
+          // onerror: 403/네트워크 오류 → 즉시 reject (타임아웃 대기 불필요)
+          script.onerror = function () {
+            if (done) return;
+            done = true;
+            clearTimeout(tid);
+            cleanup();
+            reject(new Error("GAS 접근 불가 (로컬 데이터 사용)"));
+          };
+          document.head.appendChild(script);
+
+          function cleanup() {
             try {
-              document.body.removeChild(iframe);
+              document.head.removeChild(script);
             } catch (e) {}
-            resolve(e.data.payload);
+            try {
+              delete window[cbName];
+            } catch (e) {}
           }
-          window.addEventListener("message", handler);
-
-          iframe.src = `${url}?${qs}&_mode=postmsg`;
         });
       }
 
-      // POST (쓰기): 기존 iframe form 방식 유지 (저장은 응답 불필요)
+      /* ══════════════════════════════════════════════════════════
+   ✅ gasPost — form submit (CORS 우회, 저장용)
+══════════════════════════════════════════════════════════ */
       function gasPost(data) {
         return new Promise((resolve) => {
           const url = getGasUrl();
           if (!url) {
-            resolve({ result: "error", message: "URL 없음" });
+            resolve({ result: "error", message: "URL없음" });
             return;
           }
-
           let iframe = document.getElementById("gas_iframe");
           if (!iframe) {
             iframe = document.createElement("iframe");
@@ -2114,31 +2154,27 @@
             iframe.style.display = "none";
             document.body.appendChild(iframe);
           }
-
           const form = document.createElement("form");
           form.method = "POST";
           form.action = url;
           form.target = "gas_iframe";
           form.style.display = "none";
-
           const inp = document.createElement("input");
           inp.type = "hidden";
           inp.name = "payload";
           inp.value = JSON.stringify(data);
           form.appendChild(inp);
           document.body.appendChild(form);
-
-          const timer = setTimeout(() => {
+          const tid = setTimeout(() => {
             cleanup();
             resolve({ result: "ok" });
           }, 8000);
           iframe.onload = () => {
-            clearTimeout(timer);
+            clearTimeout(tid);
             cleanup();
             resolve({ result: "ok" });
           };
           form.submit();
-
           function cleanup() {
             try {
               document.body.removeChild(form);
@@ -2147,29 +2183,38 @@
         });
       }
 
-      /* ══════════════════════════════════════════
-   로컬 스토리지 (학생 인증 정보만 저장)
-   - 비밀번호 해시, 입실/퇴실 기준 시간만 로컬 저장
-   - 출결 기록은 GAS에 저장
-══════════════════════════════════════════ */
+      /* ══ 로컬 스토리지 ══════════════════════════════════════════ */
       const lsd = (no) => {
         try {
-          return JSON.parse(localStorage.getItem("att9_" + no)) || defLocal();
+          return JSON.parse(localStorage.getItem("att10_" + no)) || defL();
         } catch {
-          return defLocal();
+          return defL();
         }
       };
       const ssd = (no, d) =>
-        localStorage.setItem("att9_" + no, JSON.stringify(d));
-      const defLocal = () => ({
-        pwHash: DEFAULT_PW_HASH,
-        inTime: "",
-        outTime: "",
-      });
+        localStorage.setItem("att10_" + no, JSON.stringify(d));
+      const defL = () => ({ pwHash: DEFAULT_PW_HASH, inTime: "", outTime: "" });
+      // 출결 로컬 백업 (GAS 실패 시 폴백)
+      const saveLocalRec = (no, dk, type, t) => {
+        const k = "rec10_" + no + "_" + dk;
+        let r = {};
+        try {
+          r = JSON.parse(localStorage.getItem(k)) || {};
+        } catch (e) {}
+        r[type] = t;
+        localStorage.setItem(k, JSON.stringify(r));
+      };
+      const getLocalRec = (no, dk) => {
+        try {
+          return (
+            JSON.parse(localStorage.getItem("rec10_" + no + "_" + dk)) || {}
+          );
+        } catch {
+          return {};
+        }
+      };
 
-      /* ══════════════════════════════════════════
-   날짜 유틸
-══════════════════════════════════════════ */
+      /* ══ 날짜 유틸 ══════════════════════════════════════════════ */
       const p2 = (n) => String(n).padStart(2, "0");
       const fmtDate = (d) =>
         `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
@@ -2199,21 +2244,31 @@
           return { day: DMAP[dn], date: dt, key: fmtDate(dt) };
         });
       }
-      // weekKey: "2025-04-15W15" 형식 → 화요일 날짜 기준
-      function wKey(d) {
-        const ds = getWD(d);
-        return ds[0].key;
-      } // 화요일 dateKey를 weekKey로 사용 (YYYY-MM-DD)
+      function getWeekDatesFromSel() {
+        const sel = document.getElementById("teacherWeekSelect");
+        if (!sel || !sel.value) return getWD(new Date());
+        const parts = sel.value.split("|");
+        if (parts.length === 2) {
+          const d = new Date(parts[0] + "T00:00:00");
+          if (!isNaN(d)) return getWD(d);
+        }
+        return getWD(new Date());
+      }
 
-      /* ══════════════════════════════════════════
-   선생님용 인메모리 캐시
-   GAS에서 불러온 데이터를 임시 저장
-══════════════════════════════════════════ */
-      let teacherCache = {}; // {no: {records:{dateKey:{in,out,memo}}, inTime, outTime}}
+      /* ══ 선생님 캐시 ══════════════════════════════════════════ */
+      let teacherCache = {};
+      // 캐시 조회: GAS 데이터 + 로컬 백업 병합
+      function getStudentData(no) {
+        const local = lsd(no),
+          cached = teacherCache[no] || {};
+        return {
+          inTime: cached.inTime || local.inTime || "09:00",
+          outTime: cached.outTime || local.outTime || "18:00",
+          records: cached.records || {},
+        };
+      }
 
-      /* ══════════════════════════════════════════
-   UI 초기화
-══════════════════════════════════════════ */
+      /* ══ UI 초기화 ══════════════════════════════════════════════ */
       let cs = null,
         tempIn = null,
         tempOut = null;
@@ -2221,7 +2276,6 @@
         sortCol = "no",
         sortAsc = true,
         editTarget = null;
-
       (() => {
         const n = new Date(),
           days = ["일", "월", "화", "수", "목", "금", "토"];
@@ -2235,24 +2289,19 @@
           o.textContent = `${st.no}  ${st.name}`;
           s.appendChild(o);
         });
-        // GAS URL 없으면 안내 배너 표시
-        if (!hasGasUrl())
-          document.getElementById("gasSetupNotice").classList.remove("hide");
+        if (!hasGasUrl()) console.log("GAS URL 미설정 — 로컬 저장 모드로 동작");
       })();
-
-      function showLoading(msg = "처리 중...") {
-        document.getElementById("loadingTxt").textContent = msg;
+      const showLoading = (msg) => {
+        document.getElementById("loadingTxt").textContent = msg || "처리 중...";
         document.getElementById("loadingOverlay").classList.remove("hide");
-      }
-      function hideLoading() {
+      };
+      const hideLoading = () =>
         document.getElementById("loadingOverlay").classList.add("hide");
-      }
       function togglePw(id, btn) {
         const i = document.getElementById(id);
         i.type = i.type === "password" ? "text" : "password";
         btn.textContent = i.type === "password" ? "👁" : "🙈";
       }
-
       function saveSetupUrl() {
         const url = document.getElementById("setupUrlInput").value.trim();
         if (!url.startsWith("https://script.google.com")) {
@@ -2261,12 +2310,10 @@
         }
         setGasUrl(url);
         document.getElementById("gasSetupNotice").classList.add("hide");
-        showToast("Apps Script URL 저장 완료 ✅");
+        showToast("URL 저장 완료 ✅");
       }
 
-      /* ══════════════════════════════════════════
-   학생 로그인
-══════════════════════════════════════════ */
+      /* ══ 학생 로그인 ══════════════════════════════════════════ */
       async function doLogin() {
         const no = document.getElementById("studentSelect").value;
         if (!no) {
@@ -2280,17 +2327,16 @@
         }
         showLoading("로그인 중...");
         document.getElementById("loginBtn").disabled = true;
-        // 구버전 평문 마이그레이션
         const local = lsd(no);
         if (local.pw && !local.pwHash) {
           local.pwHash = await sha256(local.pw);
           delete local.pw;
           ssd(no, local);
         }
-        const inputHash = await sha256(pw);
+        const h = await sha256(pw);
         hideLoading();
         document.getElementById("loginBtn").disabled = false;
-        if (inputHash !== local.pwHash) {
+        if (h !== local.pwHash) {
           showToast("비밀번호가 틀렸습니다 ❌");
           document.getElementById("loginPw").value = "";
           return;
@@ -2313,9 +2359,7 @@
         showPage("page-login");
       }
 
-      /* ══════════════════════════════════════════
-   시간 설정
-══════════════════════════════════════════ */
+      /* ══ 시간 설정 ══════════════════════════════════════════ */
       function selTime(type, val, el) {
         document
           .querySelectorAll(
@@ -2369,7 +2413,6 @@
         local.inTime = tempIn;
         local.outTime = tempOut;
         ssd(cs.no, local);
-        // GAS에도 학생 설정 동기화
         if (hasGasUrl()) {
           showLoading("설정 저장 중...");
           await gasPost({
@@ -2384,9 +2427,7 @@
         enterCheck();
       }
 
-      /* ══════════════════════════════════════════
-   출결 화면 진입 & 오늘 기록 불러오기
-══════════════════════════════════════════ */
+      /* ══ 출결 화면 ══════════════════════════════════════════ */
       function enterCheck() {
         const local = lsd(cs.no);
         ["1", "2"].forEach((s) => {
@@ -2400,21 +2441,11 @@
         });
         renderToday();
         showPage("page-check");
-        // 오늘 기록을 GAS에서 가져와 배지 업데이트
-        if (hasGasUrl()) loadTodayFromGas();
+        // 오늘 로컬 기록 즉시 표시
+        const dk = fmtDate(new Date()),
+          rec = getLocalRec(cs.no, dk);
+        if (rec.in || rec.out) applyBadges(rec, local.inTime, local.outTime);
       }
-
-      // 오늘 기록을 localStorage에서 읽어 배지 업데이트
-      function loadTodayFromGas() {
-        const dateKey = fmtDate(new Date());
-        const local = lsd(cs.no);
-        const rec = getLocalRec(cs.no, dateKey);
-        applyBadges(rec, local.inTime, local.outTime);
-      }
-
-      /* ══════════════════════════════════════════
-   오늘 날짜 표시
-══════════════════════════════════════════ */
       function renderToday() {
         const now = new Date(),
           dow = now.getDay();
@@ -2445,16 +2476,14 @@
         document.getElementById("stdIn").textContent = `기준 ${local.inTime}`;
         document.getElementById("stdOut").textContent = `기준 ${local.outTime}`;
       }
-
       function applyBadges(rec, inT, outT) {
-        const pairs = [
+        [
           ["badgeIn", "statusIn", "boxIn", rec.in, true],
           ["badgeOut", "statusOut", "boxOut", rec.out, false],
-        ];
-        pairs.forEach(([bid, sid, boxId, time, isIn]) => {
+        ].forEach(([bid, sid, bxid, time, isIn]) => {
           const b = document.getElementById(bid),
             s = document.getElementById(sid),
-            box = document.getElementById(boxId);
+            box = document.getElementById(bxid);
           if (!b) return;
           b.className = "tbadge";
           if (time) {
@@ -2478,106 +2507,54 @@
         });
       }
 
-      /* ══════════════════════════════════════════
-   출결 기록 로컬 저장/조회
-   - GAS 조회는 CORS/403으로 불가 → localStorage에 기록 캐시
-   - 키: 'rec_{학번}_{YYYY-MM-DD}' = {in, out, memo}
-══════════════════════════════════════════ */
-      function saveLocalRec(no, dateKey, type, time) {
-        const key = "rec_" + no + "_" + dateKey;
-        let rec = {};
-        try {
-          rec = JSON.parse(localStorage.getItem(key)) || {};
-        } catch (e) {}
-        rec[type] = time;
-        localStorage.setItem(key, JSON.stringify(rec));
-      }
-      function getLocalRec(no, dateKey) {
-        try {
-          return (
-            JSON.parse(localStorage.getItem("rec_" + no + "_" + dateKey)) || {}
-          );
-        } catch (e) {
-          return {};
-        }
-      }
-      function getLocalWeekRecs(no, dates) {
-        const records = {};
-        dates.forEach(({ key }) => {
-          const r = getLocalRec(no, key);
-          if (r.in || r.out || r.memo) records[key] = r;
-        });
-        return records;
-      }
-
-      /* ══════════════════════════════════════════
-   비콘 체크 → GAS 저장 + localStorage 저장
-══════════════════════════════════════════ */
+      /* ══ 비콘 체크 ══════════════════════════════════════════ */
       async function checkBeacon(type) {
         const now = new Date(),
-          dateKey = fmtDate(now),
+          dk = fmtDate(now),
           t = nowStr();
         const local = lsd(cs.no),
           label = type === "in" ? "입실" : "퇴실";
-
-        document.getElementById(
-          "btn" + type[0].toUpperCase() + type.slice(1),
-        ).disabled = true;
-
-        const wrap = document.getElementById("syncIndicatorWrap"),
-          ind = document.getElementById("syncIndicator");
+        const btnId = "btn" + (type === "in" ? "In" : "Out");
+        document.getElementById(btnId).disabled = true;
+        const wrap = document.getElementById("syncWrap"),
+          ind = document.getElementById("syncInd");
         wrap.style.display = "block";
-        ind.className = "sync-indicator sync-ing";
+        ind.className = "sync-ind sync-ing";
         ind.textContent = "⏳ 전송 중...";
-
+        // 로컬 즉시 저장 (백업)
+        saveLocalRec(cs.no, dk, type, t);
         if (!hasGasUrl()) {
-          // GAS 없어도 localStorage엔 저장
-          saveLocalRec(cs.no, dateKey, type, t);
-          ind.className = "sync-indicator sync-err";
+          ind.className = "sync-ind sync-err";
           ind.textContent = "⚠️ GAS 미설정 (로컬만 저장)";
           showToast(`${label} 로컬 저장 완료 (GAS URL 미설정)`);
-          const rec = getLocalRec(cs.no, dateKey);
-          applyBadges(rec, local.inTime, local.outTime);
-          document.getElementById(
-            "btn" + type[0].toUpperCase() + type.slice(1),
-          ).disabled = false;
+          applyBadges(getLocalRec(cs.no, dk), local.inTime, local.outTime);
+          document.getElementById(btnId).disabled = false;
           return;
         }
-
-        // localStorage에 즉시 저장 (GAS 결과와 무관하게 항상 저장)
-        saveLocalRec(cs.no, dateKey, type, t);
-
         try {
           await gasPost({
             action: "checkAttendance",
             no: cs.no,
             name: STUDENTS.find((x) => x.no === cs.no)?.name || "",
-            dateKey,
+            dateKey: dk,
             type,
             time: t,
             inTime: local.inTime,
             outTime: local.outTime,
           });
-          ind.className = "sync-indicator sync-ok";
+          ind.className = "sync-ind sync-ok";
           ind.textContent = `✅ ${label} 체크 완료 ${t}`;
           showToast(`${label} 체크 완료 ✅  ${t}`);
         } catch (e) {
-          ind.className = "sync-indicator sync-err";
-          ind.textContent = `⚠️ ${label} 로컬저장 완료 (GAS 전송 실패)`;
+          ind.className = "sync-ind sync-err";
+          ind.textContent = `⚠️ GAS 전송 실패 (로컬 저장됨)`;
           showToast(`${label} 로컬 저장 완료 (GAS 연결 오류)`);
         }
-
-        // 배지 업데이트 (로컬 데이터 기준)
-        const rec = getLocalRec(cs.no, dateKey);
-        applyBadges(rec, local.inTime, local.outTime);
-        document.getElementById(
-          "btn" + type[0].toUpperCase() + type.slice(1),
-        ).disabled = false;
+        applyBadges(getLocalRec(cs.no, dk), local.inTime, local.outTime);
+        document.getElementById(btnId).disabled = false;
       }
 
-      /* ══════════════════════════════════════════
-   비밀번호 변경
-══════════════════════════════════════════ */
+      /* ══ 비번 변경 ══════════════════════════════════════════ */
       function showChangePw() {
         showPage("page-changepw");
         ["curPw", "newPw", "newPw2"].forEach(
@@ -2602,8 +2579,8 @@
         }
         showLoading("비밀번호 변경 중...");
         const local = lsd(cs.no),
-          curHash = await sha256(cur);
-        if (curHash !== local.pwHash) {
+          curH = await sha256(cur);
+        if (curH !== local.pwHash) {
           hideLoading();
           showToast("현재 비밀번호가 틀렸습니다");
           return;
@@ -2618,11 +2595,7 @@
         showPage("page-check");
       }
 
-      /* ══════════════════════════════════════════
-   학생 결과 (localStorage에서 읽기)
-   GAS는 CORS/403으로 직접 조회 불가
-   → 체크할 때 localStorage에 저장한 데이터 사용
-══════════════════════════════════════════ */
+      /* ══ 학생 결과 ══════════════════════════════════════════ */
       async function renderResult() {
         const local = lsd(cs.no);
         ["1", "2"].forEach((s) => {
@@ -2637,25 +2610,30 @@
         const dates = getWD(new Date());
         document.getElementById("resultWeekSub").textContent =
           `${dates[0].key.slice(5).replace("-", "/")} ~ ${dates[2].key.slice(5).replace("-", "/")}`;
+        // 로컬 기록 사용 (학생 본인 기기에 저장됨)
         let ok = 0,
           late = 0,
           early = 0,
           none = 0;
         const body = document.getElementById("resultBody");
-
-        // localStorage에서 이번 주 기록 읽기
-        const records = getLocalWeekRecs(cs.no, dates);
-
         body.innerHTML = "";
         dates.forEach(({ day, date, key }) => {
-          const rec = records[key] || {};
+          const rec = getLocalRec(cs.no, key);
           const iSt = rec.in ? inSt(rec.in, local.inTime) : null,
             oSt = rec.out ? outSt(rec.out, local.outTime) : null;
-          if (!rec.in && !rec.out) none++;
-          else {
-            if (iSt === "ok" && oSt === "ok") ok++;
-            if (iSt === "late") late++;
-            if (oSt === "early") early++;
+          if (!rec.in && !rec.out) {
+            none++;
+          } else {
+            // 입실 기록이 있을 때
+            if (rec.in) {
+              if (iSt === "ok") ok++;
+              else late++;
+            }
+            // 퇴실 기록이 있을 때
+            if (rec.out) {
+              if (oSt !== "ok") early++;
+            }
+            // 입실/퇴실 중 하나도 없는 날이지만 기록 자체는 있는 경우 방지
           }
           body.innerHTML += `<tr>
       <td>${date.getMonth() + 1}/${date.getDate()}</td><td><b>${day}</b></td>
@@ -2672,9 +2650,48 @@
     <div class="sbox sb-none"><div class="snum c-none">${none}</div><div class="slbl c-none">미체크</div></div>`;
       }
 
-      /* ══════════════════════════════════════════
-   선생님 로그인
-══════════════════════════════════════════ */
+      function showTeacherChangePw() {
+        ["tCurPw", "tNewPw", "tNewPw2"].forEach(
+          (id) => (document.getElementById(id).value = ""),
+        );
+        document.getElementById("teacherPwModal").classList.remove("hide");
+        setTimeout(() => document.getElementById("tCurPw").focus(), 100);
+      }
+      function closeTeacherPwModal() {
+        document.getElementById("teacherPwModal").classList.add("hide");
+      }
+      async function doTeacherChangePw() {
+        const cur = document.getElementById("tCurPw").value;
+        const nw = document.getElementById("tNewPw").value;
+        const nw2 = document.getElementById("tNewPw2").value;
+        if (!cur || !nw || !nw2) {
+          showToast("모든 항목을 입력해 주세요");
+          return;
+        }
+        if (nw.length < 4) {
+          showToast("4자리 이상 입력해 주세요");
+          return;
+        }
+        if (nw !== nw2) {
+          showToast("새 비밀번호가 일치하지 않습니다");
+          return;
+        }
+        showLoading("비밀번호 변경 중...");
+        const curH = await sha256(cur);
+        if (curH !== TEACHER_PW_HASH) {
+          hideLoading();
+          showToast("현재 비밀번호가 틀렸습니다 ❌");
+          document.getElementById("tCurPw").value = "";
+          return;
+        }
+        TEACHER_PW_HASH = await sha256(nw);
+        localStorage.setItem("teacher_pw_hash", TEACHER_PW_HASH);
+        hideLoading();
+        closeTeacherPwModal();
+        showToast("선생님 비밀번호가 변경되었습니다 ✅");
+      }
+
+      /* ══ 선생님 로그인 ══════════════════════════════════════ */
       function showTeacherLogin() {
         showPage("page-teacher-login");
         setTimeout(() => document.getElementById("teacherPw").focus(), 100);
@@ -2687,37 +2704,36 @@
         }
         showLoading("인증 중...");
         document.getElementById("teacherLoginBtn").disabled = true;
-        const inputHash = await sha256(pw);
+        const h = await sha256(pw);
         hideLoading();
         document.getElementById("teacherLoginBtn").disabled = false;
-        if (inputHash !== TEACHER_PW_HASH) {
+        if (h !== TEACHER_PW_HASH) {
           showToast("비밀번호가 틀렸습니다");
           document.getElementById("teacherPw").value = "";
           return;
         }
         document.getElementById("teacherPw").value = "";
         initTeacherPage();
+        buildWeekSel();
         showPage("page-teacher");
         await refreshTeacherData();
       }
-
       function initTeacherPage() {
-        const url = getGasUrl();
-        const dot = document.getElementById("teacherGasDot");
-        const title = document.getElementById("teacherGasTitle");
-        const box = document.getElementById("teacherGasBox");
+        const url = getGasUrl(),
+          dot = document.getElementById("teacherGasDot"),
+          title = document.getElementById("teacherGasTitle"),
+          box = document.getElementById("teacherGasBox");
         if (url) {
           dot.className = "gas-dot on";
           title.textContent = "✅ Google Sheets 연동됨";
-          box.classList.add("connected");
+          box.classList.add("ok");
           document.getElementById("teacherGasUrl").value = url;
         } else {
           dot.className = "gas-dot off";
           title.textContent = "⚠️ Apps Script URL 미설정";
-          box.classList.remove("connected");
+          box.classList.remove("ok");
         }
       }
-
       function saveTeacherGasUrl() {
         const url = document.getElementById("teacherGasUrl").value.trim();
         if (!url.startsWith("https://script.google.com")) {
@@ -2730,25 +2746,27 @@
         refreshTeacherData();
       }
 
-      /* ══════════════════════════════════════════
-   선생님 데이터 새로고침 (GAS → 캐시 → 렌더)
-══════════════════════════════════════════ */
+      /* ══════════════════════════════════════════════════════════
+   ✅ 선생님 데이터 새로고침
+   1순위: GAS JSONP GET → JSON 파싱
+   2순위(폴백): localStorage 로컬 데이터
+══════════════════════════════════════════════════════════ */
       async function refreshTeacherData() {
+        const stEl = document.getElementById("teacherGasStatus");
         if (!hasGasUrl()) {
-          document.getElementById("summaryBody").innerHTML =
-            `<tr><td colspan="12" class="nodata">Apps Script URL을 먼저 설정해 주세요</td></tr>`;
+          stEl.textContent = "⚠️ GAS URL을 먼저 입력해 주세요";
+          buildCacheFromLocal();
+          renderTeacher();
           return;
         }
         showLoading("출결 데이터 불러오는 중...");
+        stEl.textContent = "⏳ GAS 연결 중...";
         try {
           const dates = getWeekDatesFromSel();
-          // weekKey: 화요일 dateKey 전달 (GAS에서 날짜 범위로 필터링)
-          const weekStart = dates[0].key; // 화요일
-          const weekEnd = dates[2].key; // 목요일
           const res = await gasGet({
             action: "getAllRecords",
-            weekStart,
-            weekEnd,
+            weekStart: dates[0].key,
+            weekEnd: dates[2].key,
           });
           if (res && res.result === "ok") {
             teacherCache = {};
@@ -2766,26 +2784,48 @@
                   memo: row.memo || "",
                 };
               }
-              // inTime/outTime 최신값 업데이트
               if (row.inTime) teacherCache[row.no].inTime = row.inTime;
               if (row.outTime) teacherCache[row.no].outTime = row.outTime;
             });
+            stEl.textContent = `✅ GAS 연동 완료 (${(res.data || []).length}건, ${new Date().toLocaleTimeString()})`;
             hideLoading();
             renderTeacher();
-          } else {
-            hideLoading();
-            showToast("데이터 불러오기 실패");
-          }
+          } else throw new Error(res?.message || "GAS 응답 오류");
         } catch (e) {
           hideLoading();
-          showToast("GAS 연결 실패: " + e.message);
-          console.error(e);
+          // GAS 배포 설정 문제(403)면 안내 메시지 표시, 로컬로 조용히 폴백
+          const is403 =
+            e.message.includes("접근 불가") || e.message.includes("로드 실패");
+          if (is403) {
+            stEl.innerHTML = `⚠️ GAS 연동 불가 — <b>Apps Script 배포 설정 확인 필요</b><br>
+              <small style="color:var(--g500)">배포 → 웹앱 → 액세스: <b>모든 사용자(익명 포함)</b> 로 변경 후 새 버전 배포</small>`;
+          } else {
+            stEl.textContent = `⚠️ GAS 조회 실패 — 로컬 데이터로 표시 중`;
+          }
+          buildCacheFromLocal();
+          renderTeacher();
         }
       }
+      // 로컬 localStorage → teacherCache 폴백
+      function buildCacheFromLocal() {
+        const dates = getWeekDatesFromSel();
+        teacherCache = {};
+        STUDENTS.forEach((s) => {
+          const local = lsd(s.no);
+          if (!teacherCache[s.no])
+            teacherCache[s.no] = {
+              records: {},
+              inTime: local.inTime || "09:00",
+              outTime: local.outTime || "18:00",
+            };
+          dates.forEach(({ key }) => {
+            const r = getLocalRec(s.no, key);
+            if (r.in || r.out || r.memo) teacherCache[s.no].records[key] = r;
+          });
+        });
+      }
 
-      /* ══════════════════════════════════════════
-   주차 선택기 (현재 주 + 과거 주)
-══════════════════════════════════════════ */
+      /* ══ 주차 선택기 ════════════════════════════════════════ */
       function buildWeekSel() {
         const sel = document.getElementById("teacherWeekSelect");
         sel.innerHTML = "";
@@ -2793,10 +2833,8 @@
         for (let i = 0; i < 8; i++) {
           const d = new Date(now);
           d.setDate(d.getDate() - i * 7);
-          const ds = getWD(d);
-          const wk = wKey(d); // 화요일 dateKey
-          const opt = document.createElement("option");
-          // value에 "화요일dateKey|목요일dateKey" 저장 → 파싱 확실
+          const ds = getWD(d),
+            opt = document.createElement("option");
           opt.value = `${ds[0].key}|${ds[2].key}`;
           opt.textContent = `${ds[0].key.slice(5).replace("-", "/")}~${ds[2].key.slice(5).replace("-", "/")}`;
           if (i === 0) opt.selected = true;
@@ -2804,28 +2842,7 @@
         }
       }
 
-      // 선택된 주의 화~목 날짜 배열 반환 (option.value = "YYYY-MM-DD|YYYY-MM-DD")
-      function getWeekDatesFromSel() {
-        const sel = document.getElementById("teacherWeekSelect");
-        if (!sel || !sel.value) return getWD(new Date());
-        const parts = sel.value.split("|");
-        if (parts.length === 2) {
-          // 화요일 날짜로부터 주 계산
-          const tue = new Date(parts[0] + "T00:00:00");
-          if (!isNaN(tue.getTime())) return getWD(tue);
-        }
-        return getWD(new Date());
-      }
-      function getStudentData(no) {
-        const local = lsd(no);
-        const cached = teacherCache[no] || {};
-        return {
-          inTime: cached.inTime || local.inTime || "09:00",
-          outTime: cached.outTime || local.outTime || "18:00",
-          records: cached.records || {},
-        };
-      }
-
+      /* ══ 통계 & 차트 ════════════════════════════════════════ */
       function setFilter(f, el) {
         curFilter = f;
         document
@@ -2849,7 +2866,6 @@
         if (th) th.classList.add(sortAsc ? "asc" : "desc");
         renderTeacher();
       }
-
       function getStudentStat(s, dates) {
         const data = getStudentData(s.no);
         let ok = 0,
@@ -2863,14 +2879,15 @@
           } else {
             const iSt = rec.in ? inSt(rec.in, data.inTime) : null,
               oSt = rec.out ? outSt(rec.out, data.outTime) : null;
-            if (iSt === "ok" && oSt === "ok") ok++;
-            if (iSt === "late") late++;
-            if (oSt === "early") early++;
+            if (rec.in) {
+              if (iSt === "ok") ok++;
+              else late++;
+            }
+            if (rec.out && oSt === "early") early++;
           }
         });
         return { ok, late, early, none };
       }
-
       function buildStat4(students, dates) {
         let ok = 0,
           late = 0,
@@ -2895,9 +2912,7 @@
           b.classList.remove("hide");
         } else b.classList.add("hide");
       }
-
       function buildChart(students, dates) {
-        // dates[0]는 화요일 Date 객체 → 그대로 라벨에 사용 (getWD 재호출 금지)
         document.getElementById("chartWeekLabel").textContent =
           `${dates[0].key.slice(5).replace("-", "/")} ~ ${dates[2].key.slice(5).replace("-", "/")}`;
         document.getElementById("chartWrap").innerHTML = dates
@@ -2914,9 +2929,11 @@
               } else {
                 const iSt = rec.in ? inSt(rec.in, data.inTime) : null,
                   oSt = rec.out ? outSt(rec.out, data.outTime) : null;
-                if (iSt === "ok" && oSt === "ok") ok++;
-                if (iSt === "late") late++;
-                if (oSt === "early") early++;
+                if (rec.in) {
+                  if (iSt === "ok") ok++;
+                  else late++;
+                }
+                if (rec.out && oSt === "early") early++;
               }
             });
             const total = students.length,
@@ -2936,6 +2953,7 @@
           .join("");
       }
 
+      /* ══ 선생님 테이블 렌더 ══════════════════════════════════ */
       function renderTeacher() {
         const search =
           document.getElementById("teacherSearch")?.value.trim() || "";
@@ -2944,14 +2962,11 @@
         document.getElementById("teacherWeekLabel").textContent = wLabel;
         document.getElementById("printTitle").textContent =
           `출결 현황 — ${wLabel}`;
-
         let all = STUDENTS.filter(
           (s) => !search || s.name.includes(search) || s.no.includes(search),
         );
         buildStat4(all, dates);
         buildChart(all, dates);
-
-        // 필터 & 정렬
         let students = all.filter((s) => {
           if (curFilter === "all") return true;
           const st = getStudentStat(s, dates);
@@ -2977,8 +2992,6 @@
           }
           return (va < vb ? -1 : va > vb ? 1 : 0) * (sortAsc ? 1 : -1);
         });
-
-        // 요약 테이블
         const sb = document.getElementById("summaryBody");
         sb.innerHTML = "";
         students.forEach((s) => {
@@ -2995,9 +3008,11 @@
             }
             const iSt = rec.in ? inSt(rec.in, data.inTime) : null,
               oSt = rec.out ? outSt(rec.out, data.outTime) : null;
-            if (iSt === "ok" && oSt === "ok") ok++;
-            if (iSt === "late") late++;
-            if (oSt === "early") early++;
+            if (rec.in) {
+              if (iSt === "ok") ok++;
+              else late++;
+            }
+            if (rec.out && oSt === "early") early++;
             return `<td style="font-size:11px">${rec.in ? (iSt === "ok" ? "✅" : "⚠️") + rec.in : "—"}<br>${rec.out ? (oSt === "ok" ? "✅" : "❗") + rec.out : "—"}</td>`;
           });
           sb.innerHTML += `<tr><td>${s.no}</td><td><b>${s.name}</b></td><td>${data.inTime}</td><td>${data.outTime}</td>
@@ -3010,8 +3025,6 @@
         if (!students.length)
           sb.innerHTML =
             '<tr><td colspan="12" class="nodata">데이터 없음</td></tr>';
-
-        // 상세 테이블
         const db = document.getElementById("detailBody");
         db.innerHTML = "";
         students.forEach((s) => {
@@ -3035,17 +3048,15 @@
         if (!students.length)
           db.innerHTML =
             '<tr><td colspan="10" class="nodata">데이터 없음</td></tr>';
-
         renderStudents();
       }
 
-      /* 학생 관리 탭 */
+      /* ══ 학생 관리 ══════════════════════════════════════════ */
       function renderStudents() {
         const sb = document.getElementById("studentsBody");
         sb.innerHTML = "";
         STUDENTS.forEach((s) => {
-          const local = lsd(s.no),
-            data = getStudentData(s.no);
+          const data = getStudentData(s.no);
           const inOpts = ["09:00", "09:30", "10:00", "13:00"]
             .map(
               (v) =>
@@ -3090,9 +3101,7 @@
         showToast(`${name} 비밀번호 초기화 ✅`);
       }
 
-      /* ══════════════════════════════════════════
-   출결 수정 모달 (GAS에 저장)
-══════════════════════════════════════════ */
+      /* ══ 출결 수정 모달 ══════════════════════════════════════ */
       function openEditModal(no, dateKey) {
         const s = STUDENTS.find((x) => x.no === no);
         const dates = getWeekDatesFromSel();
@@ -3106,8 +3115,8 @@
           )
           .join("");
         if (!dateKey) {
-          const today = fmtDate(new Date());
-          const m = dates.find((d) => d.key === today);
+          const today = fmtDate(new Date()),
+            m = dates.find((d) => d.key === today);
           dsel.value = m ? m.key : dates[dates.length - 1].key;
         }
         editTarget = { no };
@@ -3115,18 +3124,18 @@
         document.getElementById("editModal").classList.remove("hide");
       }
       function loadEditFields() {
-        const dateKey = document.getElementById("editDateSel").value;
+        const dk = document.getElementById("editDateSel").value;
         const data = getStudentData(editTarget.no),
-          rec = data.records[dateKey] || {};
+          rec = data.records[dk] || {};
         document.getElementById("editIn").value = rec.in || "";
         document.getElementById("editOut").value = rec.out || "";
         document.getElementById("editMemo").value = rec.memo || "";
       }
       async function saveEdit() {
         if (!editTarget) return;
-        const dateKey = document.getElementById("editDateSel").value;
-        const inVal = document.getElementById("editIn").value;
-        const outVal = document.getElementById("editOut").value;
+        const dk = document.getElementById("editDateSel").value;
+        const inVal = document.getElementById("editIn").value,
+          outVal = document.getElementById("editOut").value;
         const memo = document.getElementById("editMemo").value.trim();
         const s = STUDENTS.find((x) => x.no === editTarget.no);
         showLoading("저장 중...");
@@ -3134,23 +3143,27 @@
           action: "updateRecord",
           no: editTarget.no,
           name: s?.name || "",
-          dateKey,
+          dateKey: dk,
           in: inVal,
           out: outVal,
           memo,
         });
-        // 캐시 업데이트
         if (!teacherCache[editTarget.no])
           teacherCache[editTarget.no] = {
             records: {},
             inTime: "",
             outTime: "",
           };
-        teacherCache[editTarget.no].records[dateKey] = {
+        teacherCache[editTarget.no].records[dk] = {
           in: inVal,
           out: outVal,
           memo,
         };
+        // 로컬 백업에도 저장
+        localStorage.setItem(
+          "rec10_" + editTarget.no + "_" + dk,
+          JSON.stringify({ in: inVal, out: outVal, memo }),
+        );
         hideLoading();
         closeModal();
         showToast("출결 수정 완료 ✅");
@@ -3161,12 +3174,20 @@
         editTarget = null;
       }
 
-      /* ══════════════════════════════════════════
-   CSV 다운로드
-══════════════════════════════════════════ */
+      /* ══ 탭 ══════════════════════════════════════════════════ */
+      function switchTab(tab) {
+        ["summary", "detail", "students"].forEach((t) => {
+          document.getElementById("view-" + t).style.display =
+            t === tab ? "block" : "none";
+          document
+            .getElementById("tab-" + t)
+            .classList.toggle("active", t === tab);
+        });
+      }
+
+      /* ══ CSV ══════════════════════════════════════════════════ */
       function downloadCSV() {
         const dates = getWeekDatesFromSel();
-        const wLabel = `${dates[0].key}~${dates[2].key}`;
         const rows = [
           [
             "학번",
@@ -3217,251 +3238,221 @@
         });
         const a = document.createElement("a");
         a.href = URL.createObjectURL(blob);
-        a.download = `출결_${wLabel}.csv`;
+        a.download = `출결_${dates[0].key}~${dates[2].key}.csv`;
         a.click();
         showToast("CSV 다운로드 완료 📥");
       }
 
-      /* ══════════════════════════════════════════
-   탭 전환
-══════════════════════════════════════════ */
-      function switchTab(tab) {
-        ["summary", "detail", "students"].forEach((t) => {
-          document.getElementById("view-" + t).style.display =
-            t === tab ? "block" : "none";
-          document
-            .getElementById("tab-" + t)
-            .classList.toggle("active", t === tab);
-        });
-      }
-
-      /* ══════════════════════════════════════════
-   Apps Script 코드 복사
-══════════════════════════════════════════ */
+      /* ══ GAS 코드 복사 ══════════════════════════════════════ */
       function copyGasCode() {
-        const code = `// ============================================
-// 일학습병행 출결 시스템 - Apps Script v10
-// ============================================
+        const code = `// =====================================================
+// 일학습병행 출결 시스템 - Apps Script (JSONP 지원)
+// 배포: 웹앱 → 액세스: 모든 사용자(익명 포함)
+// =====================================================
 const SHEET = '출결데이터';
-const CONFIG_SHEET = '학생설정';
+const CFG   = '학생설정';
 
-function getOrCreateSheet(name) {
+function getOrCreate(name) {
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   return ss.getSheetByName(name) || ss.insertSheet(name);
 }
 
-function doPost(e) {
-  try {
-    const data = e.parameter?.payload
-      ? JSON.parse(e.parameter.payload)
-      : JSON.parse(e.postData.contents);
-    return respond(handleAction(data), null);
-  } catch(err) {
-    return respond({ result: 'error', message: err.message }, null);
-  }
-}
-
-function doGet(e) {
-  try {
-    const p = e.parameter || {};
-    const result = handleAction(p);
-    return respond(result, p._mode);
-  } catch(err) {
-    return respond({ result: 'error', message: err.message }, null);
-  }
-}
-
-// _mode=postmsg 이면 부모 창에 postMessage로 전달하는 HTML 반환
-// 그 외에는 JSON 반환
-function respond(obj, mode) {
-  const jsonStr = JSON.stringify(obj);
-  if (mode === 'postmsg') {
-    const html = \`<!DOCTYPE html><html><body><script>
-      (function(){
-        var d = \` + jsonStr + \`;
-        d.__gas = true;
-        var target = window.opener || window.parent;
-        target.postMessage({ __gas: true, payload: d }, '*');
-      })();
-    <\/script></body></html>\`;
-    return ContentService.createTextOutput(html)
-      .setMimeType(ContentService.MimeType.HTML);
-  }
-  return ContentService.createTextOutput(jsonStr)
+/* JSON 응답 */
+function jsonOut(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
     .setMimeType(ContentService.MimeType.JSON);
 }
 
-function handleAction(p) {
+/* JSONP 응답 — callback 파라미터가 있을 때 */
+function jsonpOut(cb, obj) {
+  return ContentService
+    .createTextOutput(cb + '(' + JSON.stringify(obj) + ');')
+    .setMimeType(ContentService.MimeType.JAVASCRIPT);
+}
+
+function doPost(e) {
+  try {
+    const raw = e.parameter?.payload || (e.postData && e.postData.contents) || '{}';
+    return jsonOut(handle(JSON.parse(raw)));
+  } catch(err) {
+    return jsonOut({ result:'error', message: err.message });
+  }
+}
+
+/* ✅ doGet: ?callback=함수명 이 있으면 JSONP 응답 → 403/CORS 완전 우회 */
+function doGet(e) {
+  try {
+    const p  = e.parameter || {};
+    const cb = p.callback  || '';
+    const res = handle(p);
+    return cb ? jsonpOut(cb, res) : jsonOut(res);
+  } catch(err) {
+    const p  = e.parameter || {};
+    const cb = p.callback  || '';
+    const er = { result:'error', message: err.message };
+    return cb ? jsonpOut(cb, er) : jsonOut(er);
+  }
+}
+
+function handle(p) {
   switch(p.action) {
-    case 'checkAttendance': return checkAttendance(p);
-    case 'updateRecord':    return updateRecord(p);
-    case 'getRecord':       return getRecord(p);
+    case 'checkAttendance':   return checkAttendance(p);
+    case 'updateRecord':      return updateRecord(p);
+    case 'getAllRecords':      return getAllRecords(p);
     case 'getStudentRecords': return getStudentRecords(p);
-    case 'getAllRecords':    return getAllRecords(p);
-    case 'setStudentConfig': return setStudentConfig(p);
-    default: return { result: 'ok', message: 'API 동작 중' };
+    case 'setStudentConfig':  return setStudentConfig(p);
+    default: return { result:'ok', message:'Apps Script 동작 중' };
   }
 }
 
-// 학생 비콘 체크 (입실 or 퇴실)
+/* 헤더 보장 */
+function ensureHdr(sh) {
+  if (sh.getLastRow() === 0)
+    sh.appendRow(['학번','이름','날짜','요일','입실기준','퇴실기준',
+                  '입실시간','입실상태','퇴실시간','퇴실상태','사유']);
+}
+
+/* 상태 계산 */
+function toMin(t) {
+  if (!t) return 0;
+  const p = String(t).split(':');
+  return parseInt(p[0]) * 60 + parseInt(p[1] || 0);
+}
+function calcStatus(sh, row, inT, outT) {
+  const iv = sh.getRange(row, 7).getValue();
+  const ov = sh.getRange(row, 9).getValue();
+  sh.getRange(row, 8).setValue(iv ? (toMin(iv) <= toMin(inT) ? '정상' : '지각') : '');
+  sh.getRange(row, 10).setValue(ov ? (toMin(ov) >= toMin(outT) ? '정상' : '조기퇴실') : '');
+}
+
+/* 학생 설정 읽기 */
+function getCfg(no) {
+  const sh = getOrCreate(CFG), data = sh.getDataRange().getValues();
+  for (let i = 1; i < data.length; i++)
+    if (String(data[i][0]) === String(no))
+      return { inTime: data[i][2] || '09:00', outTime: data[i][3] || '18:00' };
+  return { inTime: '09:00', outTime: '18:00' };
+}
+
+/* 날짜 덧셈 */
+function addDays(ds, n) {
+  const d = new Date(ds + 'T00:00:00');
+  d.setDate(d.getDate() + n);
+  const z = v => String(v).padStart(2, '0');
+  return d.getFullYear() + '-' + z(d.getMonth()+1) + '-' + z(d.getDate());
+}
+
+/* 입실/퇴실 체크 */
 function checkAttendance(p) {
-  const sheet = getOrCreateSheet(SHEET);
-  ensureHeaders(sheet);
+  const sh = getOrCreate(SHEET);
+  ensureHdr(sh);
   const { no, name, dateKey, type, time, inTime, outTime } = p;
-  const data = sheet.getDataRange().getValues();
-  for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]) === String(no) && String(data[i][2]) === String(dateKey)) {
-      if (type === 'in')  sheet.getRange(i+1, 7).setValue(time);
-      if (type === 'out') sheet.getRange(i+1, 9).setValue(time);
-      updateStatus(sheet, i+1, inTime, outTime);
-      return { result: 'ok' };
+  const rows = sh.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === String(no) && String(rows[i][2]) === String(dateKey)) {
+      if (type === 'in')  sh.getRange(i+1, 7).setValue(time);
+      if (type === 'out') sh.getRange(i+1, 9).setValue(time);
+      calcStatus(sh, i+1, inTime, outTime);
+      return { result:'ok' };
     }
   }
-  const newRow = [no, name||'', dateKey, '', inTime||'', outTime||'',
-    type==='in'?time:'', '', type==='out'?time:'', '', ''];
-  sheet.appendRow(newRow);
-  return { result: 'ok' };
+  sh.appendRow([no, name||'', dateKey, '', inTime||'', outTime||'',
+    type==='in'?time:'', '', type==='out'?time:'', '', '']);
+  return { result:'ok' };
 }
 
-// 선생님 출결 수정
+/* 선생님 출결 수정 */
 function updateRecord(p) {
-  const sheet = getOrCreateSheet(SHEET);
-  ensureHeaders(sheet);
-  const { no, name, dateKey, in: inTime2, out: outTime2, memo } = p;
-  const cfg = getStudentConfigData(no);
-  const data = sheet.getDataRange().getValues();
-  for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]) === String(no) && String(data[i][2]) === String(dateKey)) {
-      sheet.getRange(i+1, 7).setValue(inTime2||'');
-      sheet.getRange(i+1, 9).setValue(outTime2||'');
-      sheet.getRange(i+1, 11).setValue(memo||'');
-      updateStatus(sheet, i+1, cfg.inTime, cfg.outTime);
-      return { result: 'ok' };
+  const sh = getOrCreate(SHEET);
+  ensureHdr(sh);
+  const { no, name, dateKey, memo } = p;
+  const inV  = p['in']  || '';
+  const outV = p['out'] || '';
+  const cfg  = getCfg(no);
+  const rows = sh.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === String(no) && String(rows[i][2]) === String(dateKey)) {
+      sh.getRange(i+1, 7).setValue(inV);
+      sh.getRange(i+1, 9).setValue(outV);
+      sh.getRange(i+1, 11).setValue(memo||'');
+      calcStatus(sh, i+1, cfg.inTime, cfg.outTime);
+      return { result:'ok' };
     }
   }
-  const newRow = [no, name||'', dateKey, '', cfg.inTime||'', cfg.outTime||'',
-    inTime2||'', '', outTime2||'', '', memo||''];
-  sheet.appendRow(newRow);
-  return { result: 'ok' };
+  sh.appendRow([no, name||'', dateKey, '', cfg.inTime, cfg.outTime,
+    inV, '', outV, '', memo||'']);
+  return { result:'ok' };
 }
 
-// 특정 학생 특정 날짜 기록 조회
-function getRecord(p) {
-  const sheet = getOrCreateSheet(SHEET);
-  const data = sheet.getDataRange().getValues();
-  for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]) === String(p.no) && String(data[i][2]) === String(p.dateKey)) {
-      return { result:'ok', record:{ in:data[i][6], out:data[i][8], memo:data[i][10] }};
-    }
+/* 전체 학생 주간 기록 (선생님) */
+function getAllRecords(p) {
+  const sh   = getOrCreate(SHEET);
+  const cfSh = getOrCreate(CFG);
+  const rows = sh.getDataRange().getValues();
+  const cfRows = cfSh.getDataRange().getValues();
+  const ws = p.weekStart || '';
+  const we = p.weekEnd   || (ws ? addDays(ws, 2) : '');
+  const cfMap = {};
+  for (let i = 1; i < cfRows.length; i++)
+    cfMap[String(cfRows[i][0])] = { inTime: cfRows[i][2]||'09:00', outTime: cfRows[i][3]||'18:00' };
+  const result = [];
+  for (let i = 1; i < rows.length; i++) {
+    const no = String(rows[i][0]), dk = String(rows[i][2]);
+    if (ws && we && (dk < ws || dk > we)) continue;
+    const cf = cfMap[no] || {};
+    result.push({
+      no, name: rows[i][1]||'', dateKey: dk,
+      inTime:  rows[i][4] || cf.inTime  || '09:00',
+      outTime: rows[i][5] || cf.outTime || '18:00',
+      in:   rows[i][6]  || '',
+      out:  rows[i][8]  || '',
+      memo: rows[i][10] || ''
+    });
   }
-  return { result:'ok', record:{} };
+  return { result:'ok', data: result };
 }
 
-// 특정 학생 주간 기록 조회
+/* 특정 학생 주간 기록 */
 function getStudentRecords(p) {
-  const sheet = getOrCreateSheet(SHEET);
-  const data = sheet.getDataRange().getValues();
-  const weekStart = p.weekStart || '';
-  const weekEnd = p.weekEnd || (weekStart ? dateAddDays(weekStart, 2) : '');
+  const sh = getOrCreate(SHEET), rows = sh.getDataRange().getValues();
+  const ws = p.weekStart || '', we = p.weekEnd || (ws ? addDays(ws,2) : '');
   const records = {};
-  for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]) !== String(p.no)) continue;
-    const dk = String(data[i][2]);
-    if (!weekStart || (dk >= weekStart && dk <= weekEnd)) {
-      records[dk] = { in:data[i][6]||'', out:data[i][8]||'', memo:data[i][10]||'' };
-    }
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) !== String(p.no)) continue;
+    const dk = String(rows[i][2]);
+    if (ws && we && (dk < ws || dk > we)) continue;
+    records[dk] = { in: rows[i][6]||'', out: rows[i][8]||'', memo: rows[i][10]||'' };
   }
   return { result:'ok', records };
 }
 
-// 전체 학생 주간 기록 조회 (선생님용)
-function getAllRecords(p) {
-  const sheet = getOrCreateSheet(SHEET);
-  const cfgSheet = getOrCreateSheet(CONFIG_SHEET);
-  const data = sheet.getDataRange().getValues();
-  const cfgData = cfgSheet.getDataRange().getValues();
-  const weekStart = p.weekStart || '';
-  const weekEnd = p.weekEnd || (weekStart ? dateAddDays(weekStart, 2) : '');
-  const cfgMap = {};
-  for (let i = 1; i < cfgData.length; i++) {
-    cfgMap[String(cfgData[i][0])] = { inTime:cfgData[i][2]||'09:00', outTime:cfgData[i][3]||'18:00' };
-  }
-  const result = [];
-  for (let i = 1; i < data.length; i++) {
-    const no = String(data[i][0]);
-    const dateKey = String(data[i][2]);
-    if (weekStart && weekEnd && (dateKey < weekStart || dateKey > weekEnd)) continue;
-    const cfg = cfgMap[no] || {};
-    result.push({
-      no, name:data[i][1]||'', dateKey,
-      inTime: data[i][4]||cfg.inTime||'09:00',
-      outTime: data[i][5]||cfg.outTime||'18:00',
-      in: data[i][6]||'', out: data[i][8]||'', memo: data[i][10]||''
-    });
-  }
-  return { result:'ok', data:result };
-}
-
-// 학생 설정 저장
+/* 학생 설정 저장 */
 function setStudentConfig(p) {
-  const sheet = getOrCreateSheet(CONFIG_SHEET);
-  if (sheet.getLastRow() === 0) sheet.appendRow(['학번','이름','입실기준','퇴실기준']);
-  const data = sheet.getDataRange().getValues();
-  for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]) === String(p.no)) {
-      sheet.getRange(i+1, 3).setValue(p.inTime||'');
-      sheet.getRange(i+1, 4).setValue(p.outTime||'');
+  const sh = getOrCreate(CFG);
+  if (sh.getLastRow() === 0) sh.appendRow(['학번','이름','입실기준','퇴실기준']);
+  const rows = sh.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === String(p.no)) {
+      sh.getRange(i+1, 3).setValue(p.inTime  || '');
+      sh.getRange(i+1, 4).setValue(p.outTime || '');
       return { result:'ok' };
     }
   }
-  sheet.appendRow([p.no, p.name||'', p.inTime||'', p.outTime||'']);
+  sh.appendRow([p.no, p.name||'', p.inTime||'', p.outTime||'']);
   return { result:'ok' };
-}
-
-function getStudentConfigData(no) {
-  const sheet = getOrCreateSheet(CONFIG_SHEET);
-  const data = sheet.getDataRange().getValues();
-  for (let i = 1; i < data.length; i++) {
-    if (String(data[i][0]) === String(no)) return { inTime:data[i][2], outTime:data[i][3] };
-  }
-  return { inTime:'09:00', outTime:'18:00' };
-}
-
-function ensureHeaders(sheet) {
-  if (sheet.getLastRow() === 0) {
-    sheet.appendRow(['학번','이름','날짜','요일','입실기준','퇴실기준','입실시간','입실상태','퇴실시간','퇴실상태','사유']);
-  }
-}
-
-function updateStatus(sheet, row, inTime, outTime) {
-  const inVal = sheet.getRange(row, 7).getValue();
-  const outVal = sheet.getRange(row, 9).getValue();
-  const iSt = inVal ? (toMin(inVal) <= toMin(inTime) ? '정상' : '지각') : '';
-  const oSt = outVal ? (toMin(outVal) >= toMin(outTime) ? '정상' : '조기퇴실') : '';
-  sheet.getRange(row, 8).setValue(iSt);
-  sheet.getRange(row, 10).setValue(oSt);
-}
-
-function toMin(t) {
-  if (!t) return 0;
-  const parts = String(t).split(':');
-  return parseInt(parts[0])*60 + parseInt(parts[1]||0);
-}
-
-function dateAddDays(dateStr, n) {
-  const d = new Date(dateStr + 'T00:00:00');
-  d.setDate(d.getDate() + n);
-  const pad = v => String(v).padStart(2,'0');
-  return \`\${d.getFullYear()}-\${pad(d.getMonth()+1)}-\${pad(d.getDate())}\`;
 }`;
         navigator.clipboard
           .writeText(code)
-          .then(() => showToast("Apps Script 코드 복사 완료 📋"));
+          .then(function () {
+            showToast("GAS 코드 복사 완료 📋");
+          })
+          .catch(function () {
+            showToast("복사 실패 — 아래 가이드를 참고해 주세요");
+          });
       }
 
-      /* ══════════════════════════════════════════
-   공통
-══════════════════════════════════════════ */
+      /* ══ 공통 ══════════════════════════════════════════════ */
       function showPage(id) {
         document
           .querySelectorAll(".page")
@@ -3476,8 +3467,6 @@ function dateAddDays(dateStr, n) {
         t.classList.add("show");
         setTimeout(() => t.classList.remove("show"), 2600);
       }
-
-      // 선생님 페이지 진입 시 주차 셀렉터 초기화
       buildWeekSel();
     </script>
   </body>
