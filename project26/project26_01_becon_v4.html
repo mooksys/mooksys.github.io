@@ -1273,6 +1273,26 @@
             학생을 선택하고 로그인해 주세요
           </div>
         </div>
+
+        <!-- GAS 연동 배너 (학생 화면) -->
+        <div class="gas-banner" id="studentGasBox">
+          <div class="gas-hd">
+            <div class="gas-dot" id="studentGasDot"></div>
+            <div class="gas-title" id="studentGasTitle"></div>
+          </div>
+          <div class="gas-row" id="studentGasInputRow">
+            <input
+              type="text"
+              id="studentGasUrl"
+              placeholder="https://script.google.com/macros/s/.../exec"
+            />
+            <button class="btn btn-sm bp" onclick="saveStudentGasUrl()">
+              저장
+            </button>
+          </div>
+          <div class="gas-st" id="studentGasStatus"></div>
+        </div>
+
         <div class="card">
           <div class="card-hd">
             <div class="ci ci-b">🎓</div>
@@ -2289,8 +2309,49 @@
           o.textContent = `${st.no}  ${st.name}`;
           s.appendChild(o);
         });
-        if (!hasGasUrl()) console.log("GAS URL 미설정 — 로컬 저장 모드로 동작");
+        // 학생 화면 GAS 배너 초기화
+        initStudentGasBanner();
       })();
+
+      function initStudentGasBanner() {
+        const url = getGasUrl();
+        const dot = document.getElementById("studentGasDot");
+        const title = document.getElementById("studentGasTitle");
+        const box = document.getElementById("studentGasBox");
+        const inputRow = document.getElementById("studentGasInputRow");
+        const st = document.getElementById("studentGasStatus");
+        if (url) {
+          dot.className = "gas-dot on";
+          title.textContent = "✅ Google Sheets 연동됨";
+          box.classList.add("ok");
+          document.getElementById("studentGasUrl").value = url;
+          inputRow.style.display = "none";
+          st.innerHTML = `<span style="color:#059669">GAS 연동 중 — 비밀번호가 시트에서 관리됩니다</span>
+            <button onclick="showStudentGasInput()" style="margin-left:8px;font-size:11px;color:var(--g500);background:none;border:1px solid var(--g200);border-radius:20px;padding:2px 8px;cursor:pointer">URL 변경</button>`;
+        } else {
+          dot.className = "gas-dot off";
+          title.textContent = "⚠️ Google Sheets 미연동 (로컬 저장 모드)";
+          box.classList.remove("ok");
+          inputRow.style.display = "flex";
+          st.textContent =
+            "GAS URL을 입력하면 출결 데이터가 Google Sheets에 저장됩니다";
+        }
+      }
+      function showStudentGasInput() {
+        document.getElementById("studentGasInputRow").style.display = "flex";
+        document.getElementById("studentGasUrl").value = getGasUrl();
+        document.getElementById("studentGasStatus").textContent = "";
+      }
+      function saveStudentGasUrl() {
+        const url = document.getElementById("studentGasUrl").value.trim();
+        if (!url.startsWith("https://script.google.com")) {
+          showToast("올바른 GAS URL을 입력해 주세요");
+          return;
+        }
+        setGasUrl(url);
+        initStudentGasBanner();
+        showToast("GAS URL 저장 완료 ✅");
+      }
       const showLoading = (msg) => {
         document.getElementById("loadingTxt").textContent = msg || "처리 중...";
         document.getElementById("loadingOverlay").classList.remove("hide");
@@ -2328,11 +2389,30 @@
         showLoading("로그인 중...");
         document.getElementById("loginBtn").disabled = true;
         const local = lsd(no);
+
+        // GAS 연동 시: GAS에서 pwHash 가져와 로컬에 캐싱
+        if (hasGasUrl()) {
+          try {
+            const res = await gasGet({ action: "getStudentPw", no });
+            if (res && res.result === "ok" && res.pwHash) {
+              // GAS 값이 있으면 로컬 캐시 갱신
+              local.pwHash = res.pwHash;
+              ssd(no, local);
+            }
+          } catch (e) {
+            // GAS 실패 시 로컬 pwHash 사용 (폴백)
+          }
+        }
+
+        // 하위 호환: 구형 plain pw 저장값 변환
         if (local.pw && !local.pwHash) {
           local.pwHash = await sha256(local.pw);
           delete local.pw;
           ssd(no, local);
         }
+        // 초기 비밀번호 없으면 DEFAULT 적용
+        if (!local.pwHash) local.pwHash = DEFAULT_PW_HASH;
+
         const h = await sha256(pw);
         hideLoading();
         document.getElementById("loginBtn").disabled = false;
@@ -2580,13 +2660,37 @@
         showLoading("비밀번호 변경 중...");
         const local = lsd(cs.no),
           curH = await sha256(cur);
-        if (curH !== local.pwHash) {
+
+        // GAS에서 현재 pwHash 재확인 (최신 값 우선)
+        let remoteHash = null;
+        if (hasGasUrl()) {
+          try {
+            const res = await gasGet({ action: "getStudentPw", no: cs.no });
+            if (res && res.result === "ok" && res.pwHash)
+              remoteHash = res.pwHash;
+          } catch (e) {}
+        }
+        const validHash = remoteHash || local.pwHash || DEFAULT_PW_HASH;
+        if (curH !== validHash) {
           hideLoading();
           showToast("현재 비밀번호가 틀렸습니다");
           return;
         }
-        local.pwHash = await sha256(nw);
+        const newHash = await sha256(nw);
+        local.pwHash = newHash;
         ssd(cs.no, local);
+
+        // GAS에도 저장
+        if (hasGasUrl()) {
+          try {
+            await gasPost({
+              action: "setStudentPw",
+              no: cs.no,
+              pwHash: newHash,
+            });
+          } catch (e) {}
+        }
+
         hideLoading();
         showToast("비밀번호 변경 완료 ✅");
         ["curPw", "newPw", "newPw2"].forEach(
@@ -2677,6 +2781,18 @@
           return;
         }
         showLoading("비밀번호 변경 중...");
+
+        // GAS에서 최신 hash 재확인
+        if (hasGasUrl()) {
+          try {
+            const res = await gasGet({ action: "getTeacherPw" });
+            if (res && res.result === "ok" && res.pwHash) {
+              TEACHER_PW_HASH = res.pwHash;
+              localStorage.setItem("teacher_pw_hash", TEACHER_PW_HASH);
+            }
+          } catch (e) {}
+        }
+
         const curH = await sha256(cur);
         if (curH !== TEACHER_PW_HASH) {
           hideLoading();
@@ -2684,8 +2800,17 @@
           document.getElementById("tCurPw").value = "";
           return;
         }
-        TEACHER_PW_HASH = await sha256(nw);
+        const newHash = await sha256(nw);
+        TEACHER_PW_HASH = newHash;
         localStorage.setItem("teacher_pw_hash", TEACHER_PW_HASH);
+
+        // GAS에도 저장
+        if (hasGasUrl()) {
+          try {
+            await gasPost({ action: "setTeacherPw", pwHash: newHash });
+          } catch (e) {}
+        }
+
         hideLoading();
         closeTeacherPwModal();
         showToast("선생님 비밀번호가 변경되었습니다 ✅");
@@ -2704,6 +2829,20 @@
         }
         showLoading("인증 중...");
         document.getElementById("teacherLoginBtn").disabled = true;
+
+        // GAS 연동 시: GAS에서 선생님 pwHash 가져와 로컬 캐시 갱신
+        if (hasGasUrl()) {
+          try {
+            const res = await gasGet({ action: "getTeacherPw" });
+            if (res && res.result === "ok" && res.pwHash) {
+              TEACHER_PW_HASH = res.pwHash;
+              localStorage.setItem("teacher_pw_hash", TEACHER_PW_HASH);
+            }
+          } catch (e) {
+            // 폴백: localStorage의 기존 hash 사용
+          }
+        }
+
         const h = await sha256(pw);
         hideLoading();
         document.getElementById("teacherLoginBtn").disabled = false;
@@ -2742,6 +2881,7 @@
         }
         setGasUrl(url);
         initTeacherPage();
+        initStudentGasBanner(); // 학생 배너도 동기화
         showToast("URL 저장 완료 ✅");
         refreshTeacherData();
       }
@@ -3302,6 +3442,10 @@ function handle(p) {
     case 'getAllRecords':      return getAllRecords(p);
     case 'getStudentRecords': return getStudentRecords(p);
     case 'setStudentConfig':  return setStudentConfig(p);
+    case 'getStudentPw':      return getStudentPw(p);
+    case 'setStudentPw':      return setStudentPw(p);
+    case 'getTeacherPw':      return getTeacherPw(p);
+    case 'setTeacherPw':      return setTeacherPw(p);
     default: return { result:'ok', message:'Apps Script 동작 중' };
   }
 }
@@ -3430,7 +3574,7 @@ function getStudentRecords(p) {
 /* 학생 설정 저장 */
 function setStudentConfig(p) {
   const sh = getOrCreate(CFG);
-  if (sh.getLastRow() === 0) sh.appendRow(['학번','이름','입실기준','퇴실기준']);
+  if (sh.getLastRow() === 0) sh.appendRow(['학번','이름','입실기준','퇴실기준','비밀번호해시']);
   const rows = sh.getDataRange().getValues();
   for (let i = 1; i < rows.length; i++) {
     if (String(rows[i][0]) === String(p.no)) {
@@ -3439,7 +3583,57 @@ function setStudentConfig(p) {
       return { result:'ok' };
     }
   }
-  sh.appendRow([p.no, p.name||'', p.inTime||'', p.outTime||'']);
+  sh.appendRow([p.no, p.name||'', p.inTime||'', p.outTime||'', '']);
+  return { result:'ok' };
+}
+
+/* 학생 비밀번호 조회 */
+function getStudentPw(p) {
+  const sh = getOrCreate(CFG), rows = sh.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === String(p.no)) {
+      return { result:'ok', pwHash: rows[i][4] || '' };
+    }
+  }
+  return { result:'ok', pwHash: '' };
+}
+
+/* 학생 비밀번호 저장 */
+function setStudentPw(p) {
+  const sh = getOrCreate(CFG);
+  if (sh.getLastRow() === 0) sh.appendRow(['학번','이름','입실기준','퇴실기준','비밀번호해시']);
+  const rows = sh.getDataRange().getValues();
+  for (let i = 1; i < rows.length; i++) {
+    if (String(rows[i][0]) === String(p.no)) {
+      sh.getRange(i+1, 5).setValue(p.pwHash || '');
+      return { result:'ok' };
+    }
+  }
+  sh.appendRow([p.no, p.name||'', '', '', p.pwHash||'']);
+  return { result:'ok' };
+}
+
+/* 선생님 비밀번호 조회 — '앱설정' 시트 A1=teacher_pw_hash, B1=해시값 */
+function getTeacherPw(p) {
+  const sh = getOrCreate('앱설정'), rows = sh.getDataRange().getValues();
+  for (let i = 0; i < rows.length; i++) {
+    if (String(rows[i][0]) === 'teacher_pw_hash') {
+      return { result:'ok', pwHash: rows[i][1] || '' };
+    }
+  }
+  return { result:'ok', pwHash: '' };
+}
+
+/* 선생님 비밀번호 저장 */
+function setTeacherPw(p) {
+  const sh = getOrCreate('앱설정'), rows = sh.getDataRange().getValues();
+  for (let i = 0; i < rows.length; i++) {
+    if (String(rows[i][0]) === 'teacher_pw_hash') {
+      sh.getRange(i+1, 2).setValue(p.pwHash || '');
+      return { result:'ok' };
+    }
+  }
+  sh.appendRow(['teacher_pw_hash', p.pwHash||'']);
   return { result:'ok' };
 }`;
         navigator.clipboard
