@@ -95,6 +95,11 @@
         "title": "Project 4 광교1동성당 봉고차운전봉사일정",
         "url": "project26/project26_02_christ_v2.html",
         "type": "secondary"
+      },
+      {
+        "title": "Project 1.1 울뜨레야 개인기도 집계 v3",
+        "url": "gwanggyo_cathedral/index_prayer_v3.html",
+        "type": "primary"
       }
     ]
   }
