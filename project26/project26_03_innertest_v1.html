@@ -1,0 +1,274 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2026년 도제3-12반 내부평가</title>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      :root {
+        --bg-color: #f8fafc;
+        --card-bg: #ffffff;
+        --primary: #2563eb;
+        --secondary: #64748b;
+        --text-main: #1e293b;
+        --border: #e2e8f0;
+        --accent: #eff6ff;
+      }
+
+      body {
+        font-family:
+          "Inter",
+          -apple-system,
+          sans-serif;
+        background-color: var(--bg-color);
+        color: var(--text-main);
+        margin: 0;
+        padding: 40px 20px;
+        line-height: 1.5;
+      }
+
+      .container {
+        max-width: 1100px;
+        margin: 0 auto;
+      }
+
+      /* 헤더 섹션 */
+      header {
+        margin-bottom: 32px;
+        text-align: center;
+      }
+
+      h1 {
+        font-size: 2rem;
+        font-weight: 700;
+        color: var(--text-main);
+        margin-bottom: 8px;
+      }
+
+      /* 컨트롤러 (셀렉트 박스) */
+      .controls {
+        background: var(--card-bg);
+        padding: 20px;
+        border-radius: 16px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 16px;
+        margin-bottom: 24px;
+      }
+
+      select {
+        appearance: none;
+        background-color: var(--card-bg);
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        padding: 10px 40px 10px 16px;
+        font-size: 1rem;
+        font-weight: 600;
+        color: var(--primary);
+        cursor: pointer;
+        outline: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%232563eb'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='Step19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 12px center;
+        background-size: 16px;
+        transition: all 0.2s;
+      }
+
+      select:hover {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px var(--accent);
+      }
+
+      /* 테이블 디자인 */
+      .table-container {
+        background: var(--card-bg);
+        border-radius: 16px;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        text-align: left;
+      }
+
+      th {
+        background: #f1f5f9;
+        padding: 16px;
+        font-size: 0.875rem;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--secondary);
+        font-weight: 700;
+      }
+
+      td {
+        padding: 16px;
+        border-bottom: 1px solid var(--border);
+        font-size: 0.95rem;
+      }
+
+      /* 기업별 그룹화 스타일 */
+      .company-row {
+        background-color: var(--accent);
+      }
+
+      .company-row td {
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 1.05rem;
+        border-bottom: 2px solid var(--primary);
+        padding: 20px 16px;
+      }
+
+      .company-badge {
+        background: var(--primary);
+        color: white;
+        padding: 4px 12px;
+        border-radius: 6px;
+        margin-right: 10px;
+      }
+
+      /* 평가형태 뱃지 */
+      .type-tag {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        font-weight: 600;
+        background: #fef3c7;
+        color: #92400e;
+      }
+
+      /* 로딩 애니메이션 */
+      .loader {
+        text-align: center;
+        padding: 50px;
+        color: var(--secondary);
+        font-weight: 600;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <h1>2026년 도제3-12반 내부평가 데이터 센터</h1>
+        <p style="color: var(--secondary)">
+          현장실습 및 기업별 평가 현황을 실시간으로 확인하세요.
+        </p>
+      </header>
+
+      <div class="controls">
+        <span style="font-weight: 600">평가 과목:</span>
+        <select id="subjectSelect">
+          <option>데이터 로딩 중...</option>
+        </select>
+      </div>
+
+      <div id="loader" class="loader">
+        구글 시트의 데이터를 분석하고 있습니다...
+      </div>
+
+      <div class="table-container" id="tableWrapper" style="display: none">
+        <table id="dataTable">
+          <thead>
+            <tr>
+              <th style="width: 15%">학번</th>
+              <th style="width: 15%">이름</th>
+              <th id="dynamicHeader">과목명</th>
+              <th style="width: 20%">평가형태</th>
+            </tr>
+          </thead>
+          <tbody id="tableBody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <script>
+      const API_URL = "https://script.google.com/macros/s/AKfycbxrFg22NHcO0Sir4KQ8qNdQfvvHJUl59DvE3aQBA-OoFIviQhT0YTRztEs4DB0AoZHK/exec";
+      let cachedData = null;
+
+      async function fetchData() {
+        try {
+          const res = await fetch(API_URL);
+          cachedData = await res.json();
+
+          // 셀렉트 박스 채우기
+          const select = document.getElementById("subjectSelect");
+          select.innerHTML = "";
+          cachedData.subjectList.forEach((s) => {
+            const opt = document.createElement("option");
+            opt.value = s.index;
+            opt.textContent = s.title;
+            select.appendChild(opt);
+          });
+
+          document.getElementById("loader").style.display = "none";
+          document.getElementById("tableWrapper").style.display = "block";
+
+          renderTable(0); // 첫 과목 초기화
+
+          select.addEventListener("change", (e) => renderTable(e.target.value));
+        } catch (e) {
+          document.getElementById("loader").textContent =
+            "데이터를 불러오는 중 오류가 발생했습니다.";
+        }
+      }
+
+      function renderTable(subjectIdx) {
+        const tbody = document.getElementById("tableBody");
+        const dynamicHeader = document.getElementById("dynamicHeader");
+
+        // 헤더 업데이트
+        dynamicHeader.textContent = cachedData.subjectList.find(
+          (s) => s.index == subjectIdx,
+        ).title;
+        tbody.innerHTML = "";
+
+        // 1. 데이터 그룹화 (기업별)
+        const grouped = cachedData.students.reduce((acc, student) => {
+          const key = student.company;
+          if (!acc[key]) acc[key] = [];
+          acc[key].push(student);
+          return acc;
+        }, {});
+
+        // 2. 그룹별 렌더링
+        Object.keys(grouped).forEach((company) => {
+          // 기업 구분 행
+          const groupHeader = document.createElement("tr");
+          groupHeader.className = "company-row";
+          groupHeader.innerHTML = `<td colspan="4"><span class="company-badge">COMPANY</span> ${company} (${grouped[company].length}명)</td>`;
+          tbody.appendChild(groupHeader);
+
+          // 해당 기업 학생들 행
+          grouped[company].forEach((student) => {
+            const rawInfo = student.subjects[subjectIdx] || "";
+            const [subjectName, evalType] = rawInfo
+              .toString()
+              .split(",")
+              .map((s) => s.trim());
+
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                    <td>${student.id}</td>
+                    <td style="font-weight:600">${student.name}</td>
+                    <td>${subjectName || "-"}</td>
+                    <td>${evalType ? `<span class="type-tag">${evalType}</span>` : "-"}</td>
+                `;
+            tbody.appendChild(tr);
+          });
+        });
+      }
+
+      fetchData();
+    </script>
+  </body>
+</html>
