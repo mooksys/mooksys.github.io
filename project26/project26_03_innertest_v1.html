@@ -3,196 +3,198 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>2026년 도제3-12반 내부평가</title>
+    <title>2026년 도제3-12반 기업별 내부평가 대시보드</title>
     <link
-      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap"
       rel="stylesheet"
     />
     <style>
       :root {
-        --bg-color: #f8fafc;
+        --bg-color: #f4f7f6;
+        --primary: #1a73e8;
+        --primary-dark: #1557b0;
+        --text-main: #202124;
+        --text-muted: #5f6368;
         --card-bg: #ffffff;
-        --primary: #2563eb;
-        --secondary: #64748b;
-        --text-main: #1e293b;
-        --border: #e2e8f0;
-        --accent: #eff6ff;
+        --border: #e0e0e0;
       }
 
       body {
         font-family:
-          "Inter",
+          "Pretendard",
           -apple-system,
           sans-serif;
         background-color: var(--bg-color);
         color: var(--text-main);
         margin: 0;
         padding: 40px 20px;
-        line-height: 1.5;
       }
 
       .container {
-        max-width: 1100px;
+        max-width: 1000px;
         margin: 0 auto;
       }
 
-      /* 헤더 섹션 */
+      /* 상단 헤더 & 컨트롤 */
       header {
-        margin-bottom: 32px;
         text-align: center;
+        margin-bottom: 30px;
       }
 
       h1 {
-        font-size: 2rem;
-        font-weight: 700;
+        font-size: 2.2rem;
+        margin-bottom: 10px;
         color: var(--text-main);
-        margin-bottom: 8px;
       }
 
-      /* 컨트롤러 (셀렉트 박스) */
       .controls {
         background: var(--card-bg);
-        padding: 20px;
-        border-radius: 16px;
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
-        display: flex;
-        justify-content: center;
+        padding: 15px 25px;
+        border-radius: 12px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+        display: inline-flex;
         align-items: center;
-        gap: 16px;
-        margin-bottom: 24px;
+        gap: 15px;
+        margin-bottom: 30px;
+        border: 1px solid var(--border);
       }
 
       select {
-        appearance: none;
-        background-color: var(--card-bg);
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        padding: 10px 40px 10px 16px;
+        padding: 10px 15px;
         font-size: 1rem;
         font-weight: 600;
+        border: 1px solid var(--border);
+        border-radius: 8px;
         color: var(--primary);
-        cursor: pointer;
         outline: none;
-        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%232563eb'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='Step19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-        background-repeat: no-repeat;
-        background-position: right 12px center;
-        background-size: 16px;
-        transition: all 0.2s;
+        cursor: pointer;
+        transition: 0.2s;
       }
 
-      select:hover {
+      select:hover,
+      select:focus {
         border-color: var(--primary);
-        box-shadow: 0 0 0 3px var(--accent);
       }
 
-      /* 테이블 디자인 */
-      .table-container {
+      /* 카드 컨테이너 레이아웃 */
+      .cards-grid {
+        display: flex;
+        flex-direction: column;
+        gap: 25px;
+      }
+
+      /* 개별 기업 카드 디자인 */
+      .company-card {
         background: var(--card-bg);
         border-radius: 16px;
         overflow: hidden;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
+        border: 1px solid var(--border);
+        transition: transform 0.2s;
       }
 
-      table {
+      .company-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 20px rgba(0, 0, 0, 0.08);
+      }
+
+      .card-header {
+        background-color: var(--primary);
+        color: white;
+        padding: 16px 24px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+      }
+
+      .card-header h2 {
+        margin: 0;
+        font-size: 1.25rem;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .student-count {
+        background: rgba(255, 255, 255, 0.2);
+        padding: 4px 12px;
+        border-radius: 20px;
+        font-size: 0.9rem;
+        font-weight: 600;
+      }
+
+      /* 카드 내부 테이블 */
+      .card-table {
         width: 100%;
         border-collapse: collapse;
+      }
+
+      .card-table th,
+      .card-table td {
+        padding: 14px 24px;
         text-align: left;
       }
 
-      th {
-        background: #f1f5f9;
-        padding: 16px;
-        font-size: 0.875rem;
-        text-transform: uppercase;
-        letter-spacing: 0.05em;
-        color: var(--secondary);
-        font-weight: 700;
+      .card-table th {
+        background: #f8f9fa;
+        color: var(--text-muted);
+        font-size: 0.85rem;
+        font-weight: 600;
+        border-bottom: 1px solid var(--border);
       }
 
-      td {
-        padding: 16px;
-        border-bottom: 1px solid var(--border);
+      .card-table td {
+        border-bottom: 1px solid #f1f3f4;
         font-size: 0.95rem;
       }
 
-      /* 기업별 그룹화 스타일 */
-      .company-row {
-        background-color: var(--accent);
-      }
-
-      .company-row td {
-        font-weight: 700;
-        color: var(--primary);
-        font-size: 1.05rem;
-        border-bottom: 2px solid var(--primary);
-        padding: 20px 16px;
-      }
-
-      .company-badge {
-        background: var(--primary);
-        color: white;
-        padding: 4px 12px;
-        border-radius: 6px;
-        margin-right: 10px;
+      .card-table tr:last-child td {
+        border-bottom: none;
       }
 
       /* 평가형태 뱃지 */
       .type-tag {
         display: inline-block;
-        padding: 4px 10px;
-        border-radius: 6px;
+        padding: 5px 12px;
+        border-radius: 8px;
         font-size: 0.85rem;
         font-weight: 600;
-        background: #fef3c7;
-        color: #92400e;
+        background: #e8f0fe;
+        color: var(--primary-dark);
       }
 
-      /* 로딩 애니메이션 */
       .loader {
         text-align: center;
-        padding: 50px;
-        color: var(--secondary);
-        font-weight: 600;
+        padding: 40px;
+        color: var(--text-muted);
+        font-size: 1.1rem;
       }
     </style>
   </head>
   <body>
     <div class="container">
       <header>
-        <h1>2026년 도제3-12반 내부평가 데이터 센터</h1>
-        <p style="color: var(--secondary)">
-          현장실습 및 기업별 평가 현황을 실시간으로 확인하세요.
-        </p>
+        <h1>2026년 도제3-12반 기업별 내부평가 대시보드</h1>
+        <div class="controls">
+          <span style="font-weight: 600; color: var(--text-muted)"
+            >평가 과목 선택</span
+          >
+          <select id="subjectSelect">
+            <option>데이터 로딩 중...</option>
+          </select>
+        </div>
       </header>
 
-      <div class="controls">
-        <span style="font-weight: 600">평가 과목:</span>
-        <select id="subjectSelect">
-          <option>데이터 로딩 중...</option>
-        </select>
-      </div>
-
       <div id="loader" class="loader">
-        구글 시트의 데이터를 분석하고 있습니다...
+        구글 시트에서 데이터를 안전하게 불러오고 있습니다...
       </div>
 
-      <div class="table-container" id="tableWrapper" style="display: none">
-        <table id="dataTable">
-          <thead>
-            <tr>
-              <th style="width: 15%">학번</th>
-              <th style="width: 15%">이름</th>
-              <th id="dynamicHeader">과목명</th>
-              <th style="width: 20%">평가형태</th>
-            </tr>
-          </thead>
-          <tbody id="tableBody"></tbody>
-        </table>
-      </div>
+      <div id="cardsContainer" class="cards-grid"></div>
     </div>
 
     <script>
-      const API_URL = "https://script.google.com/macros/s/AKfycbxrFg22NHcO0Sir4KQ8qNdQfvvHJUl59DvE3aQBA-OoFIviQhT0YTRztEs4DB0AoZHK/exec";
+      const API_URL = "https://script.google.com/macros/s/AKfycbziBDp3H37crC4d5l6BJWZkdHfuSgRNbT9meejVvxr30aCB-vxP6UMgRKctwmEL23QS/exec";
       let cachedData = null;
 
       async function fetchData() {
@@ -200,7 +202,7 @@
           const res = await fetch(API_URL);
           cachedData = await res.json();
 
-          // 셀렉트 박스 채우기
+          // 셀렉트 박스 세팅
           const select = document.getElementById("subjectSelect");
           select.innerHTML = "";
           cachedData.subjectList.forEach((s) => {
@@ -211,28 +213,27 @@
           });
 
           document.getElementById("loader").style.display = "none";
-          document.getElementById("tableWrapper").style.display = "block";
 
-          renderTable(0); // 첫 과목 초기화
+          // 초기 렌더링 (첫 번째 과목)
+          renderCards(0);
 
-          select.addEventListener("change", (e) => renderTable(e.target.value));
+          // 선택 변경 시 재렌더링
+          select.addEventListener("change", (e) => renderCards(e.target.value));
         } catch (e) {
           document.getElementById("loader").textContent =
-            "데이터를 불러오는 중 오류가 발생했습니다.";
+            "데이터를 불러오는 중 오류가 발생했습니다. URL을 확인해주세요.";
         }
       }
 
-      function renderTable(subjectIdx) {
-        const tbody = document.getElementById("tableBody");
-        const dynamicHeader = document.getElementById("dynamicHeader");
+      function renderCards(subjectIdx) {
+        const container = document.getElementById("cardsContainer");
+        container.innerHTML = ""; // 기존 내용 지우기
 
-        // 헤더 업데이트
-        dynamicHeader.textContent = cachedData.subjectList.find(
+        const subjectTitle = cachedData.subjectList.find(
           (s) => s.index == subjectIdx,
         ).title;
-        tbody.innerHTML = "";
 
-        // 1. 데이터 그룹화 (기업별)
+        // 1. 기업별로 데이터 그룹화
         const grouped = cachedData.students.reduce((acc, student) => {
           const key = student.company;
           if (!acc[key]) acc[key] = [];
@@ -240,34 +241,59 @@
           return acc;
         }, {});
 
-        // 2. 그룹별 렌더링
+        // 2. 그룹별로 카드 생성
         Object.keys(grouped).forEach((company) => {
-          // 기업 구분 행
-          const groupHeader = document.createElement("tr");
-          groupHeader.className = "company-row";
-          groupHeader.innerHTML = `<td colspan="4"><span class="company-badge">COMPANY</span> ${company} (${grouped[company].length}명)</td>`;
-          tbody.appendChild(groupHeader);
+          const students = grouped[company];
 
-          // 해당 기업 학생들 행
-          grouped[company].forEach((student) => {
+          // 카드 HTML 구조 만들기
+          let cardHTML = `
+                <div class="company-card">
+                    <div class="card-header">
+                        <h2>🏢 ${company}</h2>
+                        <span class="student-count">총 ${students.length}명</span>
+                    </div>
+                    <table class="card-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 15%;">학번</th>
+                                <th style="width: 15%;">이름</th>
+                                <th>${subjectTitle} (과목명)</th>
+                                <th style="width: 25%;">평가형태</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+            `;
+
+          // 카드 안의 테이블에 학생 데이터 추가
+          students.forEach((student) => {
             const rawInfo = student.subjects[subjectIdx] || "";
             const [subjectName, evalType] = rawInfo
               .toString()
               .split(",")
               .map((s) => s.trim());
 
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                    <td>${student.id}</td>
-                    <td style="font-weight:600">${student.name}</td>
-                    <td>${subjectName || "-"}</td>
-                    <td>${evalType ? `<span class="type-tag">${evalType}</span>` : "-"}</td>
+            cardHTML += `
+                    <tr>
+                        <td style="color: #5f6368;">${student.id}</td>
+                        <td style="font-weight: 600;">${student.name}</td>
+                        <td>${subjectName || "-"}</td>
+                        <td>${evalType ? `<span class="type-tag">${evalType}</span>` : "-"}</td>
+                    </tr>
                 `;
-            tbody.appendChild(tr);
           });
+
+          cardHTML += `
+                        </tbody>
+                    </table>
+                </div>
+            `;
+
+          // 컨테이너에 카드 추가
+          container.innerHTML += cardHTML;
         });
       }
 
+      // 실행
       fetchData();
     </script>
   </body>
