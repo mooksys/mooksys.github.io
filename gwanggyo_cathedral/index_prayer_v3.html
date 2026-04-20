@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>기도 기록표</title>
+    <title>울뜨레야 기도 기록표</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -550,7 +550,7 @@
 
     <script>
       /* =========================================
-           구글 앱스 스크립트 연결 URL (여기에 입력하세요)
+           구글 앱스 스크립트 연결 URL (여기에 붙여넣으세요)
         ========================================= */
       const GOOGLE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZOk7QdlqtxADjyeI3ouVMoKbyCSJY3YOmiQIxyzzT4dnqzqArmKympW-e4tkFpe1y/exec";
 
@@ -690,7 +690,12 @@
                 ? `<p class="text-slate-400 text-sm text-center py-4">등록된 유저가 없습니다.</p>`
                 : res.users
                     .map((u) => {
-                      const displayName = u.baptismName
+                      const isValidBaptism =
+                        u.baptismName &&
+                        String(u.baptismName).trim() !== "" &&
+                        u.baptismName !== "undefined" &&
+                        u.baptismName !== "null";
+                      const displayName = isValidBaptism
                         ? `${u.name} ${u.baptismName}`
                         : u.name;
                       return `
@@ -736,9 +741,13 @@
           document.getElementById("editUserIdDisplay").textContent =
             "수정 계정 ID: " + id;
           document.getElementById("editUserName").value =
-            name === "undefined" ? "" : name;
+            !name || name === "undefined" || name === "null" ? "" : name;
           document.getElementById("editUserBaptismName").value =
-            baptismName === "undefined" ? "" : baptismName;
+            !baptismName ||
+            baptismName === "undefined" ||
+            baptismName === "null"
+              ? ""
+              : baptismName;
           document.getElementById("editUserResetPw").checked = false;
           UI.showModal("adminEditModal");
         },
@@ -861,14 +870,12 @@
           return `prayer_${Auth.userId}_${this.state.currentDate.getFullYear()}-${String(this.state.currentDate.getMonth() + 1).padStart(2, "0")}`;
         },
 
-        /* 🚀 묵주기도 계산 로직 수정: 5단에 25분이므로, 1단당 5분으로 계산 */
         getFormattedTotalTime() {
           let mins = 0;
           this.state.monthData.forEach((i) => {
             const v = parseInt(i.value) || 0;
             if (i.name === "미사") mins += v * 60;
-            else if (i.name === "묵주기도")
-              mins += v * 5; // 1단 = 5분으로 변경
+            else if (i.name === "묵주기도") mins += v * 5;
             else if (i.unit === "분") mins += v;
           });
           const h = Math.floor(mins / 60),
@@ -962,12 +969,22 @@
       };
 
       const UI = {
-        renderAll() {
-          const fullName = Auth.baptismName
+        getUserFullName() {
+          const isValidBaptism =
+            Auth.baptismName &&
+            String(Auth.baptismName).trim() !== "" &&
+            Auth.baptismName !== "undefined" &&
+            Auth.baptismName !== "null";
+          return isValidBaptism
             ? `${Auth.userName} ${Auth.baptismName}`
-            : Auth.userName;
+            : Auth.userName || "사용자";
+        },
+
+        renderAll() {
+          const fullName = this.getUserFullName();
           document.getElementById("headerUserName").innerHTML =
             `${fullName}님 <button onclick="UI.showModal('pwChangeModal')" class="text-xs bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 px-2 py-1 rounded-full font-normal hover:bg-slate-300 ml-1">비밀번호 변경</button>`;
+
           const d = Store.state.currentDate;
           document.getElementById("currentMonthText").textContent =
             `${d.getFullYear()}년 ${String(d.getMonth() + 1).padStart(2, "0")}월`;
@@ -976,10 +993,10 @@
           else this.renderResultView();
         },
 
+        /* 🚀 디자인 변경된 카운터 스타일 입력 뷰 적용 */
         renderInputView() {
           const container = document.getElementById("inputView");
 
-          // 🚀 화면 문구 묵주기도 5단으로 수정
           const timeCard = `
                     <div class="bg-gradient-to-r from-blue-500 to-indigo-600 rounded-2xl p-6 text-white mb-6 shadow-lg relative overflow-hidden">
                         <div class="relative z-10">
@@ -999,36 +1016,47 @@
                 item.goal > 0
                   ? Math.min(100, (item.value / item.goal) * 100)
                   : 100;
+
               return `
-                        <div class="bg-white dark:bg-slate-800 rounded-2xl p-5 shadow-glass hover:shadow-glass-hover transition-all border border-transparent hover:border-blue-100 dark:hover:border-blue-900 mb-4">
-                            <div class="flex justify-between items-start mb-4">
+                        <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 sm:p-5 shadow-glass hover:shadow-glass-hover transition-all border border-transparent hover:border-blue-100 dark:hover:border-blue-900 mb-4">
+                            <div class="flex justify-between items-center mb-3">
                                 <div class="flex items-center gap-3">
-                                    <div class="w-12 h-12 flex items-center justify-center bg-slate-50 dark:bg-slate-700 rounded-xl text-2xl">${pt.icon}</div>
-                                    <div><h3 class="font-bold text-slate-800 dark:text-white">${item.name}</h3><p class="text-xs text-slate-400">목표: ${item.goal}${item.unit}</p></div>
+                                    <div class="w-10 h-10 flex items-center justify-center bg-slate-50 dark:bg-slate-700 rounded-xl text-xl">${pt.icon}</div>
+                                    <div>
+                                        <h3 class="font-bold text-slate-800 dark:text-white">${item.name}</h3>
+                                        <p class="text-xs text-slate-400">목표: ${item.goal}${item.unit}</p>
+                                    </div>
                                 </div>
-                                <div class="text-right cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-700 px-2 rounded" onclick="UI.showEditModal(${idx})">
-                                    <span class="text-2xl font-black text-blue-600 dark:text-blue-400">${item.value.toLocaleString()}</span><span class="text-sm font-medium text-slate-400 ml-1">${item.unit}</span>
+                                
+                                <div class="flex items-center bg-slate-50 dark:bg-slate-700/50 rounded-xl p-1 border border-slate-100 dark:border-slate-600">
+                                    <button onclick="Store.updateValue(${idx}, -1)" class="w-8 h-8 flex items-center justify-center rounded-lg text-slate-500 hover:bg-white dark:hover:bg-slate-600 hover:shadow-sm transition-all font-bold">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4"/></svg>
+                                    </button>
+                                    
+                                    <div class="w-14 sm:w-16 text-center font-black text-blue-600 dark:text-blue-400 cursor-pointer text-lg hover:scale-105 transition-transform flex items-baseline justify-center" onclick="UI.showEditModal(${idx})" title="클릭해서 직접 입력">
+                                        ${item.value.toLocaleString()}<span class="text-[10px] sm:text-xs ml-0.5 text-slate-400 font-medium">${item.unit}</span>
+                                    </div>
+                                    
+                                    <button onclick="Store.updateValue(${idx}, 1)" class="w-8 h-8 flex items-center justify-center rounded-lg bg-blue-600 text-white shadow-sm hover:bg-blue-700 transition-all font-bold">
+                                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
+                                    </button>
                                 </div>
                             </div>
-                            <div class="space-y-3">
-                                <div class="h-2 bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden"><div class="h-full rounded-full transition-all duration-500" style="width: ${progress}%; background-color: ${pt.color}"></div></div>
-                                <div class="flex gap-2">
-                                    <button onclick="Store.updateValue(${idx}, -1)" class="flex-1 py-2 bg-slate-50 dark:bg-slate-700 text-slate-600 dark:text-slate-300 rounded-lg font-bold hover:bg-slate-200">-</button>
-                                    <button onclick="Store.updateValue(${idx}, 1)" class="flex-3 py-2 bg-blue-600 text-white rounded-lg font-bold hover:bg-blue-700" style="flex: 3">+ 1 ${item.unit}</button>
-                                </div>
+                            
+                            <div class="h-1.5 w-full bg-slate-100 dark:bg-slate-700 rounded-full overflow-hidden mt-1">
+                                <div class="h-full rounded-full transition-all duration-500 ease-out" style="width: ${progress}%; background-color: ${pt.color}"></div>
                             </div>
                         </div>`;
             })
             .join("");
+
           container.innerHTML = timeCard + list;
         },
 
         renderResultView() {
           const container = document.getElementById("resultView");
           const d = Store.state.currentDate;
-          const fullName = Auth.baptismName
-            ? `${Auth.userName} ${Auth.baptismName}`
-            : Auth.userName;
+          const fullName = this.getUserFullName();
 
           container.innerHTML = `
                     <div id="captureArea" class="bg-white dark:bg-slate-800 rounded-2xl p-3 sm:p-4 border border-slate-100 dark:border-slate-700">
