@@ -100,6 +100,11 @@
         "title": "Project 1.1 울뜨레야 개인기도 집계 v3",
         "url": "gwanggyo_cathedral/index_prayer_v3.html",
         "type": "primary"
+      },
+      {
+        "title": "Project 5 도제반 내부평가 과목정리",
+        "url": "project26/project26_03_innertest_v1.html",
+        "type": "secondary"
       }
     ]
   }
