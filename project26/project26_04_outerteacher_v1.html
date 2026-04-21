@@ -1,0 +1,481 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>도제기업 연락처 관리시스템</title>
+    <style>
+      body {
+        font-family: "Pretendard", sans-serif;
+        background-color: #f4f7f9;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+      }
+      .container {
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+      .screen {
+        display: none;
+      }
+      .screen.active {
+        display: block;
+      }
+
+      /* 로그인/비번변경 폼 */
+      .auth-box {
+        max-width: 350px;
+        margin: 80px auto;
+        background: white;
+        padding: 30px;
+        border-radius: 12px;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+      }
+      .auth-box h2 {
+        text-align: center;
+        color: #1a73e8;
+        margin-bottom: 20px;
+      }
+      .auth-box input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+      }
+      .btn-auth {
+        width: 100%;
+        background: #1a73e8;
+        color: white;
+        border: none;
+        padding: 12px;
+        border-radius: 6px;
+        font-weight: bold;
+        cursor: pointer;
+      }
+
+      /* 메인 화면 */
+      .header-area {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+      }
+      .btn-group {
+        display: flex;
+        gap: 8px;
+      }
+      .btn-main {
+        border: none;
+        padding: 10px 18px;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        color: white;
+        transition: 0.2s;
+      }
+      .btn-blue {
+        background: #1a73e8;
+      }
+      .btn-green {
+        background: #34a853;
+      }
+      .btn-main:hover {
+        opacity: 0.8;
+      }
+
+      /* 카드 그리드 */
+      .card-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+        gap: 20px;
+      }
+      .card {
+        background: white;
+        border-radius: 12px;
+        padding: 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        border-top: 4px solid #1a73e8;
+        position: relative;
+      }
+      .checkbox-container {
+        position: absolute;
+        top: 15px;
+        right: 15px;
+      }
+      .checkbox-container input {
+        width: 22px;
+        height: 22px;
+        cursor: pointer;
+      }
+      .company {
+        font-size: 1.2rem;
+        font-weight: bold;
+        color: #1a73e8;
+        margin-bottom: 5px;
+      }
+      .name-tag {
+        font-size: 1rem;
+        margin-bottom: 15px;
+        border-bottom: 1px dashed #ddd;
+        padding-bottom: 10px;
+        padding-right: 30px;
+      }
+      .info-row {
+        display: flex;
+        margin-bottom: 6px;
+        font-size: 0.9rem;
+      }
+      .label {
+        width: 70px;
+        color: #888;
+        flex-shrink: 0;
+        font-weight: 500;
+      }
+      .value {
+        word-break: break-all;
+      }
+
+      /* 모달 */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+      .modal-content {
+        background: white;
+        padding: 25px;
+        border-radius: 12px;
+        width: 90%;
+        max-width: 450px;
+      }
+      .form-group {
+        margin-bottom: 15px;
+      }
+      .form-group label {
+        display: block;
+        font-size: 0.85rem;
+        margin-bottom: 5px;
+        color: #666;
+      }
+      .form-group input,
+      .form-group textarea {
+        width: 100%;
+        padding: 10px;
+        border: 1px solid #ccc;
+        border-radius: 6px;
+        box-sizing: border-box;
+      }
+      .modal-btns {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .loading {
+        text-align: center;
+        padding: 50px;
+        color: #666;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="loginScreen" class="screen active">
+      <div class="auth-box">
+        <h2>도제기업 연락처 관리시스템</h2>
+        <input type="text" id="loginId" placeholder="아이디" />
+        <input
+          type="password"
+          id="loginPw"
+          placeholder="비밀번호"
+          onkeyup="if (event.keyCode === 13) attemptLogin();"
+        />
+        <button id="btnLogin" class="btn-auth" onclick="attemptLogin()">
+          로그인
+        </button>
+      </div>
+    </div>
+
+    <div id="pwChangeScreen" class="screen">
+      <div class="auth-box">
+        <h2>비밀번호 변경</h2>
+        <p style="font-size: 0.8rem; color: #d93025; text-align: center">
+          보안을 위해 초기 비밀번호를 변경해주세요.
+        </p>
+        <input type="password" id="newPw" placeholder="새 비밀번호" />
+        <input
+          type="password"
+          id="newPwConfirm"
+          placeholder="새 비밀번호 확인"
+          onkeyup="if (event.keyCode === 13) attemptPwChange();"
+        />
+        <button class="btn-auth" onclick="attemptPwChange()">변경 완료</button>
+      </div>
+    </div>
+
+    <div id="mainScreen" class="screen container">
+      <div class="header-area">
+        <h1>🏢 도제기업 연락처 관리시스템</h1>
+        <div class="btn-group">
+          <button class="btn-main btn-green" onclick="copySelectedPhones()">
+            전화번호 복사
+          </button>
+          <button class="btn-main btn-blue" onclick="openBulkModal()">
+            메일 발송
+          </button>
+        </div>
+      </div>
+      <div id="status" class="loading">데이터 로딩 중...</div>
+      <div id="cardGrid" class="card-grid"></div>
+    </div>
+
+    <div id="emailModal" class="modal-overlay">
+      <div class="modal-content">
+        <h3>이메일 작성</h3>
+        <div class="form-group">
+          <label>받는 사람</label
+          ><input type="text" id="targetEmail" readonly />
+        </div>
+        <div class="form-group">
+          <label>제목</label><input type="text" id="mailSubject" />
+        </div>
+        <div class="form-group">
+          <label>내용</label
+          ><textarea id="mailBody" style="height: 120px"></textarea>
+        </div>
+        <div class="form-group">
+          <label>첨부파일 (다중 선택 가능)</label
+          ><input type="file" id="fileInput" multiple />
+        </div>
+        <div class="modal-btns">
+          <button
+            class="btn-auth"
+            style="background: #aaa"
+            onclick="closeModal()"
+          >
+            취소
+          </button>
+          <button id="sendBtn" class="btn-auth" onclick="sendMail()">
+            발송하기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // 🚨 재배포 후 발급받은 새로운 URL을 여기에 넣으세요!
+      const GAS_URL =
+        "https://script.google.com/macros/s/AKfycbyCxcBOEwf0iklOTS3b2SUE2PVAyuQ_llll_owFtQgkODSAmziCOIqsmvk--7pfOH6-/exec";
+
+      let currentUser = { id: "", pw: "" };
+
+      function switchScreen(id) {
+        document
+          .querySelectorAll(".screen")
+          .forEach((s) => s.classList.remove("active"));
+        document.getElementById(id).classList.add("active");
+      }
+
+      async function attemptLogin() {
+        const id = document.getElementById("loginId").value.trim();
+        const pw = document.getElementById("loginPw").value.trim();
+        if (!id || !pw) return alert("입력값을 확인해주세요.");
+
+        const btn = document.getElementById("btnLogin");
+        btn.innerText = "로그인 중...";
+        btn.disabled = true;
+
+        try {
+          const response = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify({ action: "login", id, pw }),
+          });
+          const res = await response.json();
+          if (res.success) {
+            currentUser = { id, pw };
+            res.requirePwChange
+              ? switchScreen("pwChangeScreen")
+              : (switchScreen("mainScreen"), fetchData());
+          } else {
+            alert("로그인 정보가 틀립니다.");
+          }
+        } catch (err) {
+          alert("서버 오류가 발생했습니다.");
+        } finally {
+          btn.innerText = "로그인";
+          btn.disabled = false;
+        }
+      }
+
+      async function attemptPwChange() {
+        const newPw = document.getElementById("newPw").value.trim();
+        if (
+          newPw === "1234" ||
+          newPw !== document.getElementById("newPwConfirm").value.trim()
+        )
+          return alert("비밀번호가 일치하지 않거나 유효하지 않습니다.");
+
+        const response = await fetch(GAS_URL, {
+          method: "POST",
+          body: JSON.stringify({
+            action: "changePassword",
+            id: currentUser.id,
+            oldPw: currentUser.pw,
+            newPw,
+          }),
+        });
+        const res = await response.json();
+        if (res.success) {
+          alert("변경되었습니다.");
+          currentUser.pw = newPw;
+          switchScreen("mainScreen");
+          fetchData();
+        }
+      }
+
+      async function fetchData() {
+        const response = await fetch(GAS_URL);
+        const data = await response.json();
+        renderCards(data);
+      }
+
+      function renderCards(data) {
+        const grid = document.getElementById("cardGrid");
+        document.getElementById("status").style.display = "none";
+        grid.innerHTML = "";
+
+        for (let i = 1; i < data.length; i++) {
+          const row = data[i];
+          if (!row[1]) continue;
+          const card = document.createElement("div");
+          card.className = "card";
+          card.innerHTML = `
+        <div class="checkbox-container">
+          <input type="checkbox" class="contact-check" data-email="${row[7]}" data-phone="${row[6]}">
+        </div>
+        <div class="company">${row[1]}</div>
+        <div class="name-tag"><strong>${row[3]}</strong> ${row[4]} <small style="color:#666">[${row[2]}]</small></div>
+        <div class="info-row"><span class="label">이메일</span><span class="value">${row[7] || "-"}</span></div>
+        <div class="info-row"><span class="label">핸드폰</span><span class="value">${row[6] || "-"}</span></div>
+        <div class="info-row"><span class="label">사무실</span><span class="value">${row[5] || "-"}</span></div>
+        <div class="info-row" style="margin-top:8px; font-size:0.8rem; color:#666;"><span class="label">주소</span><span class="value">${row[8] || "-"}</span></div>
+      `;
+          grid.appendChild(card);
+        }
+      }
+
+      // --- [수정된 기능] 웹 앱(iframe) 환경에서 완벽 작동하는 복사 로직 ---
+      function copySelectedPhones() {
+        const checks = document.querySelectorAll(".contact-check:checked");
+        // 빈 값이나 '-' 인 경우는 제외하고 번호만 추출
+        const phones = Array.from(checks)
+          .map((c) => c.dataset.phone)
+          .filter((p) => p && p.trim() !== "" && p !== "-");
+
+        if (phones.length === 0) return alert("대상을 하나 이상 선택해주세요.");
+        const textToCopy = phones.join(", "); // 010-0000-0000, 010-1111-1111 형태로 결합
+
+        // 숨겨진 텍스트 영역을 만들어 값을 복사 (보안 정책 회피용)
+        const textArea = document.createElement("textarea");
+        textArea.value = textToCopy;
+        textArea.style.position = "fixed";
+        textArea.style.top = "-9999px"; // 화면 밖으로 숨김
+        document.body.appendChild(textArea);
+
+        textArea.focus();
+        textArea.select();
+
+        try {
+          const successful = document.execCommand("copy");
+          if (successful) {
+            alert(
+              `총 ${phones.length}건의 전화번호가 복사되었습니다.\n\n복사된 번호:\n${textToCopy}`,
+            );
+          } else {
+            alert("복사에 실패했습니다.");
+          }
+        } catch (err) {
+          alert("사용 중인 환경에서 자동 복사를 지원하지 않습니다.");
+        }
+
+        document.body.removeChild(textArea); // 사용 완료된 텍스트 영역 제거
+      }
+
+      function openBulkModal() {
+        const checks = document.querySelectorAll(".contact-check:checked");
+        const emails = Array.from(checks)
+          .map((c) => c.dataset.email)
+          .filter((e) => e && e !== "-");
+        if (emails.length === 0) return alert("대상을 선택해주세요.");
+        document.getElementById("targetEmail").value = emails.join(", ");
+        document.getElementById("emailModal").style.display = "flex";
+      }
+
+      function closeModal() {
+        document.getElementById("emailModal").style.display = "none";
+      }
+
+      // 파일을 Base64로 인코딩하는 헬퍼 함수
+      const fileToB64 = (file) =>
+        new Promise((res, rej) => {
+          const r = new FileReader();
+          r.onload = () => res({ name: file.name, data: r.result });
+          r.onerror = rej;
+          r.readAsDataURL(file);
+        });
+
+      // 다중 파일 전송
+      async function sendMail() {
+        const sendBtn = document.getElementById("sendBtn");
+
+        const subject = document.getElementById("mailSubject").value;
+        const body = document.getElementById("mailBody").value;
+        if (!subject || !body) return alert("제목과 내용을 입력해주세요.");
+
+        sendBtn.innerText = "발송 중...";
+        sendBtn.disabled = true;
+
+        try {
+          // 선택된 모든 파일을 순회하며 Base64로 변환 (여러 개 동시 처리)
+          const fileInput = document.getElementById("fileInput");
+          const filesPromises = Array.from(fileInput.files).map(fileToB64);
+          const filesData = await Promise.all(filesPromises);
+
+          const payload = {
+            action: "sendEmail",
+            to: document.getElementById("targetEmail").value,
+            subject: subject,
+            body: body,
+            files: filesData,
+          };
+
+          const res = await fetch(GAS_URL, {
+            method: "POST",
+            body: JSON.stringify(payload),
+          }).then((r) => r.json());
+          if (res.success) {
+            alert("메일이 성공적으로 발송되었습니다.");
+            closeModal();
+          } else {
+            alert("메일 발송 실패: " + res.error);
+          }
+        } catch (e) {
+          alert("전송 중 네트워크 오류가 발생했습니다.");
+        } finally {
+          sendBtn.innerText = "발송하기";
+          sendBtn.disabled = false;
+        }
+      }
+    </script>
+  </body>
+</html>
