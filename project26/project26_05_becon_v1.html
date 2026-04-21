@@ -1,0 +1,739 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>2026년 도제 Becon 관리</title>
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css"
+    />
+    <style>
+      :root {
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --in-btn: #10b981;
+        --in-hover: #059669;
+        --out-btn: #f59e0b;
+        --out-hover: #d97706;
+        --bg: #f3f6f9;
+        --text: #1e293b;
+        --text-light: #64748b;
+      }
+      body {
+        font-family: "Pretendard", sans-serif;
+        background: var(--bg);
+        color: var(--text);
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+        align-items: flex-start;
+      }
+      .card {
+        background: white;
+        width: 100%;
+        max-width: 480px;
+        padding: 35px 25px;
+        border-radius: 24px;
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.04);
+        margin-top: 20px;
+        transition: all 0.3s;
+        position: relative;
+      }
+      h2 {
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 30px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+
+      .input-group {
+        margin-bottom: 18px;
+      }
+      label {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 8px;
+        color: var(--text-light);
+        font-weight: 600;
+      }
+      input,
+      select {
+        width: 100%;
+        padding: 14px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 12px;
+        box-sizing: border-box;
+        font-size: 15px;
+        outline: none;
+        transition: 0.2s;
+        background: #f8fafc;
+        font-family: inherit;
+      }
+      input:focus,
+      select:focus {
+        border-color: var(--primary);
+        background: white;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+      }
+
+      button {
+        width: 100%;
+        padding: 16px;
+        border: none;
+        border-radius: 14px;
+        font-size: 16px;
+        font-weight: 700;
+        color: white;
+        cursor: pointer;
+        transition: 0.2s;
+        font-family: inherit;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      }
+      button:active {
+        transform: translateY(2px);
+      }
+      button:disabled {
+        background: #cbd5e1 !important;
+        box-shadow: none;
+        cursor: not-allowed;
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-hover)
+        );
+      }
+      .btn-secondary {
+        background: white;
+        color: var(--text);
+        border: 1px solid #cbd5e1;
+        box-shadow: none;
+        font-size: 14px;
+        padding: 12px;
+        margin-bottom: 15px;
+      }
+      .btn-secondary:hover {
+        background: #f1f5f9;
+      }
+
+      .btn-in {
+        background: linear-gradient(135deg, var(--in-btn), var(--in-hover));
+        margin-bottom: 15px;
+      }
+      .btn-out {
+        background: linear-gradient(135deg, var(--out-btn), var(--out-hover));
+      }
+
+      .btn-done {
+        background: #f1f5f9 !important;
+        color: #94a3b8 !important;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+        cursor: not-allowed;
+        border: 1px solid #e2e8f0;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+      .text-center {
+        text-align: center;
+      }
+
+      .top-right-controls {
+        position: absolute;
+        top: 20px;
+        right: 25px;
+      }
+      .btn-logout {
+        background: #fee2e2;
+        color: #ef4444;
+        border: none;
+        padding: 6px 14px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        width: auto;
+        box-shadow: none;
+      }
+      .btn-logout:hover {
+        background: #fecaca;
+        transform: translateY(-1px);
+      }
+
+      .info-box {
+        background: #eff6ff;
+        border: 1px solid #bfdbfe;
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 25px;
+        text-align: center;
+      }
+      .info-box p {
+        margin: 5px 0;
+        color: #1d4ed8;
+        font-weight: 600;
+      }
+      .date-display {
+        font-size: 20px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 5px;
+      }
+
+      /* 하단 소속 안내 카드 스타일 */
+      .footer-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 15px;
+        margin-top: 25px;
+        text-align: center;
+        font-weight: 700;
+        color: #64748b;
+        font-size: 14px;
+      }
+
+      .date-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        background: #f8fafc;
+        padding: 10px;
+        border-radius: 16px;
+        margin-bottom: 15px;
+        border: 1px solid #e2e8f0;
+      }
+      .date-nav button {
+        width: auto;
+        padding: 8px 16px;
+        background: white;
+        color: var(--text);
+        border: 1px solid #cbd5e1;
+        border-radius: 10px;
+        font-size: 14px;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+      }
+      .current-nav-date {
+        font-weight: 800;
+        font-size: 16px;
+        color: var(--primary);
+      }
+
+      .stats-row {
+        display: flex;
+        justify-content: space-around;
+        margin-bottom: 20px;
+        background: white;
+        padding: 15px;
+        border-radius: 16px;
+        border: 1px solid #e2e8f0;
+      }
+      .stat-item {
+        text-align: center;
+      }
+      .stat-label {
+        font-size: 12px;
+        color: var(--text-light);
+        margin-bottom: 4px;
+      }
+      .stat-val {
+        font-size: 18px;
+        font-weight: 800;
+        color: var(--text);
+      }
+
+      .table-container {
+        overflow-x: auto;
+        border-radius: 12px;
+        border: 1px solid #e2e8f0;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        text-align: center;
+        background: white;
+        white-space: nowrap;
+      }
+      th {
+        background: #f8fafc;
+        color: var(--text-light);
+        padding: 12px 10px;
+        font-weight: 600;
+        border-bottom: 1px solid #e2e8f0;
+      }
+      td {
+        padding: 12px 10px;
+        border-bottom: 1px solid #f1f5f9;
+        color: var(--text);
+      }
+      .badge {
+        padding: 4px 8px;
+        border-radius: 6px;
+        font-size: 11px;
+        font-weight: 700;
+      }
+      .bg-late {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+      .bg-early {
+        background: #fef3c7;
+        color: #d97706;
+      }
+      .bg-normal {
+        background: #d1fae5;
+        color: #059669;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="card" id="appCard">
+      <div id="topRightControls" class="top-right-controls hidden">
+        <button class="btn-logout" onclick="logout()">🚪 로그아웃</button>
+      </div>
+
+      <div id="loginSection">
+        <h2>Becon 관리시스템</h2>
+        <div class="input-group">
+          <input type="text" id="userId" placeholder="학번 (교사는 ID)" />
+        </div>
+        <div class="input-group">
+          <input
+            type="password"
+            id="userPw"
+            placeholder="비밀번호"
+            onkeyup="if (event.keyCode === 13) login();"
+          />
+        </div>
+        <button id="loginBtn" class="btn-primary" onclick="login()">
+          로그인
+        </button>
+        <div
+          id="loginMsg"
+          style="
+            color: #ef4444;
+            text-align: center;
+            margin-top: 15px;
+            font-size: 14px;
+            font-weight: 600;
+          "
+        ></div>
+      </div>
+
+      <div id="setupSection" class="hidden">
+        <h2>초기 설정 (1회)</h2>
+        <p
+          class="text-center"
+          style="font-size: 13px; color: var(--text-light); margin-bottom: 20px"
+        >
+          안전한 사용을 위해 비밀번호와 기준 출퇴근 시간을 설정해주세요.
+        </p>
+        <div class="input-group">
+          <label>새 비밀번호 (4자리 이상)</label>
+          <input type="password" id="newPw" placeholder="새로운 비밀번호" />
+        </div>
+        <div id="timeSetupArea" class="hidden">
+          <div class="input-group">
+            <label>내 회사 입실 기준 시간</label>
+            <select id="setInTime">
+              <option value="09:00">09:00</option>
+              <option value="09:30">09:30</option>
+              <option value="10:00">10:00</option>
+              <option value="13:00">13:00</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>내 회사 퇴실 기준 시간</label>
+            <select id="setOutTime">
+              <option value="15:00">15:00</option>
+              <option value="15:30">15:30</option>
+              <option value="16:00">16:00</option>
+              <option value="18:00">18:00</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary" onclick="submitSetup()">
+          설정 완료 및 시작하기
+        </button>
+      </div>
+
+      <div id="studentSection" class="hidden">
+        <h2 style="margin-top: 10px">근태 기록</h2>
+        <div class="text-center">
+          <div class="date-display" id="currentDateStr"></div>
+          <div
+            id="dayWarning"
+            class="hidden"
+            style="
+              color: #ef4444;
+              font-size: 14px;
+              font-weight: 700;
+              margin-bottom: 10px;
+            "
+          >
+            ※ 오늘은 현장실습일이 아닙니다.
+          </div>
+        </div>
+
+        <div class="info-box">
+          <p id="welcomeName" style="color: #0f172a; font-size: 16px">
+            반갑습니다.
+          </p>
+          <p id="myTimeInfo" style="font-size: 14px">
+            내 기준: - 입실 / - 퇴실
+          </p>
+        </div>
+
+        <button id="btnIn" class="btn-in" onclick="submitAttend('입실')">
+          👆 입실 기록하기
+        </button>
+        <button id="btnOut" class="btn-out" onclick="submitAttend('퇴실')">
+          👋 퇴실 기록하기
+        </button>
+
+        <div class="footer-box">🎓 성일정보고등학교 도제반 3-12</div>
+      </div>
+
+      <div id="adminSection" class="hidden">
+        <h2 style="margin-top: 10px; margin-bottom: 20px">2026년 도제 Becon 관리 실시간 대시보드</h2>
+        <button
+          onclick="fetchAdminData()"
+          class="btn-secondary"
+          id="refreshBtn"
+        >
+          🔄 데이터 새로고침
+        </button>
+        <div class="date-nav">
+          <button onclick="changeDate(-1)">◀ 이전일</button>
+          <div class="current-nav-date" id="adminDateDisplay">
+            날짜 불러오는 중
+          </div>
+          <button onclick="changeDate(1)">다음일 ▶</button>
+        </div>
+        <div class="stats-row">
+          <div class="stat-item">
+            <div class="stat-label">해당일 입실</div>
+            <div class="stat-val" id="countIn" style="color: var(--in-btn)">
+              0명
+            </div>
+          </div>
+          <div
+            class="stat-item"
+            style="
+              border-left: 1px solid #e2e8f0;
+              border-right: 1px solid #e2e8f0;
+              padding: 0 20px;
+            "
+          >
+            <div class="stat-label">해당일 퇴실</div>
+            <div class="stat-val" id="countOut" style="color: var(--out-btn)">
+              0명
+            </div>
+          </div>
+          <div class="stat-item">
+            <div class="stat-label">지각/조퇴</div>
+            <div class="stat-val" id="countWarn" style="color: #ef4444">
+              0명
+            </div>
+          </div>
+        </div>
+        <div class="table-container">
+          <table>
+            <thead>
+              <tr>
+                <th>학번/이름</th>
+                <th>구분</th>
+                <th>시간</th>
+                <th>상태</th>
+              </tr>
+            </thead>
+            <tbody id="dashboardContent"></tbody>
+          </table>
+        </div>
+
+        <div class="footer-box">🎓 성일정보고등학교 도제반 3-12</div>
+      </div>
+    </div>
+
+    <script>
+      // ★ 반드시 새 배포 후 URL을 업데이트 해주세요 ★
+      const API_URL = "https://script.google.com/macros/s/AKfycbxfh0biMU6u1NA-wXEXxQlnQ9jFwy8AFubvENx7y2M6Wl27AQ6Ihcq1l0BU7eXtzuXb/exec";
+
+      let userInfo = {};
+      let allAdminData = [];
+      let currentAdminDate = new Date();
+
+      window.onload = () => {
+        const savedSession = sessionStorage.getItem("attendance_user");
+        if (savedSession) {
+          userInfo = JSON.parse(savedSession);
+          document.getElementById("loginSection").classList.add("hidden");
+          showMain();
+        }
+      };
+
+      async function callAPI(payload) {
+        try {
+          const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify(payload),
+          });
+          return await response.json();
+        } catch (error) {
+          return {
+            success: false,
+            msg: "서버 연결 실패. 네트워크 상태나 스크립트 URL을 확인하세요.",
+          };
+        }
+      }
+
+      async function login() {
+        const id = document.getElementById("userId").value;
+        const pw = document.getElementById("userPw").value;
+        if (!id || !pw) return alert("입력값을 확인해주세요.");
+
+        document.getElementById("loginBtn").innerText = "확인중...";
+        const res = await callAPI({ action: "login", id: id, pw: pw });
+        document.getElementById("loginBtn").innerText = "로그인";
+
+        if (res.success) {
+          userInfo = res;
+          document.getElementById("loginSection").classList.add("hidden");
+
+          if (res.needsSetup) {
+            document.getElementById("setupSection").classList.remove("hidden");
+            if (res.role === "학생")
+              document
+                .getElementById("timeSetupArea")
+                .classList.remove("hidden");
+          } else {
+            sessionStorage.setItem("attendance_user", JSON.stringify(userInfo));
+            showMain();
+          }
+        } else {
+          document.getElementById("loginMsg").innerText = res.msg;
+        }
+      }
+
+      function logout() {
+        sessionStorage.removeItem("attendance_user");
+        location.reload();
+      }
+
+      async function submitSetup() {
+        const newPw = document.getElementById("newPw").value;
+        const inTime = document.getElementById("setInTime").value;
+        const outTime = document.getElementById("setOutTime").value;
+
+        if (newPw.length < 4) return alert("비밀번호는 4자리 이상 입력하세요.");
+
+        const res = await callAPI({
+          action: "initialSetup",
+          id: userInfo.id,
+          pw: newPw,
+          role: userInfo.role,
+          inTime: inTime,
+          outTime: outTime,
+        });
+
+        if (res.success) {
+          alert("설정이 완료되었습니다! 다시 로그인해주세요.");
+          location.reload();
+        } else {
+          alert(res.msg);
+        }
+      }
+
+      function showMain() {
+        document.getElementById("topRightControls").classList.remove("hidden");
+
+        if (userInfo.role === "학생") {
+          document.getElementById("appCard").style.maxWidth = "400px";
+          document.getElementById("studentSection").classList.remove("hidden");
+          setupStudentView();
+        } else {
+          document.getElementById("appCard").style.maxWidth = "600px";
+          document.getElementById("adminSection").classList.remove("hidden");
+          fetchAdminData();
+        }
+      }
+
+      async function setupStudentView() {
+        const now = new Date();
+        const days = ["일", "월", "화", "수", "목", "금", "토"];
+        const dayIdx = now.getDay();
+
+        document.getElementById("currentDateStr").innerText =
+          `${now.getMonth() + 1}월 ${now.getDate()}일 (${days[dayIdx]})`;
+        document.getElementById("welcomeName").innerText =
+          `${userInfo.name} 학생`;
+        document.getElementById("myTimeInfo").innerText =
+          `내 기준: ${userInfo.inTime} 입실 / ${userInfo.outTime} 퇴실`;
+
+        if (dayIdx < 2 || dayIdx > 4) {
+          const bIn = document.getElementById("btnIn");
+          const bOut = document.getElementById("btnOut");
+          bIn.disabled = true;
+          bOut.disabled = true;
+          bIn.classList.add("btn-done");
+          bOut.classList.add("btn-done");
+          document.getElementById("dayWarning").classList.remove("hidden");
+          return;
+        }
+
+        document.getElementById("btnIn").innerText = "⏳ 상태 확인중...";
+        document.getElementById("btnOut").innerText = "⏳ 상태 확인중...";
+
+        const res = await callAPI({
+          action: "getStudentStatus",
+          id: userInfo.id,
+        });
+        if (res.success) {
+          updateStudentButtons(res.inDone, res.outDone);
+        }
+      }
+
+      function updateStudentButtons(inDone, outDone) {
+        const btnIn = document.getElementById("btnIn");
+        const btnOut = document.getElementById("btnOut");
+
+        if (inDone) {
+          btnIn.disabled = true;
+          btnIn.classList.add("btn-done");
+          btnIn.innerText = "✅ 오늘 입실 완료";
+        } else {
+          btnIn.disabled = false;
+          btnIn.classList.remove("btn-done");
+          btnIn.innerText = "👆 입실 기록하기";
+        }
+
+        if (outDone) {
+          btnOut.disabled = true;
+          btnOut.classList.add("btn-done");
+          btnOut.innerText = "✅ 오늘 퇴실 완료";
+        } else {
+          btnOut.disabled = false;
+          btnOut.classList.remove("btn-done");
+          btnOut.innerText = "👋 퇴실 기록하기";
+        }
+      }
+
+      async function submitAttend(type) {
+        const btn =
+          type === "입실"
+            ? document.getElementById("btnIn")
+            : document.getElementById("btnOut");
+        btn.disabled = true;
+        btn.innerText = "기록 중...";
+
+        const stdTime = type === "입실" ? userInfo.inTime : userInfo.outTime;
+        const res = await callAPI({
+          action: "recordAttendance",
+          id: userInfo.id,
+          name: userInfo.name,
+          type: type,
+          stdTime: stdTime,
+        });
+
+        alert(res.msg);
+        setupStudentView();
+      }
+
+      async function fetchAdminData() {
+        const btn = document.getElementById("refreshBtn");
+        if (btn) {
+          btn.innerText = "데이터 가져오는 중...";
+          btn.disabled = true;
+        }
+
+        document.getElementById("dashboardContent").innerHTML =
+          "<tr><td colspan='4'>데이터 불러오는 중...</td></tr>";
+
+        const res = await callAPI({ action: "getAdminData" });
+
+        if (res.success) {
+          allAdminData = res.data.reverse();
+          renderDashboard();
+        } else {
+          document.getElementById("dashboardContent").innerHTML =
+            `<tr><td colspan='4' style='color:#ef4444'>데이터 호출 실패: ${res.msg}</td></tr>`;
+        }
+
+        if (btn) {
+          btn.innerText = "🔄 데이터 새로고침";
+          btn.disabled = false;
+        }
+      }
+
+      function changeDate(offset) {
+        currentAdminDate.setDate(currentAdminDate.getDate() + offset);
+        renderDashboard();
+      }
+
+      function renderDashboard() {
+        const days = ["일", "월", "화", "수", "목", "금", "토"];
+        const targetDateStr = formatDateForCompare(currentAdminDate);
+
+        document.getElementById("adminDateDisplay").innerText =
+          `${currentAdminDate.getFullYear()}-${String(currentAdminDate.getMonth() + 1).padStart(2, "0")}-${String(currentAdminDate.getDate()).padStart(2, "0")} (${days[currentAdminDate.getDay()]})`;
+
+        let html = "";
+        let statIn = 0,
+          statOut = 0,
+          statWarn = 0;
+
+        allAdminData.forEach((r) => {
+          if (!r || r.length < 8) return;
+
+          const rowDateStr = r[1].trim();
+          if (rowDateStr === targetDateStr) {
+            const type = r[5],
+              status = r[7];
+
+            if (type === "입실") statIn++;
+            if (type === "퇴실") statOut++;
+            if (status === "지각" || status === "조퇴") statWarn++;
+
+            let badgeClass = "bg-normal";
+            if (status === "지각") badgeClass = "bg-late";
+            if (status === "조퇴") badgeClass = "bg-early";
+
+            html += `<tr>
+          <td><strong>${r[3]}</strong><br><span style="font-size:11px;color:#64748b">${r[4]}</span></td>
+          <td style="font-weight:700; color:${type === "입실" ? "#10b981" : "#f59e0b"}">${type}</td>
+          <td>${r[0].substring(0, 5)}<br><span style="font-size:10px;color:#94a3b8">기준 ${r[6]}</span></td>
+          <td><span class="badge ${badgeClass}">${status}</span></td>
+        </tr>`;
+          }
+        });
+
+        document.getElementById("countIn").innerText = statIn + "명";
+        document.getElementById("countOut").innerText = statOut + "명";
+        document.getElementById("countWarn").innerText = statWarn + "명";
+
+        if (html === "")
+          html =
+            "<tr><td colspan='4' style='padding:30px; color:#94a3b8;'>해당 날짜에 기록된 데이터가 없습니다.</td></tr>";
+        document.getElementById("dashboardContent").innerHTML = html;
+      }
+
+      function formatDateForCompare(dateObj) {
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+        const d = String(dateObj.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+      }
+    </script>
+  </body>
+</html>
