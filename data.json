@@ -87,11 +87,6 @@
         "type": "secondary"
       },
       {
-        "title": "Project 3 Becon System",
-        "url": "project26/project26_01_becon_v4.html",
-        "type": "primary"
-      },
-      {
         "title": "Project 4 광교1동성당 봉고차운전봉사일정",
         "url": "project26/project26_02_christ_v2.html",
         "type": "secondary"
@@ -100,11 +95,34 @@
         "title": "Project 1.1 울뜨레야 개인기도 집계 v3",
         "url": "gwanggyo_cathedral/index_prayer_v3.html",
         "type": "primary"
-      },
+      }
+    ]
+  },
+  {
+    "id": "Doje",
+    "title": "Doje Project",
+    "icon": "fa-terminal",
+    "description": "vibe Coding Project, #1 출퇴근 비콘 시스템, #2 ...",
+    "links": [
       {
-        "title": "Project 5 도제반 내부평가 과목정리",
+        "title": "Doje01 도제반 내부평가 과목정리",
         "url": "project26/project26_03_innertest_v1.html",
         "type": "secondary"
+      },
+      {
+        "title": "Doje2 도제기업 정리",
+        "url": "project26/project26_04_outerTeacher_v1.html",
+        "type": "primary"
+      },
+      {
+        "title": "Doje3 Becon System",
+        "url": "project26/project26_01_becon_v4.html",
+        "type": "secondary"
+      },
+      {
+        "title": "Doje4 ###",
+        "url": "#",
+        "type": "primary"
       }
     ]
   }
