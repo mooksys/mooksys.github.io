@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>도제기업 연락처 관리시스템</title>
+    <title>2026년 도제기업 연락처 관리 시스템</title>
     <style>
       body {
         font-family: "Pretendard", sans-serif;
@@ -68,6 +68,7 @@
       .btn-group {
         display: flex;
         gap: 8px;
+        flex-wrap: wrap;
       }
       .btn-main {
         border: none;
@@ -77,12 +78,19 @@
         cursor: pointer;
         color: white;
         transition: 0.2s;
+        font-size: 0.9rem;
       }
       .btn-blue {
         background: #1a73e8;
       }
       .btn-green {
         background: #34a853;
+      }
+      .btn-gray {
+        background: #6c757d;
+      }
+      .btn-lightgray {
+        background: #adb5bd;
       }
       .btn-main:hover {
         opacity: 0.8;
@@ -99,8 +107,12 @@
         border-radius: 12px;
         padding: 20px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-        border-top: 4px solid #1a73e8;
         position: relative;
+        transition: transform 0.2s;
+      }
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
       }
       .checkbox-container {
         position: absolute;
@@ -112,10 +124,10 @@
         height: 22px;
         cursor: pointer;
       }
+
       .company {
         font-size: 1.2rem;
         font-weight: bold;
-        color: #1a73e8;
         margin-bottom: 5px;
       }
       .name-tag {
@@ -124,7 +136,22 @@
         border-bottom: 1px dashed #ddd;
         padding-bottom: 10px;
         padding-right: 30px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
       }
+
+      /* 추가된 직급 스타일 (뱃지 모양) */
+      .job-title {
+        font-weight: 800;
+        color: #d93025;
+        background-color: #fce8e6;
+        padding: 3px 8px;
+        border-radius: 12px;
+        font-size: 0.8rem;
+        letter-spacing: 0.5px;
+      }
+
       .info-row {
         display: flex;
         margin-bottom: 6px;
@@ -192,7 +219,7 @@
   <body>
     <div id="loginScreen" class="screen active">
       <div class="auth-box">
-        <h2>도제기업 연락처 관리시스템</h2>
+        <h2>2026년 도제기업 관리시스템</h2>
         <input type="text" id="loginId" placeholder="아이디" />
         <input
           type="password"
@@ -225,13 +252,19 @@
 
     <div id="mainScreen" class="screen container">
       <div class="header-area">
-        <h1>🏢 도제기업 연락처 관리시스템</h1>
+        <h1>🏢 2026년 성일정보고 도제기업 관리시스템</h1>
         <div class="btn-group">
+          <button class="btn-main btn-gray" onclick="selectAll()">
+            ✓ 전체선택
+          </button>
+          <button class="btn-main btn-lightgray" onclick="deselectAll()">
+            ✗ 전체해제
+          </button>
           <button class="btn-main btn-green" onclick="copySelectedPhones()">
-            전화번호 복사
+            📱 전화번호 복사
           </button>
           <button class="btn-main btn-blue" onclick="openBulkModal()">
-            메일 발송
+            ✉️ 메일 발송
           </button>
         </div>
       </div>
@@ -275,7 +308,7 @@
     <script>
       // 🚨 재배포 후 발급받은 새로운 URL을 여기에 넣으세요!
       const GAS_URL =
-        "https://script.google.com/macros/s/AKfycbyCxcBOEwf0iklOTS3b2SUE2PVAyuQ_llll_owFtQgkODSAmziCOIqsmvk--7pfOH6-/exec";
+        "https://script.google.com/macros/s/AKfycbyLzQVo0wEHkwn5ll2k44jHqV02jXEQdcpA55R9fnIj45OQdkVcrkuHS7b_35mZ0JG6nA/exec";
 
       let currentUser = { id: "", pw: "" };
 
@@ -349,22 +382,57 @@
         renderCards(data);
       }
 
+      // [수정 핵심] 카드 렌더링 시 회사별 색상 부여 및 직급 스타일링 적용
       function renderCards(data) {
         const grid = document.getElementById("cardGrid");
         document.getElementById("status").style.display = "none";
         grid.innerHTML = "";
 
+        // 회사별로 할당할 색상 팔레트 준비
+        const colorPalette = [
+          "#1a73e8",
+          "#34a853",
+          "#ea4335",
+          "#fbbc04",
+          "#9334e6",
+          "#00bcd4",
+          "#ff9800",
+          "#009688",
+          "#673ab7",
+          "#795548",
+        ];
+        const companyColorMap = {}; // 회사명 -> 색상 저장용 객체
+        let colorIndex = 0;
+
         for (let i = 1; i < data.length; i++) {
           const row = data[i];
           if (!row[1]) continue;
+
+          const companyName = row[1];
+
+          // 처음 보는 회사명이면 팔레트에서 순서대로 색상을 배정하여 저장
+          if (!companyColorMap[companyName]) {
+            companyColorMap[companyName] =
+              colorPalette[colorIndex % colorPalette.length];
+            colorIndex++;
+          }
+
+          const themeColor = companyColorMap[companyName]; // 할당된 테마 색상 불러오기
+
           const card = document.createElement("div");
           card.className = "card";
+          // 상단 테두리에 회사 고유 색상 적용
+          card.style.borderTop = `4px solid ${themeColor}`;
+
           card.innerHTML = `
         <div class="checkbox-container">
           <input type="checkbox" class="contact-check" data-email="${row[7]}" data-phone="${row[6]}">
         </div>
-        <div class="company">${row[1]}</div>
-        <div class="name-tag"><strong>${row[3]}</strong> ${row[4]} <small style="color:#666">[${row[2]}]</small></div>
+        <div class="company" style="color: ${themeColor};">${companyName}</div>
+        <div class="name-tag">
+          <strong>${row[3]}</strong> ${row[4]} 
+          <span class="job-title">${row[2]}</span>
+        </div>
         <div class="info-row"><span class="label">이메일</span><span class="value">${row[7] || "-"}</span></div>
         <div class="info-row"><span class="label">핸드폰</span><span class="value">${row[6] || "-"}</span></div>
         <div class="info-row"><span class="label">사무실</span><span class="value">${row[5] || "-"}</span></div>
@@ -374,22 +442,29 @@
         }
       }
 
-      // --- [수정된 기능] 웹 앱(iframe) 환경에서 완벽 작동하는 복사 로직 ---
+      function selectAll() {
+        const checkboxes = document.querySelectorAll(".contact-check");
+        checkboxes.forEach((cb) => (cb.checked = true));
+      }
+
+      function deselectAll() {
+        const checkboxes = document.querySelectorAll(".contact-check");
+        checkboxes.forEach((cb) => (cb.checked = false));
+      }
+
       function copySelectedPhones() {
         const checks = document.querySelectorAll(".contact-check:checked");
-        // 빈 값이나 '-' 인 경우는 제외하고 번호만 추출
         const phones = Array.from(checks)
           .map((c) => c.dataset.phone)
           .filter((p) => p && p.trim() !== "" && p !== "-");
 
         if (phones.length === 0) return alert("대상을 하나 이상 선택해주세요.");
-        const textToCopy = phones.join(", "); // 010-0000-0000, 010-1111-1111 형태로 결합
+        const textToCopy = phones.join(", ");
 
-        // 숨겨진 텍스트 영역을 만들어 값을 복사 (보안 정책 회피용)
         const textArea = document.createElement("textarea");
         textArea.value = textToCopy;
         textArea.style.position = "fixed";
-        textArea.style.top = "-9999px"; // 화면 밖으로 숨김
+        textArea.style.top = "-9999px";
         document.body.appendChild(textArea);
 
         textArea.focus();
@@ -397,18 +472,16 @@
 
         try {
           const successful = document.execCommand("copy");
-          if (successful) {
+          if (successful)
             alert(
               `총 ${phones.length}건의 전화번호가 복사되었습니다.\n\n복사된 번호:\n${textToCopy}`,
             );
-          } else {
-            alert("복사에 실패했습니다.");
-          }
+          else alert("복사에 실패했습니다.");
         } catch (err) {
-          alert("사용 중인 환경에서 자동 복사를 지원하지 않습니다.");
+          alert("자동 복사를 지원하지 않습니다.");
         }
 
-        document.body.removeChild(textArea); // 사용 완료된 텍스트 영역 제거
+        document.body.removeChild(textArea);
       }
 
       function openBulkModal() {
@@ -425,7 +498,6 @@
         document.getElementById("emailModal").style.display = "none";
       }
 
-      // 파일을 Base64로 인코딩하는 헬퍼 함수
       const fileToB64 = (file) =>
         new Promise((res, rej) => {
           const r = new FileReader();
@@ -434,10 +506,8 @@
           r.readAsDataURL(file);
         });
 
-      // 다중 파일 전송
       async function sendMail() {
         const sendBtn = document.getElementById("sendBtn");
-
         const subject = document.getElementById("mailSubject").value;
         const body = document.getElementById("mailBody").value;
         if (!subject || !body) return alert("제목과 내용을 입력해주세요.");
@@ -446,7 +516,6 @@
         sendBtn.disabled = true;
 
         try {
-          // 선택된 모든 파일을 순회하며 Base64로 변환 (여러 개 동시 처리)
           const fileInput = document.getElementById("fileInput");
           const filesPromises = Array.from(fileInput.files).map(fileToB64);
           const filesData = await Promise.all(filesPromises);
@@ -464,13 +533,13 @@
             body: JSON.stringify(payload),
           }).then((r) => r.json());
           if (res.success) {
-            alert("메일이 성공적으로 발송되었습니다.");
+            alert("메일이 발송되었습니다.");
             closeModal();
           } else {
             alert("메일 발송 실패: " + res.error);
           }
         } catch (e) {
-          alert("전송 중 네트워크 오류가 발생했습니다.");
+          alert("네트워크 오류 발생");
         } finally {
           sendBtn.innerText = "발송하기";
           sendBtn.disabled = false;
