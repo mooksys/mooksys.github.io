@@ -11,7 +11,6 @@
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css"
     />
     <style>
-      /* CSS는 이전과 완전히 동일합니다 */
       :root {
         --primary: #3b82f6;
         --primary-hover: #2563eb;
@@ -184,13 +183,55 @@
         color: #1d4ed8;
         font-weight: 600;
       }
+
+      /* 대시보드 리스트 박스 공통 스타일 */
+      .alert-box {
+        border-radius: 12px;
+        padding: 15px;
+        margin-bottom: 10px;
+        text-align: left;
+        border: 1px solid;
+      }
+      .alert-box p {
+        margin: 0 0 8px 0;
+        font-weight: 700;
+        font-size: 14px;
+      }
+      .alert-box div {
+        font-size: 14px;
+        color: #475569;
+        word-break: keep-all;
+        line-height: 1.5;
+      }
+
+      .box-red {
+        background: #fef2f2;
+        border-color: #fecaca;
+      }
+      .box-red p {
+        color: #ef4444;
+      }
+      .box-orange {
+        background: #fff7ed;
+        border-color: #fed7aa;
+      }
+      .box-orange p {
+        color: #ea580c;
+      }
+      .box-purple {
+        background: #faf5ff;
+        border-color: #e9d5ff;
+      }
+      .box-purple p {
+        color: #9333ea;
+      }
+
       .date-display {
         font-size: 20px;
         font-weight: 800;
         color: #0f172a;
         margin-bottom: 5px;
       }
-
       .footer-box {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
@@ -202,7 +243,6 @@
         color: #64748b;
         font-size: 14px;
       }
-
       .date-nav {
         display: flex;
         justify-content: space-between;
@@ -232,7 +272,7 @@
       .stats-row {
         display: flex;
         justify-content: space-around;
-        margin-bottom: 20px;
+        margin-bottom: 15px;
         background: white;
         padding: 15px;
         border-radius: 16px;
@@ -277,6 +317,7 @@
         border-bottom: 1px solid #f1f5f9;
         color: var(--text);
       }
+
       .badge {
         padding: 4px 8px;
         border-radius: 6px;
@@ -295,6 +336,38 @@
         background: #d1fae5;
         color: #059669;
       }
+
+      /* 페이징 버튼 스타일 */
+      .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        gap: 6px;
+        margin-top: 15px;
+      }
+      .page-btn {
+        width: auto;
+        padding: 6px 12px;
+        background: white;
+        border: 1px solid #cbd5e1;
+        color: var(--text);
+        font-size: 13px;
+        border-radius: 8px;
+        cursor: pointer;
+        box-shadow: none;
+        font-weight: 600;
+      }
+      .page-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+      }
+      .page-btn:disabled {
+        background: #f1f5f9;
+        color: #94a3b8;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+      }
     </style>
   </head>
   <body>
@@ -304,7 +377,19 @@
       </div>
 
       <div id="loginSection">
-        <h2>근태관리 시스템</h2>
+        <h2>2026 Doje Becon System</h2>
+        <div
+          class="text-center"
+          style="
+            color: #64748b;
+            font-weight: 700;
+            font-size: 14px;
+            margin-top: -20px;
+            margin-bottom: 25px;
+          "
+        >
+          🎓 성일정보고등학교 도제반 3-12
+        </div>
         <div class="input-group">
           <input type="text" id="userId" placeholder="학번 (교사는 ID)" />
         </div>
@@ -369,7 +454,7 @@
       </div>
 
       <div id="studentSection" class="hidden">
-        <h2 style="margin-top: 10px">2026 Doje Becon System</h2>
+        <h2 style="margin-top: 10px">근태 기록</h2>
         <div class="text-center">
           <div class="date-display" id="currentDateStr"></div>
           <div
@@ -406,7 +491,7 @@
       </div>
 
       <div id="adminSection" class="hidden">
-        <h2 style="margin-top: 10px; margin-bottom: 20px">2026 Doje Becon System 대시보드</h2>
+        <h2 style="margin-top: 10px; margin-bottom: 20px">2026 Doje Becon System</h2>
         <button
           onclick="fetchAdminData(false)"
           class="btn-secondary"
@@ -448,6 +533,22 @@
             </div>
           </div>
         </div>
+
+        <div style="margin-bottom: 20px">
+          <div class="alert-box box-red">
+            <p>⚠️ 미입력 학생 (입/퇴실 기록 없음)</p>
+            <div id="unrecordedList">데이터 불러오는 중...</div>
+          </div>
+          <div class="alert-box box-orange">
+            <p>⏰ 기준시간 대비 25분 이상 늦은 학생</p>
+            <div id="late25List">데이터 불러오는 중...</div>
+          </div>
+          <div class="alert-box box-purple">
+            <p>🏃 18시 이후 퇴실 미기록자 (입실만 한 학생)</p>
+            <div id="missingOutList">데이터 불러오는 중...</div>
+          </div>
+        </div>
+
         <div class="table-container">
           <table>
             <thead>
@@ -461,6 +562,7 @@
             <tbody id="dashboardContent"></tbody>
           </table>
         </div>
+        <div id="paginationControls"></div>
 
         <div class="footer-box">🎓 성일정보고등학교 도제반 3-12</div>
       </div>
@@ -468,12 +570,18 @@
 
     <script>
       // ★ 반드시 새 배포 후 URL을 업데이트 해주세요 ★
-      const API_URL = "https://script.google.com/macros/s/AKfycbzmn5Sqy1ObMZceE43VstKxCcyad-VipLDf3GdOK4xx7Fzt83cm6PYclrRh9_Ee5XwI-w/exec";
+      const API_URL = "https://script.google.com/macros/s/AKfycbzoOeNzEBoDvLseMyjIUQRh21_zneelzoWup0IjHr9YUU32n4CriqNwDuV07d7WefTM/exec";
 
       let userInfo = {};
       let allAdminData = [];
+      let allStudents = [];
       let currentAdminDate = new Date();
-      let autoRefreshTimer = null; // 자동 새로고침 타이머 변수 추가
+      let autoRefreshTimer = null;
+
+      // 페이징 전용 변수들
+      let currentFilteredData = [];
+      let currentPage = 1;
+      const itemsPerPage = 5;
 
       window.onload = () => {
         const savedSession = sessionStorage.getItem("attendance_user");
@@ -528,7 +636,7 @@
       }
 
       function logout() {
-        if (autoRefreshTimer) clearInterval(autoRefreshTimer); // 로그아웃 시 타이머 중지
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
         sessionStorage.removeItem("attendance_user");
         location.reload();
       }
@@ -584,12 +692,11 @@
         document.getElementById("appCard").style.maxWidth = "600px";
         document.getElementById("adminSection").classList.remove("hidden");
 
-        fetchAdminData(false); // 처음 1회 실행
+        fetchAdminData(false);
 
-        // ★ 10초에 한 번씩 새로고침 (타이머 중복 방지를 위해 기존 타이머 삭제 후 세팅)
         if (autoRefreshTimer) clearInterval(autoRefreshTimer);
         autoRefreshTimer = setInterval(() => {
-          fetchAdminData(true); // true = 백그라운드 조용한 새로고침
+          fetchAdminData(true);
         }, 10000);
       }
 
@@ -674,26 +781,22 @@
         setupStudentView();
       }
 
-      // isSilent 파라미터 추가: 10초 자동 새로고침 시 버튼이 계속 깜빡이는 것을 방지
       async function fetchAdminData(isSilent = false) {
         const btn = document.getElementById("refreshBtn");
 
         if (!isSilent && btn) {
           btn.innerText = "데이터 가져오는 중...";
           btn.disabled = true;
-          document.getElementById("dashboardContent").innerHTML =
-            "<tr><td colspan='4'>데이터 불러오는 중...</td></tr>";
         }
 
         const res = await callAPI({ action: "getAdminData", id: userInfo.id });
 
         if (res.success) {
-          allAdminData = res.data.reverse();
+          allAdminData = res.data.attendance.reverse();
+          allStudents = res.data.students;
           renderDashboard();
         } else {
           if (!isSilent) {
-            document.getElementById("dashboardContent").innerHTML =
-              `<tr><td colspan='4' style='color:#ef4444'>데이터 호출 실패: ${res.msg}</td></tr>`;
             alert(res.msg);
             if (res.msg.includes("권한")) logout();
           }
@@ -707,9 +810,11 @@
 
       function changeDate(offset) {
         currentAdminDate.setDate(currentAdminDate.getDate() + offset);
+        currentPage = 1; // 날짜 변경 시 페이지 1로 초기화
         renderDashboard();
       }
 
+      // 1. 전체 데이터를 필터링하고 통계를 계산하는 함수
       function renderDashboard() {
         const days = ["일", "월", "화", "수", "목", "금", "토"];
         const targetDateStr = formatDateForCompare(currentAdminDate);
@@ -717,53 +822,176 @@
         document.getElementById("adminDateDisplay").innerText =
           `${currentAdminDate.getFullYear()}-${String(currentAdminDate.getMonth() + 1).padStart(2, "0")}-${String(currentAdminDate.getDate()).padStart(2, "0")} (${days[currentAdminDate.getDay()]})`;
 
-        let html = "";
+        currentFilteredData = [];
         let statIn = 0,
           statOut = 0,
           statWarn = 0;
 
+        const recordedInIds = new Set();
+        const recordedOutIds = new Set();
+        const late25Students = [];
+
+        // 해당 날짜의 데이터만 추출하여 currentFilteredData에 담고 통계 처리
         allAdminData.forEach((r) => {
           if (!r || r.length < 8) return;
 
           const rowDateStr = r[1].trim();
           if (rowDateStr === targetDateStr) {
+            currentFilteredData.push(r); // 필터링 배열에 저장
+
             const type = r[5],
               status = r[7];
+            const studentId = r[3].trim();
+            const studentName = r[4].trim();
 
-            if (type === "입실") statIn++;
-            if (type === "퇴실") statOut++;
+            if (type === "입실") {
+              recordedInIds.add(studentId);
+              statIn++;
+
+              const recTimeParts = r[0].toString().trim().split(":");
+              const stdTimeParts = r[6].toString().trim().split(":");
+              const recMins =
+                parseInt(recTimeParts[0], 10) * 60 +
+                parseInt(recTimeParts[1], 10);
+              const stdMins =
+                parseInt(stdTimeParts[0], 10) * 60 +
+                parseInt(stdTimeParts[1], 10);
+
+              if (recMins - stdMins >= 25) {
+                late25Students.push(`${studentName}(${studentId})`);
+              }
+            }
+
+            if (type === "퇴실") {
+              recordedOutIds.add(studentId);
+              statOut++;
+            }
+
             if (status === "지각" || status === "조퇴") statWarn++;
-
-            let badgeClass = "bg-normal";
-            if (status === "지각") badgeClass = "bg-late";
-            if (status === "조퇴") badgeClass = "bg-early";
-
-            // ★ 시간 데이터 분 뒤에 불필요한 콜론(:)이 출력되지 않도록 정규화
-            // 9:05:12 같은 데이터를 split으로 잘라 9:05 만 남깁니다.
-            const cleanTime = r[0]
-              .toString()
-              .trim()
-              .split(":")
-              .slice(0, 2)
-              .join(":");
-
-            html += `<tr>
-          <td><strong>${r[3]}</strong><br><span style="font-size:11px;color:#64748b">${r[4]}</span></td>
-          <td style="font-weight:700; color:${type === "입실" ? "#10b981" : "#f59e0b"}">${type}</td>
-          <td>${cleanTime}<br><span style="font-size:10px;color:#94a3b8">기준 ${r[6]}</span></td>
-          <td><span class="badge ${badgeClass}">${status}</span></td>
-        </tr>`;
           }
         });
 
+        // 상단 뱃지 숫자 업데이트
         document.getElementById("countIn").innerText = statIn + "명";
         document.getElementById("countOut").innerText = statOut + "명";
         document.getElementById("countWarn").innerText = statWarn + "명";
 
-        if (html === "")
-          html =
+        // 경고 리스트 1. 미입력자
+        const allRecordedIds = new Set([...recordedInIds, ...recordedOutIds]);
+        const unrecordedStudents = allStudents.filter(
+          (student) => !allRecordedIds.has(student.id),
+        );
+        let unrecordedHtml = unrecordedStudents
+          .map((s) => `${s.name}(${s.id})`)
+          .join(", ");
+        if (unrecordedHtml === "")
+          unrecordedHtml =
+            "<span style='color:#10b981; font-weight:700;'>✅ 1회 이상 모두 입력 완료</span>";
+        document.getElementById("unrecordedList").innerHTML = unrecordedHtml;
+
+        // 경고 리스트 2. 25분 지각자
+        let late25Html =
+          late25Students.length > 0
+            ? late25Students.join(", ")
+            : "<span style='color:#10b981; font-weight:700;'>✅ 대상자 없음</span>";
+        document.getElementById("late25List").innerHTML = late25Html;
+
+        // 경고 리스트 3. 18시 이후 퇴실 미기록자
+        const now = new Date();
+        const isToday = targetDateStr === formatDateForCompare(now);
+        const isPastDate = targetDateStr < formatDateForCompare(now);
+
+        let missingOutHtml = "";
+        if (isPastDate || (isToday && now.getHours() >= 18)) {
+          const missingOutStudents = allStudents.filter(
+            (s) => recordedInIds.has(s.id) && !recordedOutIds.has(s.id),
+          );
+          if (missingOutStudents.length > 0) {
+            missingOutHtml = missingOutStudents
+              .map((s) => `${s.name}(${s.id})`)
+              .join(", ");
+          } else {
+            missingOutHtml =
+              "<span style='color:#10b981; font-weight:700;'>✅ 전원 퇴실 완료</span>";
+          }
+        } else {
+          missingOutHtml =
+            "<span style='color:#64748b;'>아직 18시가 되지 않았습니다.</span>";
+        }
+        document.getElementById("missingOutList").innerHTML = missingOutHtml;
+
+        // 데이터가 업데이트 될 때, 현재 페이지가 총 페이지를 초과하지 않도록 보정
+        const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
+        if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+
+        // 테이블 렌더링 호출
+        displayPage(currentPage);
+      }
+
+      // 2. 5개 단위로 잘라서 테이블 화면에 그려주는 함수
+      function displayPage(page) {
+        currentPage = page;
+        const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
+
+        if (totalPages === 0) {
+          document.getElementById("dashboardContent").innerHTML =
             "<tr><td colspan='4' style='padding:30px; color:#94a3b8;'>해당 날짜에 기록된 데이터가 없습니다.</td></tr>";
+          document.getElementById("paginationControls").innerHTML = "";
+          return;
+        }
+
+        // 배열 slice를 사용하여 5개만 추출
+        const startIdx = (page - 1) * itemsPerPage;
+        const endIdx = startIdx + itemsPerPage;
+        const pageData = currentFilteredData.slice(startIdx, endIdx);
+
+        let html = "";
+        pageData.forEach((r) => {
+          const type = r[5],
+            status = r[7],
+            studentId = r[3].trim(),
+            studentName = r[4].trim();
+          let badgeClass = "bg-normal";
+          if (status === "지각") badgeClass = "bg-late";
+          if (status === "조퇴") badgeClass = "bg-early";
+          const cleanTime = r[0]
+            .toString()
+            .trim()
+            .split(":")
+            .slice(0, 2)
+            .join(":");
+
+          html += `<tr>
+        <td><strong>${studentId}</strong><br><span style="font-size:11px;color:#64748b">${studentName}</span></td>
+        <td style="font-weight:700; color:${type === "입실" ? "#10b981" : "#f59e0b"}">${type}</td>
+        <td>${cleanTime}<br><span style="font-size:10px;color:#94a3b8">기준 ${r[6]}</span></td>
+        <td><span class="badge ${badgeClass}">${status}</span></td>
+      </tr>`;
+        });
+
         document.getElementById("dashboardContent").innerHTML = html;
+
+        // 페이징 컨트롤 버튼 생성 호출
+        renderPaginationControls(totalPages);
+      }
+
+      // 3. 페이징 네비게이션 버튼을 그리는 함수
+      function renderPaginationControls(totalPages) {
+        let html = `<div class="pagination">`;
+
+        // 이전 버튼
+        html += `<button class="page-btn" ${currentPage === 1 ? "disabled" : ""} onclick="displayPage(${currentPage - 1})">◀</button>`;
+
+        // 페이지 번호 버튼
+        for (let i = 1; i <= totalPages; i++) {
+          html += `<button class="page-btn ${i === currentPage ? "active" : ""}" onclick="displayPage(${i})">${i}</button>`;
+        }
+
+        // 다음 버튼
+        html += `<button class="page-btn" ${currentPage === totalPages ? "disabled" : ""} onclick="displayPage(${currentPage + 1})">▶</button>`;
+
+        html += `</div>`;
+        document.getElementById("paginationControls").innerHTML = html;
       }
 
       function formatDateForCompare(dateObj) {
