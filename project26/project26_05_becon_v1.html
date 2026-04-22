@@ -570,7 +570,7 @@
 
     <script>
       // ★ 반드시 새 배포 후 URL을 업데이트 해주세요 ★
-      const API_URL = "https://script.google.com/macros/s/AKfycbzoOeNzEBoDvLseMyjIUQRh21_zneelzoWup0IjHr9YUU32n4CriqNwDuV07d7WefTM/exec";
+      const API_URL = "https://script.google.com/macros/s/AKfycbx1N3UpGwt73xdW4Nk6u9r-xHmIzIN8UhSKQJ-QmEg5XkbBK1WJMBc36ejeHa1DL709Pw/exec";
 
       let userInfo = {};
       let allAdminData = [];
@@ -631,6 +631,7 @@
             showMain();
           }
         } else {
+          // 보안 강화: 항상 동일한 실패 메시지 출력
           document.getElementById("loginMsg").innerText = res.msg;
         }
       }
@@ -814,7 +815,7 @@
         renderDashboard();
       }
 
-      // 1. 전체 데이터를 필터링하고 통계를 계산하는 함수
+      // 전체 데이터를 필터링하고 통계를 계산하는 함수
       function renderDashboard() {
         const days = ["일", "월", "화", "수", "목", "금", "토"];
         const targetDateStr = formatDateForCompare(currentAdminDate);
@@ -831,13 +832,12 @@
         const recordedOutIds = new Set();
         const late25Students = [];
 
-        // 해당 날짜의 데이터만 추출하여 currentFilteredData에 담고 통계 처리
         allAdminData.forEach((r) => {
           if (!r || r.length < 8) return;
 
           const rowDateStr = r[1].trim();
           if (rowDateStr === targetDateStr) {
-            currentFilteredData.push(r); // 필터링 배열에 저장
+            currentFilteredData.push(r);
 
             const type = r[5],
               status = r[7];
@@ -871,12 +871,10 @@
           }
         });
 
-        // 상단 뱃지 숫자 업데이트
         document.getElementById("countIn").innerText = statIn + "명";
         document.getElementById("countOut").innerText = statOut + "명";
         document.getElementById("countWarn").innerText = statWarn + "명";
 
-        // 경고 리스트 1. 미입력자
         const allRecordedIds = new Set([...recordedInIds, ...recordedOutIds]);
         const unrecordedStudents = allStudents.filter(
           (student) => !allRecordedIds.has(student.id),
@@ -889,14 +887,12 @@
             "<span style='color:#10b981; font-weight:700;'>✅ 1회 이상 모두 입력 완료</span>";
         document.getElementById("unrecordedList").innerHTML = unrecordedHtml;
 
-        // 경고 리스트 2. 25분 지각자
         let late25Html =
           late25Students.length > 0
             ? late25Students.join(", ")
             : "<span style='color:#10b981; font-weight:700;'>✅ 대상자 없음</span>";
         document.getElementById("late25List").innerHTML = late25Html;
 
-        // 경고 리스트 3. 18시 이후 퇴실 미기록자
         const now = new Date();
         const isToday = targetDateStr === formatDateForCompare(now);
         const isPastDate = targetDateStr < formatDateForCompare(now);
@@ -920,15 +916,13 @@
         }
         document.getElementById("missingOutList").innerHTML = missingOutHtml;
 
-        // 데이터가 업데이트 될 때, 현재 페이지가 총 페이지를 초과하지 않도록 보정
         const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
         if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
 
-        // 테이블 렌더링 호출
         displayPage(currentPage);
       }
 
-      // 2. 5개 단위로 잘라서 테이블 화면에 그려주는 함수
+      // 5개 단위로 잘라서 테이블에 그려주는 함수
       function displayPage(page) {
         currentPage = page;
         const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
@@ -940,7 +934,6 @@
           return;
         }
 
-        // 배열 slice를 사용하여 5개만 추출
         const startIdx = (page - 1) * itemsPerPage;
         const endIdx = startIdx + itemsPerPage;
         const pageData = currentFilteredData.slice(startIdx, endIdx);
@@ -970,27 +963,21 @@
         });
 
         document.getElementById("dashboardContent").innerHTML = html;
-
-        // 페이징 컨트롤 버튼 생성 호출
         renderPaginationControls(totalPages);
       }
 
-      // 3. 페이징 네비게이션 버튼을 그리는 함수
+      // 페이징 네비게이션 버튼 렌더링
       function renderPaginationControls(totalPages) {
         let html = `<div class="pagination">`;
-
-        // 이전 버튼
         html += `<button class="page-btn" ${currentPage === 1 ? "disabled" : ""} onclick="displayPage(${currentPage - 1})">◀</button>`;
 
-        // 페이지 번호 버튼
         for (let i = 1; i <= totalPages; i++) {
           html += `<button class="page-btn ${i === currentPage ? "active" : ""}" onclick="displayPage(${i})">${i}</button>`;
         }
 
-        // 다음 버튼
         html += `<button class="page-btn" ${currentPage === totalPages ? "disabled" : ""} onclick="displayPage(${currentPage + 1})">▶</button>`;
-
         html += `</div>`;
+
         document.getElementById("paginationControls").innerHTML = html;
       }
 
