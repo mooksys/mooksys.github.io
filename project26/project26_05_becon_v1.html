@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>2026 도제 Becon System</title>
+    <title>2026 Doje Becon System</title>
     <link
       rel="stylesheet"
       as="style"
@@ -11,6 +11,7 @@
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css"
     />
     <style>
+      /* CSS는 이전과 완전히 동일합니다 */
       :root {
         --primary: #3b82f6;
         --primary-hover: #2563eb;
@@ -303,7 +304,7 @@
       </div>
 
       <div id="loginSection">
-        <h2>Becon 관리 시스템</h2>
+        <h2>2026 Doje Becon System</h2>
         <div class="input-group">
           <input type="text" id="userId" placeholder="학번 (교사는 ID)" />
         </div>
@@ -405,7 +406,7 @@
       </div>
 
       <div id="adminSection" class="hidden">
-        <h2 style="margin-top: 10px; margin-bottom: 20px">실시간 대시보드</h2>
+        <h2 style="margin-top: 10px; margin-bottom: 20px">2026 Doje Becon System</h2>
         <button
           onclick="fetchAdminData()"
           class="btn-secondary"
@@ -467,7 +468,7 @@
 
     <script>
       // ★ 반드시 새 배포 후 URL을 업데이트 해주세요 ★
-      const API_URL = "https://script.google.com/macros/s/AKfycbyLy0bRrPU8GNQR5fdUMccI4APEUaMM6l4UWaIxJw-TQjm9DVGY3TmG4OyMOd09SaWcdQ/exec";
+      const API_URL = "https://script.google.com/macros/s/AKfycbxOYL0Khufm7RCKxxeGDopMTYDhXwPbzfg8Udn8-eWe6dKefdREHVOJ6YSggkl-scg/exec";
 
       let userInfo = {};
       let allAdminData = [];
@@ -535,12 +536,10 @@
         const inTime = document.getElementById("setInTime").value;
         const outTime = document.getElementById("setOutTime").value;
 
-        // 유효성 검사 강화
         if (newPw.length < 4) return alert("비밀번호는 4자리 이상 입력하세요.");
         if (newPw === "0000" || newPw === "1234")
           return alert("초기 비밀번호는 새 비밀번호로 사용할 수 없습니다.");
 
-        // 보안 강화: 프론트에서 role을 보내는 취약점 제거
         const res = await callAPI({
           action: "initialSetup",
           id: userInfo.id,
@@ -564,11 +563,26 @@
           document.getElementById("appCard").style.maxWidth = "400px";
           document.getElementById("studentSection").classList.remove("hidden");
           setupStudentView();
+        } else if (userInfo.role === "교사") {
+          showAdmin();
         } else {
-          document.getElementById("appCard").style.maxWidth = "600px";
-          document.getElementById("adminSection").classList.remove("hidden");
-          fetchAdminData();
+          alert("권한 정보가 유효하지 않습니다.");
+          logout();
         }
+      }
+
+      // [보안 강화] 명시적인 권한 검사 추가
+      function showAdmin() {
+        if (!userInfo || userInfo.role !== "교사") {
+          alert("비정상적인 접근입니다. 관리자 권한이 없습니다.");
+          logout();
+          return;
+        }
+
+        document.getElementById("topRightControls").classList.remove("hidden");
+        document.getElementById("appCard").style.maxWidth = "600px";
+        document.getElementById("adminSection").classList.remove("hidden");
+        fetchAdminData();
       }
 
       async function setupStudentView() {
@@ -662,7 +676,8 @@
         document.getElementById("dashboardContent").innerHTML =
           "<tr><td colspan='4'>데이터 불러오는 중...</td></tr>";
 
-        const res = await callAPI({ action: "getAdminData" });
+        // [보안 강화] 데이터를 요청할 때 본인의 ID를 함께 보내어 서버에서 검증받도록 함
+        const res = await callAPI({ action: "getAdminData", id: userInfo.id });
 
         if (res.success) {
           allAdminData = res.data.reverse();
@@ -670,6 +685,8 @@
         } else {
           document.getElementById("dashboardContent").innerHTML =
             `<tr><td colspan='4' style='color:#ef4444'>데이터 호출 실패: ${res.msg}</td></tr>`;
+          alert(res.msg);
+          if (res.msg.includes("권한")) logout();
         }
 
         if (btn) {
