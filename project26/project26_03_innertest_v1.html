@@ -1,340 +1,324 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>기업별 내부평가 대시보드</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link href="https://fonts.googleapis.com/css2?family=Pretendard:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
-      :root {
-        --bg-color: #f4f7f6;
-        --primary: #1a73e8;
-        --primary-dark: #1557b0;
-        --text-main: #202124;
-        --text-muted: #5f6368;
-        --card-bg: #ffffff;
-        --border: #e0e0e0;
-      }
+        :root {
+            --bg-body: #f0f2f5;
+            --text-main: #1e293b;
+            --text-muted: #64748b;
+            --card-bg: #ffffff;
+            --border: #e2e8f0;
+        }
 
-      body {
-        font-family:
-          "Pretendard",
-          -apple-system,
-          sans-serif;
-        background-color: var(--bg-color);
-        color: var(--text-main);
-        margin: 0;
-        padding: 30px 15px;
-      }
-
-      .container {
-        max-width: 1000px;
-        margin: 0 auto;
-      }
-
-      /* 상단 헤더 & 컨트롤 */
-      header {
-        text-align: center;
-        margin-bottom: 30px;
-      }
-
-      h1 {
-        font-size: 2rem;
-        margin-bottom: 15px;
-        word-break: keep-all;
-      }
-
-      .controls {
-        background: var(--card-bg);
-        padding: 15px 20px;
-        border-radius: 12px;
-        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 15px;
-        border: 1px solid var(--border);
-        width: 100%;
-        max-width: 400px;
-        box-sizing: border-box;
-      }
-
-      select {
-        flex: 1;
-        padding: 10px;
-        font-size: 1rem;
-        font-weight: 600;
-        border: 1px solid var(--border);
-        border-radius: 8px;
-        color: var(--primary);
-        outline: none;
-        cursor: pointer;
-        width: 100%;
-      }
-
-      /* 카드 컨테이너 레이아웃 */
-      .cards-grid {
-        display: flex;
-        flex-direction: column;
-        gap: 20px;
-      }
-
-      /* 개별 기업 카드 디자인 */
-      .company-card {
-        background: var(--card-bg);
-        border-radius: 12px;
-        overflow: hidden;
-        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
-        border: 1px solid var(--border);
-      }
-
-      .card-header {
-        background-color: var(--primary);
-        color: white;
-        padding: 16px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 10px;
-      }
-
-      .card-header h2 {
-        margin: 0;
-        font-size: 1.2rem;
-        font-weight: 700;
-      }
-
-      .student-count {
-        background: rgba(255, 255, 255, 0.2);
-        padding: 4px 12px;
-        border-radius: 20px;
-        font-size: 0.9rem;
-        font-weight: 600;
-      }
-
-      /* 데스크탑용 테이블 기본 디자인 */
-      .card-table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-
-      .card-table th,
-      .card-table td {
-        padding: 14px 20px;
-        text-align: left;
-      }
-
-      .card-table th {
-        background: #f8f9fa;
-        color: var(--text-muted);
-        font-size: 0.85rem;
-        font-weight: 600;
-        border-bottom: 1px solid var(--border);
-      }
-
-      .card-table td {
-        border-bottom: 1px solid #f1f3f4;
-        font-size: 0.95rem;
-      }
-
-      .type-tag {
-        display: inline-block;
-        padding: 5px 10px;
-        border-radius: 6px;
-        font-size: 0.85rem;
-        font-weight: 600;
-        background: #e8f0fe;
-        color: var(--primary-dark);
-      }
-
-      .loader {
-        text-align: center;
-        padding: 40px;
-        color: var(--text-muted);
-      }
-
-      /* =========================================
-           모바일 반응형 최적화 (화면 너비 768px 이하)
-           ========================================= */
-      @media screen and (max-width: 768px) {
         body {
-          padding: 20px 10px;
+            font-family: 'Pretendard', -apple-system, sans-serif;
+            background-color: var(--bg-body);
+            color: var(--text-main);
+            margin: 0;
+            padding: 30px 15px;
         }
 
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* 상단 헤더 & 컨트롤 */
+        header { text-align: center; margin-bottom: 40px; }
+        h1 { font-size: 2.2rem; font-weight: 700; margin-bottom: 15px; word-break: keep-all; }
+        
         .controls {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 10px;
+            background: var(--card-bg);
+            padding: 15px 25px;
+            border-radius: 50px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
+            display: inline-flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid var(--border);
         }
 
-        .controls span {
-          display: block;
-          margin-bottom: 5px;
+        select {
+            padding: 8px 12px;
+            font-size: 1rem;
+            font-weight: 600;
+            border: none;
+            border-bottom: 2px solid #94a3b8;
+            color: var(--text-main);
+            background: transparent;
+            outline: none;
+            cursor: pointer;
+            transition: border-color 0.2s;
         }
 
-        /* 테이블을 모바일 리스트 형태로 변환 */
-        .card-table thead {
-          display: none; /* 모바일에서는 기본 헤더 숨김 */
+        select:focus { border-bottom-color: #333; }
+
+        /* 기업 컨테이너 */
+        .company-section {
+            background: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.03);
+            margin-bottom: 35px;
+            border: 1px solid var(--border);
+            /* 왼쪽 밴드 기본 두께 설정, 색상은 JS에서 동적 주입 */
+            border-left-width: 8px; 
+            border-left-style: solid;
+            overflow: hidden;
         }
 
-        .card-table,
-        .card-table tbody,
-        .card-table tr,
-        .card-table td {
-          display: block;
-          width: 100%;
-          box-sizing: border-box;
+        .company-header {
+            background: var(--card-bg);
+            padding: 20px 25px;
+            border-bottom: 1px solid var(--border);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .card-table tr {
-          padding: 15px 0;
-          border-bottom: 3px solid var(--bg-color); /* 학생 간 구분선 강화 */
+        .company-header h2 {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .card-table tr:last-child {
-          border-bottom: none;
+        .student-count {
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            font-weight: 700;
         }
 
-        .card-table td {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 8px 20px;
-          text-align: right;
-          border-bottom: none;
+        /* 학생 그리드 */
+        .student-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+            padding: 25px;
+            background: #fafafa;
         }
 
-        /* JS에서 설정한 data-label을 가상 요소로 불러와 항목명으로 사용 */
-        .card-table td::before {
-          content: attr(data-label);
-          font-weight: 600;
-          color: var(--text-muted);
-          text-align: left;
-          font-size: 0.85rem;
+        /* 개별 학생 미니 카드 */
+        .student-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid var(--border);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
 
-        .card-table td:nth-child(2) {
-          font-size: 1.1rem; /* 이름 강조 */
+        .student-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 15px rgba(0,0,0,0.05);
+            border-color: #cbd5e1;
         }
-      }
+
+        .st-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            border-bottom: 1px dashed var(--border);
+            padding-bottom: 15px;
+        }
+
+        .st-name {
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: var(--text-main);
+        }
+
+        .st-id {
+            display: block;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+            margin-top: 4px;
+        }
+
+        .st-body {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .info-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .info-label {
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            font-weight: 500;
+        }
+
+        .info-value {
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-align: right;
+        }
+
+        .type-tag {
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            background: #fef3c7;
+            color: #b45309;
+        }
+
+        .loader { text-align: center; padding: 50px; color: var(--text-muted); }
+
+        /* 모바일 최적화 */
+        @media screen and (max-width: 600px) {
+            .controls { flex-direction: column; border-radius: 16px; width: 100%; box-sizing: border-box; }
+            .student-grid { padding: 15px; grid-template-columns: 1fr; }
+            .company-header h2 { font-size: 1.1rem; }
+        }
     </style>
-  </head>
-  <body>
-    <div class="container">
-      <header>
-        <h1>2026년 도제 3-12 기업별 내부평가 대시보드</h1>
+</head>
+<body>
+
+<div class="container">
+    <header>
+        <h1>기업별 평가 대시보드</h1>
         <div class="controls">
-          <span style="font-weight: 600; color: var(--text-muted)"
-            >평가 과목 선택</span
-          >
-          <select id="subjectSelect">
-            <option>데이터 로딩 중...</option>
-          </select>
+            <span style="font-weight: 600; color: var(--text-muted);">조회할 과목</span>
+            <select id="subjectSelect">
+                <option>데이터 로딩 중...</option>
+            </select>
         </div>
-      </header>
+    </header>
 
-      <div id="loader" class="loader">데이터를 불러오고 있습니다...</div>
-      <div id="cardsContainer" class="cards-grid"></div>
-    </div>
+    <div id="loader" class="loader">안전하게 데이터를 불러오는 중입니다...</div>
+    <div id="dashboardContainer"></div>
+</div>
 
-    <script>
-      const API_URL = "https://script.google.com/macros/s/AKfycbyuReICJmY95W4MvnxjlNQzHKx0-oD1wYVZD0td6qWDEnotC7WIwtNI2TgFNJiGCnAi/exec";
-      let cachedData = null;
+<script>
+    const API_URL = 'https://script.google.com/macros/s/AKfycbyuReICJmY95W4MvnxjlNQzHKx0-oD1wYVZD0td6qWDEnotC7WIwtNI2TgFNJiGCnAi/exec'; 
+    let cachedData = null;
 
-      async function fetchData() {
+    // 대시보드에 적용될 아름다운 고유 색상 배열 (10가지)
+    const THEME_COLORS = [
+        '#2563eb', // 파랑 (Blue)
+        '#059669', // 초록 (Emerald)
+        '#d97706', // 주황 (Amber)
+        '#dc2626', // 빨강 (Red)
+        '#7c3aed', // 보라 (Violet)
+        '#0284c7', // 하늘 (Light Blue)
+        '#db2777', // 분홍 (Pink)
+        '#ea580c', // 진주황 (Orange)
+        '#4d7c0f', // 연두 (Lime)
+        '#0f766e'  // 청록 (Teal)
+    ];
+
+    async function fetchData() {
         try {
-          const res = await fetch(API_URL);
-          cachedData = await res.json();
+            const res = await fetch(API_URL);
+            cachedData = await res.json();
+            
+            const select = document.getElementById('subjectSelect');
+            select.innerHTML = '';
+            cachedData.subjectList.forEach(s => {
+                const opt = document.createElement('option');
+                opt.value = s.index;
+                opt.textContent = s.title;
+                select.appendChild(opt);
+            });
 
-          const select = document.getElementById("subjectSelect");
-          select.innerHTML = "";
-          cachedData.subjectList.forEach((s) => {
-            const opt = document.createElement("option");
-            opt.value = s.index;
-            opt.textContent = s.title;
-            select.appendChild(opt);
-          });
-
-          document.getElementById("loader").style.display = "none";
-          renderCards(0);
-          select.addEventListener("change", (e) => renderCards(e.target.value));
+            document.getElementById('loader').style.display = 'none';
+            renderDashboard(0);
+            select.addEventListener('change', (e) => renderDashboard(e.target.value));
         } catch (e) {
-          document.getElementById("loader").textContent =
-            "데이터를 불러오는 중 오류가 발생했습니다.";
+            document.getElementById('loader').textContent = "데이터를 불러오는 데 실패했습니다.";
         }
-      }
+    }
 
-      function renderCards(subjectIdx) {
-        const container = document.getElementById("cardsContainer");
-        container.innerHTML = "";
+    function renderDashboard(subjectIdx) {
+        const container = document.getElementById('dashboardContainer');
+        container.innerHTML = ''; 
 
-        const subjectTitle = cachedData.subjectList.find(
-          (s) => s.index == subjectIdx,
-        ).title;
+        const subjectTitle = cachedData.subjectList.find(s => s.index == subjectIdx).title;
 
+        // 기업별 그룹화
         const grouped = cachedData.students.reduce((acc, student) => {
-          const key = student.company;
-          if (!acc[key]) acc[key] = [];
-          acc[key].push(student);
-          return acc;
+            const key = student.company;
+            if (!acc[key]) acc[key] = [];
+            acc[key].push(student);
+            return acc;
         }, {});
 
-        Object.keys(grouped).forEach((company) => {
-          const students = grouped[company];
+        // HTML 생성
+        let colorIndex = 0; // 색상을 순환하기 위한 인덱스
 
-          let cardHTML = `
-                <div class="company-card">
-                    <div class="card-header">
-                        <h2>🏢 ${company}</h2>
-                        <span class="student-count">총 ${students.length}명</span>
+        Object.keys(grouped).forEach(company => {
+            const students = grouped[company];
+            
+            // 해당 기업의 고유 색상 추출 (기업 수가 색상 수보다 많으면 다시 처음 색상부터 순환)
+            const themeColor = THEME_COLORS[colorIndex % THEME_COLORS.length];
+            
+            // 1. 기업 컨테이너 시작 (왼쪽 밴드 및 테마 색상 적용)
+            let html = `
+                <div class="company-section" style="border-left-color: ${themeColor};">
+                    <div class="company-header">
+                        <h2 style="color: ${themeColor};">🏢 ${company}</h2>
+                        <span class="student-count" style="background-color: ${themeColor}1A; color: ${themeColor};">${students.length}명</span>
                     </div>
-                    <table class="card-table">
-                        <thead>
-                            <tr>
-                                <th style="width: 20%;">학번</th>
-                                <th style="width: 20%;">이름</th>
-                                <th>${subjectTitle}</th>
-                                <th style="width: 25%;">평가형태</th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                    <div class="student-grid">
             `;
 
-          // 모바일 렌더링을 위해 <td> 요소에 'data-label' 속성 추가
-          students.forEach((student) => {
-            const rawInfo = student.subjects[subjectIdx] || "";
-            const [subjectName, evalType] = rawInfo
-              .toString()
-              .split(",")
-              .map((s) => s.trim());
-
-            cardHTML += `
-                    <tr>
-                        <td data-label="학번" style="color: #5f6368;">${student.id}</td>
-                        <td data-label="이름" style="font-weight: 600;">${student.name}</td>
-                        <td data-label="과목명">${subjectName || "-"}</td>
-                        <td data-label="평가형태">${evalType ? `<span class="type-tag">${evalType}</span>` : "-"}</td>
-                    </tr>
+            // 2. 학생 개별 카드 생성
+            students.forEach(student => {
+                const rawInfo = student.subjects[subjectIdx] || "";
+                const [subjectName, evalType] = rawInfo.toString().split(',').map(s => s.trim());
+                
+                html += `
+                    <div class="student-card">
+                        <div class="st-header">
+                            <div>
+                                <span class="st-name">${student.name}</span>
+                                <span class="st-id">학번: ${student.id}</span>
+                            </div>
+                            ${evalType ? `<span class="type-tag">${evalType}</span>` : ''}
+                        </div>
+                        <div class="st-body">
+                            <div class="info-row">
+                                <span class="info-label">평가 과목</span>
+                                <span class="info-value" style="color: ${themeColor};">${subjectTitle}</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-label">세부 과목명</span>
+                                <span class="info-value">${subjectName || '-'}</span>
+                            </div>
+                        </div>
+                    </div>
                 `;
-          });
+            });
 
-          cardHTML += `
-                        </tbody>
-                    </table>
+            // 3. 기업 컨테이너 닫기
+            html += `
+                    </div>
                 </div>
             `;
-          container.innerHTML += cardHTML;
+            container.innerHTML += html;
+            colorIndex++; // 다음 기업은 다음 색상 사용
         });
-      }
+    }
 
-      fetchData();
-    </script>
-  </body>
+    fetchData();
+</script>
+
+</body>
 </html>
