@@ -125,5 +125,33 @@
         "type": "primary"
       }
     ]
+  },
+  {
+    "id": "School",
+    "title": "School Project",
+    "icon": "fa-terminal",
+    "description": "vibe Coding Project, #1 , #2 ...",
+    "links": [
+      {
+        "title": "School01 ....",
+        "url": "#",
+        "type": "secondary"
+      },
+      {
+        "title": "School02 ....",
+        "url": "#",
+        "type": "primary"
+      },
+      {
+        "title": "School03 ....",
+        "url": "#",
+        "type": "secondary"
+      },
+      {
+        "title": "School04 ....",
+        "url": "#",
+        "type": "primary"
+      }
+    ]
   }
 ]
