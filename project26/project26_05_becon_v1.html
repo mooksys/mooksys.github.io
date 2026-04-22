@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>2026년 도제 Becon 관리</title>
+    <title>2026 도제 Becon System</title>
     <link
       rel="stylesheet"
       as="style"
@@ -190,7 +190,6 @@
         margin-bottom: 5px;
       }
 
-      /* 하단 소속 안내 카드 스타일 */
       .footer-box {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
@@ -304,7 +303,7 @@
       </div>
 
       <div id="loginSection">
-        <h2>Becon 관리시스템</h2>
+        <h2>Becon 관리 시스템</h2>
         <div class="input-group">
           <input type="text" id="userId" placeholder="학번 (교사는 ID)" />
         </div>
@@ -406,7 +405,7 @@
       </div>
 
       <div id="adminSection" class="hidden">
-        <h2 style="margin-top: 10px; margin-bottom: 20px">2026년 도제 Becon 관리 실시간 대시보드</h2>
+        <h2 style="margin-top: 10px; margin-bottom: 20px">실시간 대시보드</h2>
         <button
           onclick="fetchAdminData()"
           class="btn-secondary"
@@ -468,7 +467,7 @@
 
     <script>
       // ★ 반드시 새 배포 후 URL을 업데이트 해주세요 ★
-      const API_URL = "https://script.google.com/macros/s/AKfycbxfh0biMU6u1NA-wXEXxQlnQ9jFwy8AFubvENx7y2M6Wl27AQ6Ihcq1l0BU7eXtzuXb/exec";
+      const API_URL = "https://script.google.com/macros/s/AKfycbyLy0bRrPU8GNQR5fdUMccI4APEUaMM6l4UWaIxJw-TQjm9DVGY3TmG4OyMOd09SaWcdQ/exec";
 
       let userInfo = {};
       let allAdminData = [];
@@ -536,13 +535,16 @@
         const inTime = document.getElementById("setInTime").value;
         const outTime = document.getElementById("setOutTime").value;
 
+        // 유효성 검사 강화
         if (newPw.length < 4) return alert("비밀번호는 4자리 이상 입력하세요.");
+        if (newPw === "0000" || newPw === "1234")
+          return alert("초기 비밀번호는 새 비밀번호로 사용할 수 없습니다.");
 
+        // 보안 강화: 프론트에서 role을 보내는 취약점 제거
         const res = await callAPI({
           action: "initialSetup",
           id: userInfo.id,
           pw: newPw,
-          role: userInfo.role,
           inTime: inTime,
           outTime: outTime,
         });
