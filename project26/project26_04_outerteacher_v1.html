@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>2026년 도제기업 연락처 관리 시스템</title>
+    <title>2026 Doje Company List</title>
     <style>
       body {
         font-family: "Pretendard", sans-serif;
@@ -92,6 +92,9 @@
       .btn-lightgray {
         background: #adb5bd;
       }
+      .btn-red {
+        background: #ea4335;
+      } /* 로그아웃 버튼용 붉은색 */
       .btn-main:hover {
         opacity: 0.8;
       }
@@ -140,8 +143,6 @@
         align-items: center;
         gap: 6px;
       }
-
-      /* 추가된 직급 스타일 (뱃지 모양) */
       .job-title {
         font-weight: 800;
         color: #d93025;
@@ -151,7 +152,6 @@
         font-size: 0.8rem;
         letter-spacing: 0.5px;
       }
-
       .info-row {
         display: flex;
         margin-bottom: 6px;
@@ -217,9 +217,9 @@
     </style>
   </head>
   <body>
-    <div id="loginScreen" class="screen active">
+    <div id="loginScreen" class="screen">
       <div class="auth-box">
-        <h2>2026년 도제기업 관리시스템</h2>
+        <h2>2026 Doje Company List</h2>
         <input type="text" id="loginId" placeholder="아이디" />
         <input
           type="password"
@@ -252,7 +252,7 @@
 
     <div id="mainScreen" class="screen container">
       <div class="header-area">
-        <h1>🏢 2026년 성일정보고 도제기업 관리시스템</h1>
+        <h1>🏢 2026 Doje Company List</h1>
         <div class="btn-group">
           <button class="btn-main btn-gray" onclick="selectAll()">
             ✓ 전체선택
@@ -265,6 +265,9 @@
           </button>
           <button class="btn-main btn-blue" onclick="openBulkModal()">
             ✉️ 메일 발송
+          </button>
+          <button class="btn-main btn-red" onclick="logout()">
+            🚪 로그아웃
           </button>
         </div>
       </div>
@@ -312,6 +315,18 @@
 
       let currentUser = { id: "", pw: "" };
 
+      // --- [추가] 페이지 로드 시 로그인 상태 체크 ---
+      window.onload = () => {
+        const savedId = localStorage.getItem("partnerSysId");
+        if (savedId) {
+          currentUser.id = savedId;
+          switchScreen("mainScreen");
+          fetchData();
+        } else {
+          switchScreen("loginScreen");
+        }
+      };
+
       function switchScreen(id) {
         document
           .querySelectorAll(".screen")
@@ -319,6 +334,7 @@
         document.getElementById(id).classList.add("active");
       }
 
+      // --- [수정] 로그인 성공 시 로컬 스토리지에 저장 ---
       async function attemptLogin() {
         const id = document.getElementById("loginId").value.trim();
         const pw = document.getElementById("loginPw").value.trim();
@@ -336,9 +352,14 @@
           const res = await response.json();
           if (res.success) {
             currentUser = { id, pw };
-            res.requirePwChange
-              ? switchScreen("pwChangeScreen")
-              : (switchScreen("mainScreen"), fetchData());
+            if (res.requirePwChange) {
+              switchScreen("pwChangeScreen");
+            } else {
+              // 변경이 필요 없는 일반 로그인이면 로컬 스토리지에 저장
+              localStorage.setItem("partnerSysId", id);
+              switchScreen("mainScreen");
+              fetchData();
+            }
           } else {
             alert("로그인 정보가 틀립니다.");
           }
@@ -350,6 +371,7 @@
         }
       }
 
+      // --- [수정] 비밀번호 변경 완료 시 로컬 스토리지에 저장 ---
       async function attemptPwChange() {
         const newPw = document.getElementById("newPw").value.trim();
         if (
@@ -371,9 +393,24 @@
         if (res.success) {
           alert("변경되었습니다.");
           currentUser.pw = newPw;
+          localStorage.setItem("partnerSysId", currentUser.id); // 변경 완료 시 로그인 유지 설정
           switchScreen("mainScreen");
           fetchData();
         }
+      }
+
+      // --- [추가] 로그아웃 기능 ---
+      function logout() {
+        localStorage.removeItem("partnerSysId"); // 저장된 로그인 정보 삭제
+        currentUser = { id: "", pw: "" };
+        document.getElementById("loginId").value = "";
+        document.getElementById("loginPw").value = "";
+
+        // 카드 그리드 초기화
+        document.getElementById("cardGrid").innerHTML = "";
+        document.getElementById("status").style.display = "block";
+
+        switchScreen("loginScreen"); // 로그인 화면으로 돌아가기
       }
 
       async function fetchData() {
@@ -382,13 +419,11 @@
         renderCards(data);
       }
 
-      // [수정 핵심] 카드 렌더링 시 회사별 색상 부여 및 직급 스타일링 적용
       function renderCards(data) {
         const grid = document.getElementById("cardGrid");
         document.getElementById("status").style.display = "none";
         grid.innerHTML = "";
 
-        // 회사별로 할당할 색상 팔레트 준비
         const colorPalette = [
           "#1a73e8",
           "#34a853",
@@ -401,7 +436,7 @@
           "#673ab7",
           "#795548",
         ];
-        const companyColorMap = {}; // 회사명 -> 색상 저장용 객체
+        const companyColorMap = {};
         let colorIndex = 0;
 
         for (let i = 1; i < data.length; i++) {
@@ -409,30 +444,22 @@
           if (!row[1]) continue;
 
           const companyName = row[1];
-
-          // 처음 보는 회사명이면 팔레트에서 순서대로 색상을 배정하여 저장
           if (!companyColorMap[companyName]) {
             companyColorMap[companyName] =
               colorPalette[colorIndex % colorPalette.length];
             colorIndex++;
           }
-
-          const themeColor = companyColorMap[companyName]; // 할당된 테마 색상 불러오기
+          const themeColor = companyColorMap[companyName];
 
           const card = document.createElement("div");
           card.className = "card";
-          // 상단 테두리에 회사 고유 색상 적용
           card.style.borderTop = `4px solid ${themeColor}`;
-
           card.innerHTML = `
         <div class="checkbox-container">
           <input type="checkbox" class="contact-check" data-email="${row[7]}" data-phone="${row[6]}">
         </div>
         <div class="company" style="color: ${themeColor};">${companyName}</div>
-        <div class="name-tag">
-          <strong>${row[3]}</strong> ${row[4]} 
-          <span class="job-title">${row[2]}</span>
-        </div>
+        <div class="name-tag"><strong>${row[3]}</strong> ${row[4]} <span class="job-title">${row[2]}</span></div>
         <div class="info-row"><span class="label">이메일</span><span class="value">${row[7] || "-"}</span></div>
         <div class="info-row"><span class="label">핸드폰</span><span class="value">${row[6] || "-"}</span></div>
         <div class="info-row"><span class="label">사무실</span><span class="value">${row[5] || "-"}</span></div>
@@ -443,13 +470,14 @@
       }
 
       function selectAll() {
-        const checkboxes = document.querySelectorAll(".contact-check");
-        checkboxes.forEach((cb) => (cb.checked = true));
+        document
+          .querySelectorAll(".contact-check")
+          .forEach((cb) => (cb.checked = true));
       }
-
       function deselectAll() {
-        const checkboxes = document.querySelectorAll(".contact-check");
-        checkboxes.forEach((cb) => (cb.checked = false));
+        document
+          .querySelectorAll(".contact-check")
+          .forEach((cb) => (cb.checked = false));
       }
 
       function copySelectedPhones() {
@@ -457,22 +485,19 @@
         const phones = Array.from(checks)
           .map((c) => c.dataset.phone)
           .filter((p) => p && p.trim() !== "" && p !== "-");
-
         if (phones.length === 0) return alert("대상을 하나 이상 선택해주세요.");
-        const textToCopy = phones.join(", ");
 
+        const textToCopy = phones.join(", ");
         const textArea = document.createElement("textarea");
         textArea.value = textToCopy;
         textArea.style.position = "fixed";
         textArea.style.top = "-9999px";
         document.body.appendChild(textArea);
-
         textArea.focus();
         textArea.select();
 
         try {
-          const successful = document.execCommand("copy");
-          if (successful)
+          if (document.execCommand("copy"))
             alert(
               `총 ${phones.length}건의 전화번호가 복사되었습니다.\n\n복사된 번호:\n${textToCopy}`,
             );
@@ -480,7 +505,6 @@
         } catch (err) {
           alert("자동 복사를 지원하지 않습니다.");
         }
-
         document.body.removeChild(textArea);
       }
 
@@ -517,9 +541,9 @@
 
         try {
           const fileInput = document.getElementById("fileInput");
-          const filesPromises = Array.from(fileInput.files).map(fileToB64);
-          const filesData = await Promise.all(filesPromises);
-
+          const filesData = await Promise.all(
+            Array.from(fileInput.files).map(fileToB64),
+          );
           const payload = {
             action: "sendEmail",
             to: document.getElementById("targetEmail").value,
