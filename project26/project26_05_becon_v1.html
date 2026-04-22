@@ -304,7 +304,7 @@
       </div>
 
       <div id="loginSection">
-        <h2>2026 Doje Becon System</h2>
+        <h2>근태관리 시스템</h2>
         <div class="input-group">
           <input type="text" id="userId" placeholder="학번 (교사는 ID)" />
         </div>
@@ -369,7 +369,7 @@
       </div>
 
       <div id="studentSection" class="hidden">
-        <h2 style="margin-top: 10px">근태 기록</h2>
+        <h2 style="margin-top: 10px">2026 Doje Becon System</h2>
         <div class="text-center">
           <div class="date-display" id="currentDateStr"></div>
           <div
@@ -406,9 +406,9 @@
       </div>
 
       <div id="adminSection" class="hidden">
-        <h2 style="margin-top: 10px; margin-bottom: 20px">2026 Doje Becon System</h2>
+        <h2 style="margin-top: 10px; margin-bottom: 20px">2026 Doje Becon System 대시보드</h2>
         <button
-          onclick="fetchAdminData()"
+          onclick="fetchAdminData(false)"
           class="btn-secondary"
           id="refreshBtn"
         >
@@ -468,11 +468,12 @@
 
     <script>
       // ★ 반드시 새 배포 후 URL을 업데이트 해주세요 ★
-      const API_URL = "https://script.google.com/macros/s/AKfycbxOYL0Khufm7RCKxxeGDopMTYDhXwPbzfg8Udn8-eWe6dKefdREHVOJ6YSggkl-scg/exec";
+      const API_URL = "https://script.google.com/macros/s/AKfycbzmn5Sqy1ObMZceE43VstKxCcyad-VipLDf3GdOK4xx7Fzt83cm6PYclrRh9_Ee5XwI-w/exec";
 
       let userInfo = {};
       let allAdminData = [];
       let currentAdminDate = new Date();
+      let autoRefreshTimer = null; // 자동 새로고침 타이머 변수 추가
 
       window.onload = () => {
         const savedSession = sessionStorage.getItem("attendance_user");
@@ -527,6 +528,7 @@
       }
 
       function logout() {
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer); // 로그아웃 시 타이머 중지
         sessionStorage.removeItem("attendance_user");
         location.reload();
       }
@@ -571,7 +573,6 @@
         }
       }
 
-      // [보안 강화] 명시적인 권한 검사 추가
       function showAdmin() {
         if (!userInfo || userInfo.role !== "교사") {
           alert("비정상적인 접근입니다. 관리자 권한이 없습니다.");
@@ -582,7 +583,14 @@
         document.getElementById("topRightControls").classList.remove("hidden");
         document.getElementById("appCard").style.maxWidth = "600px";
         document.getElementById("adminSection").classList.remove("hidden");
-        fetchAdminData();
+
+        fetchAdminData(false); // 처음 1회 실행
+
+        // ★ 10초에 한 번씩 새로고침 (타이머 중복 방지를 위해 기존 타이머 삭제 후 세팅)
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+        autoRefreshTimer = setInterval(() => {
+          fetchAdminData(true); // true = 백그라운드 조용한 새로고침
+        }, 10000);
       }
 
       async function setupStudentView() {
@@ -666,30 +674,32 @@
         setupStudentView();
       }
 
-      async function fetchAdminData() {
+      // isSilent 파라미터 추가: 10초 자동 새로고침 시 버튼이 계속 깜빡이는 것을 방지
+      async function fetchAdminData(isSilent = false) {
         const btn = document.getElementById("refreshBtn");
-        if (btn) {
+
+        if (!isSilent && btn) {
           btn.innerText = "데이터 가져오는 중...";
           btn.disabled = true;
+          document.getElementById("dashboardContent").innerHTML =
+            "<tr><td colspan='4'>데이터 불러오는 중...</td></tr>";
         }
 
-        document.getElementById("dashboardContent").innerHTML =
-          "<tr><td colspan='4'>데이터 불러오는 중...</td></tr>";
-
-        // [보안 강화] 데이터를 요청할 때 본인의 ID를 함께 보내어 서버에서 검증받도록 함
         const res = await callAPI({ action: "getAdminData", id: userInfo.id });
 
         if (res.success) {
           allAdminData = res.data.reverse();
           renderDashboard();
         } else {
-          document.getElementById("dashboardContent").innerHTML =
-            `<tr><td colspan='4' style='color:#ef4444'>데이터 호출 실패: ${res.msg}</td></tr>`;
-          alert(res.msg);
-          if (res.msg.includes("권한")) logout();
+          if (!isSilent) {
+            document.getElementById("dashboardContent").innerHTML =
+              `<tr><td colspan='4' style='color:#ef4444'>데이터 호출 실패: ${res.msg}</td></tr>`;
+            alert(res.msg);
+            if (res.msg.includes("권한")) logout();
+          }
         }
 
-        if (btn) {
+        if (!isSilent && btn) {
           btn.innerText = "🔄 데이터 새로고침";
           btn.disabled = false;
         }
@@ -728,10 +738,19 @@
             if (status === "지각") badgeClass = "bg-late";
             if (status === "조퇴") badgeClass = "bg-early";
 
+            // ★ 시간 데이터 분 뒤에 불필요한 콜론(:)이 출력되지 않도록 정규화
+            // 9:05:12 같은 데이터를 split으로 잘라 9:05 만 남깁니다.
+            const cleanTime = r[0]
+              .toString()
+              .trim()
+              .split(":")
+              .slice(0, 2)
+              .join(":");
+
             html += `<tr>
           <td><strong>${r[3]}</strong><br><span style="font-size:11px;color:#64748b">${r[4]}</span></td>
           <td style="font-weight:700; color:${type === "입실" ? "#10b981" : "#f59e0b"}">${type}</td>
-          <td>${r[0].substring(0, 5)}<br><span style="font-size:10px;color:#94a3b8">기준 ${r[6]}</span></td>
+          <td>${cleanTime}<br><span style="font-size:10px;color:#94a3b8">기준 ${r[6]}</span></td>
           <td><span class="badge ${badgeClass}">${status}</span></td>
         </tr>`;
           }
