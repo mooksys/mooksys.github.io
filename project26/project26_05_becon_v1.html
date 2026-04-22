@@ -184,7 +184,6 @@
         font-weight: 600;
       }
 
-      /* 대시보드 리스트 박스 공통 스타일 */
       .alert-box {
         border-radius: 12px;
         padding: 15px;
@@ -337,7 +336,6 @@
         color: #059669;
       }
 
-      /* 페이징 버튼 스타일 */
       .pagination {
         display: flex;
         justify-content: center;
@@ -410,8 +408,9 @@
             color: #ef4444;
             text-align: center;
             margin-top: 15px;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
+            word-break: keep-all;
           "
         ></div>
       </div>
@@ -570,7 +569,7 @@
 
     <script>
       // ★ 반드시 새 배포 후 URL을 업데이트 해주세요 ★
-      const API_URL = "https://script.google.com/macros/s/AKfycbx1N3UpGwt73xdW4Nk6u9r-xHmIzIN8UhSKQJ-QmEg5XkbBK1WJMBc36ejeHa1DL709Pw/exec";
+      const API_URL = "https://script.google.com/macros/s/AKfycbz5kckA4ISjI8rfwWpEOU1DiRadqcI46e5sbjLI2wp22b7yFjKi7BiIq3llxjOg7F_M5w/exec";
 
       let userInfo = {};
       let allAdminData = [];
@@ -578,10 +577,13 @@
       let currentAdminDate = new Date();
       let autoRefreshTimer = null;
 
-      // 페이징 전용 변수들
       let currentFilteredData = [];
       let currentPage = 1;
       const itemsPerPage = 5;
+
+      // 세션 자동 만료 (30분 = 1,800,000ms)
+      let sessionTimeoutTimer;
+      const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 
       window.onload = () => {
         const savedSession = sessionStorage.getItem("attendance_user");
@@ -590,7 +592,27 @@
           document.getElementById("loginSection").classList.add("hidden");
           showMain();
         }
+
+        // 사용자 활동 감지 이벤트 등록 (마우스, 키보드, 터치, 스크롤)
+        ["click", "mousemove", "keypress", "scroll", "touchstart"].forEach(
+          (evt) => {
+            document.addEventListener(evt, resetSessionTimer, {
+              passive: true,
+            });
+          },
+        );
       };
+
+      function resetSessionTimer() {
+        // 로그인 상태일 때만 타이머 작동
+        if (!sessionStorage.getItem("attendance_user")) return;
+
+        clearTimeout(sessionTimeoutTimer);
+        sessionTimeoutTimer = setTimeout(() => {
+          alert("보안을 위해 장시간 활동이 없어 자동 로그아웃 되었습니다.");
+          logout();
+        }, SESSION_TIMEOUT_MS);
+      }
 
       async function callAPI(payload) {
         try {
@@ -628,16 +650,17 @@
                 .classList.remove("hidden");
           } else {
             sessionStorage.setItem("attendance_user", JSON.stringify(userInfo));
+            resetSessionTimer(); // 로그인 성공 시 타이머 시작
             showMain();
           }
         } else {
-          // 보안 강화: 항상 동일한 실패 메시지 출력
           document.getElementById("loginMsg").innerText = res.msg;
         }
       }
 
       function logout() {
         if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+        if (sessionTimeoutTimer) clearTimeout(sessionTimeoutTimer);
         sessionStorage.removeItem("attendance_user");
         location.reload();
       }
@@ -811,11 +834,10 @@
 
       function changeDate(offset) {
         currentAdminDate.setDate(currentAdminDate.getDate() + offset);
-        currentPage = 1; // 날짜 변경 시 페이지 1로 초기화
+        currentPage = 1;
         renderDashboard();
       }
 
-      // 전체 데이터를 필터링하고 통계를 계산하는 함수
       function renderDashboard() {
         const days = ["일", "월", "화", "수", "목", "금", "토"];
         const targetDateStr = formatDateForCompare(currentAdminDate);
@@ -922,7 +944,6 @@
         displayPage(currentPage);
       }
 
-      // 5개 단위로 잘라서 테이블에 그려주는 함수
       function displayPage(page) {
         currentPage = page;
         const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
@@ -966,7 +987,6 @@
         renderPaginationControls(totalPages);
       }
 
-      // 페이징 네비게이션 버튼 렌더링
       function renderPaginationControls(totalPages) {
         let html = `<div class="pagination">`;
         html += `<button class="page-btn" ${currentPage === 1 ? "disabled" : ""} onclick="displayPage(${currentPage - 1})">◀</button>`;
