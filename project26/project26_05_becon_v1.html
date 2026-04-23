@@ -389,7 +389,12 @@
           🎓 성일정보고등학교 도제반 3-12
         </div>
         <div class="input-group">
-          <input type="text" id="userId" placeholder="학번 (교사는 ID)" />
+          <input
+            type="text"
+            id="userId"
+            placeholder="학번 (교사는 ID)"
+            disabled
+          />
         </div>
         <div class="input-group">
           <input
@@ -397,10 +402,11 @@
             id="userPw"
             placeholder="비밀번호"
             onkeyup="if (event.keyCode === 13) login();"
+            disabled
           />
         </div>
-        <button id="loginBtn" class="btn-primary" onclick="login()">
-          로그인
+        <button id="loginBtn" class="btn-primary" onclick="login()" disabled>
+          서버 설정 불러오는 중...
         </button>
         <div
           id="loginMsg"
@@ -453,7 +459,7 @@
       </div>
 
       <div id="studentSection" class="hidden">
-        <h2 style="margin-top: 10px">근태 기록</h2>
+        <h2 style="margin-top: 10px">2026 Doje Becon System</h2>
         <div class="text-center">
           <div class="date-display" id="currentDateStr"></div>
           <div
@@ -568,8 +574,8 @@
     </div>
 
     <script>
-      // ★ 반드시 새 배포 후 URL을 업데이트 해주세요 ★
-      const API_URL = "https://script.google.com/macros/s/AKfycbz5kckA4ISjI8rfwWpEOU1DiRadqcI46e5sbjLI2wp22b7yFjKi7BiIq3llxjOg7F_M5w/exec";
+      // 외부 JSON에서 로드할 변수로 변경
+      let API_URL = "";
 
       let userInfo = {};
       let allAdminData = [];
@@ -581,11 +587,29 @@
       let currentPage = 1;
       const itemsPerPage = 5;
 
-      // 세션 자동 만료 (30분 = 1,800,000ms)
       let sessionTimeoutTimer;
       const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 
-      window.onload = () => {
+      // 페이지 로드 시 JSON 파일을 가장 먼저 불러옴
+      window.onload = async () => {
+        try {
+          const response = await fetch("project26_05_gas_url.json");
+          if (!response.ok) throw new Error("Network response was not ok");
+          const config = await response.json();
+          API_URL = config.api_url;
+
+          // 주소를 정상적으로 불러오면 로그인 버튼 활성화
+          document.getElementById("userId").disabled = false;
+          document.getElementById("userPw").disabled = false;
+          document.getElementById("loginBtn").disabled = false;
+          document.getElementById("loginBtn").innerText = "로그인";
+        } catch (error) {
+          console.error("API 주소 설정 파일을 불러올 수 없습니다:", error);
+          document.getElementById("loginMsg").innerText =
+            "서버 설정을 불러오는데 실패했습니다. 관리자에게 문의하세요.";
+          return; // URL을 못 가져왔으므로 아래 로직 중단
+        }
+
         const savedSession = sessionStorage.getItem("attendance_user");
         if (savedSession) {
           userInfo = JSON.parse(savedSession);
@@ -593,7 +617,6 @@
           showMain();
         }
 
-        // 사용자 활동 감지 이벤트 등록 (마우스, 키보드, 터치, 스크롤)
         ["click", "mousemove", "keypress", "scroll", "touchstart"].forEach(
           (evt) => {
             document.addEventListener(evt, resetSessionTimer, {
@@ -604,7 +627,6 @@
       };
 
       function resetSessionTimer() {
-        // 로그인 상태일 때만 타이머 작동
         if (!sessionStorage.getItem("attendance_user")) return;
 
         clearTimeout(sessionTimeoutTimer);
@@ -615,6 +637,8 @@
       }
 
       async function callAPI(payload) {
+        if (!API_URL)
+          return { success: false, msg: "서버 주소가 설정되지 않았습니다." };
         try {
           const response = await fetch(API_URL, {
             method: "POST",
@@ -635,8 +659,12 @@
         if (!id || !pw) return alert("입력값을 확인해주세요.");
 
         document.getElementById("loginBtn").innerText = "확인중...";
+        document.getElementById("loginBtn").disabled = true;
+
         const res = await callAPI({ action: "login", id: id, pw: pw });
+
         document.getElementById("loginBtn").innerText = "로그인";
+        document.getElementById("loginBtn").disabled = false;
 
         if (res.success) {
           userInfo = res;
@@ -650,7 +678,7 @@
                 .classList.remove("hidden");
           } else {
             sessionStorage.setItem("attendance_user", JSON.stringify(userInfo));
-            resetSessionTimer(); // 로그인 성공 시 타이머 시작
+            resetSessionTimer();
             showMain();
           }
         } else {
