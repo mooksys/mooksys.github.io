@@ -4,12 +4,21 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>2026 Doje Becon System</title>
+
     <link
       rel="stylesheet"
       as="style"
       crossorigin
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css"
     />
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
+
     <style>
       :root {
         --primary: #3b82f6;
@@ -63,7 +72,8 @@
         color: var(--text-light);
         font-weight: 600;
       }
-      input,
+      input[type="text"],
+      input[type="password"],
       select {
         width: 100%;
         padding: 14px;
@@ -76,7 +86,8 @@
         background: #f8fafc;
         font-family: inherit;
       }
-      input:focus,
+      input[type="text"]:focus,
+      input[type="password"]:focus,
       select:focus {
         border-color: var(--primary);
         background: white;
@@ -243,30 +254,107 @@
         color: #64748b;
         font-size: 14px;
       }
+
+      /* 캘린더 네비게이션 영역 */
       .date-nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        background: #f8fafc;
+        background: white;
         padding: 10px;
         border-radius: 16px;
         margin-bottom: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
         border: 1px solid #e2e8f0;
       }
-      .date-nav button {
-        width: auto;
-        padding: 8px 16px;
+
+      .nav-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
         background: white;
-        color: var(--text);
-        border: 1px solid #cbd5e1;
-        border-radius: 10px;
-        font-size: 14px;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+        cursor: pointer;
+        transition: all 0.2s;
         box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        padding: 0;
       }
-      .current-nav-date {
+      .nav-btn:hover {
+        background: #f8fafc;
+        color: var(--primary);
+        border-color: #cbd5e1;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      }
+      .nav-btn:active {
+        transform: translateY(1px);
+      }
+
+      /* [수정] Flatpickr 트리거용 커스텀 버튼 디자인 */
+      .date-picker-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        background: #eff6ff;
+        padding: 12px 18px;
+        border-radius: 14px;
+        border: 1px solid #bfdbfe;
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+      .date-picker-wrapper:hover {
+        background: #dbeafe;
+        border-color: #93c5fd;
+      }
+      .calendar-icon {
+        color: var(--primary);
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+      .current-day-label {
         font-weight: 800;
         font-size: 16px;
         color: var(--primary);
+        pointer-events: none;
+      }
+
+      /* [추가] Flatpickr 팝업 달력 커스텀 디자인 (폰트 및 색상 일치) */
+      .flatpickr-calendar {
+        font-family: "Pretendard", sans-serif !important;
+        border-radius: 16px !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #e2e8f0 !important;
+      }
+      .flatpickr-day.selected,
+      .flatpickr-day.startRange,
+      .flatpickr-day.endRange,
+      .flatpickr-day.selected.inRange,
+      .flatpickr-day.startRange.inRange,
+      .flatpickr-day.endRange.inRange,
+      .flatpickr-day.selected:focus,
+      .flatpickr-day.startRange:focus,
+      .flatpickr-day.endRange:focus,
+      .flatpickr-day.selected:hover,
+      .flatpickr-day.startRange:hover,
+      .flatpickr-day.endRange:hover,
+      .flatpickr-day.selected.prevMonthDay,
+      .flatpickr-day.startRange.prevMonthDay,
+      .flatpickr-day.endRange.prevMonthDay,
+      .flatpickr-day.selected.nextMonthDay,
+      .flatpickr-day.startRange.nextMonthDay,
+      .flatpickr-day.endRange.nextMonthDay {
+        background: var(--primary) !important;
+        border-color: var(--primary) !important;
+      }
+      .flatpickr-months .flatpickr-month {
+        height: 40px !important;
       }
 
       .stats-row {
@@ -522,11 +610,55 @@
         </button>
 
         <div class="date-nav">
-          <button onclick="changeDate(-1)">◀ 이전일</button>
-          <div class="current-nav-date" id="adminDateDisplay">
-            날짜 불러오는 중
+          <button class="nav-btn" onclick="changeDate(-1)">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M15 18l-6-6 6-6" />
+            </svg>
+          </button>
+
+          <div class="date-picker-wrapper" id="calendarTrigger">
+            <svg
+              class="calendar-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+              <line x1="16" y1="2" x2="16" y2="6"></line>
+              <line x1="8" y1="2" x2="8" y2="6"></line>
+              <line x1="3" y1="10" x2="21" y2="10"></line>
+            </svg>
+            <span id="displayDateText" class="current-day-label"
+              >로딩중...</span
+            >
           </div>
-          <button onclick="changeDate(1)">다음일 ▶</button>
+
+          <button class="nav-btn" onclick="changeDate(1)">
+            <svg
+              width="20"
+              height="20"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+            >
+              <path d="M9 18l6-6-6-6" />
+            </svg>
+          </button>
         </div>
 
         <div
@@ -612,6 +744,7 @@
       let allStudents = [];
       let currentAdminDate = new Date();
       let autoRefreshTimer = null;
+      let fpCalendar = null; // Flatpickr 인스턴스
 
       let currentFilteredData = [];
       let currentPage = 1;
@@ -792,6 +925,18 @@
         document.getElementById("appCard").style.maxWidth = "600px";
         document.getElementById("adminSection").classList.remove("hidden");
 
+        // [추가] Flatpickr 캘린더 초기화
+        fpCalendar = flatpickr("#calendarTrigger", {
+          locale: "ko", // 한국어 설정
+          disableMobile: true, // 모바일 환경에서도 네이티브 달력을 띄우지 않고 커스텀 UI 강제 적용
+          defaultDate: currentAdminDate,
+          onChange: function (selectedDates, dateStr, instance) {
+            if (selectedDates.length > 0) {
+              pickDate(selectedDates[0]);
+            }
+          },
+        });
+
         fetchAdminData(false);
 
         if (autoRefreshTimer) clearInterval(autoRefreshTimer);
@@ -860,25 +1005,20 @@
         }
       }
 
-      async function submitAttend(type) {
-        const btn =
-          type === "입실"
-            ? document.getElementById("btnIn")
-            : document.getElementById("btnOut");
-        btn.disabled = true;
-        btn.innerText = "기록 중...";
+      // [수정] 달력 선택 로직
+      function pickDate(dateObj) {
+        if (!dateObj) return;
+        currentAdminDate = new Date(dateObj);
+        currentPage = 1;
+        renderDashboard();
+      }
 
-        const stdTime = type === "입실" ? userInfo.inTime : userInfo.outTime;
-        const res = await callAPI({
-          action: "recordAttendance",
-          id: userInfo.id,
-          name: userInfo.name,
-          type: type,
-          stdTime: stdTime,
-        });
-
-        alert(res.msg);
-        setupStudentView();
+      // [수정] 좌/우 네비게이션 버튼 로직 (Flatpickr와 동기화)
+      function changeDate(offset) {
+        currentAdminDate.setDate(currentAdminDate.getDate() + offset);
+        if (fpCalendar) fpCalendar.setDate(currentAdminDate); // 달력 UI 갱신
+        currentPage = 1;
+        renderDashboard();
       }
 
       async function fetchAdminData(isSilent = false) {
@@ -908,24 +1048,17 @@
         }
       }
 
-      function changeDate(offset) {
-        currentAdminDate.setDate(currentAdminDate.getDate() + offset);
-        currentPage = 1;
-        renderDashboard();
-      }
-
       function renderDashboard() {
         const days = ["일", "월", "화", "수", "목", "금", "토"];
         const targetDateStr = formatDateForCompare(currentAdminDate);
         const adminDayIdx = currentAdminDate.getDay();
 
-        document.getElementById("adminDateDisplay").innerText =
-          `${currentAdminDate.getFullYear()}-${String(currentAdminDate.getMonth() + 1).padStart(2, "0")}-${String(currentAdminDate.getDate()).padStart(2, "0")} (${days[adminDayIdx]})`;
+        // [수정] 텍스트만 깔끔하게 버튼 안에 표시되도록 변경
+        document.getElementById("displayDateText").innerText =
+          `${targetDateStr} (${days[adminDayIdx]})`;
 
-        // [추가된 로직] 요일에 따른 경고 문구 표시 여부 결정
         const adminWarning = document.getElementById("adminDayWarning");
         if (adminDayIdx < 2 || adminDayIdx > 4) {
-          // 0=일, 1=월, 5=금, 6=토
           adminWarning.classList.remove("hidden");
         } else {
           adminWarning.classList.add("hidden");
