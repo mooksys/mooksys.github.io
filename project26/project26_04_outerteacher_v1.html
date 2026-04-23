@@ -94,7 +94,7 @@
       }
       .btn-red {
         background: #ea4335;
-      } /* 로그아웃 버튼용 붉은색 */
+      }
       .btn-main:hover {
         opacity: 0.8;
       }
@@ -309,21 +309,34 @@
     </div>
 
     <script>
-      // 🚨 재배포 후 발급받은 새로운 URL을 여기에 넣으세요!
-      const GAS_URL =
-        "https://script.google.com/macros/s/AKfycbyLzQVo0wEHkwn5ll2k44jHqV02jXEQdcpA55R9fnIj45OQdkVcrkuHS7b_35mZ0JG6nA/exec";
-
+      // [수정] 고정된 URL을 제거하고, 빈 변수로 초기화합니다.
+      let GAS_URL = "";
       let currentUser = { id: "", pw: "" };
 
-      // --- [추가] 페이지 로드 시 로그인 상태 체크 ---
-      window.onload = () => {
-        const savedId = localStorage.getItem("partnerSysId");
-        if (savedId) {
-          currentUser.id = savedId;
-          switchScreen("mainScreen");
-          fetchData();
-        } else {
-          switchScreen("loginScreen");
+      // --- [수정] 페이지 로드 시 JSON 파일을 먼저 읽어오도록 변경 ---
+      window.onload = async () => {
+        try {
+          // 1. JSON 설정 파일 불러오기
+          const response = await fetch("project26_04_gas_url.json");
+          if (!response.ok) throw new Error("JSON 파일을 찾을 수 없습니다.");
+
+          const config = await response.json();
+          GAS_URL = config.api_url;
+
+          // 2. 주소 불러오기 성공 후 로그인 상태 체크
+          const savedId = localStorage.getItem("partnerSysId");
+          if (savedId) {
+            currentUser.id = savedId;
+            switchScreen("mainScreen");
+            fetchData();
+          } else {
+            switchScreen("loginScreen");
+          }
+        } catch (error) {
+          console.error(error);
+          alert(
+            "서버 설정 파일을 불러오는데 실패했습니다.\n(project26_04_gas_url.json 파일을 확인해주세요.)",
+          );
         }
       };
 
@@ -334,7 +347,6 @@
         document.getElementById(id).classList.add("active");
       }
 
-      // --- [수정] 로그인 성공 시 로컬 스토리지에 저장 ---
       async function attemptLogin() {
         const id = document.getElementById("loginId").value.trim();
         const pw = document.getElementById("loginPw").value.trim();
@@ -355,7 +367,6 @@
             if (res.requirePwChange) {
               switchScreen("pwChangeScreen");
             } else {
-              // 변경이 필요 없는 일반 로그인이면 로컬 스토리지에 저장
               localStorage.setItem("partnerSysId", id);
               switchScreen("mainScreen");
               fetchData();
@@ -371,7 +382,6 @@
         }
       }
 
-      // --- [수정] 비밀번호 변경 완료 시 로컬 스토리지에 저장 ---
       async function attemptPwChange() {
         const newPw = document.getElementById("newPw").value.trim();
         if (
@@ -393,30 +403,30 @@
         if (res.success) {
           alert("변경되었습니다.");
           currentUser.pw = newPw;
-          localStorage.setItem("partnerSysId", currentUser.id); // 변경 완료 시 로그인 유지 설정
+          localStorage.setItem("partnerSysId", currentUser.id);
           switchScreen("mainScreen");
           fetchData();
         }
       }
 
-      // --- [추가] 로그아웃 기능 ---
       function logout() {
-        localStorage.removeItem("partnerSysId"); // 저장된 로그인 정보 삭제
+        localStorage.removeItem("partnerSysId");
         currentUser = { id: "", pw: "" };
         document.getElementById("loginId").value = "";
         document.getElementById("loginPw").value = "";
-
-        // 카드 그리드 초기화
         document.getElementById("cardGrid").innerHTML = "";
         document.getElementById("status").style.display = "block";
-
-        switchScreen("loginScreen"); // 로그인 화면으로 돌아가기
+        switchScreen("loginScreen");
       }
 
       async function fetchData() {
-        const response = await fetch(GAS_URL);
-        const data = await response.json();
-        renderCards(data);
+        try {
+          const response = await fetch(GAS_URL);
+          const data = await response.json();
+          renderCards(data);
+        } catch (error) {
+          alert("데이터를 불러오는 중 오류가 발생했습니다.");
+        }
       }
 
       function renderCards(data) {
