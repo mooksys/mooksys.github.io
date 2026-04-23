@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>성당 봉사자 스케줄</title>
+    <title>광교1동성당 크리스토폴 봉사자 스케줄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
       * {
@@ -18,7 +18,6 @@
         min-height: 100vh;
       }
 
-      /* 💡 1. 로그인 창 스타일 */
       .full-screen-center {
         display: flex;
         flex-direction: column;
@@ -107,7 +106,6 @@
         border-radius: 8px;
       }
 
-      /* 메인 앱 스타일 */
       header {
         background: linear-gradient(135deg, #6c5ce7, #a29bfe);
         color: white;
@@ -157,6 +155,10 @@
       }
       .btn-header:hover {
         background: rgba(255, 255, 255, 0.4);
+      }
+      .btn-logout {
+        background: rgba(255, 255, 255, 0.1);
+        border-color: rgba(255, 255, 255, 0.3);
       }
 
       main {
@@ -272,6 +274,12 @@
         background: #f0eeff;
         color: #6c5ce7;
       }
+      .theme-0 .highlight-phone {
+        color: #6c5ce7;
+        background: #f0eeff;
+        border: 1px solid #dcd6ff;
+      }
+
       .theme-1 {
         border-left: 6px solid #00b894;
       }
@@ -279,6 +287,12 @@
         background: #e6f8f3;
         color: #00b894;
       }
+      .theme-1 .highlight-phone {
+        color: #00b894;
+        background: #e6f8f3;
+        border: 1px solid #b8eadf;
+      }
+
       .theme-2 {
         border-left: 6px solid #e55039;
       }
@@ -286,12 +300,23 @@
         background: #fdedec;
         color: #e55039;
       }
+      .theme-2 .highlight-phone {
+        color: #e55039;
+        background: #fdedec;
+        border: 1px solid #f8cdd1;
+      }
+
       .theme-3 {
         border-left: 6px solid #d35400;
       }
       .theme-3 .vol-avatar {
         background: #fdf3e8;
         color: #d35400;
+      }
+      .theme-3 .highlight-phone {
+        color: #d35400;
+        background: #fdf3e8;
+        border: 1px solid #f6dabb;
       }
 
       .vol-card-top {
@@ -311,18 +336,13 @@
         flex-shrink: 0;
         box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.04);
       }
-      .vol-avatar .av-name {
-        font-size: 0.95rem;
+      .vol-avatar .av-role {
+        font-size: 1.25rem;
         font-weight: 800;
-        line-height: 1.1;
         text-align: center;
         word-break: keep-all;
-      }
-      .vol-avatar .av-role {
-        font-size: 0.75rem;
-        font-weight: 700;
-        opacity: 0.8;
-        margin-top: 2px;
+        line-height: 1.1;
+        letter-spacing: -0.5px;
       }
 
       .vol-info-main {
@@ -358,12 +378,27 @@
         align-items: center;
         padding-top: 14px;
         border-top: 1.5px dashed #f1f2f6;
+        gap: 8px;
       }
-      .vol-contact {
-        font-size: 0.8rem;
-        color: #636e72;
-        font-weight: 600;
-        letter-spacing: 0.5px;
+
+      /* 전화번호 강조 CSS + 줄바꿈 방지(white-space: nowrap) 추가 */
+      .vol-contact.highlight-phone {
+        font-size: 0.95rem;
+        font-weight: 800;
+        padding: 6px 12px;
+        border-radius: 10px;
+        display: inline-block;
+        white-space: nowrap;
+      }
+      .vol-contact.empty-phone {
+        font-size: 0.85rem;
+        color: #b2bec3;
+        font-style: italic;
+        background: #f5f6fa;
+        padding: 6px 12px;
+        border-radius: 10px;
+        border: 1px solid #e0e0e0;
+        white-space: nowrap;
       }
 
       .role-badge {
@@ -372,6 +407,7 @@
         padding: 4px 14px;
         font-size: 0.75rem;
         font-weight: 700;
+        white-space: nowrap;
       }
       .role-독서 {
         background: #dfe6ff;
@@ -929,6 +965,9 @@
           <button class="btn-header" onclick="resetAll()">
             🗑 데이터 초기화
           </button>
+          <button class="btn-header btn-logout" onclick="handleLogout()">
+            로그아웃
+          </button>
         </div>
       </header>
 
@@ -1177,14 +1216,13 @@
     <div id="toast"></div>
 
     <script>
-      // 🚨 [필수입력] 구글 웹앱 URL (배포 후 변경 필요)
-      const API_URL = "https://script.google.com/macros/s/AKfycbzINtvwbgJuRrGLkOX8FXf1Mq7lZzP04e32ezZrrr6q2qOC7zeCJD4Sa-XUNvKijjOukw/exec";
+      // 전역 API URL 변수 (JSON에서 불러옴)
+      let API_URL = "";
 
       const DAY_KO = ["일", "월", "화", "수", "목", "금", "토"];
-
       let editingVolId = null;
 
-      // 💡 3. SHA-256 비밀번호 단방향 암호화 함수
+      // SHA-256 비밀번호 단방향 암호화 함수
       async function getSHA256Hash(text) {
         const msgBuffer = new TextEncoder().encode(text);
         const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
@@ -1192,12 +1230,11 @@
         return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
       }
 
-      // '1234'의 사전 계산된 해시값 (초기값 체크용)
       const DEFAULT_PW_HASH =
         "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
-      let adminAuth = ""; // 시트에서 불러올 관리자 해시 비밀번호
+      let adminAuth = "";
 
-      // 💡 1. 로그인 검증 로직
+      // 로그인 검증
       async function handleLogin() {
         const idInput = document.getElementById("login-id").value.trim();
         const pwInput = document.getElementById("login-pw").value.trim();
@@ -1212,10 +1249,12 @@
         const hashedInput = await getSHA256Hash(pwInput);
 
         if (hashedInput === adminAuth) {
+          // 💡 세션에 로그인 상태 저장 (새로고침 유지용)
+          sessionStorage.setItem("adminLoggedIn", "true");
+
           errMsg.style.display = "none";
           document.getElementById("login-wrapper").style.display = "none";
 
-          // 초기 비밀번호(1234)인지 체크하여 변경 강제
           if (hashedInput === DEFAULT_PW_HASH) {
             document.getElementById("pw-change-wrapper").style.display = "flex";
           } else {
@@ -1228,7 +1267,13 @@
         }
       }
 
-      // 💡 2. 비밀번호 변경 저장 로직
+      // 로그아웃 처리
+      function handleLogout() {
+        sessionStorage.removeItem("adminLoggedIn");
+        location.reload();
+      }
+
+      // 비밀번호 변경 저장
       async function handleChangePassword() {
         const newPw = document.getElementById("new-pw").value.trim();
         const confirmPw = document.getElementById("confirm-pw").value.trim();
@@ -1252,9 +1297,10 @@
           return;
         }
 
-        // 새 비밀번호 암호화 후 시트에 바로 저장
         adminAuth = await getSHA256Hash(newPw);
         await saveData();
+
+        sessionStorage.setItem("adminLoggedIn", "true");
 
         errMsg.style.display = "none";
         document.getElementById("pw-change-wrapper").style.display = "none";
@@ -1387,10 +1433,35 @@
 
       const DEFAULT_SPECIAL = { name: "연령회", details: "연령회 회원 일동" };
 
+      async function fetchApiUrl() {
+        try {
+          const response = await fetch("project26_02_gas_url.json");
+          if (!response.ok) throw new Error("Network response was not ok");
+          const data = await response.json();
+          if (data && data.api_url) {
+            API_URL = data.api_url;
+            console.log(
+              "외부 JSON 파일에서 API URL을 성공적으로 불러왔습니다.",
+            );
+          } else {
+            console.warn("JSON 파일에 api_url 값이 없습니다.");
+          }
+        } catch (error) {
+          console.warn(
+            "외부 URL 설정 파일(project26_02_gas_url.json)을 불러오지 못했습니다. 로컬 기본값을 사용합니다. (웹 서버 환경이 아닐 수 있습니다.)",
+            error,
+          );
+        }
+      }
+
       async function loadData() {
-        if (API_URL === "여기에_웹앱_URL을_붙여넣으세요") {
-          resetToDefault(false, false); // URL 없을시 즉시 로컬 기본값 로드
-          document.getElementById("login-wrapper").style.display = "flex"; // 로그인창 띄우기
+        if (
+          !API_URL ||
+          API_URL === "여기에_본인의_웹앱_주소를_넣으세요" ||
+          API_URL === ""
+        ) {
+          resetToDefault(false, false);
+          document.getElementById("login-wrapper").style.display = "flex";
           return;
         }
         try {
@@ -1402,7 +1473,6 @@
           schedule = data.schedule || {};
           nextId = data.nextId || 1;
 
-          // 💡 4. 구글 시트 연동 구조에 맞춘 암호 해시 마이그레이션 (schedule 내부 저장)
           specialGroup =
             schedule["_specialGroup"] ||
             data.specialGroup ||
@@ -1425,19 +1495,36 @@
 
           showToast("☁️ 서버 연결 준비 완료.");
           updateStorageInfo(new Date().toISOString());
+
+          // 💡 새로고침 방지용 세션 체크 및 UI 전환 처리
+          if (sessionStorage.getItem("adminLoggedIn") === "true") {
+            if (adminAuth === DEFAULT_PW_HASH) {
+              document.getElementById("login-wrapper").style.display = "none";
+              document.getElementById("pw-change-wrapper").style.display =
+                "flex";
+            } else {
+              document.getElementById("login-wrapper").style.display = "none";
+              document.getElementById("app-wrapper").style.display = "block";
+              renderAll();
+            }
+          } else {
+            document.getElementById("login-wrapper").style.display = "flex";
+          }
         } catch (error) {
           console.error(error);
           resetToDefault(false, false);
+          document.getElementById("login-wrapper").style.display = "flex";
         }
-
-        // 로딩이 끝나면 무조건 로그인 창 표시
-        document.getElementById("login-wrapper").style.display = "flex";
       }
 
       async function saveData() {
-        if (API_URL === "여기에_웹앱_URL을_붙여넣으세요") return;
+        if (
+          !API_URL ||
+          API_URL === "여기에_본인의_웹앱_주소를_넣으세요" ||
+          API_URL === ""
+        )
+          return;
 
-        // 💡 암호 및 특수설정값들이 기존 구글시트 API(schedule 셀)를 통해 저장되도록 패킹
         schedule["_specialGroup"] = specialGroup;
         schedule["_adminAuth"] = adminAuth;
 
@@ -1455,7 +1542,6 @@
         }
       }
 
-      // 초기화 시 ask 옵션과 강제 리렌더(isRender) 분리
       function resetToDefault(ask = true, isRender = true) {
         if (ask && !confirm("모든 데이터(비밀번호 포함)를 초기화할까요?"))
           return;
@@ -1465,7 +1551,7 @@
 
         nextId = 6;
         specialGroup = Object.assign({}, DEFAULT_SPECIAL);
-        adminAuth = DEFAULT_PW_HASH; // 비번도 1234로 리셋
+        adminAuth = DEFAULT_PW_HASH;
 
         cancelEdit();
         saveData();
@@ -1473,7 +1559,8 @@
         if (isRender) renderAll();
         if (ask) {
           showToast("🗑 데이터 및 비밀번호가 초기화되었습니다.");
-          setTimeout(() => location.reload(), 1500); // 초기화 시 재로그인 강제
+          sessionStorage.removeItem("adminLoggedIn");
+          setTimeout(() => location.reload(), 1500);
         }
       }
       function resetAll() {
@@ -1535,27 +1622,24 @@
                   ? v.role
                   : "기타";
                 const themeClass = `theme-${i % 3}`;
-                const dispName = v.baptism
-                  ? escapeHTML(v.baptism)
-                  : escapeHTML(v.name);
 
+                // 💡 세례명 텍스트로 변경 반영
                 return `<div class="vol-card ${themeClass}">
           <div class="vol-card-top">
             <div class="vol-avatar">
-              <span class="av-name">${dispName}</span>
               <span class="av-role">${escapeHTML(v.role)}</span>
             </div>
             <div class="vol-info-main">
               <div class="vol-order">${volOrders[i] || "봉사자"}</div>
               <div class="vol-name">
                 ${escapeHTML(v.name)}
-                ${v.baptism ? `<span class="vol-baptism">✝ ${escapeHTML(v.baptism)}</span>` : ""}
+                ${v.baptism ? `<span class="vol-baptism">세례명 ${escapeHTML(v.baptism)}</span>` : ""}
               </div>
             </div>
           </div>
           <div class="vol-card-bottom">
             <span class="role-badge role-${roleClass}">${escapeHTML(v.role)}</span>
-            ${v.contact ? `<span class="vol-contact">${escapeHTML(v.contact)}</span>` : '<span class="vol-contact" style="color:#dfe6e9;">연락처 없음</span>'}
+            ${v.contact ? `<span class="vol-contact highlight-phone">📞 ${escapeHTML(v.contact)}</span>` : '<span class="vol-contact empty-phone">연락처 없음</span>'}
           </div>
         </div>`;
               })
@@ -1582,24 +1666,24 @@
                   "세번째 특별담당",
                 ][i];
 
+                // 💡 세례명 텍스트로 변경 반영 (특별담당)
                 return `
                         <div class="vol-card theme-3" style="flex: 1; min-width: 220px; border-color: #ffeaa7;">
                           <div class="vol-card-top">
                             <div class="vol-avatar">
-                              <span class="av-name">${sName}</span>
                               <span class="av-role">${sRole}</span>
                             </div>
                             <div class="vol-info-main">
                               <div class="vol-order">${sOrder}</div>
                               <div class="vol-name" style="font-size: 1.1rem;">
                                 ${sName}
-                                ${sv.baptism ? `<span class="vol-baptism">✝ ${escapeHTML(sv.baptism)}</span>` : ""}
+                                ${sv.baptism ? `<span class="vol-baptism">세례명 ${escapeHTML(sv.baptism)}</span>` : ""}
                               </div>
                             </div>
                           </div>
                           <div class="vol-card-bottom">
                             <span class="role-badge" style="background:#fff4e6; color:#d35400;">4주차 상시</span>
-                            ${sv.contact ? `<span class="vol-contact">${escapeHTML(sv.contact)}</span>` : '<span class="vol-contact" style="color:#dfe6e9;">연락처 없음</span>'}
+                            ${sv.contact ? `<span class="vol-contact highlight-phone">📞 ${escapeHTML(sv.contact)}</span>` : '<span class="vol-contact empty-phone">연락처 없음</span>'}
                           </div>
                         </div>`;
               })
@@ -2037,7 +2121,6 @@
             schedule = d.schedule || {};
             nextId = d.nextId || Math.max(...d.volunteers.map((v) => v.id)) + 1;
 
-            // JSON 복원 시 하위 호환성 검증
             if (schedule && schedule["special_4th_week"] !== undefined) {
               const currentSpecialKey = `special_${today.getFullYear()}_${today.getMonth()}`;
               if (!schedule[currentSpecialKey]) {
@@ -2065,8 +2148,12 @@
         reader.readAsText(file);
       }
 
-      // 스크립트 실행 시작점
-      loadData();
+      async function initializeApp() {
+        await fetchApiUrl();
+        await loadData();
+      }
+
+      initializeApp();
     </script>
   </body>
 </html>
