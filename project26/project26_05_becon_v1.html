@@ -520,6 +520,7 @@
         >
           🔄 데이터 새로고침
         </button>
+
         <div class="date-nav">
           <button onclick="changeDate(-1)">◀ 이전일</button>
           <div class="current-nav-date" id="adminDateDisplay">
@@ -527,6 +528,20 @@
           </div>
           <button onclick="changeDate(1)">다음일 ▶</button>
         </div>
+
+        <div
+          id="adminDayWarning"
+          class="hidden text-center"
+          style="
+            color: #ef4444;
+            font-size: 14px;
+            font-weight: 700;
+            margin-bottom: 15px;
+          "
+        >
+          ※ 해당 날짜는 현장실습일(화, 수, 목)이 아닙니다.
+        </div>
+
         <div class="stats-row">
           <div class="stat-item">
             <div class="stat-label">해당일 입실</div>
@@ -666,7 +681,6 @@
         }
       }
 
-      // [신규] 아이디 입력칸 포커스 아웃 시 실행되는 유효성 검사 함수
       async function verifyId() {
         const idInput = document.getElementById("userId");
         const warningMsg = document.getElementById("idWarningMsg");
@@ -680,7 +694,7 @@
         const res = await callAPI({ action: "checkId", id: val });
         if (res.success && !res.exists) {
           warningMsg.style.display = "block";
-          idInput.value = ""; // 요청하신 대로 없는 학번이면 입력칸을 비움
+          idInput.value = "";
           idInput.focus();
         } else {
           warningMsg.style.display = "none";
@@ -903,9 +917,19 @@
       function renderDashboard() {
         const days = ["일", "월", "화", "수", "목", "금", "토"];
         const targetDateStr = formatDateForCompare(currentAdminDate);
+        const adminDayIdx = currentAdminDate.getDay();
 
         document.getElementById("adminDateDisplay").innerText =
-          `${currentAdminDate.getFullYear()}-${String(currentAdminDate.getMonth() + 1).padStart(2, "0")}-${String(currentAdminDate.getDate()).padStart(2, "0")} (${days[currentAdminDate.getDay()]})`;
+          `${currentAdminDate.getFullYear()}-${String(currentAdminDate.getMonth() + 1).padStart(2, "0")}-${String(currentAdminDate.getDate()).padStart(2, "0")} (${days[adminDayIdx]})`;
+
+        // [추가된 로직] 요일에 따른 경고 문구 표시 여부 결정
+        const adminWarning = document.getElementById("adminDayWarning");
+        if (adminDayIdx < 2 || adminDayIdx > 4) {
+          // 0=일, 1=월, 5=금, 6=토
+          adminWarning.classList.remove("hidden");
+        } else {
+          adminWarning.classList.add("hidden");
+        }
 
         currentFilteredData = [];
         let statIn = 0,
