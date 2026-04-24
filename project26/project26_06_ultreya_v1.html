@@ -96,7 +96,7 @@
         display: none;
       }
 
-      /* 헤더/푸터 카드 */
+      /* 🌟 헤더/푸터 카드 (왼쪽 색상 밴드 추가) */
       .header-card,
       .footer-card {
         background-color: var(--card-bg);
@@ -105,6 +105,7 @@
         padding: 20px;
         text-align: center;
         margin-bottom: 20px;
+        border-left: 6px solid var(--primary-color); /* 포인트 밴드 */
       }
       .header-card h1 {
         color: #1e3a8a;
@@ -138,40 +139,81 @@
         background-color: #dc2626;
       }
 
-      /* 🌟 통계 카드 레이아웃 */
+      /* 🌟 통계 카드 레이아웃 (디자인 전면 업그레이드 및 왼쪽 밴드 추가) */
       .stats-card {
         display: flex;
-        justify-content: space-around;
+        justify-content: space-between;
+        gap: 12px;
         background-color: var(--card-bg);
         border-radius: 16px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        padding: 20px;
+        padding: 16px;
         margin-bottom: 24px;
-        text-align: center;
+        border-left: 6px solid var(--primary-color); /* 포인트 밴드 */
       }
       .stat-box {
+        flex: 1;
         display: flex;
         flex-direction: column;
+        justify-content: center;
+        align-items: center;
         gap: 6px;
+        padding: 16px 8px;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.03);
+        transition: transform 0.2s;
+      }
+      .stat-box:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
       }
       .stat-title {
         font-size: 0.95rem;
-        color: var(--text-muted);
-        font-weight: 600;
+        font-weight: 700;
+        display: flex;
+        align-items: center;
+        gap: 4px;
       }
       .stat-number {
         font-size: 1.6rem;
         font-weight: 800;
-        color: var(--text-main);
+      }
+
+      /* 통계 미니 박스별 고유 색상 디자인 */
+      .stat-box.total {
+        background-color: #f0fdfa;
+        border-bottom: 3px solid #14b8a6;
+      }
+      .stat-box.total .stat-title {
+        color: #0f766e;
+      }
+      .stat-box.total .stat-number {
+        color: #0d9488;
+      }
+
+      .stat-box.male {
+        background-color: #eff6ff;
+        border-bottom: 3px solid #3b82f6;
+      }
+      .stat-box.male .stat-title {
+        color: #1d4ed8;
       }
       .stat-box.male .stat-number {
         color: #2563eb;
-      } /* 남자 파란색 */
+      }
+
+      .stat-box.female {
+        background-color: #fdf2f8;
+        border-bottom: 3px solid #ec4899;
+      }
+      .stat-box.female .stat-title {
+        color: #be185d;
+      }
       .stat-box.female .stat-number {
         color: #db2777;
-      } /* 여자 핑크색 */
+      }
 
-      /* 카드 레이아웃 (🌟 높이 및 여백 축소) */
+      /* 개인별 카드 레이아웃 */
       .card-container {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
@@ -180,7 +222,7 @@
       .card {
         border-radius: 16px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        padding: 16px; /* 20px -> 16px 축소 */
+        padding: 16px;
         border-top: 5px solid;
         transition: transform 0.2s ease;
         background-color: var(--card-bg);
@@ -238,7 +280,6 @@
         font-size: 0.85rem;
         font-weight: bold;
       }
-      /* 🌟 헤더 여백 축소 */
       .card-header {
         display: flex;
         justify-content: space-between;
@@ -263,7 +304,6 @@
         opacity: 0.8;
       }
 
-      /* 🌟 내부 행 여백 축소 */
       .info-row {
         display: flex;
         margin-bottom: 8px;
@@ -395,16 +435,16 @@
       </div>
 
       <div class="stats-card" id="stats-card" style="display: none">
-        <div class="stat-box">
-          <span class="stat-title">총원</span>
+        <div class="stat-box total">
+          <span class="stat-title">👥 전체 인원</span>
           <span class="stat-number" id="stat-total">0명</span>
         </div>
         <div class="stat-box male">
-          <span class="stat-title">형제님</span>
+          <span class="stat-title">👨 형제님</span>
           <span class="stat-number" id="stat-male">0명</span>
         </div>
         <div class="stat-box female">
-          <span class="stat-title">자매님</span>
+          <span class="stat-title">👩 자매님</span>
           <span class="stat-number" id="stat-female">0명</span>
         </div>
       </div>
@@ -644,12 +684,10 @@
             return;
           }
 
-          // 🌟 1. 통계 계산 및 화면에 표시
           let maleCount = 0;
           let femaleCount = 0;
 
           allMembersData.forEach((member) => {
-            // 구글 시트에 '성별' 열이 있다고 가정하고 계산
             const gender = String(member["성별"] || "").trim();
             if (gender === "남" || gender === "남자") maleCount++;
             else if (gender === "여" || gender === "여자") femaleCount++;
@@ -660,10 +698,8 @@
           document.getElementById("stat-male").innerText = maleCount + "명";
           document.getElementById("stat-female").innerText = femaleCount + "명";
 
-          // 통계 카드를 화면에 표시
           document.getElementById("stats-card").style.display = "flex";
 
-          // 2. 이번 달 축일자 맨 앞으로 정렬
           allMembersData.sort((a, b) => {
             const isThisMonthA =
               parseFeastDayInfo(a["축일"]).month === currentMonth;
