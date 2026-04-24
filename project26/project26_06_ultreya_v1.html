@@ -1,0 +1,614 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>광교1동성당 울뜨레야 명단</title>
+    <style>
+      :root {
+        --primary-color: #3b82f6;
+        --bg-color: #f3f4f6;
+        --card-bg: #ffffff;
+        --text-main: #1f2937;
+        --text-muted: #6b7280;
+      }
+
+      body {
+        font-family: "Pretendard", "Malgun Gothic", sans-serif;
+        background-color: var(--bg-color);
+        margin: 0;
+        padding: 20px;
+        color: var(--text-main);
+      }
+      .max-container {
+        max-width: 900px;
+        margin: 0 auto;
+      }
+
+      /* 에러 메시지 */
+      #error-message {
+        display: none;
+        background-color: #fee2e2;
+        color: #b91c1c;
+        padding: 15px;
+        border-radius: 8px;
+        text-align: center;
+        font-weight: bold;
+        margin-bottom: 20px;
+        border: 1px solid #f87171;
+      }
+
+      /* 로그인 화면 */
+      #login-view {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 80vh;
+      }
+      .login-card {
+        background-color: var(--card-bg);
+        padding: 40px 30px;
+        border-radius: 16px;
+        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        border-top: 5px solid var(--primary-color);
+        width: 100%;
+        max-width: 350px;
+        text-align: center;
+        box-sizing: border-box;
+      }
+      .login-card h2 {
+        margin-top: 0;
+        color: #1e3a8a;
+        font-weight: 800;
+        font-size: 1.4rem;
+      }
+      .login-card input {
+        width: 100%;
+        padding: 12px;
+        margin-bottom: 15px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        box-sizing: border-box;
+        font-size: 1rem;
+      }
+      .login-card button {
+        width: 100%;
+        padding: 12px;
+        background-color: var(--primary-color);
+        color: white;
+        border: none;
+        border-radius: 8px;
+        font-weight: bold;
+        cursor: pointer;
+        font-size: 1.05rem;
+        transition: background-color 0.2s;
+      }
+      .login-card button:hover {
+        background-color: #2563eb;
+      }
+      .login-card button:disabled {
+        background-color: #9ca3af;
+        cursor: not-allowed;
+      }
+
+      #main-view {
+        display: none;
+      }
+
+      /* 헤더/푸터 카드 */
+      .header-card,
+      .footer-card {
+        background-color: var(--card-bg);
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        text-align: center;
+        margin-bottom: 24px;
+        position: relative;
+      }
+      .header-card h1 {
+        color: #1e3a8a;
+        margin: 0;
+        font-weight: 800;
+        font-size: 1.8rem;
+      }
+      .footer-card {
+        margin-top: 24px;
+        margin-bottom: 0;
+        font-weight: 700;
+        color: var(--primary-color);
+        font-size: 1.1rem;
+      }
+
+      /* 로그아웃 버튼 */
+      .logout-btn {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        padding: 6px 12px;
+        background-color: #ef4444;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: bold;
+        transition: background-color 0.2s;
+      }
+      .logout-btn:hover {
+        background-color: #dc2626;
+      }
+
+      /* 카드 레이아웃 */
+      .card-container {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        gap: 20px;
+      }
+      .card {
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        border-top: 5px solid;
+        transition: transform 0.2s ease;
+        background-color: var(--card-bg);
+      }
+      .card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      }
+
+      /* 직책별 카드 색상 */
+      .card-gansa {
+        border-top-color: #ef4444;
+        background-color: #fef2f2;
+      }
+      .card-gansa .role-badge {
+        background-color: #fee2e2;
+        color: #b91c1c;
+      }
+      .card-bugansa {
+        border-top-color: #f97316;
+        background-color: #fff7ed;
+      }
+      .card-bugansa .role-badge {
+        background-color: #ffedd5;
+        color: #c2410c;
+      }
+      .card-seogi {
+        border-top-color: #10b981;
+        background-color: #ecfdf5;
+      }
+      .card-seogi .role-badge {
+        background-color: #d1fae5;
+        color: #047857;
+      }
+      .card-hoegye {
+        border-top-color: #8b5cf6;
+        background-color: #f5f3ff;
+      }
+      .card-hoegye .role-badge {
+        background-color: #ede9fe;
+        color: #6d28d9;
+      }
+      .card-default {
+        border-top-color: var(--primary-color);
+        background-color: var(--card-bg);
+      }
+      .card-default .role-badge {
+        background-color: #e0f2fe;
+        color: #0369a1;
+      }
+
+      .role-badge {
+        padding: 4px 10px;
+        border-radius: 9999px;
+        font-size: 0.85rem;
+        font-weight: bold;
+      }
+      .card-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        padding-bottom: 12px;
+        margin-bottom: 16px;
+      }
+      .name-group {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+      }
+      .name {
+        font-size: 1.3rem;
+        font-weight: bold;
+        color: #111827;
+      }
+      .baptismal-name {
+        font-size: 1.05rem;
+        font-weight: 600;
+        opacity: 0.8;
+      }
+
+      .info-row {
+        display: flex;
+        margin-bottom: 12px;
+        font-size: 0.95rem;
+        align-items: center;
+      }
+      .info-icon {
+        width: 24px;
+        font-size: 1.1rem;
+      }
+      .info-label {
+        width: 70px;
+        color: var(--text-muted);
+        font-weight: 500;
+      }
+      .info-value {
+        flex: 1;
+        font-weight: 500;
+        color: #374151;
+      }
+
+      /* 축일 애니메이션 */
+      @keyframes outlineGlow {
+        0% {
+          outline: 2px solid rgba(59, 130, 246, 0.1);
+          outline-offset: 0px;
+        }
+        50% {
+          outline: 3px solid rgba(59, 130, 246, 0.8);
+          outline-offset: 4px;
+          box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
+        }
+        100% {
+          outline: 2px solid rgba(59, 130, 246, 0.1);
+          outline-offset: 0px;
+        }
+      }
+      .highlight-month {
+        animation: outlineGlow 2s infinite ease-in-out;
+        border-radius: 16px;
+      }
+
+      .feast-btn {
+        display: inline-block;
+        background-color: rgba(59, 130, 246, 0.1);
+        color: #2563eb;
+        border: 1px solid rgba(59, 130, 246, 0.3);
+        padding: 5px 14px;
+        border-radius: 8px;
+        font-size: 0.9rem;
+        font-weight: bold;
+      }
+      .feast-btn.highlight {
+        background-color: #3b82f6;
+        color: #ffffff;
+        border-color: #2563eb;
+        box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+      }
+
+      /* 페이징 */
+      .pagination {
+        display: flex;
+        justify-content: center;
+        gap: 8px;
+        margin-top: 30px;
+      }
+      .page-btn {
+        padding: 8px 14px;
+        background-color: var(--card-bg);
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        color: var(--text-main);
+        font-weight: 600;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .page-btn:hover:not(:disabled) {
+        background-color: #f3f4f6;
+      }
+      .page-btn.active {
+        background-color: var(--primary-color);
+        color: white;
+        border-color: var(--primary-color);
+      }
+
+      .loading {
+        text-align: center;
+        font-size: 1.2rem;
+        color: var(--text-muted);
+        padding: 50px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="error-message">
+      데이터 로딩 실패: 설정 파일(json)을 찾을 수 없거나 브라우저 보안에 의해
+      차단되었습니다.
+    </div>
+
+    <div id="login-view">
+      <div class="login-card">
+        <h2>🔐 울뜨레야 명단</h2>
+        <p style="font-size: 0.85rem; color: #666; margin-bottom: 20px">
+          개인정보 보호를 위해 로그인해 주세요.
+        </p>
+        <input
+          type="text"
+          id="userid"
+          placeholder="아이디"
+          onkeypress="handleEnter(event)"
+        />
+        <input
+          type="password"
+          id="userpw"
+          placeholder="비밀번호"
+          onkeypress="handleEnter(event)"
+        />
+        <button id="login-btn" onclick="login()">로그인</button>
+      </div>
+    </div>
+
+    <div id="main-view" class="max-container">
+      <div class="header-card">
+        <h1>⛪ 광교1동성당 울뜨레야 명단</h1>
+        <button class="logout-btn" onclick="logout()">로그아웃</button>
+      </div>
+      <div id="loading" class="loading">데이터를 불러오는 중입니다...</div>
+      <div id="card-container" class="card-container"></div>
+      <div id="pagination" class="pagination"></div>
+      <div class="footer-card">광교1동성당 울뜨레야</div>
+    </div>
+
+    <script>
+      let allMembersData = [];
+      let currentPage = 1;
+      const itemsPerPage = 6;
+      let apiUrl = "";
+      const currentMonth = new Date().getMonth() + 1;
+
+      // 1. JSON 파일 로드 및 로그인 상태 확인
+      window.onload = () => {
+        fetch("./project26_06_gas_url.json")
+          .then((response) => {
+            if (!response.ok) throw new Error("JSON 파일을 읽을 수 없습니다.");
+            return response.json();
+          })
+          .then((config) => {
+            apiUrl = config.api_url;
+
+            // 🌟 새로고침 시 세션 스토리지에 로그인 기록이 있는지 확인
+            if (sessionStorage.getItem("isLoggedIn") === "true") {
+              document.getElementById("login-view").style.display = "none";
+              document.getElementById("main-view").style.display = "block";
+              loadData(); // 이미 로그인되어 있다면 바로 명단 로드
+            }
+          })
+          .catch((error) => {
+            console.error(error);
+            document.getElementById("error-message").style.display = "block";
+            document.getElementById("login-btn").disabled = true;
+            document.getElementById("login-btn").innerText = "설정 파일 오류";
+          });
+      };
+
+      function handleEnter(event) {
+        if (event.key === "Enter") login();
+      }
+
+      // 2. 로그인 로직 (Admin 시트 통신)
+      async function login() {
+        const inputId = document.getElementById("userid").value.trim();
+        const inputPw = document.getElementById("userpw").value.trim();
+        const loginBtn = document.getElementById("login-btn");
+
+        if (!inputId || !inputPw) {
+          alert("아이디와 비밀번호를 입력해주세요.");
+          return;
+        }
+
+        loginBtn.innerText = "확인 중...";
+        loginBtn.disabled = true;
+
+        try {
+          const url = new URL(apiUrl);
+          url.searchParams.append("action", "getAdmin");
+
+          const res = await fetch(url);
+          const adminData = await res.json();
+
+          if (adminData.error) {
+            alert(`서버 에러: ${adminData.error}`);
+            loginBtn.innerText = "로그인";
+            loginBtn.disabled = false;
+            return;
+          }
+
+          if (inputId === adminData.id && inputPw === adminData.password) {
+            // 🌟 로그인 성공 시 세션 스토리지에 로그인 상태 저장
+            sessionStorage.setItem("isLoggedIn", "true");
+
+            document.getElementById("login-view").style.display = "none";
+            document.getElementById("main-view").style.display = "block";
+            loadData();
+          } else {
+            alert("아이디 또는 비밀번호가 일치하지 않습니다.");
+            loginBtn.innerText = "로그인";
+            loginBtn.disabled = false;
+          }
+        } catch (error) {
+          alert("서버와 통신하는 데 실패했습니다. 인터넷 연결을 확인하세요.");
+          loginBtn.innerText = "로그인";
+          loginBtn.disabled = false;
+        }
+      }
+
+      // 🌟 3. 로그아웃 기능 추가
+      function logout() {
+        if (confirm("로그아웃 하시겠습니까?")) {
+          sessionStorage.removeItem("isLoggedIn"); // 세션 스토리지에서 기록 삭제
+          document.getElementById("userid").value = ""; // 아이디 입력창 초기화
+          document.getElementById("userpw").value = ""; // 비밀번호 입력창 초기화
+
+          // 화면 전환
+          document.getElementById("main-view").style.display = "none";
+          document.getElementById("login-view").style.display = "flex";
+
+          // 로그인 버튼 상태 초기화
+          const loginBtn = document.getElementById("login-btn");
+          loginBtn.innerText = "로그인";
+          loginBtn.disabled = false;
+        }
+      }
+
+      // 4. 축일(날짜) 변환 로직 (ISO 시간 -> M월 D일)
+      function parseFeastDayInfo(dateString) {
+        if (!dateString) return { text: "-", month: null };
+
+        let text = String(dateString).trim();
+        let month = null;
+
+        if (text.includes("T")) {
+          const date = new Date(text);
+          if (!isNaN(date.getTime())) {
+            month = date.getMonth() + 1;
+            text = `${month}월 ${date.getDate()}일`;
+          }
+        } else if (text.includes("/")) {
+          const parts = text.split("/");
+          if (parts.length >= 2) {
+            const parsedMonth = parseInt(parts[0], 10);
+            const day = parseInt(parts[1], 10);
+            if (!isNaN(parsedMonth) && !isNaN(day)) {
+              month = parsedMonth;
+              text = `${month}월 ${day}일`;
+            }
+          }
+        }
+        return { text: text, month: month };
+      }
+
+      // 5. 데이터 매핑 및 화면 출력
+      function displayPage(pageNumber) {
+        currentPage = pageNumber;
+        const startIndex = (pageNumber - 1) * itemsPerPage;
+        const membersToDisplay = allMembersData.slice(
+          startIndex,
+          startIndex + itemsPerPage,
+        );
+        const container = document.getElementById("card-container");
+        container.innerHTML = "";
+
+        membersToDisplay.forEach((member) => {
+          const name = member["이름"] || "-";
+          const baptismalName = member["세례명"] || "";
+          const role = member["구분"] || "단원";
+          const phone = member["전화번호"] || "-";
+          const feastDayValue = member["축일"];
+          const fullCohort = member["체험 차수"] || "-";
+
+          const card = document.createElement("div");
+
+          let roleTypeClass = "card-default";
+          if (role.includes("부간사")) roleTypeClass = "card-bugansa";
+          else if (role.includes("간사")) roleTypeClass = "card-gansa";
+          else if (role.includes("서기")) roleTypeClass = "card-seogi";
+          else if (role.includes("회계")) roleTypeClass = "card-hoegye";
+
+          const feastInfo = parseFeastDayInfo(feastDayValue);
+          let cardClassName = `card ${roleTypeClass}`;
+          let btnClassName = "feast-btn";
+
+          if (feastInfo.month === currentMonth) {
+            cardClassName += " highlight-month";
+            btnClassName += " highlight";
+          }
+
+          card.className = cardClassName;
+
+          card.innerHTML = `
+          <div class="card-header">
+            <div class="name-group">
+              <span class="name">${name}</span>
+              <span class="baptismal-name">${baptismalName}</span>
+            </div>
+            <span class="role-badge">${role}</span>
+          </div>
+          <div class="card-body">
+            <div class="info-row">
+              <span class="info-icon">📞</span>
+              <span class="info-label">연락처</span>
+              <span class="info-value"><a href="tel:${phone}" style="text-decoration:none; color:inherit; font-weight: 600;">${phone}</a></span>
+            </div>
+            <div class="info-row">
+              <span class="info-icon">📅</span>
+              <span class="info-label">축일</span>
+              <span class="info-value"><span class="${btnClassName}">${feastInfo.text}</span></span>
+            </div>
+            <div class="info-row">
+              <span class="info-icon">🕊️</span>
+              <span class="info-label">체험차수</span>
+              <span class="info-value">${fullCohort}</span>
+            </div>
+          </div>
+        `;
+          container.appendChild(card);
+        });
+        renderPaginationButtons();
+      }
+
+      function renderPaginationButtons() {
+        const totalPages = Math.ceil(allMembersData.length / itemsPerPage);
+        const paginationContainer = document.getElementById("pagination");
+        paginationContainer.innerHTML = "";
+        if (totalPages <= 1) return;
+
+        const prevBtn = document.createElement("button");
+        prevBtn.className = "page-btn";
+        prevBtn.innerText = "<";
+        prevBtn.disabled = currentPage === 1;
+        prevBtn.onclick = () => displayPage(currentPage - 1);
+        paginationContainer.appendChild(prevBtn);
+
+        for (let i = 1; i <= totalPages; i++) {
+          const pageBtn = document.createElement("button");
+          pageBtn.className = "page-btn" + (i === currentPage ? " active" : "");
+          pageBtn.innerText = i;
+          pageBtn.onclick = () => displayPage(i);
+          paginationContainer.appendChild(pageBtn);
+        }
+
+        const nextBtn = document.createElement("button");
+        nextBtn.className = "page-btn";
+        nextBtn.innerText = ">";
+        nextBtn.disabled = currentPage === totalPages;
+        nextBtn.onclick = () => displayPage(currentPage + 1);
+        paginationContainer.appendChild(nextBtn);
+      }
+
+      async function loadData() {
+        try {
+          const res = await fetch(apiUrl);
+          if (!res.ok) throw new Error("서버 응답 오류");
+          allMembersData = await res.json();
+
+          if (allMembersData.error) {
+            document.getElementById("loading").innerText =
+              `에러: ${allMembersData.error}`;
+            return;
+          }
+
+          document.getElementById("loading").style.display = "none";
+          displayPage(1);
+        } catch (error) {
+          document.getElementById("loading").innerText =
+            "명단 데이터를 불러오지 못했습니다. 앱스 스크립 연결을 확인하세요.";
+          document.getElementById("loading").style.color = "red";
+        }
+      }
+    </script>
+  </body>
+</html>
