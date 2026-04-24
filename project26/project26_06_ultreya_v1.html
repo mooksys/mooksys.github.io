@@ -105,7 +105,6 @@
         padding: 20px;
         text-align: center;
         margin-bottom: 24px;
-        position: relative;
       }
       .header-card h1 {
         color: #1e3a8a;
@@ -121,20 +120,19 @@
         font-size: 1.1rem;
       }
 
-      /* 로그아웃 버튼 */
+      /* 로그아웃 버튼 (제목 아래로 중앙 정렬) */
       .logout-btn {
-        position: absolute;
-        top: 20px;
-        right: 20px;
-        padding: 6px 12px;
+        margin-top: 12px;
+        padding: 6px 16px;
         background-color: #ef4444;
         color: white;
         border: none;
         border-radius: 6px;
         cursor: pointer;
-        font-size: 0.85rem;
+        font-size: 0.9rem;
         font-weight: bold;
         transition: background-color 0.2s;
+        display: inline-block;
       }
       .logout-btn:hover {
         background-color: #dc2626;
@@ -380,11 +378,10 @@
           .then((config) => {
             apiUrl = config.api_url;
 
-            // 🌟 새로고침 시 세션 스토리지에 로그인 기록이 있는지 확인
             if (sessionStorage.getItem("isLoggedIn") === "true") {
               document.getElementById("login-view").style.display = "none";
               document.getElementById("main-view").style.display = "block";
-              loadData(); // 이미 로그인되어 있다면 바로 명단 로드
+              loadData();
             }
           })
           .catch((error) => {
@@ -399,7 +396,7 @@
         if (event.key === "Enter") login();
       }
 
-      // 2. 로그인 로직 (Admin 시트 통신)
+      // 2. 로그인 로직
       async function login() {
         const inputId = document.getElementById("userid").value.trim();
         const inputPw = document.getElementById("userpw").value.trim();
@@ -428,7 +425,6 @@
           }
 
           if (inputId === adminData.id && inputPw === adminData.password) {
-            // 🌟 로그인 성공 시 세션 스토리지에 로그인 상태 저장
             sessionStorage.setItem("isLoggedIn", "true");
 
             document.getElementById("login-view").style.display = "none";
@@ -446,25 +442,23 @@
         }
       }
 
-      // 🌟 3. 로그아웃 기능 추가
+      // 3. 로그아웃 기능
       function logout() {
         if (confirm("로그아웃 하시겠습니까?")) {
-          sessionStorage.removeItem("isLoggedIn"); // 세션 스토리지에서 기록 삭제
-          document.getElementById("userid").value = ""; // 아이디 입력창 초기화
-          document.getElementById("userpw").value = ""; // 비밀번호 입력창 초기화
+          sessionStorage.removeItem("isLoggedIn");
+          document.getElementById("userid").value = "";
+          document.getElementById("userpw").value = "";
 
-          // 화면 전환
           document.getElementById("main-view").style.display = "none";
           document.getElementById("login-view").style.display = "flex";
 
-          // 로그인 버튼 상태 초기화
           const loginBtn = document.getElementById("login-btn");
           loginBtn.innerText = "로그인";
           loginBtn.disabled = false;
         }
       }
 
-      // 4. 축일(날짜) 변환 로직 (ISO 시간 -> M월 D일)
+      // 4. 축일(날짜) 변환 로직
       function parseFeastDayInfo(dateString) {
         if (!dateString) return { text: "-", month: null };
 
@@ -491,7 +485,7 @@
         return { text: text, month: month };
       }
 
-      // 5. 데이터 매핑 및 화면 출력
+      // 5. 화면 출력 로직
       function displayPage(pageNumber) {
         currentPage = pageNumber;
         const startIndex = (pageNumber - 1) * itemsPerPage;
@@ -589,6 +583,7 @@
         paginationContainer.appendChild(nextBtn);
       }
 
+      // 🌟 6. 데이터 로드 및 정렬 로직
       async function loadData() {
         try {
           const res = await fetch(apiUrl);
@@ -601,11 +596,24 @@
             return;
           }
 
+          // 🌟 [추가된 부분] 이번 달 축일인 사람을 배열의 맨 앞으로 정렬
+          allMembersData.sort((a, b) => {
+            // 각 사람의 축일에서 '월(month)' 데이터만 추출
+            const isThisMonthA =
+              parseFeastDayInfo(a["축일"]).month === currentMonth;
+            const isThisMonthB =
+              parseFeastDayInfo(b["축일"]).month === currentMonth;
+
+            if (isThisMonthA && !isThisMonthB) return -1; // A가 이번 달 축일이면 앞으로
+            if (!isThisMonthA && isThisMonthB) return 1; // B가 이번 달 축일이면 앞으로
+            return 0; // 둘 다 이번 달이거나, 둘 다 이번 달이 아니면 원래 구글 시트 순서 유지
+          });
+
           document.getElementById("loading").style.display = "none";
-          displayPage(1);
+          displayPage(1); // 1페이지부터 화면에 표시
         } catch (error) {
           document.getElementById("loading").innerText =
-            "명단 데이터를 불러오지 못했습니다. 앱스 스크립 연결을 확인하세요.";
+            "명단 데이터를 불러오지 못했습니다. 앱스 스크립트 연결을 확인하세요.";
           document.getElementById("loading").style.color = "red";
         }
       }
