@@ -104,7 +104,7 @@
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
         padding: 20px;
         text-align: center;
-        margin-bottom: 24px;
+        margin-bottom: 20px;
       }
       .header-card h1 {
         color: #1e3a8a;
@@ -120,7 +120,7 @@
         font-size: 1.1rem;
       }
 
-      /* 로그아웃 버튼 (제목 아래로 중앙 정렬) */
+      /* 로그아웃 버튼 */
       .logout-btn {
         margin-top: 12px;
         padding: 6px 16px;
@@ -138,16 +138,49 @@
         background-color: #dc2626;
       }
 
-      /* 카드 레이아웃 */
+      /* 🌟 통계 카드 레이아웃 */
+      .stats-card {
+        display: flex;
+        justify-content: space-around;
+        background-color: var(--card-bg);
+        border-radius: 16px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        padding: 20px;
+        margin-bottom: 24px;
+        text-align: center;
+      }
+      .stat-box {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+      }
+      .stat-title {
+        font-size: 0.95rem;
+        color: var(--text-muted);
+        font-weight: 600;
+      }
+      .stat-number {
+        font-size: 1.6rem;
+        font-weight: 800;
+        color: var(--text-main);
+      }
+      .stat-box.male .stat-number {
+        color: #2563eb;
+      } /* 남자 파란색 */
+      .stat-box.female .stat-number {
+        color: #db2777;
+      } /* 여자 핑크색 */
+
+      /* 카드 레이아웃 (🌟 높이 및 여백 축소) */
       .card-container {
         display: grid;
         grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-        gap: 20px;
+        gap: 16px;
       }
       .card {
         border-radius: 16px;
         box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        padding: 20px;
+        padding: 16px; /* 20px -> 16px 축소 */
         border-top: 5px solid;
         transition: transform 0.2s ease;
         background-color: var(--card-bg);
@@ -205,13 +238,14 @@
         font-size: 0.85rem;
         font-weight: bold;
       }
+      /* 🌟 헤더 여백 축소 */
       .card-header {
         display: flex;
         justify-content: space-between;
         align-items: center;
         border-bottom: 1px solid rgba(0, 0, 0, 0.05);
-        padding-bottom: 12px;
-        margin-bottom: 16px;
+        padding-bottom: 10px;
+        margin-bottom: 12px;
       }
       .name-group {
         display: flex;
@@ -219,28 +253,32 @@
         gap: 8px;
       }
       .name {
-        font-size: 1.3rem;
+        font-size: 1.25rem;
         font-weight: bold;
         color: #111827;
       }
       .baptismal-name {
-        font-size: 1.05rem;
+        font-size: 1rem;
         font-weight: 600;
         opacity: 0.8;
       }
 
+      /* 🌟 내부 행 여백 축소 */
       .info-row {
         display: flex;
-        margin-bottom: 12px;
+        margin-bottom: 8px;
         font-size: 0.95rem;
         align-items: center;
       }
+      .info-row:last-child {
+        margin-bottom: 0;
+      }
       .info-icon {
-        width: 24px;
-        font-size: 1.1rem;
+        width: 22px;
+        font-size: 1rem;
       }
       .info-label {
-        width: 70px;
+        width: 65px;
         color: var(--text-muted);
         font-weight: 500;
       }
@@ -276,9 +314,9 @@
         background-color: rgba(59, 130, 246, 0.1);
         color: #2563eb;
         border: 1px solid rgba(59, 130, 246, 0.3);
-        padding: 5px 14px;
+        padding: 4px 12px;
         border-radius: 8px;
-        font-size: 0.9rem;
+        font-size: 0.85rem;
         font-weight: bold;
       }
       .feast-btn.highlight {
@@ -293,7 +331,7 @@
         display: flex;
         justify-content: center;
         gap: 8px;
-        margin-top: 30px;
+        margin-top: 24px;
       }
       .page-btn {
         padding: 8px 14px;
@@ -330,7 +368,7 @@
 
     <div id="login-view">
       <div class="login-card">
-        <h2>🔐 광교1동성당 울뜨레야 명단</h2>
+        <h2>🔐 울뜨레야 명단</h2>
         <p style="font-size: 0.85rem; color: #666; margin-bottom: 20px">
           개인정보 보호를 위해 로그인해 주세요.
         </p>
@@ -355,6 +393,22 @@
         <h1>⛪ 광교1동성당 울뜨레야 명단</h1>
         <button class="logout-btn" onclick="logout()">로그아웃</button>
       </div>
+
+      <div class="stats-card" id="stats-card" style="display: none">
+        <div class="stat-box">
+          <span class="stat-title">총원</span>
+          <span class="stat-number" id="stat-total">0명</span>
+        </div>
+        <div class="stat-box male">
+          <span class="stat-title">형제님</span>
+          <span class="stat-number" id="stat-male">0명</span>
+        </div>
+        <div class="stat-box female">
+          <span class="stat-title">자매님</span>
+          <span class="stat-number" id="stat-female">0명</span>
+        </div>
+      </div>
+
       <div id="loading" class="loading">데이터를 불러오는 중입니다...</div>
       <div id="card-container" class="card-container"></div>
       <div id="pagination" class="pagination"></div>
@@ -368,7 +422,6 @@
       let apiUrl = "";
       const currentMonth = new Date().getMonth() + 1;
 
-      // 1. JSON 파일 로드 및 로그인 상태 확인
       window.onload = () => {
         fetch("./project26_06_gas_url.json")
           .then((response) => {
@@ -396,7 +449,6 @@
         if (event.key === "Enter") login();
       }
 
-      // 2. 로그인 로직
       async function login() {
         const inputId = document.getElementById("userid").value.trim();
         const inputPw = document.getElementById("userpw").value.trim();
@@ -442,7 +494,6 @@
         }
       }
 
-      // 3. 로그아웃 기능
       function logout() {
         if (confirm("로그아웃 하시겠습니까?")) {
           sessionStorage.removeItem("isLoggedIn");
@@ -458,7 +509,6 @@
         }
       }
 
-      // 4. 축일(날짜) 변환 로직
       function parseFeastDayInfo(dateString) {
         if (!dateString) return { text: "-", month: null };
 
@@ -485,7 +535,6 @@
         return { text: text, month: month };
       }
 
-      // 5. 화면 출력 로직
       function displayPage(pageNumber) {
         currentPage = pageNumber;
         const startIndex = (pageNumber - 1) * itemsPerPage;
@@ -583,7 +632,6 @@
         paginationContainer.appendChild(nextBtn);
       }
 
-      // 🌟 6. 데이터 로드 및 정렬 로직
       async function loadData() {
         try {
           const res = await fetch(apiUrl);
@@ -596,21 +644,39 @@
             return;
           }
 
-          // 🌟 [추가된 부분] 이번 달 축일인 사람을 배열의 맨 앞으로 정렬
+          // 🌟 1. 통계 계산 및 화면에 표시
+          let maleCount = 0;
+          let femaleCount = 0;
+
+          allMembersData.forEach((member) => {
+            // 구글 시트에 '성별' 열이 있다고 가정하고 계산
+            const gender = String(member["성별"] || "").trim();
+            if (gender === "남" || gender === "남자") maleCount++;
+            else if (gender === "여" || gender === "여자") femaleCount++;
+          });
+
+          document.getElementById("stat-total").innerText =
+            allMembersData.length + "명";
+          document.getElementById("stat-male").innerText = maleCount + "명";
+          document.getElementById("stat-female").innerText = femaleCount + "명";
+
+          // 통계 카드를 화면에 표시
+          document.getElementById("stats-card").style.display = "flex";
+
+          // 2. 이번 달 축일자 맨 앞으로 정렬
           allMembersData.sort((a, b) => {
-            // 각 사람의 축일에서 '월(month)' 데이터만 추출
             const isThisMonthA =
               parseFeastDayInfo(a["축일"]).month === currentMonth;
             const isThisMonthB =
               parseFeastDayInfo(b["축일"]).month === currentMonth;
 
-            if (isThisMonthA && !isThisMonthB) return -1; // A가 이번 달 축일이면 앞으로
-            if (!isThisMonthA && isThisMonthB) return 1; // B가 이번 달 축일이면 앞으로
-            return 0; // 둘 다 이번 달이거나, 둘 다 이번 달이 아니면 원래 구글 시트 순서 유지
+            if (isThisMonthA && !isThisMonthB) return -1;
+            if (!isThisMonthA && isThisMonthB) return 1;
+            return 0;
           });
 
           document.getElementById("loading").style.display = "none";
-          displayPage(1); // 1페이지부터 화면에 표시
+          displayPage(1);
         } catch (error) {
           document.getElementById("loading").innerText =
             "명단 데이터를 불러오지 못했습니다. 앱스 스크립트 연결을 확인하세요.";
