@@ -74,7 +74,7 @@
     "id": "Gemini",
     "title": "Gemini Project",
     "icon": "fa-terminal",
-    "description": "vibe Coding Project, #1 출퇴근 비콘 시스템, #2 ...",
+    "description": "vibe Coding Project, #1 출퇴근 비콘 시스템, #2 ",
     "links": [
       {
         "title": "Project 1 울뜨레야 개인기도 집계 v2",
@@ -94,6 +94,11 @@
       {
         "title": "Project 1.1 울뜨레야 개인기도 집계 + GAS v3",
         "url": "gwanggyo_cathedral/index_prayer_v3.html",
+        "type": "primary"
+      },
+      {
+        "title": "Project 꾸르실료사무국+GAS v0.2",
+        "url": "gwanggyo_cathedral/index_cursillo_v0.2.html",
         "type": "primary"
       }
     ]
