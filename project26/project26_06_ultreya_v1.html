@@ -4,720 +4,1118 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>광교1동성당 울뜨레야 명단</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Serif+KR:wght@400;700&family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet" />
     <style>
+      /* ── CSS 변수 ── */
       :root {
-        --primary-color: #3b82f6;
-        --bg-color: #f3f4f6;
+        --primary: #1a4fa0;
+        --primary-light: #2563eb;
+        --primary-bg: #eff6ff;
+        --accent: #c9a227;
+        --bg: #f0f4f8;
         --card-bg: #ffffff;
-        --text-main: #1f2937;
-        --text-muted: #6b7280;
+        --text: #1e293b;
+        --text-muted: #64748b;
+        --border: #e2e8f0;
+        --danger: #dc2626;
+        --success: #059669;
+        --radius: 14px;
+        --shadow: 0 2px 12px rgba(0,0,0,0.08);
+        --shadow-hover: 0 8px 24px rgba(0,0,0,0.13);
+        --font-body: 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+        --font-display: 'Noto Serif KR', serif;
       }
 
+      /* ── 리셋 & 기본 ── */
+      *, *::before, *::after { box-sizing: border-box; }
       body {
-        font-family: "Pretendard", "Malgun Gothic", sans-serif;
-        background-color: var(--bg-color);
+        font-family: var(--font-body);
+        background: var(--bg);
         margin: 0;
-        padding: 20px;
-        color: var(--text-main);
+        padding: 20px 16px 40px;
+        color: var(--text);
+        min-height: 100vh;
       }
-      .max-container {
-        max-width: 900px;
-        margin: 0 auto;
-      }
+      .wrap { max-width: 960px; margin: 0 auto; }
 
-      /* 에러 메시지 */
-      #error-message {
+      /* ── 에러 배너 ── */
+      #error-banner {
         display: none;
-        background-color: #fee2e2;
-        color: #b91c1c;
-        padding: 15px;
-        border-radius: 8px;
-        text-align: center;
-        font-weight: bold;
+        background: #fef2f2;
+        color: #991b1b;
+        border: 1px solid #fca5a5;
+        border-left: 5px solid var(--danger);
+        padding: 14px 18px;
+        border-radius: 10px;
+        font-weight: 600;
         margin-bottom: 20px;
-        border: 1px solid #f87171;
+        font-size: 0.9rem;
       }
 
-      /* 로그인 화면 */
+      /* ══════════════════════════════
+         로그인 화면
+      ══════════════════════════════ */
       #login-view {
         display: flex;
-        flex-direction: column;
         align-items: center;
         justify-content: center;
-        min-height: 80vh;
+        min-height: 90vh;
       }
       .login-card {
-        background-color: var(--card-bg);
-        padding: 40px 30px;
-        border-radius: 16px;
-        box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-        border-top: 5px solid var(--primary-color);
+        background: var(--card-bg);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(26,79,160,0.12);
+        padding: 48px 36px 40px;
         width: 100%;
-        max-width: 350px;
+        max-width: 380px;
         text-align: center;
-        box-sizing: border-box;
+        border-top: 5px solid var(--primary);
+      }
+      .login-logo {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        font-weight: 700;
+        color: var(--accent);
+        letter-spacing: 0.05em;
+        margin-bottom: 4px;
       }
       .login-card h2 {
-        margin-top: 0;
-        color: #1e3a8a;
-        font-weight: 800;
-        font-size: 1.4rem;
-      }
-      .login-card input {
-        width: 100%;
-        padding: 12px;
-        margin-bottom: 15px;
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        box-sizing: border-box;
-        font-size: 1rem;
-      }
-      .login-card button {
-        width: 100%;
-        padding: 12px;
-        background-color: var(--primary-color);
-        color: white;
-        border: none;
-        border-radius: 8px;
-        font-weight: bold;
-        cursor: pointer;
-        font-size: 1.05rem;
-        transition: background-color 0.2s;
-      }
-      .login-card button:hover {
-        background-color: #2563eb;
-      }
-      .login-card button:disabled {
-        background-color: #9ca3af;
-        cursor: not-allowed;
-      }
-
-      #main-view {
-        display: none;
-      }
-
-      /* 🌟 헤더/푸터 카드 (왼쪽 색상 밴드 추가) */
-      .header-card,
-      .footer-card {
-        background-color: var(--card-bg);
-        border-radius: 16px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        padding: 20px;
-        text-align: center;
-        margin-bottom: 20px;
-        border-left: 6px solid var(--primary-color); /* 포인트 밴드 */
-      }
-      .header-card h1 {
-        color: #1e3a8a;
-        margin: 0;
-        font-weight: 800;
-        font-size: 1.8rem;
-      }
-      .footer-card {
-        margin-top: 24px;
-        margin-bottom: 0;
+        font-family: var(--font-display);
+        font-size: 1.5rem;
+        color: var(--primary);
+        margin: 0 0 6px;
         font-weight: 700;
-        color: var(--primary-color);
-        font-size: 1.1rem;
       }
-
-      /* 로그아웃 버튼 */
-      .logout-btn {
-        margin-top: 12px;
-        padding: 6px 16px;
-        background-color: #ef4444;
-        color: white;
+      .login-card p {
+        font-size: 0.83rem;
+        color: var(--text-muted);
+        margin: 0 0 28px;
+      }
+      .input-group { position: relative; margin-bottom: 14px; text-align: left; }
+      .input-group label {
+        display: block;
+        font-size: 0.78rem;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-bottom: 5px;
+        letter-spacing: 0.03em;
+        text-transform: uppercase;
+      }
+      .input-group input {
+        width: 100%;
+        padding: 11px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: 9px;
+        font-size: 0.95rem;
+        font-family: var(--font-body);
+        color: var(--text);
+        background: var(--bg);
+        transition: border-color 0.2s, box-shadow 0.2s;
+        outline: none;
+      }
+      .input-group input:focus {
+        border-color: var(--primary-light);
+        box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        background: #fff;
+      }
+      .login-error {
+        display: none;
+        font-size: 0.82rem;
+        color: var(--danger);
+        margin: -6px 0 10px;
+        text-align: left;
+        padding-left: 2px;
+      }
+      .btn-primary {
+        width: 100%;
+        padding: 13px;
+        background: var(--primary);
+        color: #fff;
         border: none;
-        border-radius: 6px;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 1rem;
+        font-family: var(--font-body);
         cursor: pointer;
-        font-size: 0.9rem;
-        font-weight: bold;
-        transition: background-color 0.2s;
-        display: inline-block;
+        transition: background 0.2s, transform 0.1s;
+        margin-top: 8px;
+        letter-spacing: 0.02em;
       }
-      .logout-btn:hover {
-        background-color: #dc2626;
-      }
+      .btn-primary:hover:not(:disabled) { background: var(--primary-light); }
+      .btn-primary:active:not(:disabled) { transform: scale(0.98); }
+      .btn-primary:disabled { background: #94a3b8; cursor: not-allowed; }
 
-      /* 🌟 통계 카드 레이아웃 (디자인 전면 업그레이드 및 왼쪽 밴드 추가) */
-      .stats-card {
+      /* ══════════════════════════════
+         메인 화면
+      ══════════════════════════════ */
+      #main-view { display: none; }
+
+      /* 헤더 */
+      .header-card {
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 20px 24px 18px;
+        margin-bottom: 18px;
         display: flex;
+        align-items: center;
         justify-content: space-between;
         gap: 12px;
-        background-color: var(--card-bg);
-        border-radius: 16px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
-        padding: 16px;
-        margin-bottom: 24px;
-        border-left: 6px solid var(--primary-color); /* 포인트 밴드 */
+        border-left: 5px solid var(--primary);
       }
+      .header-left {}
+      .header-subtitle {
+        font-size: 0.78rem;
+        color: var(--accent);
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        margin-bottom: 3px;
+      }
+      .header-card h1 {
+        font-family: var(--font-display);
+        font-size: 1.35rem;
+        color: var(--primary);
+        margin: 0;
+        font-weight: 700;
+      }
+      .header-right { display: flex; gap: 8px; align-items: center; }
+      .btn-logout {
+        padding: 7px 16px;
+        background: #fef2f2;
+        color: var(--danger);
+        border: 1.5px solid #fca5a5;
+        border-radius: 8px;
+        cursor: pointer;
+        font-size: 0.85rem;
+        font-weight: 700;
+        font-family: var(--font-body);
+        transition: background 0.2s;
+      }
+      .btn-logout:hover { background: #fee2e2; }
+
+      /* 통계 카드 */
+      .stats-card {
+        display: none;
+        gap: 12px;
+        margin-bottom: 18px;
+      }
+      .stats-row { display: flex; gap: 12px; }
       .stat-box {
         flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: center;
-        align-items: center;
-        gap: 6px;
-        padding: 16px 8px;
-        border-radius: 12px;
-        border: 1px solid rgba(0, 0, 0, 0.03);
-        transition: transform 0.2s;
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 16px 12px 14px;
+        text-align: center;
+        border-bottom: 3px solid transparent;
+        transition: transform 0.2s, box-shadow 0.2s;
       }
-      .stat-box:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-      }
+      .stat-box:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+      .stat-box.total { border-bottom-color: #0d9488; background: #f0fdfa; }
+      .stat-box.male  { border-bottom-color: #2563eb; background: #eff6ff; }
+      .stat-box.female{ border-bottom-color: #db2777; background: #fdf4ff; }
+      .stat-box.role  { border-bottom-color: var(--accent); background: #fffbeb; }
+      .stat-box.feast { border-bottom-color: #7c3aed; background: #f5f3ff; }
       .stat-title {
-        font-size: 0.95rem;
+        font-size: 0.78rem;
         font-weight: 700;
+        color: var(--text-muted);
+        margin-bottom: 4px;
+        letter-spacing: 0.02em;
+      }
+      .stat-number { font-size: 1.5rem; font-weight: 800; color: var(--text); }
+      .stat-box.total .stat-number { color: #0d9488; }
+      .stat-box.male  .stat-number { color: #1d4ed8; }
+      .stat-box.female.stat-number { color: #be185d; }
+
+      /* 필터/검색 바 */
+      .filter-bar {
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 14px 16px;
+        margin-bottom: 18px;
         display: flex;
+        flex-wrap: wrap;
+        gap: 10px;
         align-items: center;
-        gap: 4px;
+        border-left: 5px solid var(--accent);
       }
-      .stat-number {
-        font-size: 1.6rem;
-        font-weight: 800;
+      .search-wrap {
+        flex: 1;
+        min-width: 180px;
+        position: relative;
+      }
+      .search-wrap input {
+        width: 100%;
+        padding: 9px 12px 9px 36px;
+        border: 1.5px solid var(--border);
+        border-radius: 9px;
+        font-size: 0.92rem;
+        font-family: var(--font-body);
+        color: var(--text);
+        background: var(--bg);
+        outline: none;
+        transition: border-color 0.2s;
+      }
+      .search-wrap input:focus { border-color: var(--primary-light); background: #fff; }
+      .search-wrap .search-icon {
+        position: absolute;
+        left: 11px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--text-muted);
+        font-size: 1rem;
+        pointer-events: none;
+      }
+      .filter-selects { display: flex; gap: 8px; flex-wrap: wrap; }
+      .filter-selects select {
+        padding: 8px 28px 8px 10px;
+        border: 1.5px solid var(--border);
+        border-radius: 9px;
+        font-size: 0.88rem;
+        font-family: var(--font-body);
+        color: var(--text);
+        background: var(--bg);
+        cursor: pointer;
+        outline: none;
+        appearance: none;
+        background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%2364748b' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+        background-repeat: no-repeat;
+        background-position: right 10px center;
+        transition: border-color 0.2s;
+      }
+      .filter-selects select:focus { border-color: var(--primary-light); }
+      .filter-count {
+        font-size: 0.82rem;
+        color: var(--text-muted);
+        font-weight: 600;
+        white-space: nowrap;
+        padding: 0 4px;
       }
 
-      /* 통계 미니 박스별 고유 색상 디자인 */
-      .stat-box.total {
-        background-color: #f0fdfa;
-        border-bottom: 3px solid #14b8a6;
-      }
-      .stat-box.total .stat-title {
-        color: #0f766e;
-      }
-      .stat-box.total .stat-number {
-        color: #0d9488;
-      }
-
-      .stat-box.male {
-        background-color: #eff6ff;
-        border-bottom: 3px solid #3b82f6;
-      }
-      .stat-box.male .stat-title {
-        color: #1d4ed8;
-      }
-      .stat-box.male .stat-number {
-        color: #2563eb;
-      }
-
-      .stat-box.female {
-        background-color: #fdf2f8;
-        border-bottom: 3px solid #ec4899;
-      }
-      .stat-box.female .stat-title {
-        color: #be185d;
-      }
-      .stat-box.female .stat-number {
-        color: #db2777;
-      }
-
-      /* 개인별 카드 레이아웃 */
-      .card-container {
+      /* 카드 그리드 */
+      .card-grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
         gap: 16px;
+        margin-bottom: 4px;
       }
+
+      /* 개인 카드 */
       .card {
-        border-radius: 16px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
         padding: 16px;
-        border-top: 5px solid;
-        transition: transform 0.2s ease;
-        background-color: var(--card-bg);
+        border-top: 4px solid var(--primary);
+        transition: transform 0.2s, box-shadow 0.2s;
+        position: relative;
+        overflow: hidden;
       }
-      .card:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+      .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-hover); }
+
+      /* 역할별 색상 */
+      .card-gansa   { border-top-color: #ef4444; background: #fef2f2; }
+      .card-bugansa { border-top-color: #f97316; background: #fff7ed; }
+      .card-seogi   { border-top-color: #10b981; background: #ecfdf5; }
+      .card-hoegye  { border-top-color: #8b5cf6; background: #f5f3ff; }
+      .card-default { border-top-color: var(--primary); background: #fff; }
+
+      /* 이번 달 축일 하이라이트 */
+      .card.feast-this-month::after {
+        content: '🎉 이번 달 축일';
+        position: absolute;
+        top: 10px;
+        right: 10px;
+        font-size: 0.7rem;
+        font-weight: 700;
+        background: #7c3aed;
+        color: #fff;
+        padding: 3px 8px;
+        border-radius: 20px;
+        pointer-events: none;
+      }
+      @media (prefers-reduced-motion: no-preference) {
+        .card.feast-this-month {
+          outline: 2px solid rgba(124,58,237,0.4);
+          outline-offset: 2px;
+        }
       }
 
-      /* 직책별 카드 색상 */
-      .card-gansa {
-        border-top-color: #ef4444;
-        background-color: #fef2f2;
-      }
-      .card-gansa .role-badge {
-        background-color: #fee2e2;
-        color: #b91c1c;
-      }
-      .card-bugansa {
-        border-top-color: #f97316;
-        background-color: #fff7ed;
-      }
-      .card-bugansa .role-badge {
-        background-color: #ffedd5;
-        color: #c2410c;
-      }
-      .card-seogi {
-        border-top-color: #10b981;
-        background-color: #ecfdf5;
-      }
-      .card-seogi .role-badge {
-        background-color: #d1fae5;
-        color: #047857;
-      }
-      .card-hoegye {
-        border-top-color: #8b5cf6;
-        background-color: #f5f3ff;
-      }
-      .card-hoegye .role-badge {
-        background-color: #ede9fe;
-        color: #6d28d9;
-      }
-      .card-default {
-        border-top-color: var(--primary-color);
-        background-color: var(--card-bg);
-      }
-      .card-default .role-badge {
-        background-color: #e0f2fe;
-        color: #0369a1;
-      }
-
-      .role-badge {
-        padding: 4px 10px;
-        border-radius: 9999px;
-        font-size: 0.85rem;
-        font-weight: bold;
-      }
       .card-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        align-items: flex-start;
+        border-bottom: 1px solid rgba(0,0,0,0.06);
         padding-bottom: 10px;
         margin-bottom: 12px;
       }
-      .name-group {
-        display: flex;
-        align-items: baseline;
-        gap: 8px;
-      }
+      .name-group { display: flex; flex-direction: column; gap: 2px; }
       .name {
-        font-size: 1.25rem;
-        font-weight: bold;
-        color: #111827;
+        font-family: var(--font-display);
+        font-size: 1.15rem;
+        font-weight: 700;
+        color: #0f172a;
+        line-height: 1.2;
       }
-      .baptismal-name {
-        font-size: 1rem;
-        font-weight: 600;
-        opacity: 0.8;
+      .baptismal-name { font-size: 0.85rem; color: var(--text-muted); font-weight: 500; }
+
+      .role-badge {
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 0.78rem;
+        font-weight: 700;
+        white-space: nowrap;
+        flex-shrink: 0;
+        margin-top: 2px;
       }
+      .card-gansa   .role-badge { background: #fee2e2; color: #991b1b; }
+      .card-bugansa .role-badge { background: #ffedd5; color: #9a3412; }
+      .card-seogi   .role-badge { background: #d1fae5; color: #065f46; }
+      .card-hoegye  .role-badge { background: #ede9fe; color: #5b21b6; }
+      .card-default .role-badge { background: #dbeafe; color: #1e40af; }
 
       .info-row {
         display: flex;
-        margin-bottom: 8px;
-        font-size: 0.95rem;
         align-items: center;
+        gap: 8px;
+        font-size: 0.88rem;
+        margin-bottom: 7px;
       }
-      .info-row:last-child {
-        margin-bottom: 0;
-      }
-      .info-icon {
-        width: 22px;
-        font-size: 1rem;
-      }
-      .info-label {
-        width: 65px;
-        color: var(--text-muted);
-        font-weight: 500;
-      }
-      .info-value {
-        flex: 1;
-        font-weight: 500;
-        color: #374151;
-      }
+      .info-row:last-child { margin-bottom: 0; }
+      .info-icon { font-size: 0.95rem; width: 20px; text-align: center; flex-shrink: 0; }
+      .info-label { color: var(--text-muted); font-weight: 500; width: 62px; flex-shrink: 0; }
+      .info-value { color: #334155; font-weight: 600; flex: 1; }
+      .info-value a { color: inherit; text-decoration: none; }
+      .info-value a:hover { text-decoration: underline; color: var(--primary-light); }
 
-      /* 축일 애니메이션 */
-      @keyframes outlineGlow {
-        0% {
-          outline: 2px solid rgba(59, 130, 246, 0.1);
-          outline-offset: 0px;
-        }
-        50% {
-          outline: 3px solid rgba(59, 130, 246, 0.8);
-          outline-offset: 4px;
-          box-shadow: 0 0 15px rgba(59, 130, 246, 0.5);
-        }
-        100% {
-          outline: 2px solid rgba(59, 130, 246, 0.1);
-          outline-offset: 0px;
-        }
-      }
-      .highlight-month {
-        animation: outlineGlow 2s infinite ease-in-out;
-        border-radius: 16px;
-      }
-
-      .feast-btn {
+      .feast-tag {
         display: inline-block;
-        background-color: rgba(59, 130, 246, 0.1);
-        color: #2563eb;
-        border: 1px solid rgba(59, 130, 246, 0.3);
-        padding: 4px 12px;
-        border-radius: 8px;
-        font-size: 0.85rem;
-        font-weight: bold;
+        padding: 2px 10px;
+        border-radius: 6px;
+        font-size: 0.82rem;
+        font-weight: 700;
+        background: #e0e7ff;
+        color: #3730a3;
+        border: 1px solid #c7d2fe;
       }
-      .feast-btn.highlight {
-        background-color: #3b82f6;
-        color: #ffffff;
-        border-color: #2563eb;
-        box-shadow: 0 0 8px rgba(59, 130, 246, 0.6);
+      .feast-tag.this-month {
+        background: #7c3aed;
+        color: #fff;
+        border-color: #6d28d9;
       }
 
-      /* 페이징 */
+      /* 스켈레톤 로더 */
+      #loading-area { display: none; }
+      .skeleton-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+        gap: 16px;
+      }
+      .skeleton-card {
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 16px;
+        border-top: 4px solid #e2e8f0;
+      }
+      .skeleton-line {
+        background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%);
+        background-size: 200% 100%;
+        animation: shimmer 1.4s ease-in-out infinite;
+        border-radius: 6px;
+        margin-bottom: 10px;
+      }
+      @keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+      /* 빈 결과 */
+      #empty-state {
+        display: none;
+        text-align: center;
+        padding: 60px 20px;
+        color: var(--text-muted);
+      }
+      #empty-state .empty-icon { font-size: 2.5rem; margin-bottom: 12px; }
+      #empty-state p { font-size: 1rem; font-weight: 600; margin: 0 0 6px; }
+      #empty-state span { font-size: 0.85rem; }
+
+      /* 페이지네이션 */
       .pagination {
         display: flex;
         justify-content: center;
-        gap: 8px;
+        align-items: center;
+        gap: 6px;
         margin-top: 24px;
+        flex-wrap: wrap;
       }
       .page-btn {
-        padding: 8px 14px;
-        background-color: var(--card-bg);
-        border: 1px solid #d1d5db;
-        border-radius: 8px;
-        color: var(--text-main);
+        min-width: 38px;
+        height: 38px;
+        padding: 0 10px;
+        background: var(--card-bg);
+        border: 1.5px solid var(--border);
+        border-radius: 9px;
+        color: var(--text);
         font-weight: 600;
+        font-size: 0.9rem;
+        font-family: var(--font-body);
         cursor: pointer;
-        transition: all 0.2s;
+        transition: all 0.15s;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
-      .page-btn:hover:not(:disabled) {
-        background-color: #f3f4f6;
-      }
-      .page-btn.active {
-        background-color: var(--primary-color);
-        color: white;
-        border-color: var(--primary-color);
+      .page-btn:hover:not(:disabled) { background: var(--primary-bg); border-color: var(--primary-light); color: var(--primary); }
+      .page-btn.active { background: var(--primary); border-color: var(--primary); color: #fff; }
+      .page-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+      .page-ellipsis { display: flex; align-items: center; padding: 0 4px; color: var(--text-muted); font-size: 0.9rem; }
+
+      /* 당월 축일 안내 배너 */
+      #feast-banner {
+        display: none;
+        background: linear-gradient(90deg, #f5f3ff, #ede9fe);
+        border: 1.5px solid #c4b5fd;
+        border-radius: var(--radius);
+        padding: 12px 18px;
+        margin-bottom: 18px;
+        font-size: 0.88rem;
+        color: #4c1d95;
+        font-weight: 600;
       }
 
-      .loading {
+      /* 푸터 */
+      .footer-card {
+        background: var(--card-bg);
+        border-radius: var(--radius);
+        box-shadow: var(--shadow);
+        padding: 14px 20px;
         text-align: center;
-        font-size: 1.2rem;
-        color: var(--text-muted);
-        padding: 50px 0;
+        margin-top: 28px;
+        font-family: var(--font-display);
+        font-weight: 700;
+        color: var(--primary);
+        font-size: 0.95rem;
+        border-left: 5px solid var(--primary);
+      }
+
+      /* ── 반응형 ── */
+      @media (max-width: 600px) {
+        body { padding: 12px 12px 32px; }
+        .header-card { flex-direction: column; align-items: flex-start; }
+        .stats-row { flex-wrap: wrap; }
+        .stat-box { min-width: calc(50% - 6px); }
+        .filter-bar { flex-direction: column; align-items: stretch; }
+        .search-wrap { min-width: 0; }
+        .filter-selects { flex-direction: column; }
+        .filter-selects select { width: 100%; }
+        .login-card { padding: 36px 22px 28px; }
       }
     </style>
   </head>
+
   <body>
-    <div id="error-message">
-      데이터 로딩 실패: 설정 파일(json)을 찾을 수 없거나 브라우저 보안에 의해
-      차단되었습니다.
-    </div>
+    <!-- 에러 배너 -->
+    <div id="error-banner" role="alert">⚠️ 설정 파일(json)을 불러올 수 없습니다. 브라우저 보안 또는 파일 경로를 확인해 주세요.</div>
 
-    <div id="login-view">
+    <!-- 로그인 화면 -->
+    <div id="login-view" aria-label="로그인">
       <div class="login-card">
-        <h2>🔐 울뜨레야 명단</h2>
-        <p style="font-size: 0.85rem; color: #666; margin-bottom: 20px">
-          개인정보 보호를 위해 로그인해 주세요.
-        </p>
-        <input
-          type="text"
-          id="userid"
-          placeholder="아이디"
-          onkeypress="handleEnter(event)"
-        />
-        <input
-          type="password"
-          id="userpw"
-          placeholder="비밀번호"
-          onkeypress="handleEnter(event)"
-        />
-        <button id="login-btn" onclick="login()">로그인</button>
+        <div class="login-logo">ULTREYA</div>
+        <h2>울뜨레야 명단</h2>
+        <p>개인정보 보호를 위해 로그인해 주세요</p>
+        <div class="input-group">
+          <label for="userpw">비밀번호</label>
+          <input type="password" id="userpw" placeholder="비밀번호 입력" autocomplete="current-password" />
+        </div>
+        <div class="login-error" id="login-error" role="alert"></div>
+        <button class="btn-primary" id="login-btn" onclick="login()">로그인</button>
       </div>
     </div>
 
-    <div id="main-view" class="max-container">
+    <!-- 메인 화면 -->
+    <div id="main-view" class="wrap">
+
+      <!-- 헤더 -->
       <div class="header-card">
-        <h1>⛪ 광교1동성당 울뜨레야 명단</h1>
-        <button class="logout-btn" onclick="logout()">로그아웃</button>
-      </div>
-
-      <div class="stats-card" id="stats-card" style="display: none">
-        <div class="stat-box total">
-          <span class="stat-title">👥 전체</span>
-          <span class="stat-number" id="stat-total">0명</span>
+        <div class="header-left">
+          <div class="header-subtitle">⛪ Gwanggyo Parish</div>
+          <h1>광교1동성당 울뜨레야 명단</h1>
         </div>
-        <div class="stat-box male">
-          <span class="stat-title">👨 형제님</span>
-          <span class="stat-number" id="stat-male">0명</span>
-        </div>
-        <div class="stat-box female">
-          <span class="stat-title">👩 자매님</span>
-          <span class="stat-number" id="stat-female">0명</span>
+        <div class="header-right">
+          <button class="btn-logout" onclick="logout()">로그아웃</button>
         </div>
       </div>
 
-      <div id="loading" class="loading">데이터를 불러오는 중입니다...</div>
-      <div id="card-container" class="card-container"></div>
-      <div id="pagination" class="pagination"></div>
-      <div class="footer-card">광교1동성당 울뜨레야</div>
+      <!-- 축일 배너 -->
+      <div id="feast-banner" role="note"></div>
+
+      <!-- 통계 -->
+      <div class="stats-card" id="stats-card" aria-label="통계">
+        <div class="stats-row">
+          <div class="stat-box total" role="status">
+            <div class="stat-title">👥 전체 인원</div>
+            <div class="stat-number" id="stat-total">0명</div>
+          </div>
+          <div class="stat-box male" role="status">
+            <div class="stat-title">👨 형제님</div>
+            <div class="stat-number" id="stat-male">0명</div>
+          </div>
+          <div class="stat-box female" role="status">
+            <div class="stat-title">👩 자매님</div>
+            <div class="stat-number" id="stat-female">0명</div>
+          </div>
+          <div class="stat-box feast" role="status">
+            <div class="stat-title">🎉 이번 달 축일</div>
+            <div class="stat-number" id="stat-feast">0명</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 필터/검색 바 -->
+      <div class="filter-bar" role="search">
+        <div class="search-wrap">
+          <span class="search-icon">🔍</span>
+          <input
+            type="search"
+            id="search-input"
+            placeholder="이름 또는 세례명 검색"
+            oninput="applyFilters()"
+            aria-label="이름 또는 세례명 검색"
+          />
+        </div>
+        <div class="filter-selects">
+          <select id="filter-role" onchange="applyFilters()" aria-label="역할 필터">
+            <option value="">전체 역할</option>
+            <option value="간사">간사</option>
+            <option value="부간사">부간사</option>
+            <option value="서기">서기</option>
+            <option value="회계">회계</option>
+            <option value="단원">단원</option>
+          </select>
+          <select id="filter-gender" onchange="applyFilters()" aria-label="성별 필터">
+            <option value="">전체 성별</option>
+            <option value="남">형제</option>
+            <option value="여">자매</option>
+          </select>
+          <select id="filter-feast" onchange="applyFilters()" aria-label="축일 필터">
+            <option value="">전체 축일</option>
+            <option value="this-month">이번 달 축일</option>
+          </select>
+          <select id="sort-select" onchange="applyFilters()" aria-label="정렬 기준">
+            <option value="feast-first">축일순 우선</option>
+            <option value="name">이름순</option>
+            <option value="role">역할순</option>
+          </select>
+        </div>
+        <div class="filter-count" id="filter-count" aria-live="polite"></div>
+      </div>
+
+      <!-- 스켈레톤 로더 -->
+      <div id="loading-area" aria-label="데이터 불러오는 중">
+        <div class="skeleton-grid" id="skeleton-grid"></div>
+      </div>
+
+      <!-- 카드 그리드 -->
+      <div id="card-grid" class="card-grid" role="list"></div>
+
+      <!-- 빈 결과 -->
+      <div id="empty-state" role="status">
+        <div class="empty-icon">🔍</div>
+        <p>검색 결과가 없습니다</p>
+        <span>다른 검색어나 필터를 시도해 보세요</span>
+      </div>
+
+      <!-- 페이지네이션 -->
+      <div id="pagination" class="pagination" role="navigation" aria-label="페이지 이동"></div>
+
+      <!-- 푸터 -->
+      <div class="footer-card">† 광교1동성당 울뜨레야</div>
     </div>
 
     <script>
-      let allMembersData = [];
-      let currentPage = 1;
-      const itemsPerPage = 6;
-      let apiUrl = "";
-      const currentMonth = new Date().getMonth() + 1;
+      /* ══════════════════════════════
+         상태 관리 (전역 변수 캡슐화)
+      ══════════════════════════════ */
+      const state = {
+        allMembers: [],       // 원본 데이터 (파싱 포함)
+        filtered: [],         // 필터/정렬 후 목록
+        currentPage: 1,
+        itemsPerPage: 9,
+        apiUrl: '',
+        authHash: null,
+        currentMonth: new Date().getMonth() + 1,
+      };
 
+      /* ══════════════════════════════
+         유틸
+      ══════════════════════════════ */
+      function normalizeGender(raw) {
+        const s = String(raw || '').trim();
+        if (s === '남' || s === '남자') return '남';
+        if (s === '여' || s === '여자') return '여';
+        return '';
+      }
+
+      function parseFeastDay(raw) {
+        if (!raw) return { text: '-', month: null, day: null };
+        let text = String(raw).trim();
+        let month = null, day = null;
+
+        if (text.includes('T')) {
+          const d = new Date(text);
+          if (!isNaN(d.getTime())) {
+            month = d.getMonth() + 1;
+            day   = d.getDate();
+            text  = `${month}월 ${day}일`;
+          }
+        } else if (text.includes('/')) {
+          const [m, d2] = text.split('/').map(Number);
+          if (!isNaN(m) && !isNaN(d2)) {
+            month = m; day = d2;
+            text = `${month}월 ${day}일`;
+          }
+        } else {
+          // "4월 15일" 형태도 처리
+          const m = text.match(/(\d+)월\s*(\d+)일/);
+          if (m) { month = parseInt(m[1]); day = parseInt(m[2]); }
+        }
+        return { text, month, day };
+      }
+
+      function getRoleClass(role) {
+        if (role.includes('부간사')) return 'card-bugansa';
+        if (role.includes('간사'))  return 'card-gansa';
+        if (role.includes('서기'))  return 'card-seogi';
+        if (role.includes('회계'))  return 'card-hoegye';
+        return 'card-default';
+      }
+
+      function sanitize(str) {
+        const d = document.createElement('div');
+        d.textContent = str;
+        return d.innerHTML;
+      }
+
+      /* ══════════════════════════════
+         초기화
+      ══════════════════════════════ */
       window.onload = () => {
-        fetch("./project26_06_gas_url.json")
-          .then((response) => {
-            if (!response.ok) throw new Error("JSON 파일을 읽을 수 없습니다.");
-            return response.json();
-          })
-          .then((config) => {
-            apiUrl = config.api_url;
+        // 스켈레톤 생성
+        buildSkeleton();
 
-            if (sessionStorage.getItem("isLoggedIn") === "true") {
-              document.getElementById("login-view").style.display = "none";
-              document.getElementById("main-view").style.display = "block";
-              loadData();
+        // 설정 파일 로드
+        fetch('./project26_06_gas_url.json')
+          .then(r => {
+            if (!r.ok) throw new Error('JSON 파일 오류');
+            return r.json();
+          })
+          .then(cfg => {
+            state.apiUrl = cfg.api_url;
+            // 자동 로그인 복원
+            if (sessionStorage.getItem('ul_auth') === 'true') {
+              showMain();
             }
           })
-          .catch((error) => {
-            console.error(error);
-            document.getElementById("error-message").style.display = "block";
-            document.getElementById("login-btn").disabled = true;
-            document.getElementById("login-btn").innerText = "설정 파일 오류";
+          .catch(() => {
+            document.getElementById('error-banner').style.display = 'block';
+            const btn = document.getElementById('login-btn');
+            btn.disabled = true;
+            btn.textContent = '설정 파일 오류';
           });
       };
 
-      function handleEnter(event) {
-        if (event.key === "Enter") login();
+      function buildSkeleton() {
+        const grid = document.getElementById('skeleton-grid');
+        grid.innerHTML = '';
+        for (let i = 0; i < 6; i++) {
+          grid.insertAdjacentHTML('beforeend', `
+            <div class="skeleton-card">
+              <div class="skeleton-line" style="height:18px;width:55%;"></div>
+              <div class="skeleton-line" style="height:12px;width:80%;"></div>
+              <div class="skeleton-line" style="height:12px;width:65%;"></div>
+              <div class="skeleton-line" style="height:12px;width:70%;margin-bottom:0;"></div>
+            </div>
+          `);
+        }
+      }
+
+      /* ══════════════════════════════
+         로그인 / 로그아웃
+      ══════════════════════════════ */
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && document.getElementById('login-view').style.display !== 'none') login();
+      });
+
+      /* SHA-256 해시 (Web Crypto API) */
+      async function sha256Hex(message) {
+        const encoded = new TextEncoder().encode(message);
+        const buffer  = await crypto.subtle.digest('SHA-256', encoded);
+        return Array.from(new Uint8Array(buffer))
+          .map(b => b.toString(16).padStart(2, '0'))
+          .join('');
       }
 
       async function login() {
-        const inputId = document.getElementById("userid").value.trim();
-        const inputPw = document.getElementById("userpw").value.trim();
-        const loginBtn = document.getElementById("login-btn");
+        const pw  = document.getElementById('userpw').value.trim();
+        const btn = document.getElementById('login-btn');
 
-        if (!inputId || !inputPw) {
-          alert("아이디와 비밀번호를 입력해주세요.");
+        document.getElementById('login-error').style.display = 'none';
+
+        if (!pw) {
+          showLoginError('비밀번호를 입력해주세요.');
           return;
         }
 
-        loginBtn.innerText = "확인 중...";
-        loginBtn.disabled = true;
+        btn.textContent = '확인 중…';
+        btn.disabled = true;
 
         try {
-          const url = new URL(apiUrl);
-          url.searchParams.append("action", "getAdmin");
+          // ✅ 비밀번호를 SHA-256으로 해시한 후 전송
+          const pwHash = await sha256Hex(pw);
+          const url = new URL(state.apiUrl);
+          url.searchParams.set('action', 'verifyAdmin');
+          url.searchParams.set('pw', pwHash);
 
-          const res = await fetch(url);
-          const adminData = await res.json();
+          const res  = await fetch(url);
+          const data = await res.json();
 
-          if (adminData.error) {
-            alert(`서버 에러: ${adminData.error}`);
-            loginBtn.innerText = "로그인";
-            loginBtn.disabled = false;
-            return;
-          }
-
-          if (inputId === adminData.id && inputPw === adminData.password) {
-            sessionStorage.setItem("isLoggedIn", "true");
-
-            document.getElementById("login-view").style.display = "none";
-            document.getElementById("main-view").style.display = "block";
-            loadData();
+          if (data.success === true) {
+            state.authHash = pwHash;
+            sessionStorage.setItem('ul_auth', 'true');
+            showMain();
           } else {
-            alert("아이디 또는 비밀번호가 일치하지 않습니다.");
-            loginBtn.innerText = "로그인";
-            loginBtn.disabled = false;
+            // verifyAdmin 미지원(레거시 GAS) 시 getAdmin fallback
+            await loginLegacy(pw);
           }
-        } catch (error) {
-          alert("서버와 통신하는 데 실패했습니다. 인터넷 연결을 확인하세요.");
-          loginBtn.innerText = "로그인";
-          loginBtn.disabled = false;
+        } catch {
+          await loginLegacy(pw);
+        } finally {
+          btn.textContent = '로그인';
+          btn.disabled = false;
         }
+      }
+
+      async function loginLegacy(pw) {
+        try {
+          const url = new URL(state.apiUrl);
+          url.searchParams.set('action', 'getAdmin');
+          const res   = await fetch(url);
+          const admin = await res.json();
+          if (admin.error) { showLoginError(`서버 오류: ${admin.error}`); return; }
+          // 레거시: 비밀번호만 비교 (아이디 무시)
+          if (pw === admin.password) {
+            state.authHash = null;
+            sessionStorage.setItem('ul_auth', 'true');
+            showMain();
+          } else {
+            showLoginError('비밀번호가 올바르지 않습니다.');
+          }
+        } catch {
+          showLoginError('서버 연결 실패. 인터넷 연결을 확인하세요.');
+        }
+      }
+
+      function showLoginError(msg) {
+        const el = document.getElementById('login-error');
+        el.textContent = msg;
+        el.style.display = 'block';
+        document.getElementById('login-btn').textContent = '로그인';
+        document.getElementById('login-btn').disabled = false;
+      }
+
+      function showMain() {
+        document.getElementById('login-view').style.display = 'none';
+        document.getElementById('main-view').style.display  = 'block';
+        loadData();
       }
 
       function logout() {
-        if (confirm("로그아웃 하시겠습니까?")) {
-          sessionStorage.removeItem("isLoggedIn");
-          document.getElementById("userid").value = "";
-          document.getElementById("userpw").value = "";
-
-          document.getElementById("main-view").style.display = "none";
-          document.getElementById("login-view").style.display = "flex";
-
-          const loginBtn = document.getElementById("login-btn");
-          loginBtn.innerText = "로그인";
-          loginBtn.disabled = false;
-        }
+        if (!confirm('로그아웃 하시겠습니까?')) return;
+        sessionStorage.removeItem('ul_auth');
+        document.getElementById('userpw').value = '';
+        document.getElementById('login-error').style.display = 'none';
+        document.getElementById('main-view').style.display  = 'none';
+        document.getElementById('login-view').style.display = 'flex';
+        // 상태 초기화
+        state.allMembers = [];
+        state.filtered   = [];
+        state.currentPage = 1;
+        state.authHash = null;
       }
 
-      function parseFeastDayInfo(dateString) {
-        if (!dateString) return { text: "-", month: null };
-
-        let text = String(dateString).trim();
-        let month = null;
-
-        if (text.includes("T")) {
-          const date = new Date(text);
-          if (!isNaN(date.getTime())) {
-            month = date.getMonth() + 1;
-            text = `${month}월 ${date.getDate()}일`;
-          }
-        } else if (text.includes("/")) {
-          const parts = text.split("/");
-          if (parts.length >= 2) {
-            const parsedMonth = parseInt(parts[0], 10);
-            const day = parseInt(parts[1], 10);
-            if (!isNaN(parsedMonth) && !isNaN(day)) {
-              month = parsedMonth;
-              text = `${month}월 ${day}일`;
-            }
-          }
-        }
-        return { text: text, month: month };
-      }
-
-      function displayPage(pageNumber) {
-        currentPage = pageNumber;
-        const startIndex = (pageNumber - 1) * itemsPerPage;
-        const membersToDisplay = allMembersData.slice(
-          startIndex,
-          startIndex + itemsPerPage,
-        );
-        const container = document.getElementById("card-container");
-        container.innerHTML = "";
-
-        membersToDisplay.forEach((member) => {
-          const name = member["이름"] || "-";
-          const baptismalName = member["세례명"] || "";
-          const role = member["구분"] || "단원";
-          const phone = member["전화번호"] || "-";
-          const feastDayValue = member["축일"];
-          const fullCohort = member["체험 차수"] || "-";
-
-          const card = document.createElement("div");
-
-          let roleTypeClass = "card-default";
-          if (role.includes("부간사")) roleTypeClass = "card-bugansa";
-          else if (role.includes("간사")) roleTypeClass = "card-gansa";
-          else if (role.includes("서기")) roleTypeClass = "card-seogi";
-          else if (role.includes("회계")) roleTypeClass = "card-hoegye";
-
-          const feastInfo = parseFeastDayInfo(feastDayValue);
-          let cardClassName = `card ${roleTypeClass}`;
-          let btnClassName = "feast-btn";
-
-          if (feastInfo.month === currentMonth) {
-            cardClassName += " highlight-month";
-            btnClassName += " highlight";
-          }
-
-          card.className = cardClassName;
-
-          card.innerHTML = `
-          <div class="card-header">
-            <div class="name-group">
-              <span class="name">${name}</span>
-              <span class="baptismal-name">${baptismalName}</span>
-            </div>
-            <span class="role-badge">${role}</span>
-          </div>
-          <div class="card-body">
-            <div class="info-row">
-              <span class="info-icon">📞</span>
-              <span class="info-label">연락처</span>
-              <span class="info-value"><a href="tel:${phone}" style="text-decoration:none; color:inherit; font-weight: 600;">${phone}</a></span>
-            </div>
-            <div class="info-row">
-              <span class="info-icon">📅</span>
-              <span class="info-label">축일</span>
-              <span class="info-value"><span class="${btnClassName}">${feastInfo.text}</span></span>
-            </div>
-            <div class="info-row">
-              <span class="info-icon">🕊️</span>
-              <span class="info-label">체험차수</span>
-              <span class="info-value">${fullCohort}</span>
-            </div>
-          </div>
-        `;
-          container.appendChild(card);
-        });
-        renderPaginationButtons();
-      }
-
-      function renderPaginationButtons() {
-        const totalPages = Math.ceil(allMembersData.length / itemsPerPage);
-        const paginationContainer = document.getElementById("pagination");
-        paginationContainer.innerHTML = "";
-        if (totalPages <= 1) return;
-
-        const prevBtn = document.createElement("button");
-        prevBtn.className = "page-btn";
-        prevBtn.innerText = "<";
-        prevBtn.disabled = currentPage === 1;
-        prevBtn.onclick = () => displayPage(currentPage - 1);
-        paginationContainer.appendChild(prevBtn);
-
-        for (let i = 1; i <= totalPages; i++) {
-          const pageBtn = document.createElement("button");
-          pageBtn.className = "page-btn" + (i === currentPage ? " active" : "");
-          pageBtn.innerText = i;
-          pageBtn.onclick = () => displayPage(i);
-          paginationContainer.appendChild(pageBtn);
-        }
-
-        const nextBtn = document.createElement("button");
-        nextBtn.className = "page-btn";
-        nextBtn.innerText = ">";
-        nextBtn.disabled = currentPage === totalPages;
-        nextBtn.onclick = () => displayPage(currentPage + 1);
-        paginationContainer.appendChild(nextBtn);
-      }
-
+      /* ══════════════════════════════
+         데이터 로드
+      ══════════════════════════════ */
       async function loadData() {
+        // 스켈레톤 표시
+        document.getElementById('loading-area').style.display = 'block';
+        document.getElementById('card-grid').style.display = 'none';
+
         try {
-          const res = await fetch(apiUrl);
-          if (!res.ok) throw new Error("서버 응답 오류");
-          allMembersData = await res.json();
-
-          if (allMembersData.error) {
-            document.getElementById("loading").innerText =
-              `에러: ${allMembersData.error}`;
-            return;
+          const fetchUrl = new URL(state.apiUrl);
+          if (state.authHash) {
+            // 신규 방식: getMembers + 해시 인증
+            fetchUrl.searchParams.set('action', 'getMembers');
+            fetchUrl.searchParams.set('pw', state.authHash);
           }
+          // authHash 없음(레거시 로그인) → action 없이 기본 URL 호출
+          // GAS가 action 미지정 시 명단을 반환하도록 doGet 기본값 처리됨
+          const res = await fetch(fetchUrl);
+          if (!res.ok) throw new Error('서버 응답 오류');
+          const raw = await res.json();
+          if (raw.error) throw new Error(raw.error);
 
-          let maleCount = 0;
-          let femaleCount = 0;
+          // 데이터 전처리 (파싱 1회)
+          state.allMembers = raw.map(m => ({
+            name:    String(m['이름'] || '-'),
+            baptismal: String(m['세례명'] || ''),
+            role:    String(m['구분'] || '단원'),
+            phone:   String(m['전화번호'] || '-'),
+            gender:  normalizeGender(m['성별']),
+            feast:   parseFeastDay(m['축일']),
+            cohort:  String(m['체험 차수'] || '-'),
+          }));
 
-          allMembersData.forEach((member) => {
-            const gender = String(member["성별"] || "").trim();
-            if (gender === "남" || gender === "남자") maleCount++;
-            else if (gender === "여" || gender === "여자") femaleCount++;
+          // 통계 계산
+          let male = 0, female = 0, feastThisMonth = 0;
+          state.allMembers.forEach(m => {
+            if (m.gender === '남') male++;
+            else if (m.gender === '여') female++;
+            if (m.feast.month === state.currentMonth) feastThisMonth++;
           });
 
-          document.getElementById("stat-total").innerText =
-            allMembersData.length + "명";
-          document.getElementById("stat-male").innerText = maleCount + "명";
-          document.getElementById("stat-female").innerText = femaleCount + "명";
+          document.getElementById('stat-total').textContent  = state.allMembers.length + '명';
+          document.getElementById('stat-male').textContent   = male + '명';
+          document.getElementById('stat-female').textContent = female + '명';
+          document.getElementById('stat-feast').textContent  = feastThisMonth + '명';
+          document.getElementById('stats-card').style.display = 'block';
 
-          document.getElementById("stats-card").style.display = "flex";
+          // 이번 달 축일 배너
+          if (feastThisMonth > 0) {
+            const names = state.allMembers
+              .filter(m => m.feast.month === state.currentMonth)
+              .map(m => m.name).join(', ');
+            const banner = document.getElementById('feast-banner');
+            banner.textContent = `🎉 이번 달(${state.currentMonth}월) 축일 단원: ${names}`;
+            banner.style.display = 'block';
+          }
 
-          allMembersData.sort((a, b) => {
-            const isThisMonthA =
-              parseFeastDayInfo(a["축일"]).month === currentMonth;
-            const isThisMonthB =
-              parseFeastDayInfo(b["축일"]).month === currentMonth;
+          document.getElementById('loading-area').style.display = 'none';
+          document.getElementById('card-grid').style.display = 'grid';
 
-            if (isThisMonthA && !isThisMonthB) return -1;
-            if (!isThisMonthA && isThisMonthB) return 1;
+          applyFilters();
+        } catch (err) {
+          document.getElementById('loading-area').style.display = 'none';
+          document.getElementById('card-grid').style.display = 'grid';
+          document.getElementById('card-grid').innerHTML =
+            `<p style="color:var(--danger);font-weight:600;grid-column:1/-1;padding:40px 0;text-align:center;">⚠️ 데이터 로딩 실패: ${sanitize(err.message)}</p>`;
+        }
+      }
+
+      /* ══════════════════════════════
+         필터 & 정렬
+      ══════════════════════════════ */
+      function applyFilters() {
+        const q      = document.getElementById('search-input').value.trim().toLowerCase();
+        const role   = document.getElementById('filter-role').value;
+        const gender = document.getElementById('filter-gender').value;
+        const feast  = document.getElementById('filter-feast').value;
+        const sort   = document.getElementById('sort-select').value;
+
+        let list = state.allMembers.filter(m => {
+          if (q && !m.name.toLowerCase().includes(q) && !m.baptismal.toLowerCase().includes(q)) return false;
+          if (role && !m.role.includes(role)) return false;
+          if (gender && m.gender !== gender) return false;
+          if (feast === 'this-month' && m.feast.month !== state.currentMonth) return false;
+          return true;
+        });
+
+        // 정렬
+        const roleOrder = { '간사': 0, '부간사': 1, '서기': 2, '회계': 3 };
+        if (sort === 'feast-first') {
+          list.sort((a, b) => {
+            const am = a.feast.month === state.currentMonth;
+            const bm = b.feast.month === state.currentMonth;
+            if (am !== bm) return am ? -1 : 1;
             return 0;
           });
-
-          document.getElementById("loading").style.display = "none";
-          displayPage(1);
-        } catch (error) {
-          document.getElementById("loading").innerText =
-            "명단 데이터를 불러오지 못했습니다. 앱스 스크립트 연결을 확인하세요.";
-          document.getElementById("loading").style.color = "red";
+        } else if (sort === 'name') {
+          list.sort((a, b) => a.name.localeCompare(b.name, 'ko'));
+        } else if (sort === 'role') {
+          list.sort((a, b) => {
+            const ra = roleOrder[a.role] ?? 9;
+            const rb = roleOrder[b.role] ?? 9;
+            return ra !== rb ? ra - rb : a.name.localeCompare(b.name, 'ko');
+          });
         }
+
+        state.filtered = list;
+        state.currentPage = 1;
+        document.getElementById('filter-count').textContent =
+          list.length !== state.allMembers.length
+            ? `${list.length} / ${state.allMembers.length}명`
+            : `전체 ${state.allMembers.length}명`;
+        renderPage();
+      }
+
+      /* ══════════════════════════════
+         카드 렌더링
+      ══════════════════════════════ */
+      function renderPage() {
+        const { filtered, currentPage, itemsPerPage, currentMonth } = state;
+        const start = (currentPage - 1) * itemsPerPage;
+        const slice = filtered.slice(start, start + itemsPerPage);
+        const grid  = document.getElementById('card-grid');
+        const empty = document.getElementById('empty-state');
+
+        grid.innerHTML = '';
+
+        if (filtered.length === 0) {
+          empty.style.display = 'block';
+          document.getElementById('pagination').innerHTML = '';
+          return;
+        }
+        empty.style.display = 'none';
+
+        const frag = document.createDocumentFragment();
+
+        slice.forEach(m => {
+          const isThisMonth = m.feast.month === currentMonth;
+          const roleClass   = getRoleClass(m.role);
+
+          const card = document.createElement('article');
+          card.className = `card ${roleClass}${isThisMonth ? ' feast-this-month' : ''}`;
+          card.setAttribute('role', 'listitem');
+          card.setAttribute('aria-label', `${m.name} ${m.baptismal}`);
+
+          // XSS 방지: DOM API로 요소 생성
+          const header = document.createElement('div');
+          header.className = 'card-header';
+
+          const nameGroup = document.createElement('div');
+          nameGroup.className = 'name-group';
+          const nameEl = document.createElement('span');
+          nameEl.className = 'name';
+          nameEl.textContent = m.name;
+          const bapt = document.createElement('span');
+          bapt.className = 'baptismal-name';
+          bapt.textContent = m.baptismal;
+          nameGroup.append(nameEl, bapt);
+
+          const badge = document.createElement('span');
+          badge.className = 'role-badge';
+          badge.setAttribute('aria-label', `역할: ${m.role}`);
+          badge.textContent = m.role;
+
+          header.append(nameGroup, badge);
+
+          const body = document.createElement('div');
+          body.className = 'card-body';
+
+          // 연락처
+          const rowPhone = createInfoRow('📞', '연락처', m.phone, m.phone !== '-' ? `tel:${m.phone}` : null);
+          // 축일
+          const feastSpan = document.createElement('span');
+          feastSpan.className = `feast-tag${isThisMonth ? ' this-month' : ''}`;
+          feastSpan.textContent = m.feast.text;
+          feastSpan.setAttribute('aria-label', `축일: ${m.feast.text}${isThisMonth ? ' (이번 달)' : ''}`);
+          const rowFeast = createInfoRow('📅', '축일', null, null, feastSpan);
+          // 체험차수
+          const rowCohort = createInfoRow('🕊️', '체험차수', m.cohort);
+
+          body.append(rowPhone, rowFeast, rowCohort);
+          card.append(header, body);
+          frag.appendChild(card);
+        });
+
+        grid.appendChild(frag);
+        renderPagination();
+      }
+
+      function createInfoRow(icon, label, text, href, customEl) {
+        const row = document.createElement('div');
+        row.className = 'info-row';
+
+        const ic = document.createElement('span');
+        ic.className = 'info-icon';
+        ic.setAttribute('aria-hidden', 'true');
+        ic.textContent = icon;
+
+        const lb = document.createElement('span');
+        lb.className = 'info-label';
+        lb.textContent = label;
+
+        const val = document.createElement('span');
+        val.className = 'info-value';
+
+        if (customEl) {
+          val.appendChild(customEl);
+        } else if (href) {
+          const a = document.createElement('a');
+          a.href = href;
+          a.textContent = text;
+          val.appendChild(a);
+        } else {
+          val.textContent = text || '-';
+        }
+
+        row.append(ic, lb, val);
+        return row;
+      }
+
+      /* ══════════════════════════════
+         페이지네이션
+      ══════════════════════════════ */
+      function renderPagination() {
+        const total = Math.ceil(state.filtered.length / state.itemsPerPage);
+        const cur   = state.currentPage;
+        const nav   = document.getElementById('pagination');
+        nav.innerHTML = '';
+        if (total <= 1) return;
+
+        const addBtn = (label, page, disabled, active) => {
+          const btn = document.createElement('button');
+          btn.className = 'page-btn' + (active ? ' active' : '');
+          btn.textContent = label;
+          btn.disabled = disabled;
+          btn.setAttribute('aria-label', `${page}페이지`);
+          if (active) btn.setAttribute('aria-current', 'page');
+          btn.onclick = () => { state.currentPage = page; renderPage(); window.scrollTo({ top: 0, behavior: 'smooth' }); };
+          nav.appendChild(btn);
+        };
+
+        const addEllipsis = () => {
+          const span = document.createElement('span');
+          span.className = 'page-ellipsis';
+          span.textContent = '…';
+          nav.appendChild(span);
+        };
+
+        // 이전
+        addBtn('‹', cur - 1, cur === 1, false);
+
+        // 번호 (최대 7개 표시)
+        const range = [];
+        if (total <= 7) {
+          for (let i = 1; i <= total; i++) range.push(i);
+        } else {
+          range.push(1);
+          if (cur > 3) addEllipsis();
+          for (let i = Math.max(2, cur - 1); i <= Math.min(total - 1, cur + 1); i++) range.push(i);
+          if (cur < total - 2) addEllipsis();
+          range.push(total);
+        }
+
+        range.forEach(i => {
+          if (typeof i === 'number') addBtn(i, i, false, i === cur);
+        });
+
+        // 다음
+        addBtn('›', cur + 1, cur === total, false);
       }
     </script>
   </body>
