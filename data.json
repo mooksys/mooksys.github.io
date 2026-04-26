@@ -3,7 +3,9 @@
     "id": "newsScrap",
     "title": "News Scrap",
     "icon": "fa-newspaper",
+    "category": "research",
     "description": "정보통신기술진흥원 및 교육부 주요 IT/교육 뉴스 스크랩",
+    "visible": true,
     "links": [
       {
         "title": "new_scrap v2",
@@ -22,8 +24,10 @@
   {
     "id": "itStudy",
     "title": "IT Study",
-    "icon": "fa-terminal",
+    "icon": "fa-book-open",
+    "category": "study",
     "description": "IT 실무 및 자격증 공부 기록 보관소",
+    "visible": true,
     "links": [
       {
         "title": "Course Lecture link v2",
@@ -41,8 +45,15 @@
     "id": "cathedral",
     "title": "광교1동성당",
     "icon": "fa-church",
-    "description": "전례담당표, 월별 성가표, 통독프로젝트 및 기록장 관리 시스템",
+    "category": "church",
+    "description": "전례담당표, 월별 성가표, 통독프로젝트 및 기도 기록 관리 시스템",
+    "visible": true,
     "links": [
+      {
+        "title": "성경통독 프로젝트",
+        "url": "gwanggyo_cathedral/index_bible.html",
+        "type": "primary"
+      },
       {
         "title": "월별 전례단 담당표",
         "url": "gwanggyo_cathedral/index_liturgy.html",
@@ -54,17 +65,12 @@
         "type": "secondary"
       },
       {
-        "title": "성경통독 프로젝트",
-        "url": "gwanggyo_cathedral/index_bible.html",
-        "type": "primary"
-      },
-      {
-        "title": "성경통독 기도작성하기",
+        "title": "성경통독 기도 작성",
         "url": "gwanggyo_cathedral/index_bible_write.html",
         "type": "secondary"
       },
       {
-        "title": "울뜨레야 기도집계 기록하기",
+        "title": "울뜨레야 기도집계 기록",
         "url": "gwanggyo_cathedral/index_prayer.html",
         "type": "secondary"
       }
@@ -73,89 +79,100 @@
   {
     "id": "Gemini",
     "title": "Gemini Project",
-    "icon": "fa-terminal",
-    "description": "vibe Coding Project, #1 출퇴근 비콘 시스템, #2 ",
+    "icon": "fa-robot",
+    "category": "project",
+    "description": "Vibe Coding Project — AI 활용 개인/교회 업무 자동화 시스템",
+    "visible": true,
     "links": [
       {
-        "title": "Project 1 울뜨레야 개인기도 집계 v2",
-        "url": "gwanggyo_cathedral/index_prayer_v2.html",
-        "type": "primary"
-      },
-      {
-        "title": "Project 2 울뜨레야 명단(2026)",
-        "url": "project26/project26_06_ultreya_v1.html",
-        "type": "secondary"
-      },
-      {
-        "title": "Project 4 광교1동성당 봉고차운전봉사일정",
-        "url": "project26/project26_02_christ_v2.html",
-        "type": "secondary"
-      },
-      {
-        "title": "Project 1.1 울뜨레야 개인기도 집계 + GAS v3",
+        "title": "울뜨레야 개인기도 집계 + GAS v3",
         "url": "gwanggyo_cathedral/index_prayer_v3.html",
         "type": "primary"
       },
       {
-        "title": "Project 꾸르실료사무국+GAS v0.2",
+        "title": "꾸르실료 사무국 + GAS v0.2",
         "url": "gwanggyo_cathedral/index_cursillo_v0.2.html",
         "type": "primary"
+      },
+      {
+        "title": "울뜨레야 명단 (2026)",
+        "url": "project26/project26_06_ultreya_v1.html",
+        "type": "secondary"
+      },
+      {
+        "title": "봉고차 운전봉사 일정",
+        "url": "project26/project26_02_christ_v2.html",
+        "type": "secondary"
+      },
+      {
+        "title": "울뜨레야 개인기도 집계 v2",
+        "url": "gwanggyo_cathedral/index_prayer_v2.html",
+        "type": "secondary"
       }
     ]
   },
   {
     "id": "Doje",
     "title": "Doje Project",
-    "icon": "fa-terminal",
-    "description": "vibe Coding Project, #1 출퇴근 비콘 시스템, #2 ...",
+    "icon": "fa-industry",
+    "category": "project",
+    "description": "도제 교육 지원 시스템 — 내부평가, 기업 연락처, 비콘 출결 관리",
+    "visible": true,
     "links": [
       {
-        "title": "Doje01 도제반 내부평가 과목정리",
-        "url": "project26/project26_03_innertest_v1.html",
-        "type": "secondary"
-      },
-      {
-        "title": "Doje02 도제기업 연락처 관리 System",
+        "title": "도제기업 연락처 관리 System",
         "url": "project26/project26_04_outerteacher_v1.html",
         "type": "primary"
       },
       {
-        "title": "Doje03 Becon System",
+        "title": "도제반 내부평가 과목정리",
+        "url": "project26/project26_03_innertest_v1.html",
+        "type": "secondary"
+      },
+      {
+        "title": "Beacon System",
         "url": "project26/project26_05_becon_v1.html",
         "type": "secondary"
       },
       {
-        "title": "Doje04 ##",
+        "title": "Doje04 (준비중)",
         "url": "#",
-        "type": "primary"
+        "type": "secondary",
+        "disabled": true
       }
     ]
   },
   {
     "id": "School",
     "title": "School Project",
-    "icon": "fa-terminal",
-    "description": "vibe Coding Project, #1 , #2 ...",
+    "icon": "fa-school",
+    "category": "project",
+    "description": "학교 업무 자동화 및 교육 지원 프로젝트 (준비중)",
+    "visible": true,
     "links": [
       {
-        "title": "School01 ....",
+        "title": "School01 (준비중)",
         "url": "#",
-        "type": "secondary"
+        "type": "secondary",
+        "disabled": true
       },
       {
-        "title": "School02 ....",
+        "title": "School02 (준비중)",
         "url": "#",
-        "type": "primary"
+        "type": "primary",
+        "disabled": true
       },
       {
-        "title": "School03 ....",
+        "title": "School03 (준비중)",
         "url": "#",
-        "type": "secondary"
+        "type": "secondary",
+        "disabled": true
       },
       {
-        "title": "School04 ....",
+        "title": "School04 (준비중)",
         "url": "#",
-        "type": "primary"
+        "type": "primary",
+        "disabled": true
       }
     ]
   }
