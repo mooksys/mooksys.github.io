@@ -1,252 +1,1093 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mooksys Github Page</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"/>
-    
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+    <!-- SEO & Social Meta -->
+    <title>mooksys.dev — 정보교사, 개발자</title>
+    <meta
+      name="description"
+      content="코딩과 새로운 기술을 사랑하는 정보교사이자 개발자 mooksys의 프로젝트 모음입니다."
+    />
+    <meta property="og:title" content="mooksys.dev" />
+    <meta
+      property="og:description"
+      content="정보교사, 개발자 mooksys의 프로젝트 대시보드"
+    />
+    <meta property="og:type" content="website" />
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=DM+Sans:wght@300;400;500&display=swap"
+      rel="stylesheet"
+    />
+    <link
+      rel="stylesheet"
+      href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css"
+    />
+
     <style>
-        /* CSS는 미니멀 모던 테크 스타일을 그대로 유지합니다 */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
+      /* ===== RESET & TOKENS ===== */
+      *,
+      *::before,
+      *::after {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
 
-        :root {
-            /* Light Theme */
-            --bg-main: #ffffff;
-            --bg-secondary: #fafafa;
-            --text-primary: #111111;
-            --text-secondary: #666666;
-            --border-color: #eaeaea;
-            --border-hover: #000000;
-            --accent: #0070f3;
-            --btn-primary-bg: #000000;
-            --btn-primary-text: #ffffff;
-            --btn-secondary-bg: #ffffff;
-            --btn-secondary-border: #eaeaea;
+      :root {
+        --bg-main: #f5f4ef;
+        --bg-card: #ffffff;
+        --bg-card-hover: #fffef9;
+        --text-primary: #141210;
+        --text-secondary: #6b6760;
+        --text-muted: #a09c97;
+        --border: #e2dfd8;
+        --border-hover: #141210;
+        --accent: #c8522a;
+        --accent-light: #f5ede8;
+        --btn-primary-bg: #141210;
+        --btn-primary-text: #f5f4ef;
+        --shadow-card:
+          0 1px 3px rgba(20, 18, 16, 0.06), 0 4px 16px rgba(20, 18, 16, 0.04);
+        --shadow-hover:
+          0 4px 8px rgba(20, 18, 16, 0.08), 0 12px 32px rgba(20, 18, 16, 0.08);
+        --radius: 10px;
+        --font-display: "Syne", sans-serif;
+        --font-body: "DM Sans", sans-serif;
+        --transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      body.dark {
+        --bg-main: #0e0d0b;
+        --bg-card: #181714;
+        --bg-card-hover: #1e1c19;
+        --text-primary: #ede9e3;
+        --text-secondary: #8a8278;
+        --text-muted: #5a5550;
+        --border: #2a2823;
+        --border-hover: #ede9e3;
+        --accent: #e07050;
+        --accent-light: #271a15;
+        --btn-primary-bg: #ede9e3;
+        --btn-primary-text: #0e0d0b;
+        --shadow-card:
+          0 1px 3px rgba(0, 0, 0, 0.3), 0 4px 16px rgba(0, 0, 0, 0.2);
+        --shadow-hover:
+          0 4px 8px rgba(0, 0, 0, 0.4), 0 12px 32px rgba(0, 0, 0, 0.3);
+      }
+
+      /* ===== BASE ===== */
+      html {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: var(--font-body);
+        background-color: var(--bg-main);
+        color: var(--text-primary);
+        min-height: 100vh;
+        line-height: 1.6;
+        -webkit-font-smoothing: antialiased;
+        transition:
+          background-color 0.3s ease,
+          color 0.3s ease;
+      }
+
+      /* ===== GRAIN OVERLAY ===== */
+      body::before {
+        content: "";
+        position: fixed;
+        inset: 0;
+        background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.03'/%3E%3C/svg%3E");
+        pointer-events: none;
+        z-index: 0;
+        opacity: 0.5;
+      }
+
+      /* ===== NAVBAR ===== */
+      .navbar {
+        position: sticky;
+        top: 0;
+        z-index: 100;
+        background-color: var(--bg-main);
+        border-bottom: 1px solid var(--border);
+        padding: 0 24px;
+        transition:
+          background-color 0.3s ease,
+          border-color 0.3s ease;
+      }
+
+      .navbar-inner {
+        max-width: 960px;
+        margin: 0 auto;
+        height: 56px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+      }
+
+      .navbar-logo {
+        font-family: var(--font-display);
+        font-size: 1.05rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        color: var(--text-primary);
+      }
+
+      .navbar-logo span {
+        color: var(--accent);
+      }
+
+      .navbar-actions {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+      }
+
+      .icon-btn {
+        background: none;
+        border: 1px solid var(--border);
+        border-radius: 8px;
+        width: 34px;
+        height: 34px;
+        color: var(--text-secondary);
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        transition: var(--transition);
+      }
+
+      .icon-btn:hover {
+        border-color: var(--border-hover);
+        color: var(--text-primary);
+      }
+
+      /* ===== MAIN LAYOUT ===== */
+      .main {
+        position: relative;
+        z-index: 1;
+        max-width: 960px;
+        margin: 0 auto;
+        padding: 56px 24px 96px;
+      }
+
+      /* ===== PROFILE ===== */
+      .profile {
+        display: flex;
+        align-items: center;
+        gap: 28px;
+        margin-bottom: 72px;
+        animation: fadeUp 0.5s ease both;
+      }
+
+      .profile-avatar-wrap {
+        position: relative;
+        flex-shrink: 0;
+      }
+
+      .profile-avatar {
+        width: 88px;
+        height: 88px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid var(--border);
+        display: block;
+      }
+
+      .profile-avatar-ring {
+        position: absolute;
+        inset: -4px;
+        border-radius: 50%;
+        border: 1.5px solid var(--accent);
+        opacity: 0.5;
+      }
+
+      .profile-name {
+        font-family: var(--font-display);
+        font-size: 1.75rem;
+        font-weight: 700;
+        letter-spacing: -0.04em;
+        line-height: 1.2;
+        margin-bottom: 6px;
+      }
+
+      .profile-bio {
+        font-size: 0.95rem;
+        color: var(--text-secondary);
+        margin-bottom: 14px;
+        font-weight: 300;
+      }
+
+      .tags {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+      }
+
+      .tag {
+        font-size: 0.75rem;
+        font-weight: 500;
+        padding: 3px 10px;
+        border-radius: 100px;
+        background: var(--accent-light);
+        color: var(--accent);
+        border: 1px solid transparent;
+        letter-spacing: 0.01em;
+      }
+
+      /* ===== FILTER TABS ===== */
+      .filter-bar {
+        display: flex;
+        gap: 6px;
+        flex-wrap: wrap;
+        margin-bottom: 32px;
+        animation: fadeUp 0.5s 0.1s ease both;
+      }
+
+      .filter-btn {
+        font-family: var(--font-body);
+        font-size: 0.82rem;
+        font-weight: 500;
+        padding: 6px 14px;
+        border-radius: 100px;
+        border: 1px solid var(--border);
+        background: var(--bg-card);
+        color: var(--text-secondary);
+        cursor: pointer;
+        transition: var(--transition);
+        letter-spacing: 0.01em;
+      }
+
+      .filter-btn:hover {
+        border-color: var(--border-hover);
+        color: var(--text-primary);
+      }
+
+      .filter-btn.active {
+        background: var(--btn-primary-bg);
+        color: var(--btn-primary-text);
+        border-color: var(--btn-primary-bg);
+      }
+
+      /* ===== SECTION HEADER ===== */
+      .section-header {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+        margin-bottom: 24px;
+        animation: fadeUp 0.5s 0.15s ease both;
+      }
+
+      .section-title {
+        font-family: var(--font-display);
+        font-size: 1.1rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+      }
+
+      .section-count {
+        font-size: 0.8rem;
+        color: var(--text-muted);
+      }
+
+      /* ===== CARDS GRID ===== */
+      .cards-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(290px, 1fr));
+        gap: 20px;
+      }
+
+      /* ===== CARD ===== */
+      .card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        box-shadow: var(--shadow-card);
+        transition: var(--transition);
+        animation: fadeUp 0.45s ease both;
+      }
+
+      .card:hover {
+        border-color: var(--border-hover);
+        box-shadow: var(--shadow-hover);
+        transform: translateY(-3px);
+        background: var(--bg-card-hover);
+      }
+
+      .card-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        margin-bottom: 10px;
+      }
+
+      .card-icon-wrap {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+        background: var(--accent-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: var(--accent);
+        font-size: 0.95rem;
+        flex-shrink: 0;
+      }
+
+      .card-badge {
+        font-size: 0.68rem;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+        background: var(--bg-main);
+        border: 1px solid var(--border);
+        padding: 2px 7px;
+        border-radius: 100px;
+      }
+
+      .card-title {
+        font-family: var(--font-display);
+        font-size: 1rem;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        margin: 12px 0 6px;
+      }
+
+      .card-desc {
+        font-size: 0.85rem;
+        color: var(--text-secondary);
+        flex-grow: 1;
+        margin-bottom: 20px;
+        font-weight: 300;
+        line-height: 1.55;
+      }
+
+      /* ===== BUTTONS ===== */
+      .btn-group {
+        display: flex;
+        flex-direction: column;
+        gap: 7px;
+        margin-top: auto;
+      }
+
+      .btn {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 7px;
+        padding: 9px 14px;
+        border-radius: 7px;
+        text-decoration: none;
+        font-family: var(--font-body);
+        font-weight: 500;
+        font-size: 0.83rem;
+        transition: var(--transition);
+        width: 100%;
+        letter-spacing: 0.01em;
+        cursor: pointer;
+      }
+
+      .btn-primary {
+        background: var(--btn-primary-bg);
+        color: var(--btn-primary-text);
+        border: 1px solid transparent;
+      }
+
+      .btn-primary:hover {
+        opacity: 0.85;
+      }
+
+      .btn-secondary {
+        background: transparent;
+        color: var(--text-primary);
+        border: 1px solid var(--border);
+      }
+
+      .btn-secondary:hover {
+        border-color: var(--border-hover);
+      }
+
+      /* 비활성화 버튼 */
+      .btn-disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+        pointer-events: none;
+      }
+
+      .btn-disabled::after {
+        content: "";
+      }
+
+      /* ===== LOADING SKELETON ===== */
+      .skeleton-card {
+        background: var(--bg-card);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 22px;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+      }
+
+      .skeleton-line {
+        border-radius: 4px;
+        background: linear-gradient(
+          90deg,
+          var(--border) 25%,
+          var(--bg-main) 50%,
+          var(--border) 75%
+        );
+        background-size: 200% 100%;
+        animation: shimmer 1.4s infinite;
+      }
+
+      @keyframes shimmer {
+        0% {
+          background-position: 200% 0;
         }
-
-        body.dark-mode {
-            /* Dark Theme */
-            --bg-main: #0a0a0a;
-            --bg-secondary: #111111;
-            --text-primary: #ededed;
-            --text-secondary: #a1a1aa;
-            --border-color: #333333;
-            --border-hover: #ffffff;
-            --accent: #3291ff;
-            --btn-primary-bg: #ffffff;
-            --btn-primary-text: #000000;
-            --btn-secondary-bg: #0a0a0a;
-            --btn-secondary-border: #333333;
+        100% {
+          background-position: -200% 0;
         }
+      }
 
-        body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-            background-color: var(--bg-main);
-            color: var(--text-primary);
-            min-height: 100vh;
-            line-height: 1.5;
-            -webkit-font-smoothing: antialiased;
-            transition: background-color 0.2s ease, color 0.2s ease;
+      .skeleton-icon {
+        width: 38px;
+        height: 38px;
+        border-radius: 9px;
+      }
+      .skeleton-title {
+        height: 16px;
+        width: 55%;
+        margin-top: 4px;
+      }
+      .skeleton-desc {
+        height: 11px;
+        width: 90%;
+      }
+      .skeleton-desc2 {
+        height: 11px;
+        width: 70%;
+      }
+      .skeleton-btn {
+        height: 36px;
+        width: 100%;
+        border-radius: 7px;
+        margin-top: 4px;
+      }
+
+      /* ===== ERROR STATE ===== */
+      .error-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px 24px;
+        color: var(--text-secondary);
+      }
+
+      .error-state i {
+        font-size: 2rem;
+        color: var(--accent);
+        margin-bottom: 12px;
+        display: block;
+      }
+      .error-state p {
+        font-size: 0.9rem;
+      }
+
+      /* ===== EMPTY STATE ===== */
+      .empty-state {
+        grid-column: 1 / -1;
+        text-align: center;
+        padding: 60px 24px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+      }
+
+      /* ===== FOOTER ===== */
+      .footer {
+        position: relative;
+        z-index: 1;
+        border-top: 1px solid var(--border);
+        padding: 20px 24px;
+        text-align: center;
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        transition: border-color 0.3s ease;
+      }
+
+      /* ===== CARD COLOR THEMES (Color Hunt palettes) ===== */
+      /*
+         * newsScrap  — Warm Sunset  #EB5A3C #DF9755 #E7D283 #EDF4C2
+         * itStudy    — Ocean Teal   #F9F8ED #F4E7D3 #0881A3 #1F4E5F
+         * cathedral  — Pastel Rose  #C0E1D2 #E5EEE4 #F6F4E8 #DC9B9B
+         * Gemini     — Blue & Gold  #427AB5 #406AAF #F7DD7D #FFE8BE
+         * Doje       — Earth Fall   #D06224 #AE431E #8A8635 #E9C891
+         * School     — Sage Mint    #8A8635 #A8B87C #E9C891 #F4EDD6
+         */
+
+      /* newsScrap — Warm Sunset */
+      .card[data-id="newsScrap"] .btn-primary {
+        background: #eb5a3c;
+        color: #fff;
+        border-color: #eb5a3c;
+      }
+      .card[data-id="newsScrap"] .btn-primary:hover {
+        background: #c94a2e;
+        border-color: #c94a2e;
+        opacity: 1;
+      }
+      .card[data-id="newsScrap"] .btn-secondary {
+        background: #fff8f5;
+        color: #eb5a3c;
+        border-color: #eb5a3c44;
+      }
+      .card[data-id="newsScrap"] .btn-secondary:hover {
+        border-color: #eb5a3c;
+        background: #fdeee9;
+      }
+      .card[data-id="newsScrap"] .card-icon-wrap {
+        background: #fde8e2;
+        color: #eb5a3c;
+      }
+      .card[data-id="newsScrap"] .card-badge {
+        color: #eb5a3c;
+        border-color: #eb5a3c33;
+        background: #fde8e2;
+      }
+
+      /* itStudy — Ocean Teal */
+      .card[data-id="itStudy"] .btn-primary {
+        background: #0881a3;
+        color: #f9f8ed;
+        border-color: #0881a3;
+      }
+      .card[data-id="itStudy"] .btn-primary:hover {
+        background: #066882;
+        border-color: #066882;
+        opacity: 1;
+      }
+      .card[data-id="itStudy"] .btn-secondary {
+        background: #edf8fb;
+        color: #0881a3;
+        border-color: #0881a333;
+      }
+      .card[data-id="itStudy"] .btn-secondary:hover {
+        border-color: #0881a3;
+        background: #d9f0f6;
+      }
+      .card[data-id="itStudy"] .card-icon-wrap {
+        background: #d9f0f6;
+        color: #0881a3;
+      }
+      .card[data-id="itStudy"] .card-badge {
+        color: #0881a3;
+        border-color: #0881a333;
+        background: #d9f0f6;
+      }
+
+      /* cathedral — Pastel Rose */
+      .card[data-id="cathedral"] .btn-primary {
+        background: #dc9b9b;
+        color: #fff;
+        border-color: #dc9b9b;
+      }
+      .card[data-id="cathedral"] .btn-primary:hover {
+        background: #c47f7f;
+        border-color: #c47f7f;
+        opacity: 1;
+      }
+      .card[data-id="cathedral"] .btn-secondary {
+        background: #fbf3f3;
+        color: #b06060;
+        border-color: #dc9b9b44;
+      }
+      .card[data-id="cathedral"] .btn-secondary:hover {
+        border-color: #dc9b9b;
+        background: #f5e8e8;
+      }
+      .card[data-id="cathedral"] .card-icon-wrap {
+        background: #f5e8e8;
+        color: #c47f7f;
+      }
+      .card[data-id="cathedral"] .card-badge {
+        color: #b06060;
+        border-color: #dc9b9b44;
+        background: #f5e8e8;
+      }
+
+      /* Gemini — Blue & Gold */
+      .card[data-id="Gemini"] .btn-primary {
+        background: #406aaf;
+        color: #f7dd7d;
+        border-color: #406aaf;
+      }
+      .card[data-id="Gemini"] .btn-primary:hover {
+        background: #325590;
+        border-color: #325590;
+        opacity: 1;
+      }
+      .card[data-id="Gemini"] .btn-secondary {
+        background: #f7f4e4;
+        color: #406aaf;
+        border-color: #406aaf33;
+      }
+      .card[data-id="Gemini"] .btn-secondary:hover {
+        border-color: #406aaf;
+        background: #ebe8d4;
+      }
+      .card[data-id="Gemini"] .card-icon-wrap {
+        background: #e2eaf8;
+        color: #406aaf;
+      }
+      .card[data-id="Gemini"] .card-badge {
+        color: #406aaf;
+        border-color: #406aaf33;
+        background: #e2eaf8;
+      }
+
+      /* Doje — Earth Fall */
+      .card[data-id="Doje"] .btn-primary {
+        background: #ae431e;
+        color: #e9c891;
+        border-color: #ae431e;
+      }
+      .card[data-id="Doje"] .btn-primary:hover {
+        background: #8e361a;
+        border-color: #8e361a;
+        opacity: 1;
+      }
+      .card[data-id="Doje"] .btn-secondary {
+        background: #fdf4e7;
+        color: #ae431e;
+        border-color: #ae431e33;
+      }
+      .card[data-id="Doje"] .btn-secondary:hover {
+        border-color: #ae431e;
+        background: #f5e8d0;
+      }
+      .card[data-id="Doje"] .card-icon-wrap {
+        background: #f8e9d0;
+        color: #ae431e;
+      }
+      .card[data-id="Doje"] .card-badge {
+        color: #ae431e;
+        border-color: #ae431e33;
+        background: #f8e9d0;
+      }
+
+      /* School — Sage Mint */
+      .card[data-id="School"] .btn-primary {
+        background: #8a8635;
+        color: #f4edd6;
+        border-color: #8a8635;
+      }
+      .card[data-id="School"] .btn-primary:hover {
+        background: #6e6a28;
+        border-color: #6e6a28;
+        opacity: 1;
+      }
+      .card[data-id="School"] .btn-secondary {
+        background: #f4f3e6;
+        color: #6e6a28;
+        border-color: #8a863533;
+      }
+      .card[data-id="School"] .btn-secondary:hover {
+        border-color: #8a8635;
+        background: #e9e8d3;
+      }
+      .card[data-id="School"] .card-icon-wrap {
+        background: #ecebd5;
+        color: #8a8635;
+      }
+      .card[data-id="School"] .card-badge {
+        color: #6e6a28;
+        border-color: #8a863533;
+        background: #ecebd5;
+      }
+
+      /* Dark mode — soften palette overrides */
+      body.dark .card[data-id="newsScrap"] .btn-secondary {
+        background: #2a1510;
+        color: #f08070;
+        border-color: #eb5a3c55;
+      }
+      body.dark .card[data-id="itStudy"] .btn-secondary {
+        background: #081820;
+        color: #5bbdd6;
+        border-color: #0881a355;
+      }
+      body.dark .card[data-id="cathedral"] .btn-secondary {
+        background: #221515;
+        color: #e8aaaa;
+        border-color: #dc9b9b55;
+      }
+      body.dark .card[data-id="Gemini"] .btn-secondary {
+        background: #111a2a;
+        color: #7fa0d8;
+        border-color: #406aaf55;
+      }
+      body.dark .card[data-id="Doje"] .btn-secondary {
+        background: #1e1008;
+        color: #d4895a;
+        border-color: #ae431e55;
+      }
+      body.dark .card[data-id="School"] .btn-secondary {
+        background: #161610;
+        color: #b8b560;
+        border-color: #8a863555;
+      }
+
+      /* ===== ANIMATIONS ===== */
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(14px);
         }
-
-        .navbar {
-            position: sticky; top: 0; background-color: rgba(var(--bg-main), 0.8);
-            backdrop-filter: blur(8px); border-bottom: 1px solid var(--border-color);
-            padding: 16px 24px; z-index: 100;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
+      }
 
-        .navbar-content {
-            max-width: 900px; margin: 0 auto; display: flex;
-            justify-content: space-between; align-items: center;
+      /* ===== RESPONSIVE ===== */
+      @media (max-width: 600px) {
+        .main {
+          padding: 40px 16px 72px;
         }
-
-        .navbar-title { font-size: 1.25rem; font-weight: 700; letter-spacing: -0.04em; }
-
-        .control-btn {
-            background: none; border: 1px solid var(--border-color); border-radius: 6px;
-            width: 36px; height: 36px; color: var(--text-primary); cursor: pointer;
-            display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;
+        .profile {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 16px;
+          margin-bottom: 48px;
         }
-
-        .control-btn:hover { border-color: var(--border-hover); color: var(--border-hover); }
-
-        .dashboard-container { max-width: 900px; margin: 0 auto; padding: 48px 24px 80px; }
-
-        .profile-section { display: flex; align-items: center; gap: 32px; margin-bottom: 64px; }
-        .profile-avatar { width: 100px; height: 100px; border-radius: 50%; object-fit: cover; border: 1px solid var(--border-color); }
-        .profile-info { flex: 1; }
-        .profile-name { font-size: 2rem; font-weight: 700; letter-spacing: -0.04em; margin-bottom: 8px; }
-        .profile-bio { font-size: 1.1rem; color: var(--text-secondary); margin-bottom: 12px; }
-        
-        .tags { display: flex; gap: 8px; flex-wrap: wrap; }
-        .tag { font-size: 0.8rem; padding: 4px 10px; background-color: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 100px; color: var(--text-secondary); font-weight: 500; }
-
-        .section-title { font-size: 1.5rem; font-weight: 600; letter-spacing: -0.03em; margin-bottom: 24px; padding-bottom: 12px; border-bottom: 1px solid var(--border-color); }
-
-        .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 24px; }
-
-        .card {
-            background-color: var(--bg-main); border: 1px solid var(--border-color);
-            border-radius: 8px; padding: 24px; display: flex; flex-direction: column;
-            transition: all 0.2s ease;
+        .profile-name {
+          font-size: 1.45rem;
         }
-
-        .card:hover { border-color: var(--border-hover); transform: translateY(-2px); box-shadow: 0 8px 30px rgba(0, 0, 0, 0.04); }
-        body.dark-mode .card:hover { box-shadow: 0 8px 30px rgba(255, 255, 255, 0.04); }
-
-        .card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 16px; }
-        .card-icon { font-size: 1.2rem; color: var(--text-primary); }
-        .card-title { font-size: 1.1rem; font-weight: 600; letter-spacing: -0.02em; }
-        .card-content { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 24px; flex-grow: 1; }
-
-        .btn-group { display: flex; flex-direction: column; gap: 8px; margin-top: auto; }
-        .btn {
-            display: inline-flex; align-items: center; justify-content: center; gap: 8px;
-            padding: 10px 16px; border-radius: 6px; text-decoration: none; font-weight: 500;
-            font-size: 0.9rem; transition: all 0.2s ease; width: 100%;
+        .cards-grid {
+          grid-template-columns: 1fr;
         }
-
-        .btn-primary { background-color: var(--btn-primary-bg); color: var(--btn-primary-text); border: 1px solid transparent; }
-        .btn-primary:hover { opacity: 0.9; }
-        .btn-secondary { background-color: var(--btn-secondary-bg); color: var(--text-primary); border: 1px solid var(--btn-secondary-border); }
-        .btn-secondary:hover { border-color: var(--border-hover); }
-
-        .loading-text { color: var(--text-secondary); font-size: 0.9rem; text-align: center; padding: 40px; grid-column: 1 / -1; }
-
-        @media (max-width: 600px) {
-            .profile-section { flex-direction: column; text-align: left; align-items: flex-start; gap: 20px; }
-            .dashboard-container { padding: 32px 20px 60px; }
-        }
+      }
     </style>
-</head>
-<body>
-    <nav class="navbar">
-        <div class="navbar-content">
-            <div class="navbar-title">mooksys.dev</div>
-            <button id="theme-toggle" class="control-btn" title="테마 전환">
-                <i class="fa-solid fa-moon"></i>
-            </button>
+  </head>
+  <body>
+    <!-- NAVBAR -->
+    <nav class="navbar" role="navigation" aria-label="메인 네비게이션">
+      <div class="navbar-inner">
+        <div class="navbar-logo">mooksys<span>.dev</span></div>
+        <div class="navbar-actions">
+          <button
+            id="theme-toggle"
+            class="icon-btn"
+            title="테마 전환"
+            aria-label="다크모드 전환"
+          >
+            <i class="fa-solid fa-moon" aria-hidden="true"></i>
+          </button>
         </div>
+      </div>
     </nav>
 
-    <main class="dashboard-container">
-        <div class="profile-section">
-            <img src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face" 
-                 alt="mooksys 프로필" class="profile-avatar">
-            <div class="profile-info">
-                <h1 class="profile-name">안녕하세요, mooksys 입니다.</h1>
-                <p class="profile-bio">코딩과 새로운 기술을 사랑하는 정보교사, 개발자입니다.</p>
-                <div class="tags">
-                    <span class="tag">#Educator</span>
-                    <span class="tag">#Fullstack</span>
-                    <span class="tag">#TechBlog</span>
-                </div>
-            </div>
+    <!-- MAIN -->
+    <main class="main">
+      <!-- PROFILE -->
+      <section class="profile" aria-label="프로필">
+        <div class="profile-avatar-wrap">
+          <img
+            src="https://images.unsplash.com/photo-1472099645785-5658abf4ff4e?w=200&h=200&fit=crop&crop=face"
+            alt="mooksys 프로필 사진"
+            class="profile-avatar"
+            width="88"
+            height="88"
+          />
+          <div class="profile-avatar-ring" aria-hidden="true"></div>
         </div>
-
-        <h2 class="section-title">Projects & Links</h2>
-
-        <div class="cards-grid" id="cards-container">
-            <div class="loading-text">데이터를 불러오는 중입니다...</div>
+        <div>
+          <h1 class="profile-name">안녕하세요, mooksys입니다.</h1>
+          <p class="profile-bio">
+            코딩과 새로운 기술을 사랑하는 정보교사, 개발자입니다.
+          </p>
+          <div class="tags" role="list" aria-label="태그">
+            <span class="tag" role="listitem">#Educator</span>
+            <span class="tag" role="listitem">#Fullstack</span>
+            <span class="tag" role="listitem">#VibeCoding</span>
+          </div>
         </div>
+      </section>
+
+      <!-- FILTER -->
+      <div
+        class="filter-bar"
+        role="group"
+        aria-label="카테고리 필터"
+        id="filter-bar"
+      >
+        <!-- JS가 렌더링 -->
+      </div>
+
+      <!-- SECTION HEADER -->
+      <div class="section-header">
+        <h2 class="section-title">Projects &amp; Links</h2>
+        <span class="section-count" id="card-count" aria-live="polite"></span>
+      </div>
+
+      <!-- CARDS -->
+      <div
+        class="cards-grid"
+        id="cards-container"
+        aria-label="프로젝트 카드 목록"
+      >
+        <!-- Skeleton placeholders -->
+        <div class="skeleton-card" aria-hidden="true">
+          <div class="skeleton-line skeleton-icon"></div>
+          <div class="skeleton-line skeleton-title"></div>
+          <div class="skeleton-line skeleton-desc"></div>
+          <div class="skeleton-line skeleton-desc2"></div>
+          <div class="skeleton-line skeleton-btn"></div>
+        </div>
+        <div class="skeleton-card" aria-hidden="true">
+          <div class="skeleton-line skeleton-icon"></div>
+          <div class="skeleton-line skeleton-title"></div>
+          <div class="skeleton-line skeleton-desc"></div>
+          <div class="skeleton-line skeleton-desc2"></div>
+          <div class="skeleton-line skeleton-btn"></div>
+        </div>
+        <div class="skeleton-card" aria-hidden="true">
+          <div class="skeleton-line skeleton-icon"></div>
+          <div class="skeleton-line skeleton-title"></div>
+          <div class="skeleton-line skeleton-desc"></div>
+          <div class="skeleton-line skeleton-desc2"></div>
+          <div class="skeleton-line skeleton-btn"></div>
+        </div>
+      </div>
     </main>
 
+    <footer class="footer">
+      <p>© 2026 mooksys.dev — Built with ☕</p>
+    </footer>
+
     <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            // --- 테마 설정 로직 ---
-            const themeToggle = document.getElementById('theme-toggle');
-            const body = document.body;
-            const icon = themeToggle.querySelector('i');
-            
-            const currentTheme = localStorage.getItem('theme');
-            if (currentTheme === 'dark') {
-                body.classList.add('dark-mode');
-                icon.className = 'fa-solid fa-sun';
-            }
+      (function () {
+        "use strict";
 
-            themeToggle.addEventListener('click', function() {
-                body.classList.toggle('dark-mode');
-                const isDarkMode = body.classList.contains('dark-mode');
-                icon.className = isDarkMode ? 'fa-solid fa-sun' : 'fa-solid fa-moon';
-                localStorage.setItem('theme', isDarkMode ? 'dark' : 'light');
+        /* ── 유틸 ── */
+        function escapeHTML(str) {
+          return String(str)
+            .replace(/&/g, "&amp;")
+            .replace(/</g, "&lt;")
+            .replace(/>/g, "&gt;")
+            .replace(/"/g, "&quot;")
+            .replace(/'/g, "&#039;");
+        }
+
+        /* ── 테마 ── */
+        const body = document.body;
+        const themeBtn = document.getElementById("theme-toggle");
+        const themeIcon = themeBtn.querySelector("i");
+
+        function applyTheme(dark) {
+          body.classList.toggle("dark", dark);
+          themeIcon.className = dark ? "fa-solid fa-sun" : "fa-solid fa-moon";
+          themeBtn.setAttribute(
+            "aria-label",
+            dark ? "라이트모드 전환" : "다크모드 전환",
+          );
+          localStorage.setItem("theme", dark ? "dark" : "light");
+        }
+
+        // 초기 테마 적용 (시스템 설정 fallback)
+        const saved = localStorage.getItem("theme");
+        const prefersDark = window.matchMedia(
+          "(prefers-color-scheme: dark)",
+        ).matches;
+        applyTheme(saved ? saved === "dark" : prefersDark);
+
+        themeBtn.addEventListener("click", () =>
+          applyTheme(!body.classList.contains("dark")),
+        );
+
+        /* ── 카드 렌더링 ── */
+        const container = document.getElementById("cards-container");
+        const filterBar = document.getElementById("filter-bar");
+        const countEl = document.getElementById("card-count");
+
+        let allCards = [];
+        let activeFilter = "all";
+
+        const CATEGORY_LABELS = {
+          all: "전체",
+          research: "리서치",
+          study: "공부",
+          church: "성당",
+          project: "프로젝트",
+        };
+
+        /* 필터 버튼 생성 */
+        function buildFilterBar(cards) {
+          const cats = [
+            "all",
+            ...new Set(cards.map((c) => c.category).filter(Boolean)),
+          ];
+          filterBar.innerHTML = "";
+          cats.forEach((cat) => {
+            const btn = document.createElement("button");
+            btn.className =
+              "filter-btn" + (cat === activeFilter ? " active" : "");
+            btn.textContent = CATEGORY_LABELS[cat] || cat;
+            btn.dataset.cat = cat;
+            btn.addEventListener("click", () => {
+              activeFilter = cat;
+              document
+                .querySelectorAll(".filter-btn")
+                .forEach((b) =>
+                  b.classList.toggle("active", b.dataset.cat === cat),
+                );
+              renderCards(allCards);
             });
+            filterBar.appendChild(btn);
+          });
+        }
 
-            // --- JSON 데이터로 카드 전체 생성하기 ---
-            async function fetchAndRenderCards() {
-                const container = document.getElementById('cards-container');
-                
-                try {
-                    const response = await fetch('data.json');
-                    if (!response.ok) throw new Error('네트워크 응답이 실패했습니다.');
-                    
-                    const cardsData = await response.json();
-                    container.innerHTML = ''; // 로딩 텍스트 제거
+        /* 단일 카드 DOM 생성 */
+        function createCard(data, idx) {
+          const card = document.createElement("div");
+          card.className = "card";
+          card.dataset.id = data.id;
+          card.style.animationDelay = `${idx * 0.06}s`;
 
-                    // 배열로 된 카드 데이터를 순회하며 HTML 조립
-                    cardsData.forEach(cardData => {
-                        // 1. 카드 뼈대 생성
-                        const cardDiv = document.createElement('div');
-                        cardDiv.className = 'card';
+          // 아이콘 + 배지
+          const header = document.createElement("div");
+          header.className = "card-header";
 
-                        // 2. 카드 헤더 (아이콘, 제목)
-                        const headerDiv = document.createElement('div');
-                        headerDiv.className = 'card-header';
-                        headerDiv.innerHTML = `
-                            <i class="fa-solid ${cardData.icon} card-icon"></i>
-                            <h3 class="card-title">${cardData.title}</h3>
-                        `;
+          const iconWrap = document.createElement("div");
+          iconWrap.className = "card-icon-wrap";
+          iconWrap.setAttribute("aria-hidden", "true");
+          const iconEl = document.createElement("i");
+          iconEl.className = `fa-solid ${escapeHTML(data.icon)}`;
+          iconWrap.appendChild(iconEl);
 
-                        // 3. 카드 설명 내용
-                        const contentDiv = document.createElement('div');
-                        contentDiv.className = 'card-content';
-                        contentDiv.textContent = cardData.description;
+          const badge = document.createElement("span");
+          badge.className = "card-badge";
+          badge.textContent =
+            CATEGORY_LABELS[data.category] || data.category || "";
 
-                        // 4. 버튼(링크) 그룹 컨테이너
-                        const btnGroupDiv = document.createElement('div');
-                        btnGroupDiv.className = 'btn-group';
+          header.appendChild(iconWrap);
+          header.appendChild(badge);
 
-                        // 5. 링크 데이터 순회하며 버튼 생성
-                        if (cardData.links && cardData.links.length > 0) {
-                            cardData.links.forEach(link => {
-                                const aTag = document.createElement('a');
-                                aTag.href = link.url;
-                                aTag.target = '_blank';
-                                aTag.className = `btn btn-${link.type}`;
-                                
-                                let innerHTML = link.title;
-                                if (link.icon) {
-                                    const iconHtml = `<i class="fa-solid ${link.icon}"></i>`;
-                                    innerHTML = link.iconPosition === 'right' 
-                                        ? `${link.title} ${iconHtml}` 
-                                        : `${iconHtml} ${link.title}`;
-                                }
-                                aTag.innerHTML = innerHTML;
-                                btnGroupDiv.appendChild(aTag);
-                            });
-                        }
+          // 제목
+          const title = document.createElement("h3");
+          title.className = "card-title";
+          title.textContent = data.title;
 
-                        // 6. 조립된 요소들을 카드에 순서대로 부착
-                        cardDiv.appendChild(headerDiv);
-                        cardDiv.appendChild(contentDiv);
-                        cardDiv.appendChild(btnGroupDiv);
+          // 설명
+          const desc = document.createElement("p");
+          desc.className = "card-desc";
+          desc.textContent = data.description;
 
-                        // 7. 완성된 카드를 메인 그리드에 부착
-                        container.appendChild(cardDiv);
-                    });
+          // 버튼 그룹
+          const btnGroup = document.createElement("div");
+          btnGroup.className = "btn-group";
 
-                } catch (error) {
-                    console.error("데이터 로드 오류:", error);
-                    container.innerHTML = `<div class="loading-text" style="color: red;">데이터를 불러올 수 없습니다. 로컬 서버(Live Server) 환경인지 확인해주세요.</div>`;
-                }
+          (data.links || []).forEach((link) => {
+            const a = document.createElement("a");
+
+            const isDisabled = link.disabled === true || link.url === "#";
+
+            a.href = isDisabled ? "#" : link.url;
+            a.className = `btn btn-${escapeHTML(link.type)}${isDisabled ? " btn-disabled" : ""}`;
+            a.textContent = link.title;
+
+            if (!isDisabled) {
+              a.target = "_blank";
+              a.rel = "noopener noreferrer";
             }
 
-            // 페이지 로드 시 실행
-            fetchAndRenderCards();
-        });
+            if (isDisabled) {
+              a.setAttribute("aria-disabled", "true");
+              a.setAttribute("tabindex", "-1");
+            }
+
+            // 아이콘 (우측/좌측)
+            if (link.icon && !isDisabled) {
+              const i = document.createElement("i");
+              i.className = `fa-solid ${escapeHTML(link.icon)}`;
+              i.setAttribute("aria-hidden", "true");
+              if (link.iconPosition === "right") {
+                a.appendChild(i);
+              } else {
+                a.prepend(i);
+              }
+            }
+
+            btnGroup.appendChild(a);
+          });
+
+          card.appendChild(header);
+          card.appendChild(title);
+          card.appendChild(desc);
+          card.appendChild(btnGroup);
+
+          return card;
+        }
+
+        /* 카드 목록 렌더링 */
+        function renderCards(cards) {
+          const filtered =
+            activeFilter === "all"
+              ? cards.filter((c) => c.visible !== false)
+              : cards.filter(
+                  (c) => c.category === activeFilter && c.visible !== false,
+                );
+
+          container.innerHTML = "";
+          countEl.textContent = `${filtered.length}개`;
+
+          if (filtered.length === 0) {
+            const empty = document.createElement("div");
+            empty.className = "empty-state";
+            empty.textContent = "해당 카테고리의 프로젝트가 없습니다.";
+            container.appendChild(empty);
+            return;
+          }
+
+          filtered.forEach((data, idx) => {
+            container.appendChild(createCard(data, idx));
+          });
+        }
+
+        /* 데이터 fetch */
+        async function init() {
+          try {
+            const res = await fetch("./data.json");
+            if (!res.ok) throw new Error(`HTTP ${res.status}`);
+            allCards = await res.json();
+
+            buildFilterBar(allCards);
+            renderCards(allCards);
+          } catch (err) {
+            console.error("[mooksys] 데이터 로드 실패:", err);
+            container.innerHTML = "";
+            const errEl = document.createElement("div");
+            errEl.className = "error-state";
+            errEl.innerHTML = `
+                    <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i>
+                    <p>데이터를 불러올 수 없습니다.<br>Live Server 환경인지 확인해주세요.</p>
+                `;
+            container.appendChild(errEl);
+          }
+        }
+
+        document.addEventListener("DOMContentLoaded", init);
+      })();
     </script>
-</body>
+  </body>
 </html>
