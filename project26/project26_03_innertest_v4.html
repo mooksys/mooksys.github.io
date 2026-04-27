@@ -1,0 +1,1237 @@
+<!doctype html>
+<html lang="ko" data-theme="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>2026 도제기업별 내부평가 PRO</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700;900&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    /* ================================================================
+       🎨 COLORHUNT 기반 팔레트 토큰
+       DARK  : #1B1A55 → #535C91 → #9290C3 → #E8D5C4
+       LIGHT : #27374D → #526D82 → #9DB2BF → #F9F7F0
+    ================================================================ */
+    :root {
+      --font-sans : 'Noto Sans KR', sans-serif;
+      --font-mono : 'DM Mono', monospace;
+      --tr        : 0.22s ease;
+      /* 공통 */
+      --radius-sm : 8px;
+      --radius-md : 12px;
+      --radius-lg : 18px;
+      --radius-xl : 24px;
+    }
+
+    /* ── DARK 모드 (기본) ────────────────────────── */
+    [data-theme="dark"] {
+      --bg-page    : #12113a;
+      --bg-surface : #1B1A55;
+      --bg-card    : #22215f;
+      --bg-input   : #2a2875;
+      --bg-hover   : #2e2c7a;
+      --border     : rgba(146,144,195,0.18);
+      --border-em  : rgba(146,144,195,0.38);
+      --text-hi    : #E8D5C4;
+      --text-main  : #c9c4e8;
+      --text-sub   : #9290C3;
+      --text-muted : #635f8e;
+      --accent     : #9290C3;
+      --accent-dim : rgba(146,144,195,0.14);
+      --accent2    : #E8D5C4;
+      --accent2-dim: rgba(232,213,196,0.12);
+      --success    : #6ecfa3;
+      --success-dim: rgba(110,207,163,0.13);
+      --warning    : #f5c97a;
+      --warning-dim: rgba(245,201,122,0.13);
+      --danger     : #f08080;
+      --danger-dim : rgba(240,128,128,0.13);
+      --tag-written: rgba(146,144,195,0.18);
+      --tag-written-text: #c9c4e8;
+      --tag-perf   : rgba(110,207,163,0.18);
+      --tag-perf-text: #6ecfa3;
+      --shadow     : 0 8px 32px rgba(10,9,38,0.55);
+      --topbar-bg  : rgba(18,17,58,0.88);
+      --login-bg   : radial-gradient(ellipse at 60% 40%, #2a2875 0%, #12113a 70%);
+    }
+
+    /* ── LIGHT 모드 ──────────────────────────────── */
+    [data-theme="light"] {
+      --bg-page    : #F9F7F0;
+      --bg-surface : #EEF2F5;
+      --bg-card    : #FFFFFF;
+      --bg-input   : #DDE6ED;
+      --bg-hover   : #d0dce6;
+      --border     : rgba(82,109,130,0.15);
+      --border-em  : rgba(82,109,130,0.35);
+      --text-hi    : #27374D;
+      --text-main  : #3d5166;
+      --text-sub   : #526D82;
+      --text-muted : #8aacbd;
+      --accent     : #526D82;
+      --accent-dim : rgba(82,109,130,0.10);
+      --accent2    : #27374D;
+      --accent2-dim: rgba(39,55,77,0.08);
+      --success    : #2e8b62;
+      --success-dim: rgba(46,139,98,0.10);
+      --warning    : #c47f1a;
+      --warning-dim: rgba(196,127,26,0.10);
+      --danger     : #c0392b;
+      --danger-dim : rgba(192,57,43,0.10);
+      --tag-written: rgba(82,109,130,0.12);
+      --tag-written-text: #526D82;
+      --tag-perf   : rgba(46,139,98,0.12);
+      --tag-perf-text: #2e8b62;
+      --shadow     : 0 4px 20px rgba(39,55,77,0.10);
+      --topbar-bg  : rgba(249,247,240,0.90);
+      --login-bg   : radial-gradient(ellipse at 60% 40%, #DDE6ED 0%, #F9F7F0 70%);
+    }
+
+    /* ── 리셋 & 기본 ─────────────────────────────── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: var(--font-sans);
+      background: var(--bg-page);
+      color: var(--text-main);
+      min-height: 100vh;
+      transition: background var(--tr), color var(--tr);
+      overflow-x: hidden;
+    }
+
+    /* ================================================================
+       🔐 로그인 화면
+    ================================================================ */
+    #loginScreen {
+      position: fixed; inset: 0; z-index: 9999;
+      background: var(--login-bg);
+      display: flex; align-items: center; justify-content: center;
+      padding: 20px;
+      transition: opacity 0.5s ease;
+    }
+    #loginScreen.hiding {
+      opacity: 0; pointer-events: none;
+    }
+
+    .login-card {
+      width: 100%; max-width: 400px;
+      background: var(--bg-surface);
+      border: 1px solid var(--border-em);
+      border-radius: var(--radius-xl);
+      padding: 44px 40px 40px;
+      box-shadow: var(--shadow);
+      animation: loginEnter 0.5s cubic-bezier(0.22,1,0.36,1) both;
+    }
+    @keyframes loginEnter {
+      from { opacity: 0; transform: translateY(24px) scale(0.97); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .login-logo {
+      width: 52px; height: 52px;
+      border-radius: 14px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 22px; margin: 0 auto 24px;
+    }
+
+    .login-title {
+      text-align: center;
+      font-size: 1.35rem; font-weight: 700;
+      color: var(--text-hi);
+      letter-spacing: -0.5px;
+      margin-bottom: 6px;
+    }
+    .login-sub {
+      text-align: center;
+      font-size: 0.82rem; color: var(--text-muted);
+      margin-bottom: 32px;
+      letter-spacing: 0.2px;
+    }
+
+    .login-field { margin-bottom: 14px; }
+    .login-field label {
+      display: block;
+      font-size: 0.75rem; font-weight: 700;
+      color: var(--text-sub);
+      text-transform: uppercase; letter-spacing: 0.8px;
+      margin-bottom: 6px;
+    }
+
+    .input-wrap {
+      position: relative;
+      display: flex; align-items: center;
+    }
+    .input-wrap input {
+      width: 100%;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 11px 40px 11px 14px;
+      font-size: 0.95rem; font-weight: 500;
+      color: var(--text-hi);
+      font-family: var(--font-sans);
+      outline: none;
+      transition: border-color var(--tr), box-shadow var(--tr);
+    }
+    .input-wrap input::placeholder { color: var(--text-muted); font-weight: 400; }
+    .input-wrap input:focus {
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px var(--accent-dim);
+    }
+    .eye-btn {
+      position: absolute; right: 12px;
+      background: none; border: none; cursor: pointer;
+      color: var(--text-muted); font-size: 15px;
+      display: flex; align-items: center;
+      padding: 4px;
+      transition: color var(--tr);
+    }
+    .eye-btn:hover { color: var(--text-sub); }
+
+    .login-error {
+      font-size: 0.8rem; color: var(--danger);
+      background: var(--danger-dim);
+      border: 1px solid rgba(240,128,128,0.25);
+      border-radius: var(--radius-sm);
+      padding: 9px 12px;
+      margin-bottom: 14px;
+      display: none;
+      animation: shake 0.35s ease;
+    }
+    @keyframes shake {
+      0%,100% { transform: translateX(0); }
+      20%,60%  { transform: translateX(-5px); }
+      40%,80%  { transform: translateX(5px); }
+    }
+    .login-error.show { display: block; }
+
+    .btn-login {
+      width: 100%;
+      background: var(--accent);
+      color: var(--bg-page);
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: 12px;
+      font-size: 0.95rem; font-weight: 700;
+      font-family: var(--font-sans);
+      cursor: pointer;
+      transition: filter var(--tr), transform var(--tr);
+      margin-top: 4px;
+      letter-spacing: -0.2px;
+    }
+    .btn-login:hover  { filter: brightness(1.12); }
+    .btn-login:active { transform: scale(0.98); }
+    .btn-login:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    .login-hint {
+      text-align: center;
+      font-size: 0.75rem; color: var(--text-muted);
+      margin-top: 20px;
+    }
+    .attempt-count {
+      font-family: var(--font-mono);
+      color: var(--danger);
+    }
+
+    /* ── 테마 토글 (로그인 화면용 우상단) ─ */
+    .theme-toggle-login {
+      position: fixed; top: 18px; right: 18px; z-index: 10000;
+    }
+
+    /* ================================================================
+       🔝 상단 바
+    ================================================================ */
+    .top-bar {
+      position: sticky; top: 0; z-index: 200;
+      background: var(--topbar-bg);
+      backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      height: 56px; padding: 0 22px;
+      display: flex; align-items: center; justify-content: space-between;
+      transition: background var(--tr);
+    }
+    .topbar-left { display: flex; align-items: center; gap: 11px; }
+    .topbar-logo {
+      width: 30px; height: 30px; border-radius: 8px;
+      background: linear-gradient(135deg, var(--accent), var(--accent2));
+      display: flex; align-items: center; justify-content: center;
+      font-size: 14px; flex-shrink: 0;
+    }
+    .topbar-title {
+      font-size: 0.92rem; font-weight: 700;
+      color: var(--text-hi); letter-spacing: -0.3px;
+    }
+    .topbar-badge {
+      font-family: var(--font-mono);
+      font-size: 0.7rem; padding: 3px 8px;
+      border-radius: 4px;
+      background: var(--accent-dim);
+      color: var(--accent);
+      border: 1px solid var(--border-em);
+      letter-spacing: 0.4px;
+    }
+    .topbar-right { display: flex; align-items: center; gap: 8px; }
+
+    /* 공통 작은 버튼 */
+    .icon-btn {
+      display: flex; align-items: center; gap: 6px;
+      background: var(--bg-card);
+      color: var(--text-sub);
+      border: 1px solid var(--border);
+      padding: 6px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 0.8rem; font-weight: 600;
+      cursor: pointer;
+      font-family: var(--font-sans);
+      transition: background var(--tr), color var(--tr), border-color var(--tr);
+      white-space: nowrap;
+    }
+    .icon-btn:hover { background: var(--bg-hover); color: var(--text-hi); border-color: var(--border-em); }
+
+    /* 테마 토글 */
+    .theme-toggle {
+      display: flex; align-items: center; gap: 0;
+      background: var(--bg-input);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 3px;
+      cursor: pointer;
+    }
+    .theme-opt {
+      padding: 4px 10px;
+      border-radius: 16px;
+      font-size: 0.75rem; font-weight: 600;
+      color: var(--text-muted);
+      transition: background var(--tr), color var(--tr);
+      user-select: none;
+    }
+    .theme-opt.active {
+      background: var(--accent);
+      color: var(--bg-page);
+    }
+
+    .refresh-icon { display: inline-block; transition: transform 0.6s ease; }
+    .btn-refresh.spinning .refresh-icon { animation: spin 0.8s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ================================================================
+       📄 페이지 래퍼
+    ================================================================ */
+    .page-wrapper {
+      max-width: 1120px; margin: 0 auto;
+      padding: 28px 20px 64px;
+      position: relative; z-index: 1;
+    }
+
+    /* ================================================================
+       📊 요약 카드 3개
+    ================================================================ */
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 14px; margin-bottom: 22px;
+    }
+    .summary-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 20px 22px;
+      display: flex; align-items: center; gap: 14px;
+      transition: transform var(--tr), box-shadow var(--tr), border-color var(--tr);
+    }
+    .summary-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--border-em); }
+
+    .summary-icon {
+      width: 46px; height: 46px; border-radius: 12px; flex-shrink: 0;
+      display: flex; align-items: center; justify-content: center; font-size: 1.2rem;
+    }
+    .icon-subject { background: var(--accent-dim);  color: var(--accent); }
+    .icon-company { background: var(--success-dim); color: var(--success); }
+    .icon-student { background: var(--warning-dim); color: var(--warning); }
+
+    .summary-info { display: flex; flex-direction: column; gap: 3px; overflow: hidden; }
+    .summary-title {
+      font-size: 0.72rem; color: var(--text-muted); font-weight: 600;
+      text-transform: uppercase; letter-spacing: 0.9px; white-space: nowrap;
+    }
+    .summary-value {
+      font-size: 1.2rem; font-weight: 700; color: var(--text-hi);
+      white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+    }
+
+    /* ================================================================
+       🎛 컨트롤 패널
+    ================================================================ */
+    .control-panel {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 14px 18px;
+      display: flex; flex-wrap: wrap; gap: 10px;
+      align-items: center; justify-content: space-between;
+      margin-bottom: 26px;
+      transition: opacity var(--tr);
+    }
+    .control-panel.disabled { opacity: 0.4; pointer-events: none; }
+
+    .filter-group { display: flex; gap: 10px; flex-wrap: wrap; flex: 1; }
+
+    .ctrl-item {
+      display: flex; align-items: center; gap: 8px;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      padding: 7px 14px; border-radius: var(--radius-sm);
+      transition: border-color var(--tr);
+    }
+    .ctrl-item:focus-within { border-color: var(--accent); }
+    .ctrl-item label {
+      font-size: 0.72rem; font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase; letter-spacing: 0.6px; white-space: nowrap;
+    }
+    select, input[type="text"] {
+      border: none; background: transparent;
+      font-size: 0.9rem; font-weight: 600;
+      color: var(--text-hi); outline: none;
+      min-width: 110px; font-family: var(--font-sans);
+    }
+    select option { background: var(--bg-card); color: var(--text-hi); }
+    input[type="text"]::placeholder { color: var(--text-muted); font-weight: 400; }
+
+    .btn-export {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--success);
+      color: var(--bg-page);
+      border: none; border-radius: var(--radius-sm);
+      padding: 8px 16px;
+      font-size: 0.85rem; font-weight: 700;
+      cursor: pointer; font-family: var(--font-sans);
+      transition: filter var(--tr), transform var(--tr);
+      white-space: nowrap;
+    }
+    .btn-export:hover { filter: brightness(1.1); transform: translateY(-1px); }
+
+    .btn-export-all {
+      display: flex; align-items: center; gap: 7px;
+      background: var(--bg-card);
+      color: var(--text-sub);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 8px 16px;
+      font-size: 0.85rem; font-weight: 600;
+      cursor: pointer; font-family: var(--font-sans);
+      transition: background var(--tr), color var(--tr), border-color var(--tr);
+      white-space: nowrap;
+    }
+    .btn-export-all:hover { background: var(--bg-hover); color: var(--text-hi); border-color: var(--border-em); }
+
+    /* ================================================================
+       ⏳ 로더 / 빈 / 에러
+    ================================================================ */
+    .loader {
+      text-align: center; padding: 80px 20px;
+      color: var(--text-muted); font-size: 0.92rem;
+      display: none;
+    }
+    .loader.visible { display: block; }
+    .loader-spinner {
+      width: 34px; height: 34px;
+      border: 3px solid var(--border);
+      border-top-color: var(--accent);
+      border-radius: 50%;
+      animation: spin 0.75s linear infinite;
+      margin: 0 auto 14px;
+    }
+    .empty-state {
+      text-align: center; padding: 60px 20px;
+      background: var(--bg-surface);
+      border: 1px dashed var(--border);
+      border-radius: var(--radius-lg);
+      color: var(--text-muted); font-size: 0.92rem;
+    }
+    .empty-icon { font-size: 2.2rem; display: block; margin-bottom: 10px; }
+    .error-state {
+      text-align: center; padding: 46px 20px;
+      background: var(--danger-dim);
+      border: 1px solid rgba(240,128,128,0.22);
+      border-radius: var(--radius-lg);
+    }
+    .error-title { font-size: 0.95rem; font-weight: 700; color: var(--danger); margin-bottom: 8px; }
+    .error-msg { font-size: 0.82rem; color: var(--text-muted); line-height: 1.7; }
+    .btn-retry {
+      display: inline-flex; align-items: center; gap: 6px;
+      margin-top: 14px;
+      background: var(--danger-dim); color: var(--danger);
+      border: 1px solid rgba(240,128,128,0.3);
+      padding: 7px 16px; border-radius: var(--radius-sm);
+      font-size: 0.82rem; font-weight: 600; cursor: pointer;
+      font-family: var(--font-sans);
+      transition: background var(--tr);
+    }
+    .btn-retry:hover { background: rgba(240,128,128,0.22); }
+
+    /* ================================================================
+       🏢 기업 섹션
+    ================================================================ */
+    .company-section {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-left-width: 4px;
+      border-radius: var(--radius-xl);
+      margin-bottom: 22px;
+      overflow: hidden;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.1);
+      animation: fadeUp 0.32s ease both;
+    }
+    @keyframes fadeUp {
+      from { opacity:0; transform: translateY(10px); }
+      to   { opacity:1; transform: none; }
+    }
+    .company-header {
+      padding: 16px 22px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg-card);
+      display: flex; justify-content: space-between; align-items: center;
+    }
+    .company-header h2 {
+      font-size: 1rem; font-weight: 700;
+      letter-spacing: -0.3px;
+      display: flex; align-items: center; gap: 7px; margin: 0;
+    }
+    .co-badge {
+      font-family: var(--font-mono);
+      font-size: 0.74rem; font-weight: 500;
+      padding: 4px 11px; border-radius: 20px;
+      letter-spacing: 0.2px;
+    }
+    .student-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(255px, 1fr));
+      gap: 14px; padding: 18px;
+      background: var(--bg-surface);
+    }
+
+    /* ================================================================
+       👤 학생 카드
+    ================================================================ */
+    .student-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-md);
+      padding: 16px 18px;
+      display: flex; flex-direction: column; gap: 13px;
+      position: relative; overflow: hidden;
+      transition: transform var(--tr), box-shadow var(--tr), border-color var(--tr);
+    }
+    .student-card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+      background: var(--card-accent, var(--accent));
+      opacity: 0; transition: opacity var(--tr);
+    }
+    .student-card:hover { transform: translateY(-2px); box-shadow: var(--shadow); border-color: var(--border-em); }
+    .student-card:hover::before { opacity: 1; }
+
+    .st-header {
+      display: flex; justify-content: space-between; align-items: flex-start;
+      padding-bottom: 12px; border-bottom: 1px solid var(--border);
+    }
+    .st-name { font-size: 1rem; font-weight: 700; color: var(--text-hi); display: block; letter-spacing: -0.2px; }
+    .st-id {
+      font-family: var(--font-mono);
+      font-size: 0.75rem; color: var(--text-muted);
+      margin-top: 3px; display: block; letter-spacing: 0.4px;
+    }
+    .type-tag {
+      padding: 4px 9px; border-radius: 6px;
+      font-size: 0.72rem; font-weight: 700;
+      white-space: nowrap; letter-spacing: 0.3px; flex-shrink: 0;
+    }
+    .tag-written { background: var(--tag-written); color: var(--tag-written-text); }
+    .tag-perform { background: var(--tag-perf);    color: var(--tag-perf-text); }
+    .tag-other   { background: var(--warning-dim); color: var(--warning); }
+
+    .st-body { display: flex; flex-direction: column; gap: 7px; }
+    .info-row { display: flex; justify-content: space-between; align-items: center; gap: 8px; }
+    .info-label { font-size: 0.76rem; color: var(--text-muted); font-weight: 500; white-space: nowrap; flex-shrink: 0; }
+    .info-value  { font-size: 0.86rem; font-weight: 600; text-align: right; color: var(--text-main); word-break: keep-all; }
+
+    /* ================================================================
+       🦶 푸터
+    ================================================================ */
+    .footer-card {
+      background: var(--bg-surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-lg);
+      padding: 18px 22px;
+      margin-top: 36px;
+      display: none;
+      align-items: center; justify-content: space-between;
+      flex-wrap: wrap; gap: 10px;
+    }
+    .footer-card.show { display: flex; }
+    .footer-left { display: flex; align-items: center; gap: 10px; }
+    .footer-dot {
+      width: 8px; height: 8px; border-radius: 50%;
+      background: var(--success);
+      box-shadow: 0 0 6px var(--success);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.35} }
+    .footer-school { font-size: 0.86rem; font-weight: 700; color: var(--text-sub); }
+    .footer-updated { font-family: var(--font-mono); font-size: 0.72rem; color: var(--text-muted); }
+
+    /* ================================================================
+       📱 반응형
+    ================================================================ */
+    @media (max-width: 900px) {
+      .summary-grid { grid-template-columns: repeat(2,1fr); }
+      .summary-card:last-child { grid-column: span 2; }
+    }
+    @media (max-width: 600px) {
+      .top-bar { padding: 0 14px; }
+      .topbar-badge { display: none; }
+      .page-wrapper { padding: 18px 12px 50px; }
+      .summary-grid { grid-template-columns: 1fr; gap: 10px; }
+      .summary-card:last-child { grid-column: span 1; }
+      .control-panel { flex-direction: column; align-items: stretch; }
+      .filter-group { flex-direction: column; }
+      .ctrl-item { width: 100%; }
+      select, input[type="text"] { min-width: unset; width: 100%; }
+      .student-grid { grid-template-columns: 1fr; padding: 12px; }
+      .btn-export, .btn-export-all { width: 100%; justify-content: center; }
+      .login-card { padding: 36px 24px 30px; }
+    }
+
+    /* ================================================================
+       🖨 인쇄
+    ================================================================ */
+    @media print {
+      body { background: #fff !important; color: #000 !important; }
+      .top-bar, .control-panel, .footer-card, #loginScreen { display: none !important; }
+      .company-section { box-shadow: none; border: 1px solid #ccc; page-break-inside: avoid; }
+      .student-card { box-shadow: none; border: 1px solid #ddd; }
+      .student-card::before { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ================================================================
+     🔐 로그인 화면
+================================================================ -->
+<div id="loginScreen">
+  <!-- 테마 토글 (로그인 전에도 가능) -->
+  <div class="theme-toggle-login">
+    <div class="theme-toggle" onclick="toggleTheme()">
+      <span class="theme-opt" id="loginDarkOpt">🌙 다크</span>
+      <span class="theme-opt" id="loginLightOpt">☀️ 라이트</span>
+    </div>
+  </div>
+
+  <div class="login-card">
+    <div class="login-logo">📊</div>
+    <div class="login-title">도제기업별 내부평가</div>
+    <div class="login-sub">성일정보고등학교 도제 3-12 · 2026</div>
+
+    <div class="login-field">
+      <label for="loginPw">비밀번호</label>
+      <div class="input-wrap">
+        <input type="password" id="loginPw"
+          placeholder="비밀번호를 입력하세요"
+          autocomplete="current-password"
+          onkeydown="if(event.key==='Enter') tryLogin()" />
+        <button class="eye-btn" type="button" onclick="togglePwVisible()" id="eyeBtn">
+          <svg id="eyeIcon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="login-error" id="loginError">⚠️ 비밀번호가 올바르지 않습니다.</div>
+
+    <button class="btn-login" id="loginBtn" onclick="tryLogin()">로그인</button>
+
+    <div class="login-hint">
+      남은 시도: <span class="attempt-count" id="attemptCount">5</span>회
+    </div>
+  </div>
+</div>
+
+<!-- ================================================================
+     🔝 상단 바 (로그인 후 표시)
+================================================================ -->
+<div class="top-bar" id="mainApp" style="display:none;">
+  <!-- 이 시점부터 메인 앱 표시 -->
+</div>
+
+<!-- 실제 전체 앱 (로그인 성공 후 표시) -->
+<div id="appRoot" style="display:none;">
+
+  <div class="top-bar">
+    <div class="topbar-left">
+      <div class="topbar-logo">📊</div>
+      <span class="topbar-title">도제기업별 내부평가</span>
+      <span class="topbar-badge">2026</span>
+    </div>
+    <div class="topbar-right">
+      <!-- 테마 토글 -->
+      <div class="theme-toggle" onclick="toggleTheme()">
+        <span class="theme-opt" id="darkOpt">🌙 다크</span>
+        <span class="theme-opt" id="lightOpt">☀️ 라이트</span>
+      </div>
+      <button class="icon-btn btn-refresh" id="btnRefresh" onclick="refreshData()">
+        <span class="refresh-icon">↻</span> 새로고침
+      </button>
+      <button class="icon-btn" onclick="doLogout()">🔒 로그아웃</button>
+    </div>
+  </div>
+
+  <div class="page-wrapper">
+
+    <!-- 요약 카드 -->
+    <div class="summary-grid">
+      <div class="summary-card">
+        <div class="summary-icon icon-subject">📚</div>
+        <div class="summary-info">
+          <span class="summary-title">조회 중인 과목</span>
+          <span class="summary-value" id="sumSubject">-</span>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon icon-company">🏢</div>
+        <div class="summary-info">
+          <span class="summary-title">참여 기업 수</span>
+          <span class="summary-value" id="sumCompanies">-</span>
+        </div>
+      </div>
+      <div class="summary-card">
+        <div class="summary-icon icon-student">👥</div>
+        <div class="summary-info">
+          <span class="summary-title">전체 평가 인원</span>
+          <span class="summary-value" id="sumStudents">-</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 컨트롤 패널 -->
+    <div class="control-panel disabled" id="controlPanel">
+      <div class="filter-group">
+        <div class="ctrl-item">
+          <label>과목</label>
+          <select id="subjectSelect"><option>로딩 중...</option></select>
+        </div>
+        <div class="ctrl-item">
+          <label>기업</label>
+          <select id="companySelect"><option value="all">전체 보기</option></select>
+        </div>
+        <div class="ctrl-item">
+          <label>검색</label>
+          <input type="text" id="searchInput" placeholder="이름 또는 학번..." autocomplete="off" />
+        </div>
+      </div>
+      <div style="display:flex; gap:8px; flex-wrap:wrap;">
+        <button class="btn-export-all" onclick="exportAllToCSV()">📋 전과목 CSV</button>
+        <button class="btn-export" onclick="exportToCSV()">📥 현재 과목 CSV</button>
+      </div>
+    </div>
+
+    <!-- 로더 & 대시보드 -->
+    <div class="loader" id="loader">
+      <div class="loader-spinner"></div>
+      데이터를 불러오는 중입니다...
+    </div>
+    <div id="dashboardContainer"></div>
+
+    <!-- 푸터 -->
+    <div class="footer-card" id="footerCard">
+      <div class="footer-left">
+        <div class="footer-dot"></div>
+        <span class="footer-school">성일정보고등학교 도제 3-12</span>
+      </div>
+      <span class="footer-updated" id="footerUpdated"></span>
+    </div>
+
+  </div><!-- /page-wrapper -->
+</div><!-- /appRoot -->
+
+
+<script>
+// ================================================================
+//  ⚙️ 상수
+// ================================================================
+const SESSION_KEY = "intest_auth_2026";
+const THEME_KEY   = "intest_theme";
+const LOCK_KEY    = "intest_lock";
+
+// GAS에서 가져온 설정값 (로그인 전 기본값 — auth 응답 후 덮어씀)
+let MAX_ATTEMPTS = 5;
+let LOCK_MINUTES = 10;
+
+// ================================================================
+//  🎨 테마
+// ================================================================
+function applyTheme(theme) {
+  document.documentElement.setAttribute("data-theme", theme);
+  localStorage.setItem(THEME_KEY, theme);
+  ["darkOpt","lightOpt","loginDarkOpt","loginLightOpt"].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.classList.toggle("active", id.includes("ight") ? theme === "light" : theme === "dark");
+  });
+}
+function toggleTheme() {
+  applyTheme(document.documentElement.getAttribute("data-theme") === "dark" ? "light" : "dark");
+}
+applyTheme(localStorage.getItem(THEME_KEY) || "dark");
+
+// ================================================================
+//  🔐 세션 / 잠금 헬퍼
+// ================================================================
+function checkSession() {
+  try {
+    const obj = JSON.parse(sessionStorage.getItem(SESSION_KEY) || "{}");
+    return obj.ok === true;
+  } catch { return false; }
+}
+function saveSession() {
+  sessionStorage.setItem(SESSION_KEY, JSON.stringify({ ok: true, ts: Date.now() }));
+}
+function checkLocked() {
+  return Date.now() < parseInt(localStorage.getItem(LOCK_KEY) || "0");
+}
+function setLock() {
+  localStorage.setItem(LOCK_KEY, Date.now() + LOCK_MINUTES * 60 * 1000);
+}
+function clearLock() {
+  localStorage.removeItem(LOCK_KEY);
+}
+
+// ================================================================
+//  🔐 로그인 상태 관리
+// ================================================================
+let attemptLeft = MAX_ATTEMPTS;
+let pwVisible   = false;
+let loginApiUrl = null;   // 로그인에 사용할 GAS URL (JSON에서 로드)
+
+// 페이지 로드 시: 세션 있으면 바로 앱 진입, 없으면 로그인 화면 준비
+(function initAuth() {
+  if (checkSession()) {
+    document.getElementById("loginScreen").style.display = "none";
+    document.getElementById("appRoot").style.display = "block";
+    return;
+  }
+  // GAS URL JSON 미리 로드 (로그인 화면 표시 중에 백그라운드로 가져옴)
+  preloadApiUrl();
+  // 잠금 중이면 UI 비활성화
+  if (checkLocked()) {
+    lockLoginUI(`잠금 중입니다. ${LOCK_MINUTES}분 후 다시 시도해 주세요.`);
+  }
+})();
+
+// GAS URL을 JSON에서 미리 로드해 두기
+async function preloadApiUrl() {
+  try {
+    const res = await fetch("project26_03_gas_url_v4.json");
+    if (!res.ok) throw new Error("JSON 로드 실패");
+    const cfg = await res.json();
+    loginApiUrl = cfg.api_url || null;
+  } catch (e) {
+    console.warn("[preloadApiUrl]", e.message);
+  }
+}
+
+// ================================================================
+//  🔐 tryLogin: GAS에 비밀번호 검증 요청
+// ================================================================
+async function tryLogin() {
+  if (checkLocked()) {
+    showLoginError("잠금 중입니다. 잠시 후 다시 시도해 주세요.");
+    return;
+  }
+
+  const pw  = document.getElementById("loginPw").value.trim();
+  const btn = document.getElementById("loginBtn");
+
+  if (!pw) { showLoginError("비밀번호를 입력해 주세요."); return; }
+
+  // GAS URL이 아직 없으면 재시도
+  if (!loginApiUrl) {
+    await preloadApiUrl();
+    if (!loginApiUrl) {
+      showLoginError("설정 파일을 불러올 수 없습니다. 페이지를 새로고침해 주세요.");
+      return;
+    }
+  }
+
+  // 버튼 로딩 상태
+  btn.disabled    = true;
+  btn.textContent = "확인 중...";
+
+  try {
+    const url = `${loginApiUrl}?action=auth&pw=${encodeURIComponent(pw)}`;
+    const res  = await fetch(url);
+    if (!res.ok) throw new Error(`서버 응답 오류 (HTTP ${res.status})`);
+
+    const data = await res.json();
+
+    // GAS에서 내려온 설정값 반영
+    if (data.maxTry  && data.maxTry  > 0) MAX_ATTEMPTS = data.maxTry;
+    if (data.lockMin && data.lockMin > 0) LOCK_MINUTES = data.lockMin;
+
+    if (data.ok === true) {
+      // ✅ 인증 성공
+      saveSession();
+      clearLock();
+      localStorage.removeItem("intest_attempts");
+      doEnterApp();
+    } else {
+      // ❌ 인증 실패
+      attemptLeft = Math.max(0, attemptLeft - 1);
+      document.getElementById("attemptCount").textContent = attemptLeft;
+
+      if (attemptLeft <= 0) {
+        setLock();
+        lockLoginUI(`비밀번호 ${MAX_ATTEMPTS}회 오류. ${LOCK_MINUTES}분 동안 잠금됩니다.`);
+      } else {
+        showLoginError(`${data.message || "비밀번호가 올바르지 않습니다."} (남은 시도: ${attemptLeft}회)`);
+        btn.disabled    = false;
+        btn.textContent = "로그인";
+      }
+      document.getElementById("loginPw").value = "";
+      document.getElementById("loginPw").focus();
+    }
+
+  } catch (err) {
+    console.error("[tryLogin]", err);
+    showLoginError(`서버 연결 오류: ${err.message}`);
+    btn.disabled    = false;
+    btn.textContent = "로그인";
+  }
+}
+
+function lockLoginUI(msg) {
+  document.getElementById("loginBtn").disabled = true;
+  document.getElementById("loginBtn").textContent = "잠금됨";
+  document.getElementById("loginPw").disabled  = true;
+  showLoginError(msg);
+}
+
+function showLoginError(msg) {
+  const el = document.getElementById("loginError");
+  el.textContent = "⚠️ " + msg;
+  el.classList.remove("show");
+  void el.offsetWidth;
+  el.classList.add("show");
+}
+
+function togglePwVisible() {
+  pwVisible = !pwVisible;
+  document.getElementById("loginPw").type = pwVisible ? "text" : "password";
+  document.getElementById("eyeIcon").innerHTML = pwVisible
+    ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/>'
+    : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>';
+}
+
+function doEnterApp() {
+  const loginScreen = document.getElementById("loginScreen");
+  loginScreen.classList.add("hiding");
+  setTimeout(() => {
+    loginScreen.style.display = "none";
+    document.getElementById("appRoot").style.display = "block";
+    initApp();
+  }, 500);
+}
+
+function doLogout() {
+  sessionStorage.removeItem(SESSION_KEY);
+  location.reload();
+}
+
+// ================================================================
+//  🌈 기업 테마 컬러 (colorhunt 기반)
+// ================================================================
+const THEME_COLORS = [
+  "#9290C3", "#6ecfa3", "#f5c97a", "#f08080",
+  "#82b4e8", "#c8a6d5", "#7ecab0", "#f0a070",
+  "#88bbd5", "#b5d87a"
+];
+
+// ================================================================
+//  📡 앱 초기화
+// ================================================================
+let cachedData        = null;
+let currentSubjectIdx = 0;
+let currentApiUrl     = null;
+
+async function initApp() {
+  showLoader();
+  disableControls(true);
+  try {
+    const configRes = await fetch("project26_03_gas_url_v4.json");
+    if (!configRes.ok) throw new Error("JSON 파일을 찾을 수 없습니다.");
+    const config = await configRes.json();
+    currentApiUrl = config.api_url;
+    if (!currentApiUrl || currentApiUrl === "여기에_배포된_웹앱_URL을_입력하세요") {
+      showError("API URL 미설정", "project26_03_gas_url_v4.json 파일에 GAS 배포 URL을 입력해 주세요.", false);
+      return;
+    }
+    await fetchData(currentApiUrl);
+  } catch (err) {
+    console.error("[initApp]", err);
+    const isFile = location.protocol === "file:";
+    showError("설정 파일 로드 실패",
+      isFile
+        ? "⚠️ file:// 환경에서는 JSON을 읽을 수 없습니다.<br>Live Server 등 웹서버로 실행해 주세요."
+        : `오류: ${err.message}`,
+      false
+    );
+  }
+}
+
+async function fetchData(apiUrl) {
+  showLoader();
+  disableControls(true);
+  try {
+    const res = await fetch(apiUrl);
+    if (!res.ok) throw new Error(`HTTP ${res.status}`);
+    const data = await res.json();
+    if (data.error) throw new Error(data.message || "서버 오류");
+    cachedData = data;
+    initUI();
+  } catch (e) {
+    console.error("[fetchData]", e);
+    showError("데이터 로드 실패",
+      `${e.message}<br>GAS 배포 URL 및 시트 권한을 확인해 주세요.`,
+      true
+    );
+  }
+}
+
+// ================================================================
+//  🖼 UI 초기화 (데이터 로드 성공 후)
+// ================================================================
+function initUI() {
+  // 과목 select
+  const subjectSelect = document.getElementById("subjectSelect");
+  subjectSelect.innerHTML = "";
+  cachedData.subjectList.forEach(s => {
+    const opt = document.createElement("option");
+    opt.value = s.index;
+    opt.textContent = s.title;
+    subjectSelect.appendChild(opt);
+  });
+
+  // 기업 select
+  const companies = [...new Set(cachedData.students.map(s => s.company))].sort();
+  const companySelect = document.getElementById("companySelect");
+  companySelect.innerHTML = '<option value="all">전체 보기</option>';
+  companies.forEach(c => {
+    const opt = document.createElement("option");
+    opt.value = c; opt.textContent = c;
+    companySelect.appendChild(opt);
+  });
+
+  // 이벤트 (cloneNode로 중복 방지)
+  replaceListener("subjectSelect", "change", e => {
+    currentSubjectIdx = parseInt(e.target.value, 10);
+    renderDashboard();
+  });
+  replaceListener("companySelect", "change", () => renderDashboard());
+  replaceListener("searchInput",   "input",  () => renderDashboard());
+
+  disableControls(false);
+  hideLoader();
+  renderDashboard();
+
+  // 푸터
+  if (cachedData.updatedAt) {
+    const d = new Date(cachedData.updatedAt);
+    document.getElementById("footerUpdated").textContent =
+      `마지막 조회: ${d.toLocaleDateString("ko-KR")} ${d.toLocaleTimeString("ko-KR",{hour:"2-digit",minute:"2-digit"})}`;
+  }
+  document.getElementById("footerCard").classList.add("show");
+}
+
+function replaceListener(id, event, fn) {
+  const el = document.getElementById(id);
+  const clone = el.cloneNode(true);
+  el.parentNode.replaceChild(clone, el);
+  clone.addEventListener(event, fn);
+}
+
+// ================================================================
+//  🎨 대시보드 렌더링
+// ================================================================
+function renderDashboard() {
+  const container = document.getElementById("dashboardContainer");
+  const subject = cachedData.subjectList.find(s => s.index === currentSubjectIdx);
+  if (!subject) return;
+
+  const searchVal       = document.getElementById("searchInput").value.trim().toLowerCase();
+  const selectedCompany = document.getElementById("companySelect").value;
+
+  const filtered = cachedData.students.filter(s => {
+    const matchSearch  = s.name.toLowerCase().includes(searchVal) || s.id.toString().includes(searchVal);
+    const matchCompany = selectedCompany === "all" || s.company === selectedCompany;
+    return matchSearch && matchCompany;
+  });
+
+  // 요약
+  document.getElementById("sumSubject").textContent   = subject.title;
+  document.getElementById("sumCompanies").textContent = new Set(filtered.map(s=>s.company)).size + "개";
+  document.getElementById("sumStudents").textContent  = filtered.length + "명";
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="empty-state"><span class="empty-icon">🔍</span>검색 결과가 없습니다.</div>`;
+    return;
+  }
+
+  // 기업별 그룹화
+  const grouped = filtered.reduce((acc, s) => {
+    (acc[s.company] = acc[s.company] || []).push(s);
+    return acc;
+  }, {});
+
+  const parts = [];
+  let ci = 0;
+
+  Object.keys(grouped).sort().forEach(company => {
+    const students = grouped[company];
+    const color    = THEME_COLORS[ci % THEME_COLORS.length];
+    const colorAlpha = color + "22";
+
+    let cards = "";
+    students.forEach(student => {
+      const sd          = student.subjects[currentSubjectIdx] || {};
+      const subjectName = sd.name || "-";
+      const evalType    = sd.type || "-";
+
+      let tagClass = "tag-other";
+      if (evalType.includes("지필")) tagClass = "tag-written";
+      else if (evalType.includes("수행") || evalType.includes("실기")) tagClass = "tag-perform";
+
+      const typeTag = evalType !== "-"
+        ? `<span class="type-tag ${tagClass}">${esc(evalType)}</span>` : "";
+
+      cards += `
+        <div class="student-card" style="--card-accent:${color}">
+          <div class="st-header">
+            <div>
+              <span class="st-name">${esc(student.name)}</span>
+              <span class="st-id">${esc(student.id)}</span>
+            </div>
+            ${typeTag}
+          </div>
+          <div class="st-body">
+            <div class="info-row">
+              <span class="info-label">세부 과목명</span>
+              <span class="info-value" style="color:${color}">${esc(subjectName)}</span>
+            </div>
+          </div>
+        </div>`;
+    });
+
+    parts.push(`
+      <div class="company-section" style="border-left-color:${color}; animation-delay:${ci*0.05}s">
+        <div class="company-header">
+          <h2 style="color:${color}">🏢 ${esc(company)}</h2>
+          <span class="co-badge" style="background:${colorAlpha}; color:${color}">${students.length}명</span>
+        </div>
+        <div class="student-grid">${cards}</div>
+      </div>`);
+    ci++;
+  });
+
+  container.innerHTML = parts.join("");
+}
+
+// ================================================================
+//  📥 CSV 내보내기
+// ================================================================
+function exportToCSV() {
+  if (!cachedData) return alert("데이터 로딩 중입니다.");
+  const subject = cachedData.subjectList.find(s => s.index === currentSubjectIdx);
+  if (!subject) return;
+
+  const rows = [["학번","이름","기업명","평가과목","세부과목명","평가형태"]];
+  [...cachedData.students].sort((a,b)=>a.id.localeCompare(b.id)).forEach(st => {
+    const sd = st.subjects[currentSubjectIdx] || {};
+    rows.push([st.id, st.name, st.company, subject.title, sd.name||"-", sd.type||"-"]);
+  });
+  downloadCSV(rows, `평가데이터_${subject.title}`);
+}
+
+function exportAllToCSV() {
+  if (!cachedData) return alert("데이터 로딩 중입니다.");
+  const titles  = cachedData.subjectList.map(s => s.title);
+  const header  = ["학번","이름","기업명", ...titles.flatMap(t=>[`${t}_세부과목`,`${t}_평가형태`])];
+  const rows    = [header];
+  [...cachedData.students].sort((a,b)=>a.id.localeCompare(b.id)).forEach(st => {
+    const row = [st.id, st.name, st.company];
+    cachedData.subjectList.forEach(s => {
+      const sd = st.subjects[s.index] || {};
+      row.push(sd.name||"-", sd.type||"-");
+    });
+    rows.push(row);
+  });
+  downloadCSV(rows, "평가데이터_전과목");
+}
+
+function downloadCSV(rows, filename) {
+  const csv = "\uFEFF" + rows.map(row =>
+    row.map(cell => {
+      const s = String(cell);
+      return /[,"\n]/.test(s) ? '"' + s.replace(/"/g,'""') + '"' : s;
+    }).join(",")
+  ).join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = filename + ".csv";
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+}
+
+// ================================================================
+//  🔄 새로고침
+// ================================================================
+async function refreshData() {
+  if (!currentApiUrl) return;
+  const btn = document.getElementById("btnRefresh");
+  btn.classList.add("spinning"); btn.disabled = true;
+  await fetchData(currentApiUrl);
+  btn.classList.remove("spinning"); btn.disabled = false;
+}
+
+// ================================================================
+//  🛠 UI 헬퍼
+// ================================================================
+function showLoader() {
+  const l = document.getElementById("loader");
+  l.classList.add("visible");
+  document.getElementById("dashboardContainer").innerHTML = "";
+  document.getElementById("footerCard").classList.remove("show");
+}
+function hideLoader() {
+  document.getElementById("loader").classList.remove("visible");
+}
+function showError(title, msg, retry = true) {
+  hideLoader(); disableControls(true);
+  const btn = retry ? `<button class="btn-retry" onclick="refreshData()">↻ 다시 시도</button>` : "";
+  document.getElementById("dashboardContainer").innerHTML =
+    `<div class="error-state"><div class="error-title">⚠️ ${title}</div><div class="error-msg">${msg}</div>${btn}</div>`;
+}
+function disableControls(d) {
+  document.getElementById("controlPanel").classList.toggle("disabled", d);
+}
+function esc(str) {
+  return String(str||"")
+    .replace(/&/g,"&amp;").replace(/</g,"&lt;")
+    .replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#039;");
+}
+</script>
+</body>
+</html>
