@@ -77,25 +77,25 @@
     ]
   },
   {
-    "id": "Gemini",
-    "title": "Gemini Project",
+    "id": "Cursillo",
+    "title": "Cursillo Ultreya Project",
     "icon": "fa-robot",
     "category": "project",
-    "description": "Vibe Coding Project — AI 활용 개인/교회 업무 자동화 시스템",
+    "description": "AI 활용 개인/교회 업무 자동화 시스템",
     "visible": true,
     "links": [
       {
-        "title": "울뜨레야 개인기도 집계 + GAS v3",
+        "title": "개인기도 집계+GAS v3",
         "url": "gwanggyo_cathedral/index_prayer_v3.html",
         "type": "primary"
       },
       {
-        "title": "꾸르실료 사무국 + GAS v0.2",
+        "title": "꾸르실료 사무국+GAS v0.2",
         "url": "gwanggyo_cathedral/index_cursillo_v0.2.html",
         "type": "primary"
       },
       {
-        "title": "울뜨레야 명단 (2026)",
+        "title": "광교1동성당 울뜨레야명단(2026)",
         "url": "project26/project26_06_ultreya_v1.html",
         "type": "secondary"
       },
