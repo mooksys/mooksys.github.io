@@ -536,6 +536,203 @@
         font-size: 13px;
         font-weight: 600;
       }
+
+      /* ── 탭 ─────────────────────────────────────────────────────── */
+      .tab-bar {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 20px;
+        background: #f1f5f9;
+        padding: 5px;
+        border-radius: 14px;
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 10px 6px;
+        border: none;
+        border-radius: 10px;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.2s;
+        background: transparent;
+        color: var(--text-light);
+        font-family: inherit;
+        box-shadow: none;
+        width: auto;
+      }
+      .tab-btn.active {
+        background: white;
+        color: var(--primary);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+      }
+      .tab-panel {
+        display: none;
+      }
+      .tab-panel.active {
+        display: block;
+      }
+
+      /* ── 날짜 차단 캘린더 ──────────────────────────────────────── */
+      .bc-month-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+      }
+      .bc-month-title {
+        font-weight: 800;
+        font-size: 15px;
+      }
+      .block-calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 4px;
+        margin-bottom: 12px;
+      }
+      .bc-day-header {
+        text-align: center;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-light);
+        padding: 4px 0;
+      }
+      .bc-day {
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: 8px;
+        font-size: 12px;
+        cursor: pointer;
+        border: 1.5px solid transparent;
+        transition: 0.15s;
+        position: relative;
+        background: #f8fafc;
+        user-select: none;
+      }
+      .bc-day:hover:not(.empty):not(.non-field) {
+        border-color: var(--primary);
+        background: #eff6ff;
+      }
+      .bc-day.empty {
+        background: transparent;
+        cursor: default;
+        pointer-events: none;
+      }
+      .bc-day.today {
+        border-color: var(--primary) !important;
+        font-weight: 800;
+      }
+      .bc-day.blocked {
+        background: #fee2e2;
+        border-color: #fca5a5;
+        color: #dc2626;
+        font-weight: 700;
+      }
+      .bc-day.holiday {
+        background: #fef9c3;
+        border-color: #fde047;
+        color: #b45309;
+        cursor: default;
+        pointer-events: none;
+      }
+      .bc-day.weekend {
+        color: #94a3b8;
+      }
+      .bc-day.non-field {
+        opacity: 0.4;
+        cursor: default;
+        pointer-events: none;
+      }
+      .bc-day .day-num {
+        font-size: 13px;
+        font-weight: 600;
+        line-height: 1;
+      }
+      .bc-day .day-tag {
+        font-size: 9px;
+        margin-top: 2px;
+        overflow: hidden;
+        max-width: 100%;
+        text-align: center;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+        padding: 0 2px;
+      }
+      .block-legend {
+        display: flex;
+        gap: 12px;
+        font-size: 11px;
+        color: var(--text-light);
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+      }
+      .block-legend span {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+      }
+      .legend-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 3px;
+        display: inline-block;
+      }
+
+      /* ── PDF 레포트 패널 ─────────────────────────────────────── */
+      .report-panel {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 20px;
+      }
+      .report-panel h3 {
+        margin: 0 0 16px;
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .month-selector {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .month-selector select {
+        flex: 1;
+        padding: 12px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 14px;
+        background: white;
+        font-family: inherit;
+        outline: none;
+      }
+      .month-selector select:focus {
+        border-color: var(--primary);
+      }
+      .report-preview {
+        background: white;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        overflow: hidden;
+        margin-bottom: 16px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 80px;
+      }
+      .report-placeholder {
+        color: var(--text-light);
+        font-size: 13px;
+        padding: 30px;
+        text-align: center;
+      }
+      .report-preview iframe {
+        width: 100%;
+        height: 440px;
+        border: none;
+      }
     </style>
   </head>
   <body>
@@ -669,131 +866,342 @@
           2026 Doje Becon System
         </h2>
 
-        <button
-          onclick="fetchAdminData(false)"
-          class="btn-secondary"
-          id="refreshBtn"
-        >
-          🔄 데이터 새로고침
-        </button>
-
-        <div class="date-nav">
-          <button class="nav-btn" onclick="changeDate(-1)">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M15 18l-6-6 6-6" />
-            </svg>
+        <!-- 탭 바 -->
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchTab('tab-dashboard')">
+            📋 출석 현황
           </button>
-          <div class="date-picker-wrapper" id="calendarTrigger">
-            <svg
-              class="calendar-icon"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-              <line x1="16" y1="2" x2="16" y2="6" />
-              <line x1="8" y1="2" x2="8" y2="6" />
-              <line x1="3" y1="10" x2="21" y2="10" />
-            </svg>
-            <span id="displayDateText" class="current-day-label"
-              >로딩중...</span
-            >
-          </div>
-          <button class="nav-btn" onclick="changeDate(1)">
-            <svg
-              width="20"
-              height="20"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-            >
-              <path d="M9 18l6-6-6-6" />
-            </svg>
+          <button class="tab-btn" onclick="switchTab('tab-block')">
+            🚫 날짜 차단
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-report')">
+            📄 월간 레포트
           </button>
         </div>
 
-        <div
-          id="adminDayWarning"
-          class="hidden text-center msg-error"
-          style="margin-bottom: 15px"
-        >
-          ※ 해당 날짜는 현장실습일(화, 수, 목)이 아닙니다.
-        </div>
+        <!-- ── 탭 1: 출석 현황 ── -->
+        <div id="tab-dashboard" class="tab-panel active">
+          <button
+            onclick="fetchAdminData(false)"
+            class="btn-secondary"
+            id="refreshBtn"
+          >
+            🔄 데이터 새로고침
+          </button>
 
-        <div class="stats-row">
-          <div class="stat-item">
-            <div class="stat-label">해당일 입실</div>
-            <div class="stat-val" id="countIn" style="color: var(--in-btn)">
-              0명
+          <div class="date-nav">
+            <button class="nav-btn" onclick="changeDate(-1)">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <div class="date-picker-wrapper" id="calendarTrigger">
+              <svg
+                class="calendar-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              <span id="displayDateText" class="current-day-label"
+                >로딩중...</span
+              >
             </div>
+            <button class="nav-btn" onclick="changeDate(1)">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+
+          <div
+            id="adminDayWarning"
+            class="hidden text-center msg-error"
+            style="margin-bottom: 15px"
+          >
+            ※ 해당 날짜는 현장실습일(화, 수, 목)이 아닙니다.
           </div>
           <div
-            class="stat-item"
+            id="adminBlockedWarning"
+            class="hidden text-center"
             style="
-              border-left: 1px solid #e2e8f0;
-              border-right: 1px solid #e2e8f0;
-              padding: 0 20px;
+              margin-bottom: 15px;
+              padding: 10px;
+              background: #fee2e2;
+              border-radius: 10px;
+              color: #dc2626;
+              font-weight: 700;
+              font-size: 13px;
+            "
+          ></div>
+
+          <div class="stats-row">
+            <div class="stat-item">
+              <div class="stat-label">해당일 입실</div>
+              <div class="stat-val" id="countIn" style="color: var(--in-btn)">
+                0명
+              </div>
+            </div>
+            <div
+              class="stat-item"
+              style="
+                border-left: 1px solid #e2e8f0;
+                border-right: 1px solid #e2e8f0;
+                padding: 0 20px;
+              "
+            >
+              <div class="stat-label">해당일 퇴실</div>
+              <div class="stat-val" id="countOut" style="color: var(--out-btn)">
+                0명
+              </div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-label">지각/조퇴</div>
+              <div class="stat-val" id="countWarn" style="color: #ef4444">
+                0명
+              </div>
+            </div>
+          </div>
+
+          <div style="margin-bottom: 20px">
+            <div class="alert-box box-red">
+              <p>⚠️ 미입력 학생 (입/퇴실 기록 없음)</p>
+              <div id="unrecordedList">데이터 불러오는 중...</div>
+            </div>
+            <div class="alert-box box-orange">
+              <p>⏰ 기준시간 대비 25분 이상 늦은 학생</p>
+              <div id="late25List">데이터 불러오는 중...</div>
+            </div>
+            <div class="alert-box box-purple">
+              <p>🏃 18시 이후 퇴실 미기록자 (입실만 한 학생)</p>
+              <div id="missingOutList">데이터 불러오는 중...</div>
+            </div>
+          </div>
+
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>학번/이름</th>
+                  <th>구분</th>
+                  <th>시간</th>
+                  <th>상태</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardContent"></tbody>
+            </table>
+          </div>
+          <div id="paginationControls"></div>
+        </div>
+
+        <!-- ── 탭 2: 날짜 차단 ── -->
+        <div id="tab-block" class="tab-panel">
+          <div class="bc-month-nav">
+            <button class="nav-btn" onclick="blockCalPrev()">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <div class="bc-month-title" id="bcMonthTitle">로딩중...</div>
+            <button class="nav-btn" onclick="blockCalNext()">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="block-legend">
+            <span
+              ><span
+                class="legend-dot"
+                style="background: #fee2e2; border: 1px solid #fca5a5"
+              ></span
+              >차단됨</span
+            >
+            <span
+              ><span
+                class="legend-dot"
+                style="background: #fef9c3; border: 1px solid #fde047"
+              ></span
+              >공휴일(자동)</span
+            >
+            <span
+              ><span
+                class="legend-dot"
+                style="background: #f8fafc; border: 1px solid #e2e8f0"
+              ></span
+              >현장실습일</span
+            >
+            <span
+              ><span
+                class="legend-dot"
+                style="
+                  background: #f8fafc;
+                  opacity: 0.4;
+                  border: 1px solid #e2e8f0;
+                "
+              ></span
+              >비대상일</span
+            >
+          </div>
+
+          <div class="block-calendar-grid" id="blockCalGrid">
+            <div class="bc-day-header">일</div>
+            <div class="bc-day-header">월</div>
+            <div class="bc-day-header" style="color: var(--primary)">화</div>
+            <div class="bc-day-header" style="color: var(--primary)">수</div>
+            <div class="bc-day-header" style="color: var(--primary)">목</div>
+            <div class="bc-day-header">금</div>
+            <div class="bc-day-header">토</div>
+          </div>
+
+          <!-- 차단 설정 폼 (날짜 클릭 시 표시) -->
+          <div
+            id="blockForm"
+            class="hidden"
+            style="
+              background: #f8fafc;
+              border: 1px solid #e2e8f0;
+              border-radius: 14px;
+              padding: 16px;
+              margin-top: 4px;
             "
           >
-            <div class="stat-label">해당일 퇴실</div>
-            <div class="stat-val" id="countOut" style="color: var(--out-btn)">
-              0명
+            <div style="font-weight: 700; font-size: 14px; margin-bottom: 12px">
+              📅 <span id="blockFormDate"></span> 설정
             </div>
-          </div>
-          <div class="stat-item">
-            <div class="stat-label">지각/조퇴</div>
-            <div class="stat-val" id="countWarn" style="color: #ef4444">
-              0명
+            <div class="input-group" style="margin-bottom: 12px">
+              <label>사유 (선택)</label>
+              <input
+                type="text"
+                id="blockReason"
+                placeholder="예: 현장학습, 공결 처리 등"
+              />
             </div>
+            <div style="display: flex; gap: 8px">
+              <button
+                class="btn-danger"
+                onclick="applyBlockDate(true)"
+                style="flex: 1; padding: 12px; font-size: 14px"
+              >
+                🚫 차단하기
+              </button>
+              <button
+                class="btn-secondary"
+                onclick="applyBlockDate(false)"
+                style="flex: 1; padding: 12px; margin-bottom: 0"
+              >
+                ✅ 차단 해제
+              </button>
+              <button
+                class="btn-secondary"
+                onclick="
+                  document.getElementById('blockForm').classList.add('hidden')
+                "
+                style="flex: 0; padding: 12px; width: 44px; margin-bottom: 0"
+              >
+                ✕
+              </button>
+            </div>
+            <div id="blockFormMsg" class="msg-error"></div>
+          </div>
+
+          <div style="margin-top: 14px" id="blockedListSummary"></div>
+        </div>
+
+        <!-- ── 탭 3: 월간 레포트 ── -->
+        <div id="tab-report" class="tab-panel">
+          <div class="report-panel">
+            <h3>📄 월간 출석 레포트</h3>
+            <div class="month-selector">
+              <select id="reportYear"></select>
+              <select id="reportMonth">
+                <option value="1">1월</option>
+                <option value="2">2월</option>
+                <option value="3">3월</option>
+                <option value="4">4월</option>
+                <option value="5">5월</option>
+                <option value="6">6월</option>
+                <option value="7">7월</option>
+                <option value="8">8월</option>
+                <option value="9">9월</option>
+                <option value="10">10월</option>
+                <option value="11">11월</option>
+                <option value="12">12월</option>
+              </select>
+            </div>
+            <button
+              class="btn-primary"
+              onclick="generateReport()"
+              id="reportBtn"
+              style="margin-bottom: 16px"
+            >
+              📊 레포트 미리보기 생성
+            </button>
+            <div id="reportPreviewArea" class="report-preview">
+              <div class="report-placeholder">
+                월과 연도를 선택 후 버튼을 누르세요.
+              </div>
+            </div>
+            <div id="reportActions" class="hidden" style="display: none">
+              <button
+                class="btn-primary"
+                onclick="downloadReport()"
+                style="margin-bottom: 10px"
+              >
+                🖨️ 새 탭에서 열기 → PDF 저장
+              </button>
+            </div>
+            <div id="reportMsg" class="msg-error"></div>
           </div>
         </div>
 
-        <div style="margin-bottom: 20px">
-          <div class="alert-box box-red">
-            <p>⚠️ 미입력 학생 (입/퇴실 기록 없음)</p>
-            <div id="unrecordedList">데이터 불러오는 중...</div>
-          </div>
-          <div class="alert-box box-orange">
-            <p>⏰ 기준시간 대비 25분 이상 늦은 학생</p>
-            <div id="late25List">데이터 불러오는 중...</div>
-          </div>
-          <div class="alert-box box-purple">
-            <p>🏃 18시 이후 퇴실 미기록자 (입실만 한 학생)</p>
-            <div id="missingOutList">데이터 불러오는 중...</div>
-          </div>
+        <div class="footer-box" style="margin-top: 24px">
+          🎓 성일정보고등학교 도제반 3-12
         </div>
-
-        <div class="table-container">
-          <table>
-            <thead>
-              <tr>
-                <th>학번/이름</th>
-                <th>구분</th>
-                <th>시간</th>
-                <th>상태</th>
-              </tr>
-            </thead>
-            <tbody id="dashboardContent"></tbody>
-          </table>
-        </div>
-        <div id="paginationControls"></div>
-
-        <div class="footer-box">🎓 성일정보고등학교 도제반 3-12</div>
       </div>
     </div>
 
@@ -853,12 +1261,19 @@
       let userInfo = {};
       let allAdminData = [];
       let allStudents = [];
+      let allBlockedDates = []; // 차단 날짜 목록
       let currentAdminDate = new Date();
       let autoRefreshTimer = null;
       let fpCalendar = null;
       let currentFilteredData = [];
       let currentPage = 1;
       let sessionTimeoutTimer;
+      // 날짜 차단 캘린더 상태
+      let bcYear = new Date().getFullYear();
+      let bcMonth = new Date().getMonth(); // 0-based
+      let selectedBlockDate = null;
+      // 레포트 상태
+      let reportHtmlContent = "";
 
       // ── 초기화 ────────────────────────────────────────────────────────
       window.onload = async () => {
@@ -1112,13 +1527,9 @@
         document.getElementById("myTimeInfo").innerText =
           `내 기준: ${userInfo.inTime} 입실 / ${userInfo.outTime} 퇴실`;
 
+        // 현장실습일 아닌 경우
         if (!FIELD_DAYS.includes(dayIdx)) {
-          const bIn = document.getElementById("btnIn");
-          const bOut = document.getElementById("btnOut");
-          bIn.disabled = true;
-          bOut.disabled = true;
-          bIn.classList.add("btn-done");
-          bOut.classList.add("btn-done");
+          disableAttendButtons("현장실습일이 아닙니다.");
           document.getElementById("dayWarning").classList.remove("hidden");
           return;
         }
@@ -1126,11 +1537,35 @@
         document.getElementById("btnIn").innerText = "⏳ 상태 확인중...";
         document.getElementById("btnOut").innerText = "⏳ 상태 확인중...";
 
-        const res = await callAPI({
-          action: "getStudentStatus",
-          id: userInfo.id,
-        });
-        if (res.success) updateStudentButtons(res.inDone, res.outDone);
+        // 차단 여부 + 출결 상태 동시 확인
+        const [blockedRes, statusRes] = await Promise.all([
+          callAPI({ action: "checkTodayBlocked" }),
+          callAPI({ action: "getStudentStatus", id: userInfo.id }),
+        ]);
+
+        if (blockedRes.success && blockedRes.blocked) {
+          disableAttendButtons(
+            `출석이 차단된 날입니다. (${blockedRes.reason})`,
+          );
+          document.getElementById("dayWarning").innerText =
+            `🚫 오늘은 출석 기록이 차단되었습니다. 사유: ${blockedRes.reason}`;
+          document.getElementById("dayWarning").classList.remove("hidden");
+          return;
+        }
+
+        if (statusRes.success)
+          updateStudentButtons(statusRes.inDone, statusRes.outDone);
+      }
+
+      function disableAttendButtons(reason) {
+        const bIn = document.getElementById("btnIn");
+        const bOut = document.getElementById("btnOut");
+        bIn.disabled = true;
+        bOut.disabled = true;
+        bIn.classList.add("btn-done");
+        bOut.classList.add("btn-done");
+        bIn.innerText = `🚫 ${reason}`;
+        bOut.innerText = `🚫 ${reason}`;
       }
 
       async function submitAttend(type) {
@@ -1200,8 +1635,22 @@
           return;
         }
 
-        document.getElementById("appCard").style.maxWidth = "600px";
+        document.getElementById("appCard").style.maxWidth = "640px";
         document.getElementById("adminSection").classList.remove("hidden");
+
+        // 연도 셀렉터 초기화
+        const yearSel = document.getElementById("reportYear");
+        const nowY = new Date().getFullYear();
+        for (let y = nowY - 1; y <= nowY + 1; y++) {
+          const opt = document.createElement("option");
+          opt.value = y;
+          opt.textContent = y + "년";
+          if (y === nowY) opt.selected = true;
+          yearSel.appendChild(opt);
+        }
+        // 현재 월 선택
+        document.getElementById("reportMonth").value =
+          new Date().getMonth() + 1;
 
         fpCalendar = flatpickr("#calendarTrigger", {
           locale: "ko",
@@ -1214,6 +1663,20 @@
 
         fetchAdminData(false);
         startAutoRefresh();
+      }
+
+      // ── 탭 전환 ───────────────────────────────────────────────────────
+      function switchTab(tabId) {
+        document
+          .querySelectorAll(".tab-panel")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById(tabId).classList.add("active");
+        // 해당 탭 버튼 활성화
+        const idx = ["tab-dashboard", "tab-block", "tab-report"].indexOf(tabId);
+        document.querySelectorAll(".tab-btn")[idx].classList.add("active");
       }
 
       // ✅ 자동 새로고침 함수 분리
@@ -1250,7 +1713,9 @@
         if (res.success) {
           allAdminData = res.data.attendance.reverse();
           allStudents = res.data.students;
+          allBlockedDates = res.data.blockedDates || [];
           renderDashboard();
+          renderBlockCalendar();
         } else {
           if (!isSilent) {
             alert(res.msg);
@@ -1277,6 +1742,16 @@
           "hidden",
           FIELD_DAYS.includes(adminDayIdx),
         );
+
+        // 차단 날짜 경고
+        const blockedInfo = getBlockedInfo(targetDateStr);
+        const blockedWarn = document.getElementById("adminBlockedWarning");
+        if (blockedInfo.blocked) {
+          blockedWarn.textContent = `🚫 이 날은 출석 차단된 날입니다 — ${blockedInfo.reason}`;
+          blockedWarn.classList.remove("hidden");
+        } else {
+          blockedWarn.classList.add("hidden");
+        }
 
         currentFilteredData = [];
         let statIn = 0,
@@ -1429,6 +1904,259 @@
         const m = String(dateObj.getMonth() + 1).padStart(2, "0");
         const d = String(dateObj.getDate()).padStart(2, "0");
         return `${y}-${m}-${d}`;
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      // 공휴일 유틸 (프론트 — GAS와 동일 목록)
+      // ═══════════════════════════════════════════════════════════════
+      const HOLIDAYS = {
+        "01-01": "새해",
+        "03-01": "삼일절",
+        "05-05": "어린이날",
+        "06-06": "현충일",
+        "08-15": "광복절",
+        "10-03": "개천절",
+        "10-09": "한글날",
+        "12-25": "크리스마스",
+      };
+
+      function getBlockedInfo(dateStr) {
+        // 공휴일 자동 체크
+        const mmdd = dateStr.substring(5);
+        if (HOLIDAYS[mmdd])
+          return { blocked: true, reason: HOLIDAYS[mmdd] + " (공휴일)" };
+        // 수동 차단 체크
+        const found = allBlockedDates.find(
+          (b) => b.date === dateStr && b.blocked,
+        );
+        if (found)
+          return { blocked: true, reason: found.reason || "교사 설정" };
+        return { blocked: false };
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      // 날짜 차단 캘린더
+      // ═══════════════════════════════════════════════════════════════
+      function renderBlockCalendar() {
+        const MONTH_NAMES = [
+          "1월",
+          "2월",
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월",
+          "9월",
+          "10월",
+          "11월",
+          "12월",
+        ];
+        document.getElementById("bcMonthTitle").textContent =
+          `${bcYear}년 ${MONTH_NAMES[bcMonth]}`;
+
+        const today = new Date();
+        const todayStr = formatDateForCompare(today);
+        const firstDay = new Date(bcYear, bcMonth, 1).getDay();
+        const lastDate = new Date(bcYear, bcMonth + 1, 0).getDate();
+
+        const grid = document.getElementById("blockCalGrid");
+        // 헤더 유지, 날짜 셀만 교체
+        const headers = Array.from(grid.querySelectorAll(".bc-day-header"));
+        grid.innerHTML = "";
+        headers.forEach((h) => grid.appendChild(h));
+
+        // 빈 셀
+        for (let i = 0; i < firstDay; i++) {
+          const empty = document.createElement("div");
+          empty.className = "bc-day empty";
+          grid.appendChild(empty);
+        }
+
+        for (let d = 1; d <= lastDate; d++) {
+          const dateObj = new Date(bcYear, bcMonth, d);
+          const dayIdx = dateObj.getDay();
+          const dateStr = formatDateForCompare(dateObj);
+          const isField = FIELD_DAYS.includes(dayIdx);
+          const isWkend = dayIdx === 0 || dayIdx === 6;
+          const blockedI = getBlockedInfo(dateStr);
+          const isHoliday = !!HOLIDAYS[dateStr.substring(5)];
+          const isToday = dateStr === todayStr;
+          const isManual = allBlockedDates.find(
+            (b) => b.date === dateStr && b.blocked,
+          );
+
+          const cell = document.createElement("div");
+          let cls = "bc-day";
+          if (!isField) cls += " non-field";
+          else if (isHoliday) cls += " holiday";
+          else if (isManual) cls += " blocked";
+          else if (isWkend) cls += " weekend";
+          if (isToday) cls += " today";
+          cell.className = cls;
+
+          const tag = blockedI.blocked
+            ? `<div class="day-tag">${blockedI.reason.length > 5 ? blockedI.reason.substring(0, 5) + "…" : blockedI.reason}</div>`
+            : "";
+          cell.innerHTML = `<div class="day-num">${d}</div>${tag}`;
+
+          if (isField && !isHoliday) {
+            cell.onclick = () => openBlockForm(dateStr, blockedI);
+          }
+          grid.appendChild(cell);
+        }
+
+        // 차단 목록 요약
+        const manualBlocked = allBlockedDates.filter((b) => b.blocked);
+        const summaryEl = document.getElementById("blockedListSummary");
+        if (manualBlocked.length > 0) {
+          summaryEl.innerHTML = `<div style="font-size:12px;color:var(--text-light);line-height:1.8;">
+            <strong style="color:var(--text);">수동 차단된 날짜</strong><br>
+            ${manualBlocked
+              .map(
+                (b) =>
+                  `<span style="margin-right:8px;">📅 ${b.date}${b.reason ? ` <em>(${esc(b.reason)})</em>` : ""}</span>`,
+              )
+              .join("")}
+          </div>`;
+        } else {
+          summaryEl.innerHTML = `<div style="font-size:12px;color:#10b981;font-weight:700;">✅ 수동으로 차단된 날짜가 없습니다.</div>`;
+        }
+      }
+
+      function blockCalPrev() {
+        if (bcMonth === 0) {
+          bcYear--;
+          bcMonth = 11;
+        } else bcMonth--;
+        renderBlockCalendar();
+      }
+      function blockCalNext() {
+        if (bcMonth === 11) {
+          bcYear++;
+          bcMonth = 0;
+        } else bcMonth++;
+        renderBlockCalendar();
+      }
+
+      function openBlockForm(dateStr, blockedInfo) {
+        selectedBlockDate = dateStr;
+        document.getElementById("blockFormDate").textContent = dateStr;
+        document.getElementById("blockReason").value = blockedInfo.blocked
+          ? allBlockedDates.find((b) => b.date === dateStr)?.reason || ""
+          : "";
+        document.getElementById("blockFormMsg").textContent = "";
+        document.getElementById("blockForm").classList.remove("hidden");
+      }
+
+      async function applyBlockDate(isBlock) {
+        if (!selectedBlockDate) return;
+        const reason = document.getElementById("blockReason").value.trim();
+        const msgEl = document.getElementById("blockFormMsg");
+        msgEl.textContent = isBlock ? "차단 처리 중..." : "해제 처리 중...";
+        msgEl.style.color = "#64748b";
+
+        const res = await callAPI({
+          action: "setBlockedDate",
+          id: userInfo.id,
+          date: selectedBlockDate,
+          reason,
+          blocked: isBlock,
+        });
+
+        if (res.success) {
+          // 로컬 상태 즉시 반영
+          const existing = allBlockedDates.findIndex(
+            (b) => b.date === selectedBlockDate,
+          );
+          if (existing >= 0) {
+            allBlockedDates[existing] = {
+              date: selectedBlockDate,
+              reason,
+              blocked: isBlock,
+            };
+          } else {
+            allBlockedDates.push({
+              date: selectedBlockDate,
+              reason,
+              blocked: isBlock,
+            });
+          }
+          document.getElementById("blockForm").classList.add("hidden");
+          renderBlockCalendar();
+        } else {
+          msgEl.style.color = "#ef4444";
+          msgEl.textContent = res.msg;
+        }
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      // PDF 레포트 — 브라우저 인쇄/다운로드
+      // ═══════════════════════════════════════════════════════════════
+      async function generateReport() {
+        const year = document.getElementById("reportYear").value;
+        const month = document.getElementById("reportMonth").value;
+        const btn = document.getElementById("reportBtn");
+        const msg = document.getElementById("reportMsg");
+
+        btn.disabled = true;
+        btn.innerText = "⏳ 생성 중...";
+        msg.textContent = "";
+        document.getElementById("reportPreviewArea").innerHTML =
+          `<div class="report-placeholder">⏳ 레포트를 생성하고 있습니다...<br>잠시만 기다려주세요.</div>`;
+        document.getElementById("reportActions").style.display = "none";
+
+        const res = await callAPI({
+          action: "generateMonthlyReport",
+          id: userInfo.id,
+          year: parseInt(year),
+          month: parseInt(month),
+        });
+
+        btn.disabled = false;
+        btn.innerText = "📊 레포트 미리보기 생성";
+
+        if (res.success) {
+          // HTML을 Blob URL로 변환해 iframe 미리보기
+          const blob = new Blob([res.html], {
+            type: "text/html;charset=utf-8",
+          });
+          const blobUrl = URL.createObjectURL(blob);
+
+          document.getElementById("reportPreviewArea").innerHTML =
+            `<iframe src="${blobUrl}" style="width:100%;height:440px;border:none;"></iframe>`;
+
+          // 다운로드 버튼 활성화
+          const actions = document.getElementById("reportActions");
+          actions.style.display = "block";
+          actions.classList.remove("hidden");
+          actions.dataset.html = res.html;
+          actions.dataset.fileName = res.fileName;
+
+          msg.style.color = "#10b981";
+          msg.textContent = `✅ ${res.fileName} 생성 완료 — 아래 버튼으로 PDF 저장`;
+        } else {
+          document.getElementById("reportPreviewArea").innerHTML =
+            `<div class="report-placeholder" style="color:#ef4444;">❌ ${esc(res.msg)}</div>`;
+          msg.style.color = "#ef4444";
+          msg.textContent = res.msg;
+        }
+      }
+
+      function downloadReport() {
+        const actions = document.getElementById("reportActions");
+        const html = actions.dataset.html;
+        const fileName = actions.dataset.fileName || "레포트.pdf";
+        if (!html) return;
+
+        // 새 탭에서 열고 인쇄 다이얼로그 → "PDF로 저장" 선택
+        const printWin = window.open("", "_blank");
+        printWin.document.write(html);
+        printWin.document.close();
+        printWin.onload = () => {
+          printWin.focus();
+          printWin.print();
+        };
       }
 
       // ── XSS 방어: HTML 특수문자 이스케이프 ───────────────────────────
