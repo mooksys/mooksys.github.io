@@ -11,13 +11,13 @@
       crossorigin
       href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.8/dist/web/static/pretendard.css"
     />
-
     <link
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
     />
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-    <script src="https://npmcdn.com/flatpickr/dist/l10n/ko.js"></script>
+    <!-- ✅ npmcdn → jsdelivr 으로 교체 -->
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
 
     <style>
       :root {
@@ -31,6 +31,7 @@
         --text: #1e293b;
         --text-light: #64748b;
       }
+
       body {
         font-family: "Pretendard", sans-serif;
         background: var(--bg);
@@ -42,6 +43,7 @@
         min-height: 100vh;
         align-items: flex-start;
       }
+
       .card {
         background: white;
         width: 100%;
@@ -53,6 +55,7 @@
         transition: all 0.3s;
         position: relative;
       }
+
       h2 {
         text-align: center;
         margin-top: 0;
@@ -65,6 +68,7 @@
         margin-bottom: 18px;
         position: relative;
       }
+
       label {
         display: block;
         font-size: 13px;
@@ -72,8 +76,10 @@
         color: var(--text-light);
         font-weight: 600;
       }
+
       input[type="text"],
       input[type="password"],
+      input[type="time"],
       select {
         width: 100%;
         padding: 14px;
@@ -86,8 +92,10 @@
         background: #f8fafc;
         font-family: inherit;
       }
+
       input[type="text"]:focus,
       input[type="password"]:focus,
+      input[type="time"]:focus,
       select:focus {
         border-color: var(--primary);
         background: white;
@@ -107,6 +115,7 @@
         font-family: inherit;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       }
+
       button:active {
         transform: translateY(2px);
       }
@@ -123,6 +132,10 @@
           var(--primary-hover)
         );
       }
+      .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+      }
+
       .btn-secondary {
         background: white;
         color: var(--text);
@@ -163,7 +176,29 @@
         position: absolute;
         top: 20px;
         right: 25px;
+        display: flex;
+        gap: 8px;
+        align-items: center;
       }
+
+      .btn-icon {
+        background: #f1f5f9;
+        color: var(--text-light);
+        border: none;
+        padding: 6px 12px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+        width: auto;
+        box-shadow: none;
+      }
+      .btn-icon:hover {
+        background: #e2e8f0;
+        transform: translateY(-1px);
+      }
+
       .btn-logout {
         background: #fee2e2;
         color: #ef4444;
@@ -243,6 +278,7 @@
         color: #0f172a;
         margin-bottom: 5px;
       }
+
       .footer-box {
         background: #f8fafc;
         border: 1px solid #e2e8f0;
@@ -255,7 +291,7 @@
         font-size: 14px;
       }
 
-      /* 캘린더 네비게이션 영역 */
+      /* 날짜 네비게이션 */
       .date-nav {
         display: flex;
         justify-content: space-between;
@@ -294,7 +330,6 @@
         transform: translateY(1px);
       }
 
-      /* [수정] Flatpickr 트리거용 커스텀 버튼 디자인 */
       .date-picker-wrapper {
         position: relative;
         display: flex;
@@ -312,6 +347,7 @@
         background: #dbeafe;
         border-color: #93c5fd;
       }
+
       .calendar-icon {
         color: var(--primary);
         width: 20px;
@@ -325,7 +361,7 @@
         pointer-events: none;
       }
 
-      /* [추가] Flatpickr 팝업 달력 커스텀 디자인 (폰트 및 색상 일치) */
+      /* Flatpickr 커스텀 */
       .flatpickr-calendar {
         font-family: "Pretendard", sans-serif !important;
         border-radius: 16px !important;
@@ -335,21 +371,12 @@
       .flatpickr-day.selected,
       .flatpickr-day.startRange,
       .flatpickr-day.endRange,
-      .flatpickr-day.selected.inRange,
-      .flatpickr-day.startRange.inRange,
-      .flatpickr-day.endRange.inRange,
       .flatpickr-day.selected:focus,
       .flatpickr-day.startRange:focus,
       .flatpickr-day.endRange:focus,
       .flatpickr-day.selected:hover,
       .flatpickr-day.startRange:hover,
-      .flatpickr-day.endRange:hover,
-      .flatpickr-day.selected.prevMonthDay,
-      .flatpickr-day.startRange.prevMonthDay,
-      .flatpickr-day.endRange.prevMonthDay,
-      .flatpickr-day.selected.nextMonthDay,
-      .flatpickr-day.startRange.nextMonthDay,
-      .flatpickr-day.endRange.nextMonthDay {
+      .flatpickr-day.endRange:hover {
         background: var(--primary) !important;
         border-color: var(--primary) !important;
       }
@@ -357,6 +384,7 @@
         height: 40px !important;
       }
 
+      /* 통계 행 */
       .stats-row {
         display: flex;
         justify-content: space-around;
@@ -380,6 +408,7 @@
         color: var(--text);
       }
 
+      /* 테이블 */
       .table-container {
         overflow-x: auto;
         border-radius: 12px;
@@ -425,6 +454,7 @@
         color: #059669;
       }
 
+      /* 페이지네이션 */
       .pagination {
         display: flex;
         justify-content: center;
@@ -455,14 +485,75 @@
         border-color: #e2e8f0;
         cursor: not-allowed;
       }
+
+      /* 비밀번호 변경 모달 */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(0, 0, 0, 0.4);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        padding: 20px;
+      }
+      .modal-box {
+        background: white;
+        border-radius: 20px;
+        padding: 28px 24px;
+        width: 100%;
+        max-width: 380px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      }
+      .modal-box h3 {
+        margin: 0 0 20px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .modal-actions button {
+        flex: 1;
+      }
+
+      /* 메시지 */
+      .msg-error {
+        color: #ef4444;
+        text-align: center;
+        margin-top: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        word-break: keep-all;
+      }
+      .msg-success {
+        color: #10b981;
+        text-align: center;
+        margin-top: 12px;
+        font-size: 13px;
+        font-weight: 600;
+      }
     </style>
   </head>
   <body>
     <div class="card" id="appCard">
+      <!-- 상단 우측 버튼 (로그인 후 표시) -->
       <div id="topRightControls" class="top-right-controls hidden">
+        <button
+          class="btn-icon"
+          id="changePwBtn"
+          onclick="openChangePwModal()"
+          title="비밀번호 변경"
+        >
+          🔑
+        </button>
         <button class="btn-logout" onclick="logout()">🚪 로그아웃</button>
       </div>
 
+      <!-- ───────── 로그인 화면 ───────── -->
       <div id="loginSection">
         <h2>2026 Doje Becon System</h2>
         <div
@@ -486,16 +577,7 @@
             disabled
             onblur="verifyId()"
           />
-          <div
-            id="idWarningMsg"
-            style="
-              color: #ef4444;
-              font-size: 12px;
-              font-weight: 600;
-              margin-top: 6px;
-              display: none;
-            "
-          >
+          <div id="idWarningMsg" class="msg-error" style="display: none">
             등록되지 않은 학번입니다. 정확히 입력해주세요.
           </div>
         </div>
@@ -509,22 +591,14 @@
             disabled
           />
         </div>
+
         <button id="loginBtn" class="btn-primary" onclick="login()" disabled>
           서버 설정 불러오는 중...
         </button>
-        <div
-          id="loginMsg"
-          style="
-            color: #ef4444;
-            text-align: center;
-            margin-top: 15px;
-            font-size: 13px;
-            font-weight: 600;
-            word-break: keep-all;
-          "
-        ></div>
+        <div id="loginMsg" class="msg-error"></div>
       </div>
 
+      <!-- ───────── 초기 설정 화면 ───────── -->
       <div id="setupSection" class="hidden">
         <h2>초기 설정 (1회)</h2>
         <p
@@ -533,48 +607,38 @@
         >
           안전한 사용을 위해 비밀번호와 기준 출퇴근 시간을 설정해주세요.
         </p>
+
         <div class="input-group">
           <label>새 비밀번호 (4자리 이상)</label>
           <input type="password" id="newPw" placeholder="새로운 비밀번호" />
         </div>
+
+        <!-- ✅ select → input[type=time] 으로 변경 (자유 시간 입력) -->
         <div id="timeSetupArea" class="hidden">
           <div class="input-group">
             <label>내 회사 입실 기준 시간</label>
-            <select id="setInTime">
-              <option value="09:00">09:00</option>
-              <option value="09:30">09:30</option>
-              <option value="10:00">10:00</option>
-              <option value="13:00">13:00</option>
-            </select>
+            <input type="time" id="setInTime" value="09:00" />
           </div>
           <div class="input-group">
             <label>내 회사 퇴실 기준 시간</label>
-            <select id="setOutTime">
-              <option value="15:00">15:00</option>
-              <option value="15:30">15:30</option>
-              <option value="16:00">16:00</option>
-              <option value="18:00">18:00</option>
-            </select>
+            <input type="time" id="setOutTime" value="18:00" />
           </div>
         </div>
+
         <button class="btn-primary" onclick="submitSetup()">
           설정 완료 및 시작하기
         </button>
       </div>
 
+      <!-- ───────── 학생 메인 화면 ───────── -->
       <div id="studentSection" class="hidden">
         <h2 style="margin-top: 10px">2026 Doje Becon System</h2>
         <div class="text-center">
           <div class="date-display" id="currentDateStr"></div>
           <div
             id="dayWarning"
-            class="hidden"
-            style="
-              color: #ef4444;
-              font-size: 14px;
-              font-weight: 700;
-              margin-bottom: 10px;
-            "
+            class="hidden msg-error"
+            style="margin-bottom: 10px"
           >
             ※ 오늘은 현장실습일이 아닙니다.
           </div>
@@ -599,8 +663,12 @@
         <div class="footer-box">🎓 성일정보고등학교 도제반 3-12</div>
       </div>
 
+      <!-- ───────── 교사 대시보드 ───────── -->
       <div id="adminSection" class="hidden">
-        <h2 style="margin-top: 10px; margin-bottom: 20px">2026 Doje Becon System</h2>
+        <h2 style="margin-top: 10px; margin-bottom: 20px">
+          2026 Doje Becon System
+        </h2>
+
         <button
           onclick="fetchAdminData(false)"
           class="btn-secondary"
@@ -624,7 +692,6 @@
               <path d="M15 18l-6-6 6-6" />
             </svg>
           </button>
-
           <div class="date-picker-wrapper" id="calendarTrigger">
             <svg
               class="calendar-icon"
@@ -635,16 +702,15 @@
               stroke-linecap="round"
               stroke-linejoin="round"
             >
-              <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="16" y1="2" x2="16" y2="6"></line>
-              <line x1="8" y1="2" x2="8" y2="6"></line>
-              <line x1="3" y1="10" x2="21" y2="10"></line>
+              <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+              <line x1="16" y1="2" x2="16" y2="6" />
+              <line x1="8" y1="2" x2="8" y2="6" />
+              <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
             <span id="displayDateText" class="current-day-label"
               >로딩중...</span
             >
           </div>
-
           <button class="nav-btn" onclick="changeDate(1)">
             <svg
               width="20"
@@ -663,13 +729,8 @@
 
         <div
           id="adminDayWarning"
-          class="hidden text-center"
-          style="
-            color: #ef4444;
-            font-size: 14px;
-            font-weight: 700;
-            margin-bottom: 15px;
-          "
+          class="hidden text-center msg-error"
+          style="margin-bottom: 15px"
         >
           ※ 해당 날짜는 현장실습일(화, 수, 목)이 아닙니다.
         </div>
@@ -736,27 +797,74 @@
       </div>
     </div>
 
-    <script>
-      let API_URL = "";
+    <!-- ───────── 비밀번호 변경 모달 ───────── -->
+    <div id="changePwModal" class="modal-overlay hidden">
+      <div class="modal-box">
+        <h3>🔑 비밀번호 변경</h3>
+        <div class="input-group">
+          <label>현재 비밀번호</label>
+          <input type="password" id="currentPw" placeholder="현재 비밀번호" />
+        </div>
+        <div class="input-group">
+          <label>새 비밀번호 (4자리 이상)</label>
+          <input
+            type="password"
+            id="changePwNew"
+            placeholder="새 비밀번호"
+            onkeyup="if (event.keyCode === 13) submitChangePw();"
+          />
+        </div>
+        <div class="input-group">
+          <label>새 비밀번호 확인</label>
+          <input
+            type="password"
+            id="changePwConfirm"
+            placeholder="새 비밀번호 다시 입력"
+            onkeyup="if (event.keyCode === 13) submitChangePw();"
+          />
+        </div>
+        <div id="changePwMsg" class="msg-error"></div>
+        <div class="modal-actions">
+          <button
+            class="btn-secondary"
+            onclick="closeChangePwModal()"
+            style="margin-bottom: 0"
+          >
+            취소
+          </button>
+          <button class="btn-primary" onclick="submitChangePw()">
+            변경하기
+          </button>
+        </div>
+      </div>
+    </div>
 
+    <script>
+      // ── 상수 ──────────────────────────────────────────────────────────
+      const FIELD_DAYS = [2, 3, 4]; // 화, 수, 목
+      const SESSION_KEY = "attendance_user";
+      const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
+      // ✅ 자동 새로고침 30초로 조정 (기존 10초)
+      const AUTO_REFRESH_MS = 30 * 1000;
+      const ITEMS_PER_PAGE = 5;
+
+      // ── 상태 ──────────────────────────────────────────────────────────
+      let API_URL = "";
       let userInfo = {};
       let allAdminData = [];
       let allStudents = [];
       let currentAdminDate = new Date();
       let autoRefreshTimer = null;
-      let fpCalendar = null; // Flatpickr 인스턴스
-
+      let fpCalendar = null;
       let currentFilteredData = [];
       let currentPage = 1;
-      const itemsPerPage = 5;
-
       let sessionTimeoutTimer;
-      const SESSION_TIMEOUT_MS = 30 * 60 * 1000;
 
+      // ── 초기화 ────────────────────────────────────────────────────────
       window.onload = async () => {
         try {
           const response = await fetch("project26_05_gas_url.json");
-          if (!response.ok) throw new Error("Network response was not ok");
+          if (!response.ok) throw new Error("config fetch failed");
           const config = await response.json();
           API_URL = config.api_url;
 
@@ -765,19 +873,20 @@
           document.getElementById("loginBtn").disabled = false;
           document.getElementById("loginBtn").innerText = "로그인";
         } catch (error) {
-          console.error("API 주소 설정 파일을 불러올 수 없습니다:", error);
           document.getElementById("loginMsg").innerText =
             "서버 설정을 불러오는데 실패했습니다. 관리자에게 문의하세요.";
           return;
         }
 
-        const savedSession = sessionStorage.getItem("attendance_user");
+        // 세션 복원
+        const savedSession = sessionStorage.getItem(SESSION_KEY);
         if (savedSession) {
           userInfo = JSON.parse(savedSession);
           document.getElementById("loginSection").classList.add("hidden");
           showMain();
         }
 
+        // 세션 타임아웃 이벤트 등록
         ["click", "mousemove", "keypress", "scroll", "touchstart"].forEach(
           (evt) => {
             document.addEventListener(evt, resetSessionTimer, {
@@ -785,11 +894,20 @@
             });
           },
         );
+
+        // ✅ 백그라운드 탭 자동 새로고침 정지
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+            autoRefreshTimer = null;
+          } else {
+            if (userInfo.role === "교사") startAutoRefresh();
+          }
+        });
       };
 
       function resetSessionTimer() {
-        if (!sessionStorage.getItem("attendance_user")) return;
-
+        if (!sessionStorage.getItem(SESSION_KEY)) return;
         clearTimeout(sessionTimeoutTimer);
         sessionTimeoutTimer = setTimeout(() => {
           alert("보안을 위해 장시간 활동이 없어 자동 로그아웃 되었습니다.");
@@ -797,6 +915,7 @@
         }, SESSION_TIMEOUT_MS);
       }
 
+      // ── API 통신 ──────────────────────────────────────────────────────
       async function callAPI(payload) {
         if (!API_URL)
           return { success: false, msg: "서버 주소가 설정되지 않았습니다." };
@@ -814,11 +933,11 @@
         }
       }
 
+      // ── 로그인 ────────────────────────────────────────────────────────
       async function verifyId() {
         const idInput = document.getElementById("userId");
         const warningMsg = document.getElementById("idWarningMsg");
         const val = idInput.value.trim();
-
         if (!val) {
           warningMsg.style.display = "none";
           return;
@@ -839,13 +958,14 @@
         const pw = document.getElementById("userPw").value;
         if (!id || !pw) return alert("입력값을 확인해주세요.");
 
-        document.getElementById("loginBtn").innerText = "확인중...";
-        document.getElementById("loginBtn").disabled = true;
+        const btn = document.getElementById("loginBtn");
+        btn.innerText = "확인중...";
+        btn.disabled = true;
 
-        const res = await callAPI({ action: "login", id: id, pw: pw });
+        const res = await callAPI({ action: "login", id, pw });
 
-        document.getElementById("loginBtn").innerText = "로그인";
-        document.getElementById("loginBtn").disabled = false;
+        btn.innerText = "로그인";
+        btn.disabled = false;
 
         if (res.success) {
           userInfo = res;
@@ -853,12 +973,13 @@
 
           if (res.needsSetup) {
             document.getElementById("setupSection").classList.remove("hidden");
-            if (res.role === "학생")
+            if (res.role === "학생") {
               document
                 .getElementById("timeSetupArea")
                 .classList.remove("hidden");
+            }
           } else {
-            sessionStorage.setItem("attendance_user", JSON.stringify(userInfo));
+            sessionStorage.setItem(SESSION_KEY, JSON.stringify(userInfo));
             resetSessionTimer();
             showMain();
           }
@@ -870,10 +991,11 @@
       function logout() {
         if (autoRefreshTimer) clearInterval(autoRefreshTimer);
         if (sessionTimeoutTimer) clearTimeout(sessionTimeoutTimer);
-        sessionStorage.removeItem("attendance_user");
+        sessionStorage.removeItem(SESSION_KEY);
         location.reload();
       }
 
+      // ── 초기 설정 ─────────────────────────────────────────────────────
       async function submitSetup() {
         const newPw = document.getElementById("newPw").value;
         const inTime = document.getElementById("setInTime").value;
@@ -887,8 +1009,8 @@
           action: "initialSetup",
           id: userInfo.id,
           pw: newPw,
-          inTime: inTime,
-          outTime: outTime,
+          inTime,
+          outTime,
         });
 
         if (res.success) {
@@ -899,6 +1021,67 @@
         }
       }
 
+      // ── 비밀번호 변경 ─────────────────────────────────────────────────
+      function openChangePwModal() {
+        document.getElementById("currentPw").value = "";
+        document.getElementById("changePwNew").value = "";
+        document.getElementById("changePwConfirm").value = "";
+        document.getElementById("changePwMsg").innerText = "";
+        document.getElementById("changePwModal").classList.remove("hidden");
+      }
+
+      function closeChangePwModal() {
+        document.getElementById("changePwModal").classList.add("hidden");
+      }
+
+      async function submitChangePw() {
+        const currentPw = document.getElementById("currentPw").value;
+        const newPw = document.getElementById("changePwNew").value;
+        const confirm = document.getElementById("changePwConfirm").value;
+        const msgEl = document.getElementById("changePwMsg");
+
+        if (!currentPw || !newPw || !confirm) {
+          msgEl.innerText = "모든 항목을 입력해주세요.";
+          return;
+        }
+        if (newPw.length < 4) {
+          msgEl.innerText = "새 비밀번호는 4자리 이상이어야 합니다.";
+          return;
+        }
+        if (newPw !== confirm) {
+          msgEl.innerText = "새 비밀번호가 일치하지 않습니다.";
+          return;
+        }
+        if (newPw === "0000" || newPw === "1234") {
+          msgEl.innerText = "초기 비밀번호는 사용할 수 없습니다.";
+          return;
+        }
+
+        msgEl.style.color = "";
+        msgEl.innerText = "변경 중...";
+
+        const res = await callAPI({
+          action: "changePw",
+          id: userInfo.id,
+          currentPw,
+          newPw,
+        });
+
+        if (res.success) {
+          msgEl.style.color = "#10b981";
+          msgEl.innerText =
+            "✅ 비밀번호가 변경되었습니다. 다시 로그인해주세요.";
+          setTimeout(() => {
+            closeChangePwModal();
+            logout();
+          }, 1500);
+        } else {
+          msgEl.style.color = "";
+          msgEl.innerText = res.msg;
+        }
+      }
+
+      // ── 메인 화면 분기 ────────────────────────────────────────────────
       function showMain() {
         document.getElementById("topRightControls").classList.remove("hidden");
 
@@ -907,6 +1090,8 @@
           document.getElementById("studentSection").classList.remove("hidden");
           setupStudentView();
         } else if (userInfo.role === "교사") {
+          // 비밀번호 변경 버튼은 학생만 (교사는 숨김)
+          document.getElementById("changePwBtn").classList.add("hidden");
           showAdmin();
         } else {
           alert("권한 정보가 유효하지 않습니다.");
@@ -914,37 +1099,7 @@
         }
       }
 
-      function showAdmin() {
-        if (!userInfo || userInfo.role !== "교사") {
-          alert("비정상적인 접근입니다. 관리자 권한이 없습니다.");
-          logout();
-          return;
-        }
-
-        document.getElementById("topRightControls").classList.remove("hidden");
-        document.getElementById("appCard").style.maxWidth = "600px";
-        document.getElementById("adminSection").classList.remove("hidden");
-
-        // [추가] Flatpickr 캘린더 초기화
-        fpCalendar = flatpickr("#calendarTrigger", {
-          locale: "ko", // 한국어 설정
-          disableMobile: true, // 모바일 환경에서도 네이티브 달력을 띄우지 않고 커스텀 UI 강제 적용
-          defaultDate: currentAdminDate,
-          onChange: function (selectedDates, dateStr, instance) {
-            if (selectedDates.length > 0) {
-              pickDate(selectedDates[0]);
-            }
-          },
-        });
-
-        fetchAdminData(false);
-
-        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-        autoRefreshTimer = setInterval(() => {
-          fetchAdminData(true);
-        }, 10000);
-      }
-
+      // ── 학생 화면 ─────────────────────────────────────────────────────
       async function setupStudentView() {
         const now = new Date();
         const days = ["일", "월", "화", "수", "목", "금", "토"];
@@ -957,7 +1112,7 @@
         document.getElementById("myTimeInfo").innerText =
           `내 기준: ${userInfo.inTime} 입실 / ${userInfo.outTime} 퇴실`;
 
-        if (dayIdx < 2 || dayIdx > 4) {
+        if (!FIELD_DAYS.includes(dayIdx)) {
           const bIn = document.getElementById("btnIn");
           const bOut = document.getElementById("btnOut");
           bIn.disabled = true;
@@ -975,8 +1130,40 @@
           action: "getStudentStatus",
           id: userInfo.id,
         });
+        if (res.success) updateStudentButtons(res.inDone, res.outDone);
+      }
+
+      async function submitAttend(type) {
+        const stdTime = type === "입실" ? userInfo.inTime : userInfo.outTime;
+        const btn =
+          type === "입실"
+            ? document.getElementById("btnIn")
+            : document.getElementById("btnOut");
+
+        btn.disabled = true;
+        btn.innerText = "⏳ 기록 중...";
+
+        const res = await callAPI({
+          action: "recordAttendance",
+          id: userInfo.id,
+          name: userInfo.name,
+          type,
+          stdTime,
+        });
+
         if (res.success) {
-          updateStudentButtons(res.inDone, res.outDone);
+          alert(res.msg);
+          const status = await callAPI({
+            action: "getStudentStatus",
+            id: userInfo.id,
+          });
+          if (status.success)
+            updateStudentButtons(status.inDone, status.outDone);
+        } else {
+          alert(res.msg);
+          btn.disabled = false;
+          btn.innerText =
+            type === "입실" ? "👆 입실 기록하기" : "👋 퇴실 기록하기";
         }
       }
 
@@ -1005,7 +1192,38 @@
         }
       }
 
-      // [수정] 달력 선택 로직
+      // ── 교사 대시보드 ─────────────────────────────────────────────────
+      function showAdmin() {
+        if (!userInfo || userInfo.role !== "교사") {
+          alert("비정상적인 접근입니다. 관리자 권한이 없습니다.");
+          logout();
+          return;
+        }
+
+        document.getElementById("appCard").style.maxWidth = "600px";
+        document.getElementById("adminSection").classList.remove("hidden");
+
+        fpCalendar = flatpickr("#calendarTrigger", {
+          locale: "ko",
+          disableMobile: true,
+          defaultDate: currentAdminDate,
+          onChange(selectedDates) {
+            if (selectedDates.length > 0) pickDate(selectedDates[0]);
+          },
+        });
+
+        fetchAdminData(false);
+        startAutoRefresh();
+      }
+
+      // ✅ 자동 새로고침 함수 분리
+      function startAutoRefresh() {
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+        autoRefreshTimer = setInterval(() => {
+          if (!document.hidden) fetchAdminData(true);
+        }, AUTO_REFRESH_MS);
+      }
+
       function pickDate(dateObj) {
         if (!dateObj) return;
         currentAdminDate = new Date(dateObj);
@@ -1013,17 +1231,15 @@
         renderDashboard();
       }
 
-      // [수정] 좌/우 네비게이션 버튼 로직 (Flatpickr와 동기화)
       function changeDate(offset) {
         currentAdminDate.setDate(currentAdminDate.getDate() + offset);
-        if (fpCalendar) fpCalendar.setDate(currentAdminDate); // 달력 UI 갱신
+        if (fpCalendar) fpCalendar.setDate(currentAdminDate);
         currentPage = 1;
         renderDashboard();
       }
 
       async function fetchAdminData(isSilent = false) {
         const btn = document.getElementById("refreshBtn");
-
         if (!isSilent && btn) {
           btn.innerText = "데이터 가져오는 중...";
           btn.disabled = true;
@@ -1053,16 +1269,14 @@
         const targetDateStr = formatDateForCompare(currentAdminDate);
         const adminDayIdx = currentAdminDate.getDay();
 
-        // [수정] 텍스트만 깔끔하게 버튼 안에 표시되도록 변경
         document.getElementById("displayDateText").innerText =
           `${targetDateStr} (${days[adminDayIdx]})`;
 
         const adminWarning = document.getElementById("adminDayWarning");
-        if (adminDayIdx < 2 || adminDayIdx > 4) {
-          adminWarning.classList.remove("hidden");
-        } else {
-          adminWarning.classList.add("hidden");
-        }
+        adminWarning.classList.toggle(
+          "hidden",
+          FIELD_DAYS.includes(adminDayIdx),
+        );
 
         currentFilteredData = [];
         let statIn = 0,
@@ -1075,41 +1289,34 @@
 
         allAdminData.forEach((r) => {
           if (!r || r.length < 8) return;
+          if (r[1].trim() !== targetDateStr) return;
 
-          const rowDateStr = r[1].trim();
-          if (rowDateStr === targetDateStr) {
-            currentFilteredData.push(r);
+          currentFilteredData.push(r);
 
-            const type = r[5],
-              status = r[7];
-            const studentId = r[3].trim();
-            const studentName = r[4].trim();
+          const type = r[5];
+          const status = r[7];
+          const studentId = r[3].trim();
+          const studentName = r[4].trim();
 
-            if (type === "입실") {
-              recordedInIds.add(studentId);
-              statIn++;
+          if (type === "입실") {
+            recordedInIds.add(studentId);
+            statIn++;
 
-              const recTimeParts = r[0].toString().trim().split(":");
-              const stdTimeParts = r[6].toString().trim().split(":");
-              const recMins =
-                parseInt(recTimeParts[0], 10) * 60 +
-                parseInt(recTimeParts[1], 10);
-              const stdMins =
-                parseInt(stdTimeParts[0], 10) * 60 +
-                parseInt(stdTimeParts[1], 10);
-
-              if (recMins - stdMins >= 25) {
-                late25Students.push(`${studentName}(${studentId})`);
-              }
-            }
-
-            if (type === "퇴실") {
-              recordedOutIds.add(studentId);
-              statOut++;
-            }
-
-            if (status === "지각" || status === "조퇴") statWarn++;
+            const recParts = r[0].toString().trim().split(":");
+            const stdParts = r[6].toString().trim().split(":");
+            const recMins =
+              parseInt(recParts[0], 10) * 60 + parseInt(recParts[1], 10);
+            const stdMins =
+              parseInt(stdParts[0], 10) * 60 + parseInt(stdParts[1], 10);
+            if (recMins - stdMins >= 25)
+              late25Students.push(`${esc(studentName)}(${esc(studentId)})`);
           }
+
+          if (type === "퇴실") {
+            recordedOutIds.add(studentId);
+            statOut++;
+          }
+          if (status === "지각" || status === "조퇴") statWarn++;
         });
 
         document.getElementById("countIn").innerText = statIn + "명";
@@ -1118,54 +1325,47 @@
 
         const allRecordedIds = new Set([...recordedInIds, ...recordedOutIds]);
         const unrecordedStudents = allStudents.filter(
-          (student) => !allRecordedIds.has(student.id),
+          (s) => !allRecordedIds.has(s.id),
         );
-        let unrecordedHtml = unrecordedStudents
-          .map((s) => `${s.name}(${s.id})`)
-          .join(", ");
-        if (unrecordedHtml === "")
-          unrecordedHtml =
-            "<span style='color:#10b981; font-weight:700;'>✅ 1회 이상 모두 입력 완료</span>";
-        document.getElementById("unrecordedList").innerHTML = unrecordedHtml;
+        document.getElementById("unrecordedList").innerHTML =
+          unrecordedStudents.length
+            ? unrecordedStudents
+                .map((s) => `${esc(s.name)}(${esc(s.id)})`)
+                .join(", ")
+            : "<span style='color:#10b981; font-weight:700;'>✅ 1회 이상 모두 입력 완료</span>";
 
-        let late25Html =
-          late25Students.length > 0
-            ? late25Students.join(", ")
-            : "<span style='color:#10b981; font-weight:700;'>✅ 대상자 없음</span>";
-        document.getElementById("late25List").innerHTML = late25Html;
+        document.getElementById("late25List").innerHTML = late25Students.length
+          ? late25Students.join(", ")
+          : "<span style='color:#10b981; font-weight:700;'>✅ 대상자 없음</span>";
 
         const now = new Date();
         const isToday = targetDateStr === formatDateForCompare(now);
         const isPastDate = targetDateStr < formatDateForCompare(now);
 
-        let missingOutHtml = "";
         if (isPastDate || (isToday && now.getHours() >= 18)) {
-          const missingOutStudents = allStudents.filter(
+          const missing = allStudents.filter(
             (s) => recordedInIds.has(s.id) && !recordedOutIds.has(s.id),
           );
-          if (missingOutStudents.length > 0) {
-            missingOutHtml = missingOutStudents
-              .map((s) => `${s.name}(${s.id})`)
-              .join(", ");
-          } else {
-            missingOutHtml =
-              "<span style='color:#10b981; font-weight:700;'>✅ 전원 퇴실 완료</span>";
-          }
+          document.getElementById("missingOutList").innerHTML = missing.length
+            ? missing.map((s) => `${esc(s.name)}(${esc(s.id)})`).join(", ")
+            : "<span style='color:#10b981; font-weight:700;'>✅ 전원 퇴실 완료</span>";
         } else {
-          missingOutHtml =
+          document.getElementById("missingOutList").innerHTML =
             "<span style='color:#64748b;'>아직 18시가 되지 않았습니다.</span>";
         }
-        document.getElementById("missingOutList").innerHTML = missingOutHtml;
 
-        const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
+        const totalPages = Math.ceil(
+          currentFilteredData.length / ITEMS_PER_PAGE,
+        );
         if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
-
         displayPage(currentPage);
       }
 
       function displayPage(page) {
         currentPage = page;
-        const totalPages = Math.ceil(currentFilteredData.length / itemsPerPage);
+        const totalPages = Math.ceil(
+          currentFilteredData.length / ITEMS_PER_PAGE,
+        );
 
         if (totalPages === 0) {
           document.getElementById("dashboardContent").innerHTML =
@@ -1174,19 +1374,24 @@
           return;
         }
 
-        const startIdx = (page - 1) * itemsPerPage;
-        const endIdx = startIdx + itemsPerPage;
-        const pageData = currentFilteredData.slice(startIdx, endIdx);
+        const startIdx = (page - 1) * ITEMS_PER_PAGE;
+        const pageData = currentFilteredData.slice(
+          startIdx,
+          startIdx + ITEMS_PER_PAGE,
+        );
 
         let html = "";
         pageData.forEach((r) => {
-          const type = r[5],
-            status = r[7],
-            studentId = r[3].trim(),
-            studentName = r[4].trim();
-          let badgeClass = "bg-normal";
-          if (status === "지각") badgeClass = "bg-late";
-          if (status === "조퇴") badgeClass = "bg-early";
+          const type = r[5];
+          const status = r[7];
+          const studentId = r[3].trim();
+          const studentName = r[4].trim();
+          const badgeClass =
+            status === "지각"
+              ? "bg-late"
+              : status === "조퇴"
+                ? "bg-early"
+                : "bg-normal";
           const cleanTime = r[0]
             .toString()
             .trim()
@@ -1195,11 +1400,13 @@
             .join(":");
 
           html += `<tr>
-        <td><strong>${studentId}</strong><br><span style="font-size:11px;color:#64748b">${studentName}</span></td>
-        <td style="font-weight:700; color:${type === "입실" ? "#10b981" : "#f59e0b"}">${type}</td>
-        <td>${cleanTime}<br><span style="font-size:10px;color:#94a3b8">기준 ${r[6]}</span></td>
-        <td><span class="badge ${badgeClass}">${status}</span></td>
-      </tr>`;
+            <td><strong>${esc(studentId)}</strong><br>
+                <span style="font-size:11px;color:#64748b">${esc(studentName)}</span></td>
+            <td style="font-weight:700; color:${type === "입실" ? "#10b981" : "#f59e0b"}">${esc(type)}</td>
+            <td>${esc(cleanTime)}<br>
+                <span style="font-size:10px;color:#94a3b8">기준 ${esc(r[6])}</span></td>
+            <td><span class="badge ${badgeClass}">${esc(status)}</span></td>
+          </tr>`;
         });
 
         document.getElementById("dashboardContent").innerHTML = html;
@@ -1207,16 +1414,13 @@
       }
 
       function renderPaginationControls(totalPages) {
-        let html = `<div class="pagination">`;
+        let html = '<div class="pagination">';
         html += `<button class="page-btn" ${currentPage === 1 ? "disabled" : ""} onclick="displayPage(${currentPage - 1})">◀</button>`;
-
         for (let i = 1; i <= totalPages; i++) {
           html += `<button class="page-btn ${i === currentPage ? "active" : ""}" onclick="displayPage(${i})">${i}</button>`;
         }
-
         html += `<button class="page-btn" ${currentPage === totalPages ? "disabled" : ""} onclick="displayPage(${currentPage + 1})">▶</button>`;
-        html += `</div>`;
-
+        html += "</div>";
         document.getElementById("paginationControls").innerHTML = html;
       }
 
@@ -1225,6 +1429,17 @@
         const m = String(dateObj.getMonth() + 1).padStart(2, "0");
         const d = String(dateObj.getDate()).padStart(2, "0");
         return `${y}-${m}-${d}`;
+      }
+
+      // ── XSS 방어: HTML 특수문자 이스케이프 ───────────────────────────
+      // 시트에서 온 모든 사용자 데이터는 반드시 이 함수를 거쳐 출력합니다.
+      function esc(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#x27;");
       }
     </script>
   </body>
