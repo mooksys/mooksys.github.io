@@ -6,36 +6,79 @@
     <title>광교1동성당 크리스토폴 봉사자 스케줄</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
-      * {
+      /* =====================================================================
+         DESIGN TOKENS
+         ===================================================================== */
+      :root {
+        --primary: #6c5ce7;
+        --primary-light: #a29bfe;
+        --primary-xlight: #f0eeff;
+        --primary-border: #dcd6ff;
+        --success: #00b894;
+        --success-light: #55efc4;
+        --danger: #e55039;
+        --danger-light: #fff0f0;
+        --danger-border: #ffe0e0;
+        --warn-bg: #f1f2f6;
+        --warn-text: #636e72;
+        --orange: #d35400;
+        --orange-light: #fdf3e8;
+        --text-main: #2d3436;
+        --text-muted: #636e72;
+        --text-faint: #b2bec3;
+        --bg-page: #f5f6fa;
+        --bg-card: #ffffff;
+        --border-light: #f1f2f6;
+        --border-mid: #e0e0e0;
+        --border-table: #dcdde1;
+        --shadow-card: 0 8px 30px rgba(108, 92, 231, 0.08);
+        --shadow-primary: 0 4px 20px rgba(108, 92, 231, 0.3);
+        --radius-sm: 8px;
+        --radius-md: 12px;
+        --radius-lg: 16px;
+        --radius-xl: 20px;
+        --radius-pill: 30px;
+        --transition: 0.2s ease;
+      }
+
+      /* =====================================================================
+         RESET & BASE
+         ===================================================================== */
+      *,
+      *::before,
+      *::after {
         box-sizing: border-box;
         margin: 0;
         padding: 0;
       }
       body {
         font-family: "Segoe UI", sans-serif;
-        background: #f5f6fa;
-        color: #2d3436;
+        background: var(--bg-page);
+        color: var(--text-main);
         min-height: 100vh;
       }
 
+      /* =====================================================================
+         AUTH SCREENS
+         ===================================================================== */
       .full-screen-center {
         display: flex;
         flex-direction: column;
         align-items: center;
         justify-content: center;
         min-height: 100vh;
-        background: #f5f6fa;
+        background: var(--bg-page);
         padding: 20px;
       }
       .auth-card {
-        background: white;
+        background: var(--bg-card);
         border-radius: 24px;
         padding: 40px 32px;
         box-shadow: 0 10px 30px rgba(108, 92, 231, 0.15);
         width: 100%;
         max-width: 400px;
         text-align: center;
-        border: 1px solid #f1f2f6;
+        border: 1px solid var(--border-light);
         animation: slideInUp 0.4s ease;
       }
       @keyframes slideInUp {
@@ -49,14 +92,14 @@
         }
       }
       .auth-card h2 {
-        color: #6c5ce7;
+        color: var(--primary);
         font-size: 1.5rem;
         margin-bottom: 8px;
         font-weight: 800;
         letter-spacing: -0.5px;
       }
       .auth-card p {
-        color: #636e72;
+        color: var(--text-muted);
         font-size: 0.85rem;
         margin-bottom: 24px;
         line-height: 1.4;
@@ -65,30 +108,34 @@
         width: 100%;
         padding: 14px 16px;
         margin-bottom: 12px;
-        border: 1.5px solid #e0e0e0;
-        border-radius: 12px;
+        border: 1.5px solid var(--border-mid);
+        border-radius: var(--radius-md);
         font-size: 0.95rem;
         outline: none;
-        transition: border 0.2s;
+        transition: border var(--transition);
         background: #fafafa;
       }
       .auth-card input:focus {
-        border-color: #6c5ce7;
-        background: white;
+        border-color: var(--primary);
+        background: var(--bg-card);
       }
       .auth-card button {
         width: 100%;
         padding: 14px;
-        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-light)
+        );
         color: white;
         border: none;
-        border-radius: 12px;
+        border-radius: var(--radius-md);
         font-size: 1rem;
         font-weight: 700;
         cursor: pointer;
         transition:
-          transform 0.2s,
-          box-shadow 0.2s;
+          transform var(--transition),
+          box-shadow var(--transition);
         margin-top: 8px;
       }
       .auth-card button:hover {
@@ -96,24 +143,53 @@
         box-shadow: 0 8px 20px rgba(108, 92, 231, 0.3);
       }
       .auth-error {
-        color: #e55039;
+        color: var(--danger);
         font-size: 0.8rem;
         margin-top: 12px;
         font-weight: 700;
         display: none;
-        background: #fff0f0;
+        background: var(--danger-light);
         padding: 8px;
-        border-radius: 8px;
+        border-radius: var(--radius-sm);
+      }
+      /* 비밀번호 강도 표시 */
+      .pw-strength-bar {
+        height: 4px;
+        border-radius: 2px;
+        background: var(--border-mid);
+        margin: -6px 0 10px;
+        overflow: hidden;
+      }
+      .pw-strength-fill {
+        height: 100%;
+        border-radius: 2px;
+        transition:
+          width 0.3s,
+          background 0.3s;
+        width: 0%;
+      }
+      .pw-strength-text {
+        font-size: 0.72rem;
+        text-align: left;
+        margin-bottom: 8px;
+        color: var(--text-faint);
       }
 
+      /* =====================================================================
+         HEADER
+         ===================================================================== */
       header {
-        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-light)
+        );
         color: white;
         padding: 28px 32px;
         display: flex;
         justify-content: space-between;
         align-items: center;
-        box-shadow: 0 4px 20px rgba(108, 92, 231, 0.3);
+        box-shadow: var(--shadow-primary);
         flex-wrap: wrap;
         gap: 12px;
       }
@@ -137,7 +213,7 @@
       }
       .date-badge {
         background: rgba(255, 255, 255, 0.2);
-        border-radius: 12px;
+        border-radius: var(--radius-md);
         padding: 8px 18px;
         font-size: 0.85rem;
         backdrop-filter: blur(4px);
@@ -151,7 +227,7 @@
         font-size: 0.82rem;
         font-weight: 700;
         cursor: pointer;
-        transition: all 0.2s;
+        transition: background var(--transition);
       }
       .btn-header:hover {
         background: rgba(255, 255, 255, 0.4);
@@ -160,32 +236,49 @@
         background: rgba(255, 255, 255, 0.1);
         border-color: rgba(255, 255, 255, 0.3);
       }
+      /* 초기화 버튼은 관리자 메뉴 안으로 이동 — 헤더에서 제거 */
 
+      /* =====================================================================
+         LAYOUT
+         ===================================================================== */
       main {
         max-width: 1000px;
         margin: 0 auto;
         padding: 32px 20px;
       }
 
+      /* =====================================================================
+         TOAST
+         ===================================================================== */
       #toast {
         position: fixed;
         bottom: 28px;
         left: 50%;
         transform: translateX(-50%) translateY(80px);
-        background: #2d3436;
+        background: var(--text-main);
         color: white;
         padding: 12px 24px;
-        border-radius: 30px;
+        border-radius: var(--radius-pill);
         font-size: 0.85rem;
         font-weight: 600;
         transition: transform 0.3s ease;
         z-index: 999;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+        pointer-events: none;
       }
       #toast.show {
         transform: translateX(-50%) translateY(0);
       }
+      #toast.toast-error {
+        background: var(--danger);
+      }
+      #toast.toast-success {
+        background: var(--success);
+      }
 
+      /* =====================================================================
+         SECTIONS
+         ===================================================================== */
       .this-week,
       .schedule {
         margin-bottom: 40px;
@@ -195,7 +288,7 @@
         font-weight: 700;
         letter-spacing: 1.5px;
         text-transform: uppercase;
-        color: #6c5ce7;
+        color: var(--primary);
         margin-bottom: 14px;
         display: flex;
         justify-content: space-between;
@@ -203,45 +296,47 @@
       }
 
       .no-week {
-        background: white;
-        border-radius: 20px;
+        background: var(--bg-card);
+        border-radius: var(--radius-xl);
         padding: 36px 32px;
         text-align: center;
-        box-shadow: 0 8px 30px rgba(108, 92, 231, 0.08);
-        color: #b2bec3;
+        box-shadow: var(--shadow-card);
+        color: var(--text-faint);
         font-size: 0.95rem;
       }
       .no-week strong {
         display: block;
         font-size: 1.1rem;
-        color: #6c5ce7;
+        color: var(--primary);
         margin-bottom: 8px;
       }
 
       .capture-container {
-        background: white;
-        border-radius: 20px;
+        background: var(--bg-card);
+        border-radius: var(--radius-xl);
         padding: 28px 32px;
         box-shadow: 0 8px 30px rgba(108, 92, 231, 0.12);
-        border-left: 5px solid #6c5ce7;
+        border-left: 5px solid var(--primary);
       }
 
+      /* =====================================================================
+         VOLUNTEER CARDS (이번 주)
+         ===================================================================== */
       .week-highlight h2 {
         font-size: 1.2rem;
-        color: #6c5ce7;
+        color: var(--primary);
         margin-bottom: 4px;
       }
       .week-highlight .date-range {
         font-size: 0.95rem;
-        color: #2d3436;
+        color: var(--text-main);
         font-weight: 700;
         margin-bottom: 24px;
         display: inline-block;
-        background: #f0eeff;
+        background: var(--primary-xlight);
         padding: 4px 12px;
-        border-radius: 20px;
+        border-radius: var(--radius-pill);
       }
-
       .volunteer-cards {
         display: flex;
         gap: 16px;
@@ -250,16 +345,16 @@
       .vol-card {
         flex: 1;
         min-width: 220px;
-        background: white;
-        border-radius: 16px;
+        background: var(--bg-card);
+        border-radius: var(--radius-lg);
         box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
-        border: 1px solid #f1f2f6;
+        border: 1px solid var(--border-light);
         display: flex;
         flex-direction: column;
         padding: 20px 22px;
         transition:
-          transform 0.2s,
-          box-shadow 0.2s;
+          transform var(--transition),
+          box-shadow var(--transition);
         position: relative;
       }
       .vol-card:hover {
@@ -268,18 +363,17 @@
       }
 
       .theme-0 {
-        border-left: 6px solid #6c5ce7;
+        border-left: 6px solid var(--primary);
       }
       .theme-0 .vol-avatar {
-        background: #f0eeff;
-        color: #6c5ce7;
+        background: var(--primary-xlight);
+        color: var(--primary);
       }
       .theme-0 .highlight-phone {
-        color: #6c5ce7;
-        background: #f0eeff;
-        border: 1px solid #dcd6ff;
+        color: var(--primary);
+        background: var(--primary-xlight);
+        border: 1px solid var(--primary-border);
       }
-
       .theme-1 {
         border-left: 6px solid #00b894;
       }
@@ -292,30 +386,28 @@
         background: #e6f8f3;
         border: 1px solid #b8eadf;
       }
-
       .theme-2 {
-        border-left: 6px solid #e55039;
+        border-left: 6px solid var(--danger);
       }
       .theme-2 .vol-avatar {
         background: #fdedec;
-        color: #e55039;
+        color: var(--danger);
       }
       .theme-2 .highlight-phone {
-        color: #e55039;
+        color: var(--danger);
         background: #fdedec;
         border: 1px solid #f8cdd1;
       }
-
       .theme-3 {
-        border-left: 6px solid #d35400;
+        border-left: 6px solid var(--orange);
       }
       .theme-3 .vol-avatar {
-        background: #fdf3e8;
-        color: #d35400;
+        background: var(--orange-light);
+        color: var(--orange);
       }
       .theme-3 .highlight-phone {
-        color: #d35400;
-        background: #fdf3e8;
+        color: var(--orange);
+        background: var(--orange-light);
         border: 1px solid #f6dabb;
       }
 
@@ -344,7 +436,6 @@
         line-height: 1.1;
         letter-spacing: -0.5px;
       }
-
       .vol-info-main {
         display: flex;
         flex-direction: column;
@@ -354,13 +445,13 @@
         font-size: 0.75rem;
         font-weight: 700;
         letter-spacing: 0.5px;
-        color: #b2bec3;
+        color: var(--text-faint);
         text-transform: uppercase;
       }
       .vol-name {
         font-size: 1.25rem;
         font-weight: 800;
-        color: #2d3436;
+        color: var(--text-main);
         display: flex;
         flex-direction: column;
         gap: 2px;
@@ -368,20 +459,17 @@
       }
       .vol-baptism {
         font-size: 0.85rem;
-        color: #a29bfe;
+        color: var(--primary-light);
         font-weight: 600;
       }
-
       .vol-card-bottom {
         display: flex;
         justify-content: space-between;
         align-items: center;
         padding-top: 14px;
-        border-top: 1.5px dashed #f1f2f6;
+        border-top: 1.5px dashed var(--border-light);
         gap: 8px;
       }
-
-      /* 전화번호 강조 CSS + 줄바꿈 방지(white-space: nowrap) 추가 */
       .vol-contact.highlight-phone {
         font-size: 0.95rem;
         font-weight: 800;
@@ -392,18 +480,21 @@
       }
       .vol-contact.empty-phone {
         font-size: 0.85rem;
-        color: #b2bec3;
+        color: var(--text-faint);
         font-style: italic;
-        background: #f5f6fa;
+        background: var(--bg-page);
         padding: 6px 12px;
         border-radius: 10px;
-        border: 1px solid #e0e0e0;
+        border: 1px solid var(--border-mid);
         white-space: nowrap;
       }
 
+      /* =====================================================================
+         ROLE BADGES
+         ===================================================================== */
       .role-badge {
         display: inline-block;
-        border-radius: 20px;
+        border-radius: var(--radius-pill);
         padding: 4px 14px;
         font-size: 0.75rem;
         font-weight: 700;
@@ -426,10 +517,13 @@
         color: #c0006a;
       }
       .role-기타 {
-        background: #eeeaff;
-        color: #6c5ce7;
+        background: var(--primary-xlight);
+        color: var(--primary);
       }
 
+      /* =====================================================================
+         SCHEDULE TABLE
+         ===================================================================== */
       .month-nav {
         display: flex;
         align-items: center;
@@ -443,32 +537,32 @@
       }
       .month-nav button,
       .btn-export {
-        background: white;
-        border: 1.5px solid #e0e0e0;
-        border-radius: 8px;
+        background: var(--bg-card);
+        border: 1.5px solid var(--border-mid);
+        border-radius: var(--radius-sm);
         padding: 5px 14px;
         cursor: pointer;
         font-size: 0.85rem;
         font-weight: 700;
-        color: #6c5ce7;
-        transition: all 0.2s;
+        color: var(--primary);
+        transition: all var(--transition);
       }
       .month-nav button:hover,
       .btn-export:hover {
-        background: #6c5ce7;
+        background: var(--primary);
         color: white;
-        border-color: #6c5ce7;
+        border-color: var(--primary);
       }
       .btn-export {
-        background: #f0eeff;
-        border-color: #dcd6ff;
+        background: var(--primary-xlight);
+        border-color: var(--primary-border);
       }
       .month-nav span {
         font-size: 0.8rem;
         font-weight: 700;
         letter-spacing: 1.5px;
         text-transform: uppercase;
-        color: #6c5ce7;
+        color: var(--primary);
       }
 
       .table-title-wrap {
@@ -476,12 +570,12 @@
         justify-content: space-between;
         align-items: flex-end;
         padding: 5px 10px 20px 10px;
-        border-bottom: 2px solid #f1f2f6;
+        border-bottom: 2px solid var(--border-light);
         margin-bottom: 15px;
       }
       .table-title-wrap h2 {
         font-size: 1.5rem;
-        color: #2d3436;
+        color: var(--text-main);
         font-weight: 800;
         letter-spacing: -0.5px;
         position: relative;
@@ -500,7 +594,7 @@
       }
       .table-subtitle {
         font-size: 0.85rem;
-        color: #b2bec3;
+        color: var(--text-faint);
         font-weight: 500;
       }
 
@@ -512,7 +606,7 @@
       }
       .schedule thead {
         background: transparent;
-        color: #636e72;
+        color: var(--text-muted);
       }
       .schedule thead th {
         padding: 10px 18px;
@@ -523,11 +617,11 @@
         border-bottom: 2px solid #dfe6e9;
       }
       .schedule tbody tr {
-        background: white;
+        background: var(--bg-card);
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
         transition:
-          transform 0.2s,
-          box-shadow 0.2s;
+          transform var(--transition),
+          box-shadow var(--transition);
       }
       .schedule tbody tr:hover {
         transform: translateY(-2px);
@@ -537,15 +631,15 @@
         padding: 16px 18px;
         font-size: 0.9rem;
         line-height: 1.4;
-        border-top: 1.5px solid #dcdde1;
-        border-bottom: 1.5px solid #dcdde1;
+        border-top: 1.5px solid var(--border-table);
+        border-bottom: 1.5px solid var(--border-table);
       }
       .schedule tbody tr td:first-child {
-        border-left: 1.5px solid #dcdde1;
+        border-left: 1.5px solid var(--border-table);
         border-radius: 14px 0 0 14px;
       }
       .schedule tbody tr td:last-child {
-        border-right: 1.5px solid #dcdde1;
+        border-right: 1.5px solid var(--border-table);
         border-radius: 0 14px 14px 0;
       }
       .schedule tbody tr.current-week td {
@@ -553,7 +647,7 @@
         background: #fffdfd;
       }
       .schedule tbody tr.current-week td:first-child {
-        border-left: 6px solid #e55039;
+        border-left: 6px solid var(--danger);
       }
       .schedule tbody tr.past-week {
         opacity: 0.6;
@@ -562,22 +656,21 @@
 
       .week-label {
         font-weight: 800;
-        color: #2d3436;
+        color: var(--text-main);
         white-space: nowrap;
         font-size: 0.95rem;
       }
       .date-text {
-        color: #636e72;
+        color: var(--text-muted);
         font-weight: 700;
         font-size: 0.95rem;
         letter-spacing: 0.5px;
       }
-
       .vol-tag {
         display: inline-block;
-        background: #eeeaff;
-        color: #6c5ce7;
-        border-radius: 20px;
+        background: var(--primary-xlight);
+        color: var(--primary);
+        border-radius: var(--radius-pill);
         padding: 5px 14px;
         font-size: 0.85rem;
         font-weight: 700;
@@ -586,9 +679,9 @@
       }
       .current-badge {
         display: inline-block;
-        background: #e55039;
+        background: var(--danger);
         color: white;
-        border-radius: 20px;
+        border-radius: var(--radius-pill);
         padding: 3px 12px;
         font-size: 0.7rem;
         font-weight: 700;
@@ -596,40 +689,43 @@
         vertical-align: middle;
       }
       .unassigned {
-        color: #b2bec3;
+        color: var(--text-faint);
         font-size: 0.85rem;
         font-style: italic;
-        background: #f1f2f6;
+        background: var(--border-light);
         padding: 4px 12px;
-        border-radius: 20px;
+        border-radius: var(--radius-pill);
       }
 
+      /* =====================================================================
+         ADMIN MANAGE SECTION
+         ===================================================================== */
       .btn-toggle-manage {
         width: 100%;
-        background: white;
-        border: 1.5px solid #e0e0e0;
-        border-radius: 16px;
+        background: var(--bg-card);
+        border: 1.5px solid var(--border-mid);
+        border-radius: var(--radius-lg);
         padding: 20px 24px;
         font-size: 1.05rem;
         font-weight: 800;
-        color: #2d3436;
+        color: var(--text-main);
         cursor: pointer;
         display: flex;
         justify-content: space-between;
         align-items: center;
         box-shadow: 0 4px 15px rgba(0, 0, 0, 0.04);
-        transition: all 0.2s;
+        transition: all var(--transition);
         margin-bottom: 20px;
       }
       .btn-toggle-manage:hover {
-        border-color: #6c5ce7;
-        color: #6c5ce7;
+        border-color: var(--primary);
+        color: var(--primary);
         box-shadow: 0 6px 20px rgba(108, 92, 231, 0.1);
       }
 
       .form-section {
-        background: white;
-        border-radius: 20px;
+        background: var(--bg-card);
+        border-radius: var(--radius-xl);
         padding: 28px 32px;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
         margin-bottom: 24px;
@@ -639,6 +735,7 @@
         font-weight: 700;
         margin-bottom: 20px;
       }
+
       .form-grid {
         display: grid;
         grid-template-columns: 1.5fr 1fr 1fr 1fr auto;
@@ -648,7 +745,7 @@
       label {
         font-size: 0.78rem;
         font-weight: 600;
-        color: #636e72;
+        color: var(--text-muted);
         display: block;
         margin-bottom: 6px;
       }
@@ -657,20 +754,23 @@
       input[type="password"] {
         width: 100%;
         padding: 10px 14px;
-        border: 1.5px solid #e0e0e0;
+        border: 1.5px solid var(--border-mid);
         border-radius: 10px;
         font-size: 0.88rem;
         outline: none;
-        transition: border 0.2s;
+        transition: border var(--transition);
         background: #fafafa;
       }
       select:focus,
       input[type="text"]:focus,
       input[type="password"]:focus {
-        border-color: #6c5ce7;
-        background: white;
+        border-color: var(--primary);
+        background: var(--bg-card);
       }
 
+      /* =====================================================================
+         BUTTONS
+         ===================================================================== */
       .btn {
         padding: 10px 22px;
         border: none;
@@ -678,30 +778,46 @@
         cursor: pointer;
         font-size: 0.88rem;
         font-weight: 700;
-        transition: all 0.2s;
+        transition: all var(--transition);
       }
       .btn-primary {
-        background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-light)
+        );
         color: white;
       }
       .btn-primary:hover {
         transform: translateY(-2px);
         box-shadow: 0 4px 15px rgba(108, 92, 231, 0.4);
       }
-      .btn-danger {
-        background: #fff0f0;
+      .btn-danger-soft {
+        background: var(--danger-light);
         color: #e17055;
         font-size: 0.75rem;
         padding: 4px 10px;
-        border-radius: 8px;
+        border-radius: var(--radius-sm);
         border: none;
         cursor: pointer;
       }
-      .btn-danger:hover {
-        background: #ffe0e0;
+      .btn-danger-soft:hover {
+        background: var(--danger-border);
+      }
+      .btn-danger-strong {
+        background: linear-gradient(135deg, #e17055, var(--danger));
+        color: white;
+      }
+      .btn-danger-strong:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 15px rgba(229, 80, 57, 0.4);
       }
       .btn-success {
-        background: linear-gradient(135deg, #00b894, #55efc4);
+        background: linear-gradient(
+          135deg,
+          var(--success),
+          var(--success-light)
+        );
         color: white;
       }
       .btn-success:hover {
@@ -709,8 +825,8 @@
         box-shadow: 0 4px 15px rgba(0, 184, 148, 0.4);
       }
       .btn-warn {
-        background: #f1f2f6;
-        color: #636e72;
+        background: var(--warn-bg);
+        color: var(--warn-text);
         font-size: 0.8rem;
         padding: 10px 14px;
       }
@@ -721,21 +837,24 @@
       .msg {
         margin-top: 12px;
         font-size: 0.82rem;
-        color: #6c5ce7;
+        color: var(--primary);
         font-weight: 600;
         display: none;
       }
 
+      /* =====================================================================
+         SPECIAL GROUP SECTION
+         ===================================================================== */
       .special-group-section {
         background: #fffcf9;
         border: 1.5px dashed #fab1a0;
-        border-radius: 12px;
+        border-radius: var(--radius-md);
         padding: 20px;
         margin-top: 24px;
         transition: all 0.3s;
       }
       .special-group-section h4 {
-        color: #d35400;
+        color: var(--orange);
         font-size: 0.85rem;
         margin-bottom: 12px;
         display: flex;
@@ -743,23 +862,26 @@
         gap: 6px;
       }
 
+      /* =====================================================================
+         VOL LIST TABLE
+         ===================================================================== */
       .vol-list {
         margin-top: 24px;
-        border-top: 1px solid #f1f2f6;
+        border-top: 1px solid var(--border-light);
         padding-top: 20px;
       }
       .vol-list h4 {
         font-size: 0.82rem;
         font-weight: 700;
-        color: #636e72;
+        color: var(--text-muted);
         margin-bottom: 12px;
       }
       .vol-table-wrapper {
         width: 100%;
         overflow-x: auto;
-        border: 1px solid #f1f2f6;
-        border-radius: 12px;
-        background: white;
+        border: 1px solid var(--border-light);
+        border-radius: var(--radius-md);
+        background: var(--bg-card);
       }
       .vol-table {
         width: 100%;
@@ -769,16 +891,16 @@
       }
       .vol-table thead th {
         background: #faf9ff;
-        color: #6c5ce7;
+        color: var(--primary);
         padding: 12px 16px;
         text-align: left;
         font-size: 0.85rem;
-        border-bottom: 2px solid #e0e0e0;
+        border-bottom: 2px solid var(--border-mid);
         white-space: nowrap;
       }
       .vol-table tbody tr {
         transition: background 0.15s;
-        border-bottom: 1px solid #f1f2f6;
+        border-bottom: 1px solid var(--border-light);
       }
       .vol-table tbody tr:last-child {
         border-bottom: none;
@@ -790,7 +912,7 @@
         padding: 12px 16px;
         font-size: 0.85rem;
         vertical-align: middle;
-        color: #2d3436;
+        color: var(--text-main);
         white-space: nowrap;
       }
       .vol-table .action-btns {
@@ -799,15 +921,18 @@
         flex-wrap: nowrap;
       }
 
+      /* =====================================================================
+         BACKUP & DATA SECTION
+         ===================================================================== */
       .backup-section {
         margin-top: 28px;
-        border-top: 1px solid #f1f2f6;
+        border-top: 1px solid var(--border-light);
         padding-top: 24px;
       }
       .backup-section h4 {
         font-size: 0.82rem;
         font-weight: 700;
-        color: #636e72;
+        color: var(--text-muted);
         margin-bottom: 14px;
       }
       .backup-btns {
@@ -821,26 +946,78 @@
       }
       .storage-info {
         font-size: 0.78rem;
-        color: #b2bec3;
+        color: var(--text-faint);
         margin-top: 10px;
       }
       .storage-info span {
-        color: #6c5ce7;
+        color: var(--primary);
+        font-weight: 700;
+      }
+      .storage-info.error span {
+        color: var(--danger);
+      }
+
+      /* 저장 실패 배너 */
+      .save-retry-banner {
+        display: none;
+        background: #fff8e1;
+        border: 1.5px solid #ffe082;
+        border-radius: var(--radius-sm);
+        padding: 10px 16px;
+        margin-top: 12px;
+        font-size: 0.82rem;
+        color: #b07c00;
+        font-weight: 600;
+        align-items: center;
+        gap: 10px;
+      }
+      .save-retry-banner.visible {
+        display: flex;
+      }
+      .save-retry-banner button {
+        background: #b07c00;
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 4px 12px;
+        cursor: pointer;
+        font-size: 0.78rem;
         font-weight: 700;
       }
 
+      /* 위험 영역 (데이터 초기화) */
+      .danger-zone {
+        margin-top: 28px;
+        border-top: 2px dashed #fab1a0;
+        padding-top: 20px;
+      }
+      .danger-zone h4 {
+        font-size: 0.82rem;
+        font-weight: 700;
+        color: var(--danger);
+        margin-bottom: 10px;
+      }
+      .danger-zone p {
+        font-size: 0.78rem;
+        color: var(--text-muted);
+        margin-bottom: 12px;
+      }
+
+      /* =====================================================================
+         RESPONSIVE
+         ===================================================================== */
       @media (max-width: 768px) {
         .form-grid {
           grid-template-columns: 1fr 1fr 1fr;
         }
-        .form-grid div:first-child {
+        .form-grid > div:first-child {
           grid-column: span 3;
         }
-        .form-grid div:last-child {
+        .form-grid > div:last-child {
           grid-column: span 3;
           margin-top: 10px;
         }
-        .form-grid div:last-child button {
+        .form-grid > div:last-child button {
           width: 100%;
         }
         .volunteer-cards {
@@ -859,7 +1036,6 @@
         .month-nav-controls {
           justify-content: center;
         }
-
         .schedule thead {
           display: none;
         }
@@ -867,7 +1043,7 @@
           display: block;
           margin-bottom: 14px;
           border-radius: 14px !important;
-          border: 1.5px solid #dcdde1 !important;
+          border: 1.5px solid var(--border-table) !important;
           box-shadow: none;
         }
         .schedule tbody tr td {
@@ -880,7 +1056,7 @@
         }
         .schedule tbody tr.current-week {
           border-color: #fab1a0 !important;
-          border-top: 6px solid #e55039 !important;
+          border-top: 6px solid var(--danger) !important;
         }
         .table-title-wrap {
           flex-direction: column;
@@ -891,6 +1067,7 @@
     </style>
   </head>
   <body>
+    <!-- ===== 로그인 화면 ===== -->
     <div id="login-wrapper" class="full-screen-center" style="display: none">
       <div class="auth-card">
         <h2>⛪ 관리자 로그인</h2>
@@ -910,23 +1087,22 @@
         <input
           type="password"
           id="login-pw"
-          placeholder="비밀번호 (초기: 1234)"
-          onkeyup="if (event.key === 'Enter') handleLogin();"
+          placeholder="비밀번호"
+          onkeyup="if (event.key === 'Enter') Auth.handleLogin();"
         />
-        <div id="login-error" class="auth-error">
-          아이디 또는 비밀번호를 확인해주세요.
-        </div>
-        <button onclick="handleLogin()">안전하게 로그인</button>
+        <div id="login-error" class="auth-error"></div>
+        <button onclick="Auth.handleLogin()">안전하게 로그인</button>
       </div>
     </div>
 
+    <!-- ===== 비밀번호 변경 화면 ===== -->
     <div
       id="pw-change-wrapper"
       class="full-screen-center"
       style="display: none"
     >
       <div class="auth-card">
-        <h2 style="color: #00b894">🔒 비밀번호 변경</h2>
+        <h2 style="color: var(--success)">🔒 비밀번호 변경</h2>
         <p>
           보안을 위해 초기 비밀번호(1234)를<br />새로운 비밀번호로 변경해야
           시작할 수 있습니다.
@@ -934,51 +1110,58 @@
         <input
           type="password"
           id="new-pw"
-          placeholder="새 비밀번호 입력 (4자리 이상)"
+          placeholder="새 비밀번호 (6자 이상, 문자+숫자 포함)"
+          oninput="Auth.checkPwStrength(this.value)"
         />
+        <div class="pw-strength-bar">
+          <div class="pw-strength-fill" id="pw-strength-fill"></div>
+        </div>
+        <div class="pw-strength-text" id="pw-strength-text">
+          비밀번호를 입력하세요
+        </div>
         <input
           type="password"
           id="confirm-pw"
           placeholder="새 비밀번호 다시 입력"
-          onkeyup="if (event.key === 'Enter') handleChangePassword();"
+          onkeyup="if (event.key === 'Enter') Auth.handleChangePassword();"
         />
-        <div id="pw-change-error" class="auth-error">
-          비밀번호가 일치하지 않습니다.
-        </div>
+        <div id="pw-change-error" class="auth-error"></div>
         <button
-          style="background: linear-gradient(135deg, #00b894, #55efc4)"
-          onclick="handleChangePassword()"
+          style="
+            background: linear-gradient(
+              135deg,
+              var(--success),
+              var(--success-light)
+            );
+          "
+          onclick="Auth.handleChangePassword()"
         >
           변경 및 시작하기
         </button>
       </div>
     </div>
 
+    <!-- ===== 메인 앱 ===== -->
     <div id="app-wrapper" style="display: none">
       <header>
-        <h1>
-          ⛪ 성당 봉사자 스케줄
-          <span id="header-sub"></span>
-        </h1>
+        <h1>⛪ 성당 봉사자 스케줄<span id="header-sub"></span></h1>
         <div class="header-right">
           <div class="date-badge" id="today-badge"></div>
-          <button class="btn-header" onclick="resetAll()">
-            🗑 데이터 초기화
-          </button>
-          <button class="btn-header btn-logout" onclick="handleLogout()">
+          <button class="btn-header btn-logout" onclick="Auth.handleLogout()">
             로그아웃
           </button>
         </div>
       </header>
 
       <main>
+        <!-- 이번 주 담당자 -->
         <div class="this-week">
           <div class="section-title">
             <span>📌 이번 주 담당자</span>
             <button
               class="btn-export"
               style="padding: 4px 12px; font-size: 0.75rem"
-              onclick="exportCardsImage()"
+              onclick="Export.cards()"
             >
               📸 고화질 카드 저장
             </button>
@@ -986,21 +1169,25 @@
           <div id="hw-container"></div>
         </div>
 
+        <!-- 월별 스케줄표 -->
         <div id="capture-area" class="schedule">
           <div class="month-nav">
             <div class="month-nav-controls">
-              <button onclick="changeMonth(-1)">◀</button>
+              <button onclick="App.changeMonth(-1)">◀</button>
               <span id="month-label"></span>
-              <button onclick="changeMonth(1)">▶</button>
+              <button onclick="App.changeMonth(1)">▶</button>
             </div>
-            <button class="btn-export" onclick="exportScheduleImage()">
+            <button class="btn-export" onclick="Export.schedule()">
               📊 고화질 스케줄표 저장
             </button>
           </div>
-
           <div
             id="capture-table-area"
-            style="background: white; border-radius: 20px; padding: 20px"
+            style="
+              background: var(--bg-card);
+              border-radius: var(--radius-xl);
+              padding: 20px;
+            "
           >
             <div class="table-title-wrap">
               <h2 id="dynamic-table-title">📅 스케줄표</h2>
@@ -1021,33 +1208,35 @@
           </div>
         </div>
 
-        <button class="btn-toggle-manage" onclick="toggleManageSection()">
+        <!-- 관리자 메뉴 토글 -->
+        <button class="btn-toggle-manage" onclick="UI.toggleManage()">
           <span>⚙️ 관리자 메뉴 (배정 및 명단 관리)</span>
           <span id="toggle-icon">▼</span>
         </button>
 
         <div id="manage-section" style="display: none">
+          <!-- 봉사자 배정 -->
           <div class="form-section">
             <h3>✏️ 봉사자 배정 관리</h3>
             <div class="form-grid">
               <div>
-                <label>주차 선택</label>
-                <select id="sel-week"></select>
+                <label>주차 선택</label
+                ><select id="sel-week"></select>
               </div>
               <div>
-                <label>1번 봉사자</label>
-                <select id="sel-vol1"></select>
+                <label>1번 봉사자</label
+                ><select id="sel-vol1"></select>
               </div>
               <div>
-                <label>2번 봉사자</label>
-                <select id="sel-vol2"></select>
+                <label>2번 봉사자</label
+                ><select id="sel-vol2"></select>
               </div>
               <div>
-                <label>3번 봉사자</label>
-                <select id="sel-vol3"></select>
+                <label>3번 봉사자</label
+                ><select id="sel-vol3"></select>
               </div>
               <div>
-                <button class="btn btn-primary" onclick="assignVolunteers()">
+                <button class="btn btn-primary" onclick="Schedule.assign()">
                   배정
                 </button>
               </div>
@@ -1056,6 +1245,7 @@
               ✅ 배정 완료 및 저장되었습니다!
             </div>
 
+            <!-- 4주차 특별담당 -->
             <div class="special-group-section">
               <h4 id="special-setting-title">🚩 4주차 특별담당 설정</h4>
               <div
@@ -1066,21 +1256,21 @@
                 "
               >
                 <div>
-                  <label style="color: #d35400">1번 특별담당</label>
+                  <label style="color: var(--orange)">1번 특별담당</label>
                   <select
                     id="sel-special-vol1"
                     style="border-color: #fab1a0; background: #fffcf9"
                   ></select>
                 </div>
                 <div>
-                  <label style="color: #d35400">2번 특별담당</label>
+                  <label style="color: var(--orange)">2번 특별담당</label>
                   <select
                     id="sel-special-vol2"
                     style="border-color: #fab1a0; background: #fffcf9"
                   ></select>
                 </div>
                 <div>
-                  <label style="color: #d35400">3번 특별담당</label>
+                  <label style="color: var(--orange)">3번 특별담당</label>
                   <select
                     id="sel-special-vol3"
                     style="border-color: #fab1a0; background: #fffcf9"
@@ -1089,19 +1279,26 @@
                 <div>
                   <button
                     class="btn btn-primary"
-                    style="background: #e55039; width: 100%"
-                    onclick="saveSpecialGroup()"
+                    style="background: var(--danger); width: 100%"
+                    onclick="Schedule.saveSpecialGroup()"
                   >
                     설정 저장
                   </button>
                 </div>
               </div>
-              <p style="font-size: 0.75rem; color: #636e72; margin-top: 10px">
+              <p
+                style="
+                  font-size: 0.75rem;
+                  color: var(--text-muted);
+                  margin-top: 10px;
+                "
+              >
                 * 해당 월(달)에만 적용됩니다. 명단에 등록된 인원을 최대 3명까지
                 선택해 주세요. (예: 연령회)
               </p>
             </div>
 
+            <!-- 봉사자 명단 -->
             <div class="vol-list">
               <h4>봉사자 명단 관리</h4>
               <div
@@ -1135,10 +1332,11 @@
                 <div>
                   <label
                     >연락처
-                    <span style="font-weight: 400; color: #b2bec3"
+                    <span style="font-weight: 400; color: var(--text-faint)"
                       >(선택)</span
                     ></label
-                  ><input
+                  >
+                  <input
                     type="text"
                     id="new-contact"
                     placeholder="010-0000-0000"
@@ -1149,7 +1347,7 @@
                     class="btn btn-primary"
                     id="btn-submit-vol"
                     style="flex: 1"
-                    onclick="submitVolunteer()"
+                    onclick="Volunteer.submit()"
                   >
                     + 추가
                   </button>
@@ -1157,13 +1355,12 @@
                     class="btn btn-warn"
                     id="btn-cancel-edit"
                     style="display: none"
-                    onclick="cancelEdit()"
+                    onclick="Volunteer.cancelEdit()"
                   >
                     취소
                   </button>
                 </div>
               </div>
-
               <div class="vol-table-wrapper">
                 <table class="vol-table">
                   <thead>
@@ -1180,10 +1377,14 @@
               </div>
             </div>
 
+            <!-- 데이터 관리 -->
             <div class="backup-section">
               <h4>💾 데이터 관리 (구글 시트 연동)</h4>
               <div class="backup-btns">
-                <button class="btn btn-success" onclick="exportJSON()">
+                <button
+                  class="btn btn-success"
+                  onclick="DataManager.exportJSON()"
+                >
                   ⬇ 수동 백업(JSON) 내보내기
                 </button>
                 <button
@@ -1201,198 +1402,98 @@
                   type="file"
                   id="import-file"
                   accept=".json"
-                  onchange="importJSON(event)"
+                  onchange="DataManager.importJSON(event)"
                 />
+              </div>
+              <div class="save-retry-banner" id="save-retry-banner">
+                ⚠️ 구글 시트 저장에 실패했습니다.
+                <button onclick="DataManager.retrySave()">다시 시도</button>
               </div>
               <div class="storage-info" id="storage-info">
                 마지막 동기화: <span>대기 중...</span>
               </div>
             </div>
+
+            <!-- 위험 영역: 데이터 초기화 -->
+            <div class="danger-zone">
+              <h4>⚠️ 위험 영역</h4>
+              <p>
+                아래 버튼을 누르면 모든 봉사자 정보, 스케줄, 비밀번호가
+                초기화됩니다. 복구할 수 없습니다.
+              </p>
+              <button
+                class="btn btn-danger-strong"
+                onclick="DataManager.resetAll()"
+              >
+                🗑 모든 데이터 초기화
+              </button>
+            </div>
           </div>
         </div>
+        <!-- /manage-section -->
       </main>
     </div>
+    <!-- /app-wrapper -->
 
     <div id="toast"></div>
 
     <script>
-      // 전역 API URL 변수 (JSON에서 불러옴)
-      let API_URL = "";
+      /* ==========================================================================
+       STATE
+       ========================================================================== */
+      const State = (() => {
+        let _volunteers = [];
+        let _schedule = {};
+        let _nextId = 1;
+        let _specialGroup = { name: "연령회", details: "연령회 회원 일동" };
+        let _adminAuth = "";
+        let _apiUrl = "";
 
-      const DAY_KO = ["일", "월", "화", "수", "목", "금", "토"];
-      let editingVolId = null;
+        return {
+          get volunteers() {
+            return _volunteers;
+          },
+          set volunteers(v) {
+            _volunteers = v;
+          },
+          get schedule() {
+            return _schedule;
+          },
+          set schedule(v) {
+            _schedule = v;
+          },
+          get nextId() {
+            return _nextId;
+          },
+          set nextId(v) {
+            _nextId = v;
+          },
+          get specialGroup() {
+            return _specialGroup;
+          },
+          set specialGroup(v) {
+            _specialGroup = v;
+          },
+          get adminAuth() {
+            return _adminAuth;
+          },
+          set adminAuth(v) {
+            _adminAuth = v;
+          },
+          get apiUrl() {
+            return _apiUrl;
+          },
+          set apiUrl(v) {
+            _apiUrl = v;
+          },
+        };
+      })();
 
-      // SHA-256 비밀번호 단방향 암호화 함수
-      async function getSHA256Hash(text) {
-        const msgBuffer = new TextEncoder().encode(text);
-        const hashBuffer = await crypto.subtle.digest("SHA-256", msgBuffer);
-        const hashArray = Array.from(new Uint8Array(hashBuffer));
-        return hashArray.map((b) => b.toString(16).padStart(2, "0")).join("");
-      }
-
+      /* ==========================================================================
+       CONSTANTS
+       ========================================================================== */
       const DEFAULT_PW_HASH =
-        "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4";
-      let adminAuth = "";
-
-      // 로그인 검증
-      async function handleLogin() {
-        const idInput = document.getElementById("login-id").value.trim();
-        const pwInput = document.getElementById("login-pw").value.trim();
-        const errMsg = document.getElementById("login-error");
-
-        if (idInput !== "admin") {
-          errMsg.textContent = "아이디가 올바르지 않습니다.";
-          errMsg.style.display = "block";
-          return;
-        }
-
-        const hashedInput = await getSHA256Hash(pwInput);
-
-        if (hashedInput === adminAuth) {
-          // 💡 세션에 로그인 상태 저장 (새로고침 유지용)
-          sessionStorage.setItem("adminLoggedIn", "true");
-
-          errMsg.style.display = "none";
-          document.getElementById("login-wrapper").style.display = "none";
-
-          if (hashedInput === DEFAULT_PW_HASH) {
-            document.getElementById("pw-change-wrapper").style.display = "flex";
-          } else {
-            document.getElementById("app-wrapper").style.display = "block";
-            renderAll();
-          }
-        } else {
-          errMsg.textContent = "비밀번호가 올바르지 않습니다.";
-          errMsg.style.display = "block";
-        }
-      }
-
-      // 로그아웃 처리
-      function handleLogout() {
-        sessionStorage.removeItem("adminLoggedIn");
-        location.reload();
-      }
-
-      // 비밀번호 변경 저장
-      async function handleChangePassword() {
-        const newPw = document.getElementById("new-pw").value.trim();
-        const confirmPw = document.getElementById("confirm-pw").value.trim();
-        const errMsg = document.getElementById("pw-change-error");
-
-        if (newPw.length < 4) {
-          errMsg.textContent = "비밀번호는 4자리 이상 입력해주세요.";
-          errMsg.style.display = "block";
-          return;
-        }
-        if (newPw === "1234") {
-          errMsg.textContent =
-            "초기 비밀번호(1234) 외의 다른 비밀번호를 사용해주세요.";
-          errMsg.style.display = "block";
-          return;
-        }
-        if (newPw !== confirmPw) {
-          errMsg.textContent =
-            "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.";
-          errMsg.style.display = "block";
-          return;
-        }
-
-        adminAuth = await getSHA256Hash(newPw);
-        await saveData();
-
-        sessionStorage.setItem("adminLoggedIn", "true");
-
-        errMsg.style.display = "none";
-        document.getElementById("pw-change-wrapper").style.display = "none";
-        document.getElementById("app-wrapper").style.display = "block";
-        renderAll();
-        showToast("✅ 안전하게 비밀번호가 변경 및 적용되었습니다.");
-      }
-
-      function toggleManageSection() {
-        const section = document.getElementById("manage-section");
-        const icon = document.getElementById("toggle-icon");
-
-        if (section.style.display === "none" || section.style.display === "") {
-          section.style.display = "block";
-          icon.textContent = "▲";
-          section.scrollIntoView({ behavior: "smooth", block: "start" });
-        } else {
-          section.style.display = "none";
-          icon.textContent = "▼";
-        }
-      }
-
-      function escapeHTML(str) {
-        if (!str) return "";
-        return String(str).replace(
-          /[&<>'"]/g,
-          (tag) =>
-            ({
-              "&": "&amp;",
-              "<": "&lt;",
-              ">": "&gt;",
-              "'": "&#39;",
-              '"': "&quot;",
-            })[tag] || tag,
-        );
-      }
-
-      function getWeeksOfMonth(year, month) {
-        const weeks = [];
-        const first = new Date(year, month, 1);
-        let dayOfWeek = first.getDay();
-        if (dayOfWeek === 0) dayOfWeek = 7;
-
-        let monday = new Date(year, month, 2 - dayOfWeek);
-
-        let weekNum = 1;
-        while (true) {
-          const wStart = new Date(monday);
-          const wEnd = new Date(monday);
-          wEnd.setDate(wEnd.getDate() + 6);
-
-          const monthStart = new Date(year, month, 1);
-          const monthEnd = new Date(year, month + 1, 0);
-
-          if (wStart > monthEnd) break;
-          if (wEnd > monthEnd) break;
-
-          const rangeStr = `${wEnd.getMonth() + 1}/${wEnd.getDate()}(일)`;
-
-          weeks.push({
-            weekNum,
-            start: wStart,
-            end: wEnd,
-            label: `${weekNum}주차`,
-            range: rangeStr,
-            key: `${year}-${month}-W${weekNum}`,
-          });
-
-          monday.setDate(monday.getDate() + 7);
-          weekNum++;
-        }
-        return weeks;
-      }
-
-      function isCurrentWeek(w) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        return today >= w.start && today <= w.end;
-      }
-
-      function isPastWeek(w) {
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-        return w.end < today;
-      }
-
-      const today = new Date();
-      let viewYear = today.getFullYear();
-      let viewMonth = today.getMonth();
-
-      let volunteers, schedule, nextId, specialGroup;
-
+        "03ac674216f3e15c761ee1a5e255f067953623c8b388b4459e13f978d7c846f4"; // "1234"
       const DEFAULT_VOLUNTEERS = [
         {
           id: 1,
@@ -1430,730 +1531,971 @@
           contact: "",
         },
       ];
-
       const DEFAULT_SPECIAL = { name: "연령회", details: "연령회 회원 일동" };
 
-      async function fetchApiUrl() {
-        try {
-          const response = await fetch("project26_02_gas_url.json");
-          if (!response.ok) throw new Error("Network response was not ok");
-          const data = await response.json();
-          if (data && data.api_url) {
-            API_URL = data.api_url;
-            console.log(
-              "외부 JSON 파일에서 API URL을 성공적으로 불러왔습니다.",
-            );
-          } else {
-            console.warn("JSON 파일에 api_url 값이 없습니다.");
-          }
-        } catch (error) {
-          console.warn(
-            "외부 URL 설정 파일(project26_02_gas_url.json)을 불러오지 못했습니다. 로컬 기본값을 사용합니다. (웹 서버 환경이 아닐 수 있습니다.)",
-            error,
+      /* ==========================================================================
+       UTILITIES
+       ========================================================================== */
+      const Utils = {
+        escapeHTML(str) {
+          if (!str) return "";
+          return String(str).replace(
+            /[&<>'"]/g,
+            (t) =>
+              ({
+                "&": "&amp;",
+                "<": "&lt;",
+                ">": "&gt;",
+                "'": "&#39;",
+                '"': "&quot;",
+              })[t] || t,
           );
-        }
+        },
+
+        today() {
+          // 매번 현재 날짜를 반환 (자정 경계 문제 해결)
+          const d = new Date();
+          d.setHours(0, 0, 0, 0);
+          return d;
+        },
+
+        getWeeksOfMonth(year, month) {
+          const weeks = [];
+          const first = new Date(year, month, 1);
+          let dayOfWeek = first.getDay();
+          if (dayOfWeek === 0) dayOfWeek = 7;
+          let monday = new Date(year, month, 2 - dayOfWeek);
+          let weekNum = 1;
+          const monthEnd = new Date(year, month + 1, 0);
+          while (true) {
+            const wStart = new Date(monday);
+            const wEnd = new Date(monday);
+            wEnd.setDate(wEnd.getDate() + 6);
+            if (wStart > monthEnd) break;
+            if (wEnd > monthEnd) break;
+            const rangeStr = `${wEnd.getMonth() + 1}/${wEnd.getDate()}(일)`;
+            weeks.push({
+              weekNum,
+              start: wStart,
+              end: wEnd,
+              label: `${weekNum}주차`,
+              range: rangeStr,
+              key: `${year}-${month}-W${weekNum}`,
+            });
+            monday.setDate(monday.getDate() + 7);
+            weekNum++;
+          }
+          return weeks;
+        },
+
+        isCurrentWeek(w) {
+          const t = Utils.today();
+          return t >= w.start && t <= w.end;
+        },
+
+        isPastWeek(w) {
+          return w.end < Utils.today();
+        },
+
+        validateContact(val) {
+          if (!val) return true; // 연락처는 선택사항
+          return /^[\d\-\+\(\)\s]{7,15}$/.test(val);
+        },
+
+        getVol(id) {
+          return State.volunteers.find((v) => v.id === id);
+        },
+      };
+
+      /* ==========================================================================
+       SHA-256 (Web Crypto API)
+       ========================================================================== */
+      async function getSHA256Hash(text) {
+        const buf = await crypto.subtle.digest(
+          "SHA-256",
+          new TextEncoder().encode(text),
+        );
+        return Array.from(new Uint8Array(buf))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
       }
 
-      async function loadData() {
-        if (
-          !API_URL ||
-          API_URL === "여기에_본인의_웹앱_주소를_넣으세요" ||
-          API_URL === ""
-        ) {
-          resetToDefault(false, false);
-          document.getElementById("login-wrapper").style.display = "flex";
-          return;
-        }
-        try {
-          showToast("데이터를 불러오는 중...");
-          const response = await fetch(API_URL);
-          const data = await response.json();
+      /* ==========================================================================
+       AUTH MODULE
+       ========================================================================== */
+      const Auth = {
+        async handleLogin() {
+          const id = document.getElementById("login-id").value.trim();
+          const pw = document.getElementById("login-pw").value.trim();
+          const errEl = document.getElementById("login-error");
 
-          volunteers = data.volunteers || [];
-          schedule = data.schedule || {};
-          nextId = data.nextId || 1;
+          if (id !== "admin") {
+            Auth._showError(errEl, "아이디가 올바르지 않습니다.");
+            return;
+          }
+          const hashed = await getSHA256Hash(pw);
+          if (hashed !== State.adminAuth) {
+            Auth._showError(errEl, "비밀번호가 올바르지 않습니다.");
+            return;
+          }
+          errEl.style.display = "none";
+          sessionStorage.setItem("adminLoggedIn", "true");
+          document.getElementById("login-wrapper").style.display = "none";
+          if (hashed === DEFAULT_PW_HASH) {
+            document.getElementById("pw-change-wrapper").style.display = "flex";
+          } else {
+            document.getElementById("app-wrapper").style.display = "block";
+            Render.all();
+          }
+        },
 
-          specialGroup =
-            schedule["_specialGroup"] ||
-            data.specialGroup ||
-            Object.assign({}, DEFAULT_SPECIAL);
-          adminAuth = schedule["_adminAuth"] || DEFAULT_PW_HASH;
+        handleLogout() {
+          sessionStorage.removeItem("adminLoggedIn");
+          location.reload();
+        },
 
-          if (schedule && schedule["special_4th_week"] !== undefined) {
-            const currentSpecialKey = `special_${today.getFullYear()}_${today.getMonth()}`;
-            if (!schedule[currentSpecialKey]) {
-              schedule[currentSpecialKey] = Array.isArray(
-                schedule["special_4th_week"],
-              )
-                ? schedule["special_4th_week"]
-                : schedule["special_4th_week"] !== null
-                  ? [schedule["special_4th_week"]]
-                  : [];
-            }
-            delete schedule["special_4th_week"];
+        async handleChangePassword() {
+          const newPw = document.getElementById("new-pw").value.trim();
+          const confirmPw = document.getElementById("confirm-pw").value.trim();
+          const errEl = document.getElementById("pw-change-error");
+
+          const strength = Auth._pwStrengthScore(newPw);
+          if (newPw.length < 6) {
+            Auth._showError(errEl, "비밀번호는 6자리 이상 입력해주세요.");
+            return;
+          }
+          if (strength < 2) {
+            Auth._showError(errEl, "숫자와 문자를 함께 사용해주세요.");
+            return;
+          }
+          if (newPw === "1234" || newPw === "123456") {
+            Auth._showError(
+              errEl,
+              "너무 단순한 비밀번호입니다. 다른 비밀번호를 사용해주세요.",
+            );
+            return;
+          }
+          if (newPw !== confirmPw) {
+            Auth._showError(
+              errEl,
+              "새 비밀번호와 확인 비밀번호가 일치하지 않습니다.",
+            );
+            return;
           }
 
-          showToast("☁️ 서버 연결 준비 완료.");
-          updateStorageInfo(new Date().toISOString());
+          State.adminAuth = await getSHA256Hash(newPw);
+          await DataManager.save();
+          sessionStorage.setItem("adminLoggedIn", "true");
 
-          // 💡 새로고침 방지용 세션 체크 및 UI 전환 처리
-          if (sessionStorage.getItem("adminLoggedIn") === "true") {
-            if (adminAuth === DEFAULT_PW_HASH) {
-              document.getElementById("login-wrapper").style.display = "none";
-              document.getElementById("pw-change-wrapper").style.display =
-                "flex";
-            } else {
-              document.getElementById("login-wrapper").style.display = "none";
-              document.getElementById("app-wrapper").style.display = "block";
-              renderAll();
+          errEl.style.display = "none";
+          document.getElementById("pw-change-wrapper").style.display = "none";
+          document.getElementById("app-wrapper").style.display = "block";
+          Render.all();
+          UI.showToast("✅ 비밀번호가 변경되었습니다.", "success");
+        },
+
+        _showError(el, msg) {
+          el.textContent = msg;
+          el.style.display = "block";
+        },
+
+        checkPwStrength(val) {
+          const score = Auth._pwStrengthScore(val);
+          const fill = document.getElementById("pw-strength-fill");
+          const text = document.getElementById("pw-strength-text");
+          const levels = [
+            { w: "0%", bg: "transparent", label: "" },
+            { w: "33%", bg: "#e55039", label: "🔴 취약" },
+            { w: "66%", bg: "#f39c12", label: "🟡 보통" },
+            { w: "100%", bg: "#00b894", label: "🟢 강함" },
+          ];
+          const l = levels[Math.min(score, 3)];
+          fill.style.width = l.w;
+          fill.style.background = l.bg;
+          text.textContent = val ? l.label : "비밀번호를 입력하세요";
+        },
+
+        _pwStrengthScore(pw) {
+          if (!pw) return 0;
+          let s = 0;
+          if (pw.length >= 6) s++;
+          if (/[a-zA-Z]/.test(pw) && /\d/.test(pw)) s++;
+          if (pw.length >= 10) s++;
+          return s;
+        },
+      };
+
+      /* ==========================================================================
+       DATA MANAGER
+       ========================================================================== */
+      const DataManager = {
+        _pendingPayload: null,
+
+        async fetchApiUrl() {
+          try {
+            const res = await fetch("project26_02_gas_url.json");
+            if (!res.ok) throw new Error("not ok");
+            const data = await res.json();
+            if (data?.api_url) {
+              State.apiUrl = data.api_url;
+              console.log("API URL 로드 완료:", State.apiUrl);
             }
-          } else {
+          } catch (e) {
+            console.warn("gas_url.json 로드 실패, 로컬 기본값 사용.", e);
+          }
+        },
+
+        _isApiReady() {
+          return (
+            State.apiUrl &&
+            State.apiUrl !== "" &&
+            State.apiUrl !== "여기에_본인의_웹앱_주소를_넣으세요"
+          );
+        },
+
+        async load() {
+          if (!DataManager._isApiReady()) {
+            DataManager._resetToDefault(false, false);
+            document.getElementById("login-wrapper").style.display = "flex";
+            return;
+          }
+          try {
+            UI.showToast("데이터를 불러오는 중...");
+            const res = await fetch(State.apiUrl);
+            const data = await res.json();
+
+            State.volunteers = data.volunteers || [];
+            State.schedule = data.schedule || {};
+            State.nextId = data.nextId || 1;
+            State.specialGroup =
+              State.schedule["_specialGroup"] ||
+              data.specialGroup ||
+              Object.assign({}, DEFAULT_SPECIAL);
+            State.adminAuth = State.schedule["_adminAuth"] || DEFAULT_PW_HASH;
+
+            DataManager._migrateLegacyKeys();
+            DataManager._updateStorageInfo(new Date().toISOString());
+
+            if (sessionStorage.getItem("adminLoggedIn") === "true") {
+              if (State.adminAuth === DEFAULT_PW_HASH) {
+                document.getElementById("login-wrapper").style.display = "none";
+                document.getElementById("pw-change-wrapper").style.display =
+                  "flex";
+              } else {
+                document.getElementById("login-wrapper").style.display = "none";
+                document.getElementById("app-wrapper").style.display = "block";
+                Render.all();
+              }
+            } else {
+              document.getElementById("login-wrapper").style.display = "flex";
+            }
+          } catch (e) {
+            console.error(e);
+            DataManager._resetToDefault(false, false);
             document.getElementById("login-wrapper").style.display = "flex";
           }
-        } catch (error) {
-          console.error(error);
-          resetToDefault(false, false);
-          document.getElementById("login-wrapper").style.display = "flex";
-        }
-      }
+        },
 
-      async function saveData() {
-        if (
-          !API_URL ||
-          API_URL === "여기에_본인의_웹앱_주소를_넣으세요" ||
-          API_URL === ""
-        )
-          return;
+        async save() {
+          if (!DataManager._isApiReady()) return;
 
-        schedule["_specialGroup"] = specialGroup;
-        schedule["_adminAuth"] = adminAuth;
+          State.schedule["_specialGroup"] = State.specialGroup;
+          State.schedule["_adminAuth"] = State.adminAuth;
+          const payload = {
+            volunteers: State.volunteers,
+            schedule: State.schedule,
+            nextId: State.nextId,
+          };
+          DataManager._pendingPayload = payload;
+          DataManager._updateStorageInfo(new Date().toISOString());
 
-        const payload = { volunteers, schedule, nextId };
-        updateStorageInfo(new Date().toISOString());
+          try {
+            const res = await fetch(State.apiUrl, {
+              method: "POST",
+              body: JSON.stringify(payload),
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+            });
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            DataManager._pendingPayload = null;
+            document
+              .getElementById("save-retry-banner")
+              .classList.remove("visible");
+          } catch (e) {
+            console.error("저장 실패:", e);
+            UI.showToast("⚠️ 구글 시트 저장 실패", "error");
+            document
+              .getElementById("save-retry-banner")
+              .classList.add("visible");
+          }
+        },
 
-        try {
-          await fetch(API_URL, {
-            method: "POST",
-            body: JSON.stringify(payload),
-            headers: { "Content-Type": "text/plain;charset=utf-8" },
-          });
-        } catch (error) {
-          showToast("⚠️ 구글 시트 저장 실패");
-        }
-      }
+        async retrySave() {
+          if (!DataManager._pendingPayload) return;
+          UI.showToast("재전송 중...");
+          try {
+            const res = await fetch(State.apiUrl, {
+              method: "POST",
+              body: JSON.stringify(DataManager._pendingPayload),
+              headers: { "Content-Type": "text/plain;charset=utf-8" },
+            });
+            if (!res.ok) throw new Error("HTTP " + res.status);
+            DataManager._pendingPayload = null;
+            document
+              .getElementById("save-retry-banner")
+              .classList.remove("visible");
+            UI.showToast("✅ 저장 완료", "success");
+          } catch (e) {
+            UI.showToast("⚠️ 재시도 실패. 잠시 후 다시 시도하세요.", "error");
+          }
+        },
 
-      function resetToDefault(ask = true, isRender = true) {
-        if (ask && !confirm("모든 데이터(비밀번호 포함)를 초기화할까요?"))
-          return;
-        volunteers = JSON.parse(JSON.stringify(DEFAULT_VOLUNTEERS));
-        schedule = {};
-        schedule[`special_${today.getFullYear()}_${today.getMonth()}`] = [5];
-
-        nextId = 6;
-        specialGroup = Object.assign({}, DEFAULT_SPECIAL);
-        adminAuth = DEFAULT_PW_HASH;
-
-        cancelEdit();
-        saveData();
-
-        if (isRender) renderAll();
-        if (ask) {
-          showToast("🗑 데이터 및 비밀번호가 초기화되었습니다.");
+        async resetAll() {
+          // 두 단계 확인 (안전 장치)
+          if (
+            !confirm(
+              "⚠️ 모든 데이터(봉사자 명단, 스케줄, 비밀번호)를 초기화할까요?\n이 작업은 되돌릴 수 없습니다.",
+            )
+          )
+            return;
+          const confirmed = prompt(
+            "초기화를 계속하려면 '초기화'를 입력하세요:",
+          );
+          if (confirmed !== "초기화") {
+            UI.showToast("초기화가 취소되었습니다.");
+            return;
+          }
+          DataManager._resetToDefault(false, true);
+          await DataManager.save();
+          UI.showToast("🗑 데이터가 초기화되었습니다.");
           sessionStorage.removeItem("adminLoggedIn");
           setTimeout(() => location.reload(), 1500);
-        }
-      }
-      function resetAll() {
-        resetToDefault(true, true);
-      }
+        },
 
-      function updateStorageInfo(dateStr) {
-        const date = dateStr
-          ? new Date(dateStr).toLocaleString("ko-KR")
-          : new Date().toLocaleString("ko-KR");
-        document.getElementById("storage-info").innerHTML =
-          `마지막 동기화: <span>${date}</span> · <span>구글 시트와 연결됨</span>`;
-      }
+        _resetToDefault(ask, isRender) {
+          if (ask && !confirm("모든 데이터(비밀번호 포함)를 초기화할까요?"))
+            return;
+          const nowY = new Date().getFullYear();
+          const nowM = new Date().getMonth();
+          State.volunteers = JSON.parse(JSON.stringify(DEFAULT_VOLUNTEERS));
+          State.schedule = {};
+          State.schedule[`special_${nowY}_${nowM}`] = [5];
+          State.nextId = 6;
+          State.specialGroup = Object.assign({}, DEFAULT_SPECIAL);
+          State.adminAuth = DEFAULT_PW_HASH;
+          Volunteer.cancelEdit();
+          if (isRender) Render.all();
+        },
 
-      function getVol(id) {
-        return volunteers.find((v) => v.id === id);
-      }
-
-      function renderHeader() {
-        document.getElementById("header-sub").textContent =
-          `${viewYear}년 ${viewMonth + 1}월 · 주별 담당자 현황`;
-        document.getElementById("month-label").textContent =
-          `📅 ${viewYear}년 ${viewMonth + 1}월`;
-        document.getElementById("today-badge").textContent =
-          today.toLocaleDateString("ko-KR", {
-            year: "numeric",
-            month: "long",
-            day: "numeric",
-            weekday: "short",
-          });
-
-        document.getElementById("dynamic-table-title").textContent =
-          `📅 ${viewYear}년 ${viewMonth + 1}월 스케줄`;
-        document.getElementById("special-setting-title").textContent =
-          `🚩 ${viewMonth + 1}월 4주차 특별담당 설정`;
-      }
-
-      function renderHighlight() {
-        const weeks = getWeeksOfMonth(today.getFullYear(), today.getMonth());
-        const curWeek = weeks.find((w) => isCurrentWeek(w));
-        const container = document.getElementById("hw-container");
-
-        if (!curWeek) {
-          container.innerHTML = `<div class="no-week"><strong>이번 주 해당 없음</strong>현재 날짜가 이번 달 스케줄 범위를 벗어났습니다.</div>`;
-          return;
-        }
-
-        const assigned = schedule[curWeek.key] || [];
-        const volOrders = ["첫번째 봉사자", "두번째 봉사자", "세번째 봉사자"];
-
-        let cardsHTML = assigned.length
-          ? assigned
-              .map((id, i) => {
-                const v = getVol(id);
-                if (!v) return "";
-                const roleClass = ["독서", "복사", "성가대", "안내"].includes(
-                  v.role,
-                )
-                  ? v.role
-                  : "기타";
-                const themeClass = `theme-${i % 3}`;
-
-                // 💡 세례명 텍스트로 변경 반영
-                return `<div class="vol-card ${themeClass}">
-          <div class="vol-card-top">
-            <div class="vol-avatar">
-              <span class="av-role">${escapeHTML(v.role)}</span>
-            </div>
-            <div class="vol-info-main">
-              <div class="vol-order">${volOrders[i] || "봉사자"}</div>
-              <div class="vol-name">
-                ${escapeHTML(v.name)}
-                ${v.baptism ? `<span class="vol-baptism">세례명 ${escapeHTML(v.baptism)}</span>` : ""}
-              </div>
-            </div>
-          </div>
-          <div class="vol-card-bottom">
-            <span class="role-badge role-${roleClass}">${escapeHTML(v.role)}</span>
-            ${v.contact ? `<span class="vol-contact highlight-phone">📞 ${escapeHTML(v.contact)}</span>` : '<span class="vol-contact empty-phone">연락처 없음</span>'}
-          </div>
-        </div>`;
-              })
-              .join("")
-          : ``;
-
-        let extraSectionHTML = "";
-        if (curWeek.weekNum === 4) {
-          const realitySpecialKey = `special_${today.getFullYear()}_${today.getMonth()}`;
-          const spArr = Array.isArray(schedule[realitySpecialKey])
-            ? schedule[realitySpecialKey]
-            : [];
-
-          if (spArr.length > 0) {
-            const spCards = spArr
-              .map((id, i) => {
-                const sv = getVol(id);
-                if (!sv) return "";
-                const sName = escapeHTML(sv.name);
-                const sRole = escapeHTML(sv.role);
-                const sOrder = [
-                  "첫번째 특별담당",
-                  "두번째 특별담당",
-                  "세번째 특별담당",
-                ][i];
-
-                // 💡 세례명 텍스트로 변경 반영 (특별담당)
-                return `
-                        <div class="vol-card theme-3" style="flex: 1; min-width: 220px; border-color: #ffeaa7;">
-                          <div class="vol-card-top">
-                            <div class="vol-avatar">
-                              <span class="av-role">${sRole}</span>
-                            </div>
-                            <div class="vol-info-main">
-                              <div class="vol-order">${sOrder}</div>
-                              <div class="vol-name" style="font-size: 1.1rem;">
-                                ${sName}
-                                ${sv.baptism ? `<span class="vol-baptism">세례명 ${escapeHTML(sv.baptism)}</span>` : ""}
-                              </div>
-                            </div>
-                          </div>
-                          <div class="vol-card-bottom">
-                            <span class="role-badge" style="background:#fff4e6; color:#d35400;">4주차 상시</span>
-                            ${sv.contact ? `<span class="vol-contact highlight-phone">📞 ${escapeHTML(sv.contact)}</span>` : '<span class="vol-contact empty-phone">연락처 없음</span>'}
-                          </div>
-                        </div>`;
-              })
-              .join("");
-
-            extraSectionHTML = `
-                    <div style="margin-top: 24px; border-top: 1.5px dashed #dcdde1; padding-top: 20px;">
-                      <h3 style="font-size: 0.95rem; color: #d35400; margin-bottom: 14px; display:flex; align-items:center; gap:6px; font-weight: 800;">
-                        <span style="font-size:1.1rem;">↳</span> 4주차 고정 특별담당
-                      </h3>
-                      <div class="volunteer-cards" style="justify-content: flex-start;">
-                        ${spCards}
-                      </div>
-                    </div>`;
-          }
-        }
-
-        if (!cardsHTML) {
-          cardsHTML = `<div style="color:#b2bec3;font-size:0.9rem;">아직 배정된 개인 봉사자가 없습니다.</div>`;
-        }
-
-        container.innerHTML = `<div id="capture-cards-area" class="week-highlight capture-container">
-    <h2 style="margin-bottom: 4px;">${curWeek.label} · ${today.getFullYear()}년 ${today.getMonth() + 1}월</h2>
-    <div class="date-range" style="margin-bottom: 24px;">${curWeek.range}</div>
-    <div class="volunteer-cards">${cardsHTML}</div>
-    ${extraSectionHTML}
-  </div>`;
-      }
-
-      function renderTable() {
-        const weeks = getWeeksOfMonth(viewYear, viewMonth);
-        document.getElementById("schedule-body").innerHTML = weeks
-          .map((w) => {
-            const assigned = schedule[w.key] || [];
-            let tagsHTML = assigned.length
-              ? assigned
-                  .map((id) => {
-                    const v = getVol(id);
-                    if (!v) return "";
-                    const baptismStr = v.baptism
-                      ? ` (${escapeHTML(v.baptism)})`
-                      : "";
-                    return `<span class="vol-tag">${escapeHTML(v.name)}${baptismStr}</span>`;
-                  })
-                  .join("")
-              : `<span class="unassigned">미배정</span>`;
-
-            const cur = isCurrentWeek(w);
-            const past = isPastWeek(w);
-
-            let rowHTML = `<tr class="${cur ? "current-week" : past ? "past-week" : ""}">
-      <td class="week-label">
-        ${w.label}
-        ${cur ? '<br><span class="current-badge">이번 주</span>' : ""}
-      </td>
-      <td class="date-text">${w.range}</td>
-      <td>${tagsHTML}</td>
-    </tr>`;
-
-            if (w.weekNum === 4) {
-              const specialKey = `special_${viewYear}_${viewMonth}`;
-              const spArr = Array.isArray(schedule[specialKey])
-                ? schedule[specialKey]
-                : [];
-
-              if (spArr.length > 0) {
-                const spTagsHTML = spArr
-                  .map((id) => {
-                    const sv = getVol(id);
-                    if (!sv) return "";
-                    const displayTag = sv.baptism
-                      ? `${escapeHTML(sv.name)} (${escapeHTML(sv.baptism)})`
-                      : escapeHTML(sv.name);
-                    return `<span class="vol-tag" style="background:#fff4e6; color:#d35400; border: 1px solid #ffeaa7; margin-left:0; margin-right:4px;">${displayTag}</span>`;
-                  })
-                  .join("");
-
-                rowHTML += `<tr class="${cur ? "current-week" : past ? "past-week" : ""}" style="background: #fffcf9;">
-          <td class="week-label" style="padding-left: 28px; font-size: 0.85rem; color: #d35400; border-top: 1px dashed #e0e0e0;">
-            ↳ 4주차 특별
-          </td>
-          <td class="date-text" style="border-top: 1px dashed #e0e0e0; color:#d35400;">상시 배정</td>
-          <td style="border-top: 1px dashed #e0e0e0;">
-            ${spTagsHTML}
-          </td>
-        </tr>`;
-              }
+        _migrateLegacyKeys() {
+          if (State.schedule["special_4th_week"] !== undefined) {
+            const nowY = new Date().getFullYear();
+            const nowM = new Date().getMonth();
+            const key = `special_${nowY}_${nowM}`;
+            if (!State.schedule[key]) {
+              const old = State.schedule["special_4th_week"];
+              State.schedule[key] = Array.isArray(old)
+                ? old
+                : old !== null
+                  ? [old]
+                  : [];
             }
+            delete State.schedule["special_4th_week"];
+          }
+        },
 
-            return rowHTML;
-          })
-          .join("");
-      }
+        exportJSON() {
+          const data = {
+            volunteers: State.volunteers,
+            schedule: State.schedule,
+            nextId: State.nextId,
+            exportedAt: new Date().toISOString(),
+          };
+          const blob = new Blob([JSON.stringify(data, null, 2)], {
+            type: "application/json",
+          });
+          const a = document.createElement("a");
+          const now = new Date();
+          a.href = URL.createObjectURL(blob);
+          a.download = `성당봉사자백업_${now.getFullYear()}${String(now.getMonth() + 1).padStart(2, "0")}${String(now.getDate()).padStart(2, "0")}.json`;
+          a.click();
+          UI.showToast("⬇ JSON 다운로드 완료.", "success");
+        },
 
-      function renderWeekSelect() {
-        const weeks = getWeeksOfMonth(viewYear, viewMonth);
-        document.getElementById("sel-week").innerHTML = weeks
-          .map(
-            (w) => `<option value="${w.key}">${w.label} (${w.range})</option>`,
-          )
-          .join("");
-      }
+        importJSON(e) {
+          const file = e.target.files[0];
+          if (!file) return;
+          const reader = new FileReader();
+          reader.onload = async (ev) => {
+            try {
+              const d = JSON.parse(ev.target.result);
+              if (!d.volunteers) throw new Error("invalid");
+              State.volunteers = d.volunteers;
+              State.schedule = d.schedule || {};
+              State.nextId =
+                d.nextId || Math.max(...d.volunteers.map((v) => v.id)) + 1;
+              DataManager._migrateLegacyKeys();
+              State.adminAuth = State.schedule["_adminAuth"] || DEFAULT_PW_HASH;
+              Volunteer.cancelEdit();
+              await DataManager.save();
+              Render.all();
+              UI.showToast("⬆ 백업 데이터를 불러왔습니다.", "success");
+            } catch {
+              alert("올바른 백업 파일이 아닙니다.");
+            }
+            e.target.value = "";
+          };
+          reader.readAsText(file);
+        },
 
-      function renderVolSelects() {
-        const opts =
-          `<option value="">-- 선택 안 함 --</option>` +
-          volunteers
+        _updateStorageInfo(dateStr) {
+          const el = document.getElementById("storage-info");
+          const date = dateStr
+            ? new Date(dateStr).toLocaleString("ko-KR")
+            : new Date().toLocaleString("ko-KR");
+          el.innerHTML = `마지막 동기화: <span>${date}</span> · <span>구글 시트와 연결됨</span>`;
+        },
+      };
+
+      /* ==========================================================================
+       SCHEDULE MODULE
+       ========================================================================== */
+      const Schedule = {
+        assign() {
+          const key = document.getElementById("sel-week").value;
+          const ids = [
+            parseInt(document.getElementById("sel-vol1").value) || null,
+            parseInt(document.getElementById("sel-vol2").value) || null,
+            parseInt(document.getElementById("sel-vol3").value) || null,
+          ].filter(Boolean);
+
+          if (ids.length !== new Set(ids).size) {
+            alert("⚠️ 같은 봉사자를 중복해서 선택할 수 없습니다.");
+            return;
+          }
+
+          // 연속 배정 경고
+          const weeks = Utils.getWeeksOfMonth(App.viewYear, App.viewMonth);
+          const curIndex = weeks.findIndex((w) => w.key === key);
+          if (curIndex > 0) {
+            const prevAssigned = State.schedule[weeks[curIndex - 1].key] || [];
+            if (ids.some((id) => prevAssigned.includes(id))) {
+              if (
+                !confirm(
+                  "⚠️ 선택하신 봉사자 중 직전 주차에 연속 배정된 분이 있습니다. 배정하시겠습니까?",
+                )
+              )
+                return;
+            }
+          }
+
+          State.schedule[key] = ids;
+          DataManager.save();
+          Render.highlight();
+          Render.table();
+          const msg = document.getElementById("assign-msg");
+          msg.style.display = "block";
+          setTimeout(() => (msg.style.display = "none"), 2500);
+          UI.showToast("✅ 배정이 완료되었습니다.", "success");
+        },
+
+        saveSpecialGroup() {
+          const ids = [
+            parseInt(document.getElementById("sel-special-vol1").value) || null,
+            parseInt(document.getElementById("sel-special-vol2").value) || null,
+            parseInt(document.getElementById("sel-special-vol3").value) || null,
+          ].filter(Boolean);
+
+          if (ids.length !== new Set(ids).size) {
+            alert("⚠️ 같은 담당자를 중복해서 선택할 수 없습니다.");
+            return;
+          }
+
+          const key = `special_${App.viewYear}_${App.viewMonth}`;
+          State.schedule[key] = ids;
+          DataManager.save();
+          Render.highlight();
+          Render.table();
+          UI.showToast(
+            `✅ ${App.viewMonth + 1}월 4주차 특별담당 설정이 저장되었습니다.`,
+            "success",
+          );
+        },
+      };
+
+      /* ==========================================================================
+       VOLUNTEER MODULE
+       ========================================================================== */
+      const Volunteer = {
+        _editingId: null,
+
+        submit() {
+          const name = document.getElementById("new-name").value.trim();
+          const baptism = document.getElementById("new-baptism").value.trim();
+          const role =
+            document.getElementById("new-role").value.trim() || "봉사";
+          const contact = document.getElementById("new-contact").value.trim();
+
+          if (!name) {
+            alert("이름을 입력해 주세요.");
+            return;
+          }
+          if (contact && !Utils.validateContact(contact)) {
+            alert("연락처 형식이 올바르지 않습니다.\n(예: 010-1234-5678)");
+            return;
+          }
+
+          if (Volunteer._editingId) {
+            const v = Utils.getVol(Volunteer._editingId);
+            if (v) Object.assign(v, { name, baptism, role, contact });
+            UI.showToast(
+              `👤 ${Utils.escapeHTML(name)} 정보가 수정되었습니다.`,
+              "success",
+            );
+          } else {
+            State.volunteers.push({
+              id: State.nextId++,
+              name,
+              baptism,
+              role,
+              contact,
+            });
+            UI.showToast(
+              `👤 ${Utils.escapeHTML(name)} 봉사자가 추가되었습니다.`,
+              "success",
+            );
+          }
+          Volunteer.cancelEdit();
+          DataManager.save();
+          Render.all();
+        },
+
+        edit(id) {
+          const v = Utils.getVol(id);
+          if (!v) return;
+          Volunteer._editingId = id;
+          document.getElementById("new-name").value = v.name || "";
+          document.getElementById("new-baptism").value = v.baptism || "";
+          document.getElementById("new-role").value = v.role || "";
+          document.getElementById("new-contact").value = v.contact || "";
+
+          const btn = document.getElementById("btn-submit-vol");
+          btn.textContent = "✓ 수정 완료";
+          btn.className = "btn btn-success";
+          document.getElementById("btn-cancel-edit").style.display = "block";
+
+          const sec = document.getElementById("manage-section");
+          if (sec.style.display === "none") UI.toggleManage();
+        },
+
+        cancelEdit() {
+          Volunteer._editingId = null;
+          ["new-name", "new-baptism", "new-role", "new-contact"].forEach(
+            (id) => (document.getElementById(id).value = ""),
+          );
+          const btn = document.getElementById("btn-submit-vol");
+          btn.textContent = "+ 추가";
+          btn.className = "btn btn-primary";
+          document.getElementById("btn-cancel-edit").style.display = "none";
+        },
+
+        remove(id) {
+          const v = Utils.getVol(id);
+          if (!confirm(`'${v?.name}' 봉사자를 명단에서 삭제할까요?`)) return;
+          State.volunteers = State.volunteers.filter((v) => v.id !== id);
+          Object.keys(State.schedule).forEach((k) => {
+            if (Array.isArray(State.schedule[k])) {
+              State.schedule[k] = State.schedule[k].filter((vid) => vid !== id);
+            }
+          });
+          if (Volunteer._editingId === id) Volunteer.cancelEdit();
+          DataManager.save();
+          Render.all();
+          UI.showToast("🗑 봉사자가 삭제되었습니다.");
+        },
+      };
+
+      /* ==========================================================================
+       RENDER MODULE
+       ========================================================================== */
+      const Render = {
+        all() {
+          Render.header();
+          Render.highlight();
+          Render.table();
+          Render.weekSelect();
+          Render.volSelects();
+          Render.volTable();
+        },
+
+        header() {
+          const now = new Date();
+          document.getElementById("header-sub").textContent =
+            `${App.viewYear}년 ${App.viewMonth + 1}월 · 주별 담당자 현황`;
+          document.getElementById("month-label").textContent =
+            `📅 ${App.viewYear}년 ${App.viewMonth + 1}월`;
+          document.getElementById("today-badge").textContent =
+            now.toLocaleDateString("ko-KR", {
+              year: "numeric",
+              month: "long",
+              day: "numeric",
+              weekday: "short",
+            });
+          document.getElementById("dynamic-table-title").textContent =
+            `📅 ${App.viewYear}년 ${App.viewMonth + 1}월 스케줄`;
+          document.getElementById("special-setting-title").textContent =
+            `🚩 ${App.viewMonth + 1}월 4주차 특별담당 설정`;
+        },
+
+        highlight() {
+          const now = new Date();
+          const weeks = Utils.getWeeksOfMonth(
+            now.getFullYear(),
+            now.getMonth(),
+          );
+          const cur = weeks.find((w) => Utils.isCurrentWeek(w));
+          const container = document.getElementById("hw-container");
+
+          if (!cur) {
+            container.innerHTML = `<div class="no-week"><strong>이번 주 해당 없음</strong>현재 날짜가 이번 달 스케줄 범위를 벗어났습니다.</div>`;
+            return;
+          }
+
+          const assigned = State.schedule[cur.key] || [];
+          const volOrders = ["첫번째 봉사자", "두번째 봉사자", "세번째 봉사자"];
+          const e = Utils.escapeHTML;
+
+          const cardsHTML = assigned.length
+            ? assigned
+                .map((id, i) => {
+                  const v = Utils.getVol(id);
+                  if (!v) return "";
+                  const roleClass = ["독서", "복사", "성가대", "안내"].includes(
+                    v.role,
+                  )
+                    ? v.role
+                    : "기타";
+                  return `<div class="vol-card theme-${i % 4}">
+                <div class="vol-card-top">
+                  <div class="vol-avatar"><span class="av-role">${e(v.role)}</span></div>
+                  <div class="vol-info-main">
+                    <div class="vol-order">${volOrders[i] || "봉사자"}</div>
+                    <div class="vol-name">${e(v.name)}${v.baptism ? `<span class="vol-baptism">세례명 ${e(v.baptism)}</span>` : ""}</div>
+                  </div>
+                </div>
+                <div class="vol-card-bottom">
+                  <span class="role-badge role-${roleClass}">${e(v.role)}</span>
+                  ${
+                    v.contact
+                      ? `<span class="vol-contact highlight-phone">📞 ${e(v.contact)}</span>`
+                      : `<span class="vol-contact empty-phone">연락처 없음</span>`
+                  }
+                </div>
+              </div>`;
+                })
+                .join("")
+            : "";
+
+          // 4주차 특별담당
+          let extraHTML = "";
+          if (cur.weekNum === 4) {
+            const spKey = `special_${now.getFullYear()}_${now.getMonth()}`;
+            const spArr = Array.isArray(State.schedule[spKey])
+              ? State.schedule[spKey]
+              : [];
+            const spOrders = [
+              "첫번째 특별담당",
+              "두번째 특별담당",
+              "세번째 특별담당",
+            ];
+            if (spArr.length > 0) {
+              const spCards = spArr
+                .map((id, i) => {
+                  const sv = Utils.getVol(id);
+                  if (!sv) return "";
+                  return `<div class="vol-card theme-3" style="flex:1;min-width:220px;border-color:#ffeaa7">
+                <div class="vol-card-top">
+                  <div class="vol-avatar"><span class="av-role">${e(sv.role)}</span></div>
+                  <div class="vol-info-main">
+                    <div class="vol-order">${spOrders[i]}</div>
+                    <div class="vol-name" style="font-size:1.1rem">${e(sv.name)}${sv.baptism ? `<span class="vol-baptism">세례명 ${e(sv.baptism)}</span>` : ""}</div>
+                  </div>
+                </div>
+                <div class="vol-card-bottom">
+                  <span class="role-badge" style="background:#fff4e6;color:#d35400">4주차 상시</span>
+                  ${
+                    sv.contact
+                      ? `<span class="vol-contact highlight-phone">📞 ${e(sv.contact)}</span>`
+                      : `<span class="vol-contact empty-phone">연락처 없음</span>`
+                  }
+                </div>
+              </div>`;
+                })
+                .join("");
+              extraHTML = `<div style="margin-top:24px;border-top:1.5px dashed #dcdde1;padding-top:20px">
+              <h3 style="font-size:0.95rem;color:#d35400;margin-bottom:14px;display:flex;align-items:center;gap:6px;font-weight:800">
+                <span>↳</span> 4주차 고정 특별담당</h3>
+              <div class="volunteer-cards" style="justify-content:flex-start">${spCards}</div>
+            </div>`;
+            }
+          }
+
+          const id = `capture-cards-area`;
+          container.innerHTML = `
+          <div id="${id}" class="capture-container">
+            <div class="week-highlight">
+              <h2 style="margin-bottom:4px">${cur.label} · ${now.getFullYear()}년 ${now.getMonth() + 1}월</h2>
+              <div class="date-range" style="margin-bottom:24px">${cur.range}</div>
+              <div class="volunteer-cards">${cardsHTML}</div>
+              ${extraHTML}
+            </div>
+          </div>`;
+        },
+
+        table() {
+          const weeks = Utils.getWeeksOfMonth(App.viewYear, App.viewMonth);
+          const e = Utils.escapeHTML;
+          document.getElementById("schedule-body").innerHTML = weeks
+            .map((w) => {
+              const assigned = State.schedule[w.key] || [];
+              const tagsHTML = assigned.length
+                ? assigned
+                    .map((id) => {
+                      const v = Utils.getVol(id);
+                      if (!v) return "";
+                      const bap = v.baptism ? ` (${e(v.baptism)})` : "";
+                      return `<span class="vol-tag">${e(v.name)}${bap}</span>`;
+                    })
+                    .join("")
+                : `<span class="unassigned">미배정</span>`;
+
+              const cur = Utils.isCurrentWeek(w);
+              const past = Utils.isPastWeek(w);
+
+              let rows = `<tr class="${cur ? "current-week" : past ? "past-week" : ""}">
+            <td class="week-label">${w.label}${cur ? `<br><span class="current-badge">이번 주</span>` : ""}</td>
+            <td class="date-text">${w.range}</td>
+            <td>${tagsHTML}</td>
+          </tr>`;
+
+              if (w.weekNum === 4) {
+                const spKey = `special_${App.viewYear}_${App.viewMonth}`;
+                const spArr = Array.isArray(State.schedule[spKey])
+                  ? State.schedule[spKey]
+                  : [];
+                if (spArr.length > 0) {
+                  const spTagsHTML = spArr
+                    .map((id) => {
+                      const sv = Utils.getVol(id);
+                      if (!sv) return "";
+                      const disp = sv.baptism
+                        ? `${e(sv.name)} (${e(sv.baptism)})`
+                        : e(sv.name);
+                      return `<span class="vol-tag" style="background:#fff4e6;color:#d35400;border:1px solid #ffeaa7;margin-left:0;margin-right:4px">${disp}</span>`;
+                    })
+                    .join("");
+                  rows += `<tr class="${cur ? "current-week" : past ? "past-week" : ""}" style="background:#fffcf9">
+                <td class="week-label" style="padding-left:28px;font-size:0.85rem;color:#d35400;border-top:1px dashed #e0e0e0">↳ 4주차 특별</td>
+                <td class="date-text" style="border-top:1px dashed #e0e0e0;color:#d35400">상시 배정</td>
+                <td style="border-top:1px dashed #e0e0e0">${spTagsHTML}</td>
+              </tr>`;
+                }
+              }
+              return rows;
+            })
+            .join("");
+        },
+
+        weekSelect() {
+          const weeks = Utils.getWeeksOfMonth(App.viewYear, App.viewMonth);
+          document.getElementById("sel-week").innerHTML = weeks
             .map(
-              (v) =>
-                `<option value="${v.id}">${escapeHTML(v.name)} (${escapeHTML(v.role)})</option>`,
+              (w) =>
+                `<option value="${w.key}">${w.label} (${w.range})</option>`,
             )
             .join("");
+        },
 
-        document.getElementById("sel-vol1").innerHTML = opts;
-        document.getElementById("sel-vol2").innerHTML = opts;
-        document.getElementById("sel-vol3").innerHTML = opts;
+        volSelects() {
+          const opts =
+            `<option value="">-- 선택 안 함 --</option>` +
+            State.volunteers
+              .map(
+                (v) =>
+                  `<option value="${v.id}">${Utils.escapeHTML(v.name)} (${Utils.escapeHTML(v.role)})</option>`,
+              )
+              .join("");
 
-        const selS1 = document.getElementById("sel-special-vol1");
-        const selS2 = document.getElementById("sel-special-vol2");
-        const selS3 = document.getElementById("sel-special-vol3");
-        selS1.innerHTML = opts;
-        selS2.innerHTML = opts;
-        selS3.innerHTML = opts;
+          [
+            "sel-vol1",
+            "sel-vol2",
+            "sel-vol3",
+            "sel-special-vol1",
+            "sel-special-vol2",
+            "sel-special-vol3",
+          ].forEach((id) => (document.getElementById(id).innerHTML = opts));
 
-        const specialKey = `special_${viewYear}_${viewMonth}`;
-        const spArr = Array.isArray(schedule[specialKey])
-          ? schedule[specialKey]
-          : [];
-        selS1.value = spArr[0] || "";
-        selS2.value = spArr[1] || "";
-        selS3.value = spArr[2] || "";
-      }
+          const spKey = `special_${App.viewYear}_${App.viewMonth}`;
+          const spArr = Array.isArray(State.schedule[spKey])
+            ? State.schedule[spKey]
+            : [];
+          document.getElementById("sel-special-vol1").value = spArr[0] || "";
+          document.getElementById("sel-special-vol2").value = spArr[1] || "";
+          document.getElementById("sel-special-vol3").value = spArr[2] || "";
+        },
 
-      function renderVolTable() {
-        const tbody = document.getElementById("vol-tbody");
-        if (volunteers.length === 0) {
-          tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#b2bec3; padding: 20px;">등록된 봉사자가 없습니다.</td></tr>`;
-        } else {
-          tbody.innerHTML = volunteers
+        volTable() {
+          const tbody = document.getElementById("vol-tbody");
+          const e = Utils.escapeHTML;
+          if (!State.volunteers.length) {
+            tbody.innerHTML = `<tr><td colspan="5" style="text-align:center;color:var(--text-faint);padding:20px">등록된 봉사자가 없습니다.</td></tr>`;
+            return;
+          }
+          tbody.innerHTML = State.volunteers
             .map((v) => {
               const roleClass = ["독서", "복사", "성가대", "안내"].includes(
                 v.role,
               )
                 ? v.role
                 : "기타";
-              return `
-                    <tr>
-                        <td><span class="role-badge role-${roleClass}">${escapeHTML(v.role)}</span></td>
-                        <td style="font-weight: 700;">${escapeHTML(v.name)}</td>
-                        <td>${v.baptism ? escapeHTML(v.baptism) : '<span style="color:#b2bec3;">-</span>'}</td>
-                        <td>${v.contact ? escapeHTML(v.contact) : '<span style="color:#b2bec3;">-</span>'}</td>
-                        <td>
-                            <div class="action-btns">
-                                <button class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem; background: #a29bfe;" onclick="editVol(${v.id})">수정</button>
-                                <button class="btn btn-danger" style="padding: 4px 10px; font-size: 0.75rem;" onclick="removeVol(${v.id})">삭제</button>
-                            </div>
-                        </td>
-                    </tr>`;
+              return `<tr>
+            <td><span class="role-badge role-${roleClass}">${e(v.role)}</span></td>
+            <td style="font-weight:700">${e(v.name)}</td>
+            <td>${v.baptism ? e(v.baptism) : '<span style="color:var(--text-faint)">-</span>'}</td>
+            <td>${v.contact ? e(v.contact) : '<span style="color:var(--text-faint)">-</span>'}</td>
+            <td>
+              <div class="action-btns">
+                <button class="btn btn-primary" style="padding:4px 10px;font-size:0.75rem;background:#a29bfe"
+                  onclick="Volunteer.edit(${v.id})">수정</button>
+                <button class="btn-danger-soft"
+                  onclick="Volunteer.remove(${v.id})">삭제</button>
+              </div>
+            </td>
+          </tr>`;
             })
             .join("");
-        }
-      }
+        },
+      };
 
-      function renderAll() {
-        renderHeader();
-        renderHighlight();
-        renderTable();
-        renderWeekSelect();
-        renderVolSelects();
-        renderVolTable();
-      }
+      /* ==========================================================================
+       UI MODULE
+       ========================================================================== */
+      const UI = {
+        _toastTimer: null,
 
-      function changeMonth(dir) {
-        viewMonth += dir;
-        if (viewMonth > 11) {
-          viewMonth = 0;
-          viewYear++;
-        }
-        if (viewMonth < 0) {
-          viewMonth = 11;
-          viewYear--;
-        }
-        renderHeader();
-        renderTable();
-        renderWeekSelect();
-        renderVolSelects();
-      }
+        showToast(msg, type = "") {
+          const t = document.getElementById("toast");
+          t.textContent = msg;
+          t.className = "show" + (type ? ` toast-${type}` : "");
+          clearTimeout(UI._toastTimer);
+          UI._toastTimer = setTimeout(() => (t.className = ""), 2500);
+        },
 
-      function saveSpecialGroup() {
-        const v1 =
-          parseInt(document.getElementById("sel-special-vol1").value) || null;
-        const v2 =
-          parseInt(document.getElementById("sel-special-vol2").value) || null;
-        const v3 =
-          parseInt(document.getElementById("sel-special-vol3").value) || null;
+        toggleManage() {
+          const sec = document.getElementById("manage-section");
+          const icon = document.getElementById("toggle-icon");
+          const open = sec.style.display === "none" || sec.style.display === "";
+          sec.style.display = open ? "block" : "none";
+          icon.textContent = open ? "▲" : "▼";
+          if (open) sec.scrollIntoView({ behavior: "smooth", block: "start" });
+        },
+      };
 
-        const selectedVols = [v1, v2, v3].filter((v) => v !== null);
-        const uniqueVols = new Set(selectedVols);
-        if (selectedVols.length !== uniqueVols.size) {
-          alert("⚠️ 같은 담당자를 중복해서 선택할 수 없습니다.");
-          return;
-        }
-
-        const specialKey = `special_${viewYear}_${viewMonth}`;
-        schedule[specialKey] = selectedVols;
-
-        saveData();
-        renderHighlight();
-        renderTable();
-        showToast(
-          `✅ ${viewMonth + 1}월 4주차 특별담당 설정이 저장되었습니다.`,
-        );
-      }
-
-      function assignVolunteers() {
-        const key = document.getElementById("sel-week").value;
-        const v1 = parseInt(document.getElementById("sel-vol1").value) || null;
-        const v2 = parseInt(document.getElementById("sel-vol2").value) || null;
-        const v3 = parseInt(document.getElementById("sel-vol3").value) || null;
-
-        const selectedVols = [v1, v2, v3].filter((v) => v !== null);
-
-        const uniqueVols = new Set(selectedVols);
-        if (selectedVols.length !== uniqueVols.size) {
-          alert("⚠️ 같은 봉사자를 중복해서 선택할 수 없습니다.");
-          return;
-        }
-
-        const weeks = getWeeksOfMonth(viewYear, viewMonth);
-        const curIndex = weeks.findIndex((w) => w.key === key);
-        if (curIndex > 0) {
-          const prevKey = weeks[curIndex - 1].key;
-          const prevAssigned = schedule[prevKey] || [];
-          const isContinuous = selectedVols.some((id) =>
-            prevAssigned.includes(id),
-          );
-          if (isContinuous) {
-            if (
-              !confirm(
-                "⚠️ 선택하신 봉사자 중 직전 주차에 연속 배정된 분이 있습니다. 배정하시겠습니까?",
-              )
-            )
-              return;
+      /* ==========================================================================
+       EXPORT MODULE
+       ========================================================================== */
+      const Export = {
+        _capture(el, filename) {
+          if (!el) {
+            alert("캡처할 요소를 찾을 수 없습니다.");
+            return;
           }
-        }
+          const btns = el.querySelectorAll("button");
+          btns.forEach((b) => (b.style.visibility = "hidden")); // display:none 대신 visibility:hidden 사용 (깜빡임 방지)
 
-        schedule[key] = selectedVols;
-        saveData();
-        renderHighlight();
-        renderTable();
-
-        const msg = document.getElementById("assign-msg");
-        msg.style.display = "block";
-        setTimeout(() => (msg.style.display = "none"), 2500);
-        showToast("✅ 배정이 완료되었습니다.");
-      }
-
-      function submitVolunteer() {
-        const name = document.getElementById("new-name").value.trim();
-        const baptism = document.getElementById("new-baptism").value.trim();
-        const role = document.getElementById("new-role").value.trim() || "봉사";
-        const contact = document.getElementById("new-contact").value.trim();
-
-        if (!name) {
-          alert("이름을 입력해 주세요.");
-          return;
-        }
-
-        if (editingVolId) {
-          const v = getVol(editingVolId);
-          if (v) {
-            v.name = name;
-            v.baptism = baptism;
-            v.role = role;
-            v.contact = contact;
-          }
-          showToast(`👤 ${escapeHTML(name)} 정보가 수정되었습니다.`);
-        } else {
-          volunteers.push({ id: nextId++, name, baptism, role, contact });
-          showToast(`👤 ${escapeHTML(name)} 봉사자가 추가되었습니다.`);
-        }
-
-        cancelEdit();
-        saveData();
-        renderAll();
-      }
-
-      function editVol(id) {
-        const v = getVol(id);
-        if (!v) return;
-        editingVolId = id;
-        document.getElementById("new-name").value = v.name || "";
-        document.getElementById("new-baptism").value = v.baptism || "";
-        document.getElementById("new-role").value = v.role || "";
-        document.getElementById("new-contact").value = v.contact || "";
-
-        const btnSubmit = document.getElementById("btn-submit-vol");
-        btnSubmit.textContent = "✓ 수정 완료";
-        btnSubmit.classList.replace("btn-primary", "btn-success");
-        document.getElementById("btn-cancel-edit").style.display = "block";
-
-        const manageSec = document.getElementById("manage-section");
-        if (manageSec.style.display === "none") {
-          toggleManageSection();
-        }
-      }
-
-      function cancelEdit() {
-        editingVolId = null;
-        ["new-name", "new-baptism", "new-role", "new-contact"].forEach(
-          (id) => (document.getElementById(id).value = ""),
-        );
-
-        const btnSubmit = document.getElementById("btn-submit-vol");
-        btnSubmit.textContent = "+ 추가";
-        btnSubmit.classList.replace("btn-success", "btn-primary");
-        document.getElementById("btn-cancel-edit").style.display = "none";
-      }
-
-      function removeVol(id) {
-        const v = getVol(id);
-        if (!confirm(`'${v?.name}' 봉사자를 명단에서 삭제할까요?`)) return;
-        volunteers = volunteers.filter((v) => v.id !== id);
-
-        Object.keys(schedule).forEach((k) => {
-          if (Array.isArray(schedule[k])) {
-            schedule[k] = schedule[k].filter((vid) => vid !== id);
-          }
-        });
-
-        if (editingVolId === id) cancelEdit();
-
-        saveData();
-        renderAll();
-        showToast("🗑 봉사자가 삭제되었습니다.");
-      }
-
-      function applyBezelAndCapture(targetElement, filename) {
-        const btnsToHide = targetElement.querySelectorAll("button");
-        btnsToHide.forEach((btn) => (btn.style.display = "none"));
-
-        const originalBoxShadow = targetElement.style.boxShadow;
-        const originalPadding = targetElement.style.padding;
-        const originalBackground = targetElement.style.background;
-        const originalBorderRadius = targetElement.style.borderRadius;
-
-        targetElement.style.boxShadow = "none";
-        targetElement.style.padding = "24px";
-        targetElement.style.background = "#ffffff";
-        targetElement.style.borderRadius = "0px";
-
-        showToast("고화질 이미지를 생성 중입니다...");
-
-        html2canvas(targetElement, { scale: 4, backgroundColor: "#ffffff" })
-          .then((canvas) => {
-            targetElement.style.boxShadow = originalBoxShadow;
-            targetElement.style.padding = originalPadding;
-            targetElement.style.background = originalBackground;
-            targetElement.style.borderRadius = originalBorderRadius;
-            btnsToHide.forEach((btn) => (btn.style.display = ""));
-
-            const link = document.createElement("a");
-            link.download = filename;
-            link.href = canvas.toDataURL("image/png");
-            link.click();
-            showToast("🖼️ 고화질 이미지가 저장되었습니다.");
-          })
-          .catch((err) => {
-            targetElement.style.boxShadow = originalBoxShadow;
-            targetElement.style.padding = originalPadding;
-            targetElement.style.background = originalBackground;
-            targetElement.style.borderRadius = originalBorderRadius;
-            btnsToHide.forEach((btn) => (btn.style.display = ""));
-
-            console.error(err);
-            alert("이미지 저장 중 오류가 발생했습니다.");
+          const orig = {
+            boxShadow: el.style.boxShadow,
+            padding: el.style.padding,
+            background: el.style.background,
+            borderRadius: el.style.borderRadius,
+          };
+          Object.assign(el.style, {
+            boxShadow: "none",
+            padding: "24px",
+            background: "#ffffff",
+            borderRadius: "0px",
           });
-      }
 
-      function exportCardsImage() {
-        const targetElement = document.getElementById("capture-cards-area");
-        if (!targetElement) {
-          alert("이번 주 배정된 봉사자 카드가 없습니다.");
-          return;
-        }
-        applyBezelAndCapture(
-          targetElement,
-          `이번주_봉사자카드_${viewYear}년${viewMonth + 1}월.png`,
-        );
-      }
+          UI.showToast("고화질 이미지를 생성 중입니다...");
+          html2canvas(el, {
+            scale: 4,
+            backgroundColor: "#ffffff",
+            ignoreElements: (el2) => el2.tagName === "BUTTON", // 버튼 완전 제외
+          })
+            .then((canvas) => {
+              Object.assign(el.style, orig);
+              btns.forEach((b) => (b.style.visibility = ""));
+              const a = document.createElement("a");
+              a.download = filename;
+              a.href = canvas.toDataURL("image/png");
+              a.click();
+              UI.showToast("🖼️ 고화질 이미지가 저장되었습니다.", "success");
+            })
+            .catch((err) => {
+              Object.assign(el.style, orig);
+              btns.forEach((b) => (b.style.visibility = ""));
+              console.error(err);
+              alert("이미지 저장 중 오류가 발생했습니다.");
+            });
+        },
 
-      function exportScheduleImage() {
-        const targetElement = document.getElementById("capture-table-area");
-        applyBezelAndCapture(
-          targetElement,
-          `성당스케줄전체_${viewYear}년${viewMonth + 1}월.png`,
-        );
-      }
+        cards() {
+          Export._capture(
+            document.getElementById("capture-cards-area"),
+            `이번주_봉사자카드_${App.viewYear}년${App.viewMonth + 1}월.png`,
+          );
+        },
 
-      let toastTimer;
-      function showToast(msg) {
-        const t = document.getElementById("toast");
-        t.textContent = msg;
-        t.classList.add("show");
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => t.classList.remove("show"), 2500);
-      }
+        schedule() {
+          Export._capture(
+            document.getElementById("capture-table-area"),
+            `성당스케줄전체_${App.viewYear}년${App.viewMonth + 1}월.png`,
+          );
+        },
+      };
 
-      function exportJSON() {
-        const data = {
-          volunteers,
-          schedule,
-          nextId,
-          exportedAt: new Date().toISOString(),
-        };
-        const blob = new Blob([JSON.stringify(data, null, 2)], {
-          type: "application/json",
-        });
-        const a = document.createElement("a");
-        a.href = URL.createObjectURL(blob);
-        a.download = `성당봉사자백업_${today.getFullYear()}${String(today.getMonth() + 1).padStart(2, "0")}${String(today.getDate()).padStart(2, "0")}.json`;
-        a.click();
-        showToast("⬇ JSON 다운로드 완료.");
-      }
+      /* ==========================================================================
+       APP (월 이동 등 뷰 상태)
+       ========================================================================== */
+      const App = {
+        viewYear: new Date().getFullYear(),
+        viewMonth: new Date().getMonth(),
 
-      function importJSON(e) {
-        const file = e.target.files[0];
-        if (!file) return;
-        const reader = new FileReader();
-        reader.onload = (ev) => {
-          try {
-            const d = JSON.parse(ev.target.result);
-            if (!d.volunteers) throw new Error();
-            volunteers = d.volunteers;
-            schedule = d.schedule || {};
-            nextId = d.nextId || Math.max(...d.volunteers.map((v) => v.id)) + 1;
-
-            if (schedule && schedule["special_4th_week"] !== undefined) {
-              const currentSpecialKey = `special_${today.getFullYear()}_${today.getMonth()}`;
-              if (!schedule[currentSpecialKey]) {
-                schedule[currentSpecialKey] = Array.isArray(
-                  schedule["special_4th_week"],
-                )
-                  ? schedule["special_4th_week"]
-                  : schedule["special_4th_week"] !== null
-                    ? [schedule["special_4th_week"]]
-                    : [];
-              }
-              delete schedule["special_4th_week"];
-            }
-
-            adminAuth = schedule["_adminAuth"] || DEFAULT_PW_HASH;
-            cancelEdit();
-            saveData();
-            renderAll();
-            showToast("⬆ 백업 데이터를 불러왔습니다.");
-          } catch {
-            alert("올바른 백업 파일이 아닙니다.");
+        changeMonth(dir) {
+          App.viewMonth += dir;
+          if (App.viewMonth > 11) {
+            App.viewMonth = 0;
+            App.viewYear++;
           }
-          e.target.value = "";
-        };
-        reader.readAsText(file);
-      }
+          if (App.viewMonth < 0) {
+            App.viewMonth = 11;
+            App.viewYear--;
+          }
+          Render.header();
+          Render.table();
+          Render.weekSelect();
+          Render.volSelects();
+        },
 
-      async function initializeApp() {
-        await fetchApiUrl();
-        await loadData();
-      }
+        async init() {
+          await DataManager.fetchApiUrl();
+          await DataManager.load();
+        },
+      };
 
-      initializeApp();
+      /* ==========================================================================
+       BOOTSTRAP
+       ========================================================================== */
+      App.init();
     </script>
   </body>
 </html>
