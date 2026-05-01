@@ -1,1944 +1,1191 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="ko">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>매일 성경 통독 기록장</title>
-    <link rel="preconnect" href="https://fonts.googleapis.com" />
-    <link
-      href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700&family=Pretendard:wght@300;400;500;600&display=swap"
-      rel="stylesheet"
-    />
-    <style>
-      *,
-      *::before,
-      *::after {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
-      }
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>성경 통독 기록장</title>
+<link href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Pretendard:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
 
-      :root {
-        --primary: #c8956b;
-        --primary-d: #a97248;
-        --primary-lt: #f7ede0;
-        --accent: #8b6343;
-        --bg: #faf6f0;
-        --bg2: #f2ebe0;
-        --card: #ffffff;
-        --text: #3a2f22;
-        --text-2: #7a6a56;
-        --border: #e2d5c0;
-        --gold: #d4ac5a;
-        --success: #5a9a6e;
-        --danger: #c0584a;
-        --info: #4a7fb5;
-        --radius: 14px;
-        --shadow: 0 2px 16px rgba(100, 70, 30, 0.08);
-      }
-      body.dark {
-        --primary: #c8956b;
-        --primary-d: #e0b080;
-        --primary-lt: #2e2318;
-        --accent: #e0c090;
-        --bg: #1e1912;
-        --bg2: #26201a;
-        --card: #2c2518;
-        --text: #ede0cc;
-        --text-2: #a89070;
-        --border: #3e3228;
-        --gold: #d4ac5a;
-        --info: #6a9fd5;
-        --shadow: 0 2px 16px rgba(0, 0, 0, 0.3);
-      }
+:root {
+  --p:      #B07850;
+  --pd:     #8A5C38;
+  --plt:    #F5EDE0;
+  --gold:   #C9A84C;
+  --bg:     #F9F4EE;
+  --bg2:    #EFE8DC;
+  --card:   #FFFFFF;
+  --txt:    #2E2218;
+  --txt2:   #7A6A58;
+  --bdr:    #DDD0BC;
+  --ok:     #4E9467;
+  --err:    #B84040;
+  --adm:    #5C3E8A;
+  --r:      12px;
+  --sh:     0 2px 16px rgba(80,50,20,.09);
+}
+body.dark {
+  --p:    #C8956B; --pd: #E0A870; --plt: #2C1E0E;
+  --bg:   #1A1510; --bg2: #231C14; --card: #2A2118;
+  --txt:  #EDE0CC; --txt2: #A89070; --bdr: #3C3020;
+  --ok:   #5AB070; --adm: #8B6EC0;
+  --sh:   0 2px 16px rgba(0,0,0,.4);
+}
 
-      body {
-        font-family:
-          "Pretendard",
-          -apple-system,
-          sans-serif;
-        background: var(--bg);
-        color: var(--text);
-        min-height: 100vh;
-        padding-bottom: 80px;
-        transition:
-          background 0.3s,
-          color 0.3s;
-      }
-      .container {
-        max-width: 860px;
-        margin: 0 auto;
-      }
+body { font-family:'Pretendard',-apple-system,sans-serif; background:var(--bg); color:var(--txt); min-height:100vh; padding-bottom:72px; transition:background .3s,color .3s; }
 
-      /* ── 헤더 ── */
-      .header {
-        background: linear-gradient(
-          150deg,
-          var(--accent) 0%,
-          var(--primary) 60%,
-          var(--gold) 100%
-        );
-        color: #fff;
-        padding: 28px 20px 22px;
-        text-align: center;
-        position: relative;
-      }
-      .header h1 {
-        font-family: "Nanum Myeongjo", serif;
-        font-size: 22px;
-        font-weight: 700;
-      }
-      .header p {
-        font-size: 13px;
-        opacity: 0.85;
-        margin-top: 4px;
-      }
-      .header-btns {
-        position: absolute;
-        top: 16px;
-        right: 16px;
-        display: flex;
-        gap: 8px;
-      }
-      .icon-btn {
-        background: rgba(255, 255, 255, 0.18);
-        border: 1px solid rgba(255, 255, 255, 0.25);
-        color: #fff;
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        cursor: pointer;
-        font-size: 17px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.2s;
-      }
-      .icon-btn:hover {
-        background: rgba(255, 255, 255, 0.3);
-      }
+/* ── 스크린 전환 ── */
+#loginScreen, #appScreen { width:100%; }
 
-      /* ── 연결 상태 배너 ── */
-      .sync-bar {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        padding: 8px 16px;
-        font-size: 12px;
-        font-weight: 500;
-        background: var(--bg2);
-        border-bottom: 1px solid var(--border);
-        transition: background 0.3s;
-      }
-      .sync-bar.ok {
-        background: #eaf5ed;
-        color: #2e7d42;
-      }
-      .sync-bar.ok.dark {
-        background: #1a3020;
-        color: #6dc882;
-      }
-      .sync-bar.error {
-        background: #fdeaea;
-        color: var(--danger);
-      }
-      .sync-bar.syncing {
-        background: #fff8e8;
-        color: #9a7020;
-      }
-      .sync-bar.local {
-        background: var(--bg2);
-        color: var(--text-2);
-      }
-      .sync-dot {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        flex-shrink: 0;
-        background: currentColor;
-      }
-      .sync-dot.spin {
-        background: none;
-        border: 2px solid currentColor;
-        border-top-color: transparent;
-        animation: spin 0.7s linear infinite;
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
-      .sync-bar a {
-        color: inherit;
-        font-weight: 600;
-        cursor: pointer;
-        text-decoration: underline;
-      }
+/* ══════════════════ 로그인 ══════════════════ */
+.login-bg {
+  min-height:100vh; display:flex; align-items:center; justify-content:center;
+  background: radial-gradient(ellipse at 30% 40%, #C8956B 0%, #8A5C38 40%, #3A2010 100%);
+  padding:20px;
+}
+.login-box {
+  background:var(--card); border-radius:20px; padding:40px 32px; width:100%; max-width:380px;
+  box-shadow:0 20px 60px rgba(0,0,0,.3);
+}
+.login-brand { text-align:center; margin-bottom:28px; }
+.login-brand .cross { font-size:36px; margin-bottom:8px; }
+.login-brand h1 { font-family:'Nanum Myeongjo',serif; font-size:22px; color:var(--p); font-weight:800; }
+.login-brand p  { font-size:13px; color:var(--txt2); margin-top:4px; }
+.lf { margin-bottom:14px; }
+.ll { display:block; font-size:12px; font-weight:600; color:var(--txt2); margin-bottom:5px; letter-spacing:.3px; }
+.li {
+  width:100%; padding:11px 14px; border:1.5px solid var(--bdr); border-radius:10px;
+  font-size:14px; background:var(--bg2); color:var(--txt); outline:none; font-family:'Pretendard',sans-serif;
+  transition:border-color .2s, box-shadow .2s;
+}
+.li:focus { border-color:var(--p); box-shadow:0 0 0 3px rgba(176,120,80,.15); }
+.login-err { font-size:12px; color:var(--err); min-height:18px; margin-bottom:8px; }
+.login-btn {
+  width:100%; padding:13px; border:none; border-radius:10px;
+  background:linear-gradient(135deg,var(--p),var(--pd)); color:#fff;
+  font-size:15px; font-weight:700; cursor:pointer; font-family:'Pretendard',sans-serif;
+  letter-spacing:.3px; transition:opacity .2s, transform .1s;
+}
+.login-btn:hover  { opacity:.9; }
+.login-btn:active { transform:scale(.98); }
 
-      /* ── 설정 패널 ── */
-      .settings-panel {
-        display: none;
-        background: var(--card);
-        border-bottom: 1.5px solid var(--border);
-        padding: 16px;
-      }
-      .settings-panel.open {
-        display: block;
-      }
-      .settings-title {
-        font-size: 14px;
-        font-weight: 600;
-        margin-bottom: 12px;
-        color: var(--primary);
-      }
-      .settings-desc {
-        font-size: 12px;
-        color: var(--text-2);
-        line-height: 1.6;
-        margin-bottom: 12px;
-      }
-      .settings-desc code {
-        background: var(--bg2);
-        padding: 1px 5px;
-        border-radius: 4px;
-        font-family: monospace;
-        font-size: 11px;
-      }
-      .url-row {
-        display: flex;
-        gap: 8px;
-      }
-      .url-input {
-        flex: 1;
-        padding: 10px 12px;
-        border: 1.5px solid var(--border);
-        border-radius: 10px;
-        font-size: 13px;
-        background: var(--bg2);
-        color: var(--text);
-        outline: none;
-        font-family: monospace;
-      }
-      .url-input:focus {
-        border-color: var(--primary);
-      }
-      .btn-connect {
-        padding: 10px 16px;
-        background: var(--primary);
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        font-size: 13px;
-        font-weight: 600;
-        cursor: pointer;
-        white-space: nowrap;
-      }
-      .btn-connect:hover {
-        background: var(--primary-d);
-      }
-      .btn-disconnect {
-        padding: 6px 12px;
-        border: 1.5px solid var(--border);
-        background: none;
-        color: var(--text-2);
-        border-radius: 20px;
-        font-size: 12px;
-        cursor: pointer;
-        margin-top: 8px;
-      }
-      .btn-disconnect:hover {
-        border-color: var(--danger);
-        color: var(--danger);
-      }
-      .steps {
-        padding-left: 16px;
-      }
-      .steps li {
-        font-size: 12px;
-        color: var(--text-2);
-        line-height: 1.8;
-      }
-      .steps li b {
-        color: var(--text);
-      }
+/* ══════════════════ 헤더 ══════════════════ */
+.hdr {
+  background:linear-gradient(135deg, #5C3E20 0%, #8A5C38 50%, #C9A84C 100%);
+  color:#fff; padding:20px 16px 16px; text-align:center; position:relative;
+}
+.hdr h1 { font-family:'Nanum Myeongjo',serif; font-size:19px; font-weight:800; letter-spacing:.5px; }
+.hdr p  { font-size:12px; opacity:.8; margin-top:3px; }
+.hdr-l { position:absolute; top:14px; left:12px; display:flex; gap:6px; align-items:center; }
+.hdr-r { position:absolute; top:14px; right:12px; display:flex; gap:6px; align-items:center; }
+.ib {
+  background:rgba(255,255,255,.18); border:1px solid rgba(255,255,255,.3);
+  color:#fff; width:32px; height:32px; border-radius:50%; cursor:pointer; font-size:15px;
+  display:flex; align-items:center; justify-content:center; transition:background .2s;
+}
+.ib:hover { background:rgba(255,255,255,.3); }
+.user-chip {
+  background:rgba(255,255,255,.2); border:1px solid rgba(255,255,255,.3);
+  color:#fff; border-radius:16px; padding:3px 10px; font-size:12px; font-weight:600;
+  max-width:120px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;
+}
 
-      /* ── 통계 ── */
-      .section {
-        padding: 16px;
-      }
-      .stats-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
-        margin-bottom: 16px;
-      }
-      .stat-card {
-        background: var(--card);
-        padding: 14px 10px;
-        border-radius: var(--radius);
-        border: 1.5px solid var(--border);
-        text-align: center;
-        box-shadow: var(--shadow);
-      }
-      .stat-value {
-        font-size: 26px;
-        font-weight: 600;
-        color: var(--primary);
-        font-family: "Nanum Myeongjo", serif;
-      }
-      .stat-label {
-        font-size: 11px;
-        color: var(--text-2);
-        margin-top: 3px;
-      }
+/* ══════════════════ 싱크 바 ══════════════════ */
+.sync-bar {
+  display:flex; align-items:center; gap:7px; padding:7px 14px;
+  font-size:12px; font-weight:500; background:var(--bg2); border-bottom:1px solid var(--bdr);
+}
+.sync-bar.ok      { background:#EAF5ED; color:#2E6E42; }
+.sync-bar.error   { background:#FDEAEA; color:var(--err); }
+.sync-bar.syncing { background:#FFF8E0; color:#8A6010; }
+.sync-bar a { color:inherit; font-weight:700; cursor:pointer; text-decoration:underline; }
+.sd { width:7px; height:7px; border-radius:50%; background:currentColor; flex-shrink:0; }
+.sd.spin { background:none; border:2px solid currentColor; border-top-color:transparent; animation:spin .7s linear infinite; }
+@keyframes spin { to { transform:rotate(360deg); } }
 
-      /* ── 카드 ── */
-      .card {
-        background: var(--card);
-        padding: 18px;
-        border-radius: var(--radius);
-        border: 1.5px solid var(--border);
-        margin-bottom: 14px;
-        box-shadow: var(--shadow);
-      }
+/* ══════════════════ 설정 패널 ══════════════════ */
+.cfg-panel { display:none; background:var(--card); border-bottom:1.5px solid var(--bdr); padding:14px 16px; }
+.cfg-panel.open { display:block; }
+.cfg-title { font-size:13px; font-weight:700; color:var(--p); margin-bottom:8px; }
+.cfg-desc  { font-size:12px; color:var(--txt2); line-height:1.7; margin-bottom:10px; }
+.cfg-desc code { background:var(--bg2); padding:1px 5px; border-radius:4px; font-size:11px; }
+.cfg-steps { padding-left:16px; margin-bottom:10px; }
+.cfg-steps li { font-size:12px; color:var(--txt2); line-height:1.9; }
+.cfg-steps b { color:var(--txt); }
+.url-row { display:flex; gap:8px; }
+.url-inp {
+  flex:1; padding:9px 11px; border:1.5px solid var(--bdr); border-radius:9px;
+  font-size:12px; background:var(--bg2); color:var(--txt); outline:none; font-family:monospace;
+}
+.url-inp:focus { border-color:var(--p); }
+.btn-conn { padding:9px 14px; background:var(--p); color:#fff; border:none; border-radius:9px; font-size:12px; font-weight:600; cursor:pointer; }
+.btn-disc { margin-top:8px; padding:5px 12px; border:1.5px solid var(--bdr); background:none; color:var(--txt2); border-radius:16px; font-size:12px; cursor:pointer; }
+.btn-disc:hover { border-color:var(--err); color:var(--err); }
 
-      /* ── 달력 ── */
-      .calendar-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-      }
-      .cal-nav {
-        background: var(--bg2);
-        border: 1.5px solid var(--border);
-        color: var(--text);
-        width: 34px;
-        height: 34px;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 14px;
-        transition:
-          background 0.2s,
-          color 0.2s;
-      }
-      .cal-nav:hover {
-        background: var(--primary);
-        color: #fff;
-        border-color: var(--primary);
-      }
-      .calendar-month {
-        font-size: 16px;
-        font-weight: 600;
-        color: var(--primary);
-        font-family: "Nanum Myeongjo", serif;
-      }
-      .calendar-grid {
-        display: grid;
-        grid-template-columns: repeat(7, 1fr);
-        gap: 4px;
-      }
-      .cal-head {
-        text-align: center;
-        padding: 6px 2px;
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--text-2);
-      }
-      .cal-day {
-        aspect-ratio: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background: var(--bg2);
-        border: 1.5px solid var(--border);
-        border-radius: 8px;
-        font-size: 12px;
-        cursor: pointer;
-        position: relative;
-        min-height: 38px;
-        transition:
-          transform 0.15s,
-          background 0.2s;
-        user-select: none;
-      }
-      .cal-day.empty {
-        background: transparent;
-        border-color: transparent;
-        cursor: default;
-      }
-      .cal-day.today {
-        border-color: var(--success);
-        border-width: 2px;
-        font-weight: 600;
-      }
-      .cal-day.recorded {
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--primary-d) 100%
-        );
-        color: #fff;
-        font-weight: 600;
-        border-color: transparent;
-      }
-      .cal-day.selected {
-        border-color: var(--gold);
-        border-width: 2px;
-        box-shadow: 0 0 0 3px rgba(212, 172, 90, 0.2);
-        transform: scale(1.06);
-      }
-      .cal-day:not(.empty):hover {
-        transform: scale(1.05);
-      }
-      .cal-check {
-        font-size: 9px;
-        margin-top: 1px;
-        opacity: 0.85;
-      }
-      .cal-star {
-        position: absolute;
-        top: 1px;
-        right: 2px;
-        font-size: 9px;
-      }
-      .cal-stats {
-        margin-top: 12px;
-        padding-top: 12px;
-        border-top: 1.5px solid var(--border);
-        text-align: center;
-        font-size: 13px;
-        color: var(--text-2);
-      }
+/* ══════════════════ 레이아웃 ══════════════════ */
+.sec { padding:14px; }
+.card { background:var(--card); padding:16px; border-radius:var(--r); border:1.5px solid var(--bdr); margin-bottom:12px; box-shadow:var(--sh); }
 
-      /* ── 선택 배너 ── */
-      .selected-banner {
-        background: var(--primary-lt);
-        padding: 12px 16px;
-        border-radius: var(--radius);
-        border-left: 4px solid var(--primary);
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-      }
-      .selected-banner h3 {
-        color: var(--primary);
-        font-size: 14px;
-        font-weight: 600;
-      }
-      .selected-banner p {
-        font-size: 12px;
-        color: var(--text-2);
-        margin-top: 2px;
-      }
-      .clear-btn {
-        background: none;
-        border: 1.5px solid var(--border);
-        color: var(--text-2);
-        font-size: 11px;
-        padding: 4px 10px;
-        border-radius: 20px;
-        cursor: pointer;
-      }
-      .clear-btn:hover {
-        border-color: var(--primary);
-        color: var(--primary);
-      }
+/* ══════════════════ 통계 ══════════════════ */
+.stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:8px; margin-bottom:12px; }
+.stat-box  { background:var(--card); padding:12px 8px; border-radius:var(--r); border:1.5px solid var(--bdr); text-align:center; box-shadow:var(--sh); }
+.stat-v { font-size:22px; font-weight:700; color:var(--p); font-family:'Nanum Myeongjo',serif; }
+.stat-l { font-size:11px; color:var(--txt2); margin-top:2px; }
 
-      /* ── 수정 배너 ── */
-      .edit-banner {
-        background: linear-gradient(135deg, #fff4e0, #ffe8c0);
-        border: 1.5px solid var(--gold);
-        border-radius: var(--radius);
-        padding: 10px 14px;
-        margin-bottom: 14px;
-        display: none;
-        align-items: center;
-        gap: 10px;
-        font-size: 13px;
-        color: var(--accent);
-      }
-      .edit-banner.visible {
-        display: flex;
-      }
-      .cancel-edit {
-        margin-left: auto;
-        background: none;
-        border: 1.5px solid var(--gold);
-        color: var(--accent);
-        font-size: 12px;
-        padding: 3px 10px;
-        border-radius: 20px;
-        cursor: pointer;
-      }
+/* ══════════════════ 달력 ══════════════════ */
+.cal-hdr { display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
+.cal-nav {
+  background:var(--bg2); border:1.5px solid var(--bdr); color:var(--txt);
+  width:30px; height:30px; border-radius:7px; cursor:pointer; font-size:12px;
+  transition:background .2s, color .2s;
+}
+.cal-nav:hover { background:var(--p); color:#fff; border-color:var(--p); }
+.cal-mo { font-size:14px; font-weight:700; color:var(--p); font-family:'Nanum Myeongjo',serif; }
+.cal-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:3px; }
+.cal-dh { text-align:center; padding:4px 0; font-size:10px; font-weight:700; color:var(--txt2); }
+.cal-day {
+  aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+  background:var(--bg2); border:1.5px solid var(--bdr); border-radius:7px; font-size:11px;
+  cursor:pointer; position:relative; min-height:30px; transition:transform .15s, background .2s; user-select:none;
+}
+.cal-day.empty    { background:transparent; border-color:transparent; cursor:default; }
+.cal-day.today    { border-color:var(--ok); border-width:2px; font-weight:700; }
+.cal-day.rec      { background:linear-gradient(135deg,var(--p),var(--pd)); color:#fff; border-color:transparent; font-weight:700; }
+.cal-day.sel      { border-color:var(--gold); border-width:2px; box-shadow:0 0 0 3px rgba(201,168,76,.2); transform:scale(1.08); }
+.cal-day:not(.empty):hover { transform:scale(1.06); }
+.cal-ck   { font-size:8px; margin-top:1px; opacity:.85; }
+.cal-star { position:absolute; top:1px; right:2px; font-size:8px; }
+.cal-foot { margin-top:10px; padding-top:10px; border-top:1.5px solid var(--bdr); text-align:center; font-size:12px; color:var(--txt2); }
 
-      /* ── 폼 ── */
-      .form-group {
-        margin-bottom: 14px;
-      }
-      .form-label {
-        display: block;
-        margin-bottom: 5px;
-        font-weight: 500;
-        font-size: 13px;
-        color: var(--text-2);
-      }
-      .form-input,
-      .form-select,
-      .form-textarea {
-        width: 100%;
-        padding: 11px 13px;
-        border: 1.5px solid var(--border);
-        border-radius: 10px;
-        font-size: 14px;
-        background: var(--bg2);
-        color: var(--text);
-        font-family: "Pretendard", sans-serif;
-        transition:
-          border-color 0.2s,
-          box-shadow 0.2s;
-        outline: none;
-      }
-      .form-input:focus,
-      .form-select:focus,
-      .form-textarea:focus {
-        border-color: var(--primary);
-        box-shadow: 0 0 0 3px rgba(200, 149, 107, 0.15);
-      }
-      .form-textarea {
-        min-height: 90px;
-        resize: vertical;
-        line-height: 1.6;
-      }
-      .form-row {
-        display: grid;
-        grid-template-columns: 1.8fr 1fr;
-        gap: 10px;
-      }
-      .char-count {
-        text-align: right;
-        font-size: 11px;
-        color: var(--text-2);
-        margin-top: 3px;
-      }
-      .fav-label {
-        display: inline-flex;
-        align-items: center;
-        gap: 6px;
-        cursor: pointer;
-        font-size: 14px;
-        color: var(--text-2);
-      }
-      .fav-label input {
-        accent-color: var(--gold);
-        width: 16px;
-        height: 16px;
-        cursor: pointer;
-      }
+/* ══════════════════ 배너류 ══════════════════ */
+.sel-banner {
+  background:var(--plt); padding:10px 14px; border-radius:var(--r); border-left:4px solid var(--p);
+  margin-bottom:10px; display:flex; align-items:center; justify-content:space-between;
+}
+.sel-banner h3 { color:var(--p); font-size:13px; font-weight:700; }
+.sel-banner p  { font-size:11px; color:var(--txt2); margin-top:2px; }
+.clr-btn { background:none; border:1.5px solid var(--bdr); color:var(--txt2); font-size:11px; padding:3px 9px; border-radius:14px; cursor:pointer; }
+.clr-btn:hover { border-color:var(--p); color:var(--p); }
+.edit-banner {
+  background:linear-gradient(135deg,#FFF8E8,#FFE8C0); border:1.5px solid var(--gold);
+  border-radius:var(--r); padding:9px 13px; margin-bottom:12px;
+  display:none; align-items:center; gap:8px; font-size:13px; color:#7A5010;
+}
+.edit-banner.on { display:flex; }
+.cancel-edit { margin-left:auto; background:none; border:1.5px solid var(--gold); color:#7A5010; font-size:11px; padding:3px 10px; border-radius:14px; cursor:pointer; }
 
-      .btn-primary {
-        width: 100%;
-        padding: 13px;
-        background: linear-gradient(
-          135deg,
-          var(--primary) 0%,
-          var(--primary-d) 100%
-        );
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        font-size: 15px;
-        font-weight: 600;
-        cursor: pointer;
-        font-family: "Pretendard", sans-serif;
-        transition:
-          opacity 0.2s,
-          transform 0.1s;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-      }
-      .btn-primary:hover {
-        opacity: 0.92;
-      }
-      .btn-primary:active {
-        transform: scale(0.99);
-      }
-      .btn-primary:disabled {
-        opacity: 0.55;
-        cursor: not-allowed;
-      }
+/* ══════════════════ 폼 ══════════════════ */
+.fg { margin-bottom:12px; }
+.fl { display:block; margin-bottom:4px; font-weight:600; font-size:12px; color:var(--txt2); letter-spacing:.2px; }
+.fi, .fs, .ft {
+  width:100%; padding:10px 12px; border:1.5px solid var(--bdr); border-radius:9px;
+  font-size:14px; background:var(--bg2); color:var(--txt);
+  font-family:'Pretendard',sans-serif; outline:none; transition:border-color .2s, box-shadow .2s;
+}
+.fi:focus, .fs:focus, .ft:focus { border-color:var(--p); box-shadow:0 0 0 3px rgba(176,120,80,.12); }
+.ft { min-height:80px; resize:vertical; line-height:1.6; }
+.fr { display:grid; grid-template-columns:1.8fr 1fr; gap:10px; }
+.cc { text-align:right; font-size:11px; color:var(--txt2); margin-top:2px; }
+.fav-lbl { display:inline-flex; align-items:center; gap:6px; cursor:pointer; font-size:13px; color:var(--txt2); }
+.fav-lbl input { accent-color:var(--gold); width:15px; height:15px; cursor:pointer; }
+.btn-save {
+  width:100%; padding:12px; border:none; border-radius:10px;
+  background:linear-gradient(135deg,var(--p),var(--pd)); color:#fff;
+  font-size:15px; font-weight:700; cursor:pointer; font-family:'Pretendard',sans-serif;
+  letter-spacing:.3px; transition:opacity .2s, transform .1s;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+}
+.btn-save:hover   { opacity:.9; }
+.btn-save:active  { transform:scale(.99); }
+.btn-save:disabled { opacity:.5; cursor:not-allowed; }
 
-      /* ── 기록 카드 ── */
-      .record-card {
-        background: var(--card);
-        border: 1.5px solid var(--border);
-        border-radius: var(--radius);
-        padding: 18px;
-        margin-bottom: 12px;
-        position: relative;
-        box-shadow: var(--shadow);
-        animation: fadeUp 0.3s ease;
-      }
-      .record-card.fav {
-        border-color: var(--gold);
-      }
-      .record-card.pending {
-        opacity: 0.6;
-        pointer-events: none;
-      }
-      @keyframes fadeUp {
-        from {
-          opacity: 0;
-          transform: translateY(8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      .fav-star {
-        position: absolute;
-        top: 14px;
-        right: 14px;
-        font-size: 20px;
-        cursor: pointer;
-        line-height: 1;
-        background: none;
-        border: none;
-        transition: transform 0.2s;
-      }
-      .fav-star:hover {
-        transform: scale(1.2);
-      }
-      .sync-badge {
-        position: absolute;
-        top: 14px;
-        right: 44px;
-        font-size: 10px;
-        padding: 2px 6px;
-        border-radius: 10px;
-        font-weight: 600;
-      }
-      .sync-badge.synced {
-        background: #eaf5ed;
-        color: #2e7d42;
-      }
-      .sync-badge.local {
-        background: #fff8e8;
-        color: #9a7020;
-      }
-      .sync-badge.error {
-        background: #fdeaea;
-        color: var(--danger);
-      }
-      .rec-date {
-        color: var(--primary);
-        font-weight: 600;
-        font-size: 12px;
-      }
-      .rec-title {
-        font-size: 17px;
-        font-weight: 600;
-        margin: 8px 0 6px;
-        font-family: "Nanum Myeongjo", serif;
-      }
-      .rec-verse {
-        background: var(--primary-lt);
-        padding: 12px 14px;
-        border-left: 3px solid var(--primary);
-        border-radius: 8px;
-        font-style: italic;
-        margin: 8px 0;
-        line-height: 1.65;
-        font-size: 13.5px;
-      }
-      .rec-meditation {
-        color: var(--text-2);
-        line-height: 1.65;
-        font-size: 13.5px;
-        margin: 8px 0;
-        white-space: pre-wrap;
-      }
-      .rec-actions {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        margin-top: 10px;
-      }
-      .btn-edit,
-      .btn-delete {
-        padding: 9px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        font-size: 13px;
-        font-family: "Pretendard", sans-serif;
-        transition: opacity 0.2s;
-      }
-      .btn-edit {
-        background: linear-gradient(135deg, #70ba80, #52a363);
-        color: #fff;
-      }
-      .btn-delete {
-        background: linear-gradient(135deg, #d97070, #c05050);
-        color: #fff;
-      }
-      .btn-edit:hover,
-      .btn-delete:hover {
-        opacity: 0.88;
-      }
+/* ══════════════════ 기록 카드 ══════════════════ */
+.rec-card {
+  background:var(--card); border:1.5px solid var(--bdr); border-radius:var(--r);
+  padding:16px; margin-bottom:10px; position:relative; box-shadow:var(--sh);
+  animation:up .3s ease;
+}
+.rec-card.fav { border-color:var(--gold); }
+@keyframes up { from{opacity:0;transform:translateY(8px);}to{opacity:1;transform:translateY(0);} }
+.fav-btn { position:absolute; top:12px; right:12px; font-size:18px; cursor:pointer; background:none; border:none; transition:transform .2s; }
+.fav-btn:hover { transform:scale(1.2); }
+.sync-badge { position:absolute; top:12px; right:38px; font-size:10px; padding:2px 6px; border-radius:9px; font-weight:600; }
+.sb-ok  { background:#EAF5ED; color:#2E6E42; }
+.sb-err { background:#FDEAEA; color:var(--err); }
+.rc-date  { color:var(--p); font-weight:700; font-size:11px; margin-bottom:4px; }
+.rc-title { font-size:16px; font-weight:700; margin:4px 0; font-family:'Nanum Myeongjo',serif; }
+.rc-verse { background:var(--plt); padding:10px 12px; border-left:3px solid var(--p); border-radius:7px; font-style:italic; margin:8px 0; line-height:1.65; font-size:13px; }
+.rc-med   { color:var(--txt2); line-height:1.65; font-size:13px; margin:6px 0; white-space:pre-wrap; }
+.rc-acts  { display:grid; grid-template-columns:1fr 1fr; gap:7px; margin-top:10px; }
+.btn-edit,.btn-del {
+  padding:8px; border:none; border-radius:7px; font-weight:700; cursor:pointer;
+  font-size:12px; font-family:'Pretendard',sans-serif; transition:opacity .2s;
+}
+.btn-edit { background:linear-gradient(135deg,#68B878,#4A9A5A); color:#fff; }
+.btn-del  { background:linear-gradient(135deg,#D06060,#B04040); color:#fff; }
+.btn-edit:hover,.btn-del:hover { opacity:.85; }
 
-      /* ── 검색 ── */
-      .search-wrap {
-        position: relative;
-        margin-bottom: 12px;
-      }
-      .search-input {
-        width: 100%;
-        padding: 10px 13px 10px 38px;
-        border: 1.5px solid var(--border);
-        border-radius: 10px;
-        font-size: 14px;
-        background: var(--bg2);
-        color: var(--text);
-        font-family: "Pretendard", sans-serif;
-        outline: none;
-        transition: border-color 0.2s;
-      }
-      .search-input:focus {
-        border-color: var(--primary);
-      }
-      .search-icon {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 15px;
-        opacity: 0.5;
-        pointer-events: none;
-      }
+/* ══════════════════ 검색 ══════════════════ */
+.srch-wrap { position:relative; margin-bottom:10px; }
+.srch-inp  {
+  width:100%; padding:9px 12px 9px 34px; border:1.5px solid var(--bdr); border-radius:9px;
+  font-size:13px; background:var(--bg2); color:var(--txt); font-family:'Pretendard',sans-serif; outline:none;
+}
+.srch-inp:focus { border-color:var(--p); }
+.srch-ico { position:absolute; left:10px; top:50%; transform:translateY(-50%); font-size:14px; opacity:.45; pointer-events:none; }
 
-      /* ── 빈 상태 ── */
-      .empty-state {
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--text-2);
-      }
-      .empty-icon {
-        font-size: 40px;
-        margin-bottom: 10px;
-      }
+/* ══════════════════ 빈 상태 ══════════════════ */
+.empty { text-align:center; padding:36px 20px; color:var(--txt2); }
+.empty-ico { font-size:36px; margin-bottom:8px; }
 
-      /* ── 하단 탭 ── */
-      .bottom-nav {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        right: 0;
-        background: var(--card);
-        border-top: 1.5px solid var(--border);
-        display: flex;
-        justify-content: space-around;
-        padding: 8px 0;
-        z-index: 100;
-        box-shadow: 0 -4px 20px rgba(100, 70, 30, 0.08);
-      }
-      .nav-item {
-        flex: 1;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        padding: 4px;
-        cursor: pointer;
-        border: none;
-        background: none;
-        color: var(--text-2);
-        transition: color 0.2s;
-      }
-      .nav-item.active {
-        color: var(--primary);
-      }
-      .nav-icon {
-        font-size: 22px;
-      }
-      .nav-label {
-        font-size: 10px;
-        margin-top: 2px;
-        font-weight: 500;
-      }
+/* ══════════════════ 관리자 ══════════════════ */
+.adm-hdr {
+  background:linear-gradient(135deg,#2E1A50,#5C3E8A,#8B6EC0);
+  color:#fff; padding:20px 16px 16px; text-align:center; position:relative;
+}
+.adm-hdr h1 { font-family:'Nanum Myeongjo',serif; font-size:19px; font-weight:800; }
+.adm-hdr p  { font-size:12px; opacity:.8; margin-top:3px; }
+.adm-hdr .hdr-r { position:absolute; top:14px; right:12px; }
+.adm-st-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:12px; }
+.adm-st { background:var(--card); padding:14px 10px; border-radius:var(--r); border:1.5px solid var(--bdr); text-align:center; box-shadow:var(--sh); }
+.adm-st .v { font-size:24px; font-weight:700; color:var(--adm); font-family:'Nanum Myeongjo',serif; }
+.adm-st .l { font-size:11px; color:var(--txt2); margin-top:2px; }
+.sec-title { font-size:14px; font-weight:700; color:var(--adm); margin-bottom:12px; padding-bottom:8px; border-bottom:2px solid var(--adm); }
+.btn-add { display:inline-flex; align-items:center; gap:6px; padding:9px 16px; background:var(--adm); color:#fff; border:none; border-radius:9px; font-size:13px; font-weight:700; cursor:pointer; margin-bottom:12px; transition:opacity .2s; }
+.btn-add:hover { opacity:.85; }
+.sort-row { display:flex; gap:8px; align-items:center; margin-bottom:12px; font-size:12px; color:var(--txt2); }
+.sort-row select { padding:6px 9px; border:1.5px solid var(--bdr); border-radius:7px; font-size:12px; background:var(--bg2); color:var(--txt); outline:none; }
+.utbl { width:100%; border-collapse:collapse; font-size:13px; }
+.utbl th { background:var(--bg2); padding:9px 10px; text-align:left; font-weight:700; color:var(--txt2); font-size:11px; border-bottom:2px solid var(--bdr); }
+.utbl td { padding:9px 10px; border-bottom:1px solid var(--bdr); vertical-align:middle; }
+.utbl tr:last-child td { border-bottom:none; }
+.utbl tr:hover td { background:var(--plt); }
+.badge-adm { background:#F0E8FA; color:var(--adm); font-size:10px; font-weight:700; padding:2px 7px; border-radius:14px; }
+.badge-usr { background:var(--plt); color:var(--pd); font-size:10px; font-weight:700; padding:2px 7px; border-radius:14px; }
+.tact { display:flex; gap:5px; }
+.bsm { padding:5px 9px; border:none; border-radius:6px; font-size:11px; font-weight:700; cursor:pointer; font-family:'Pretendard',sans-serif; transition:opacity .2s; color:#fff; }
+.bsm:hover { opacity:.82; }
+.bsm-v  { background:#4E9467; }
+.bsm-e  { background:#4A7FB5; }
+.bsm-d  { background:#B84040; }
+.prog { display:inline-block; width:60px; height:5px; background:var(--bdr); border-radius:3px; vertical-align:middle; margin-left:6px; overflow:hidden; }
+.prog-f { height:100%; background:linear-gradient(90deg,var(--p),var(--gold)); border-radius:3px; transition:width .4s; }
+.adm-filter { display:flex; gap:8px; align-items:center; margin-bottom:12px; font-size:12px; color:var(--txt2); }
+.adm-filter select { padding:6px 9px; border:1.5px solid var(--bdr); border-radius:7px; font-size:12px; background:var(--bg2); color:var(--txt); outline:none; }
+.rec-owner { font-size:11px; color:var(--adm); font-weight:600; margin-bottom:2px; }
 
-      /* ── 페이지 ── */
-      .page {
-        display: none;
-      }
-      .page.active {
-        display: block;
-      }
+/* ══════════════════ 탭바 ══════════════════ */
+.tab-bar {
+  position:fixed; bottom:0; left:0; right:0;
+  background:var(--card); border-top:1.5px solid var(--bdr);
+  display:flex; justify-content:space-around; padding:6px 0; z-index:100;
+  box-shadow:0 -4px 18px rgba(80,50,20,.09);
+}
+.tab-btn {
+  flex:1; display:flex; flex-direction:column; align-items:center;
+  padding:3px; cursor:pointer; border:none; background:none; color:var(--txt2); transition:color .2s;
+}
+.tab-btn.on       { color:var(--p); }
+.tab-btn.adm-tab.on { color:var(--adm); }
+.tab-ico  { font-size:20px; }
+.tab-lbl  { font-size:10px; margin-top:1px; font-weight:600; }
+#adminTab { display:none; }
 
-      /* ── 토스트 ── */
-      #toast {
-        position: fixed;
-        bottom: 90px;
-        left: 50%;
-        transform: translateX(-50%) translateY(20px);
-        background: var(--text);
-        color: var(--bg);
-        padding: 10px 20px;
-        border-radius: 24px;
-        font-size: 13px;
-        font-weight: 500;
-        opacity: 0;
-        pointer-events: none;
-        transition:
-          opacity 0.3s,
-          transform 0.3s;
-        z-index: 999;
-        white-space: nowrap;
-      }
-      #toast.show {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-      }
+/* ══════════════════ 페이지 ══════════════════ */
+.page        { display:none; }
+.page.on     { display:block; }
 
-      /* ── 모달 ── */
-      .modal-overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.45);
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        z-index: 200;
-        opacity: 0;
-        pointer-events: none;
-        transition: opacity 0.2s;
-      }
-      .modal-overlay.show {
-        opacity: 1;
-        pointer-events: all;
-      }
-      .modal {
-        background: var(--card);
-        border-radius: var(--radius);
-        padding: 24px 22px;
-        max-width: 300px;
-        width: 90%;
-        border: 1.5px solid var(--border);
-        transform: translateY(10px);
-        transition: transform 0.2s;
-        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-      }
-      .modal-overlay.show .modal {
-        transform: translateY(0);
-      }
-      .modal h3 {
-        font-size: 16px;
-        margin-bottom: 8px;
-      }
-      .modal p {
-        font-size: 13px;
-        color: var(--text-2);
-        margin-bottom: 18px;
-        line-height: 1.5;
-      }
-      .modal-btns {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-      }
-      .modal-cancel {
-        padding: 10px;
-        background: var(--bg2);
-        border: 1.5px solid var(--border);
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 500;
-        color: var(--text);
-      }
-      .modal-confirm {
-        padding: 10px;
-        background: var(--danger);
-        border: none;
-        border-radius: 8px;
-        cursor: pointer;
-        font-size: 13px;
-        font-weight: 600;
-        color: #fff;
-      }
+/* ══════════════════ 토스트 ══════════════════ */
+#toast {
+  position:fixed; bottom:84px; left:50%; transform:translateX(-50%) translateY(16px);
+  background:var(--txt); color:var(--bg); padding:9px 18px; border-radius:20px;
+  font-size:13px; font-weight:600; opacity:0; pointer-events:none;
+  transition:opacity .3s, transform .3s; z-index:999; white-space:nowrap; max-width:90vw;
+}
+#toast.on { opacity:1; transform:translateX(-50%) translateY(0); }
 
-      /* ── 반응형 ── */
-      @media (min-width: 600px) {
-        .bottom-nav {
-          display: none;
-        }
-        body {
-          padding-bottom: 0;
-        }
-        .page {
-          display: block !important;
-        }
-        .stats-grid {
-          grid-template-columns: repeat(4, 1fr);
-        }
-      }
-      @media (max-width: 599px) {
-        .form-row {
-          grid-template-columns: 1fr;
-        }
-        .stats-grid {
-          grid-template-columns: repeat(2, 1fr);
-        }
-      }
-    </style>
-  </head>
-  <body>
-    <div class="container">
-      <!-- ══ 홈 ══ -->
-      <div class="page active" id="homePage">
-        <div class="header">
-          <div class="header-btns">
-            <button
-              class="icon-btn"
-              id="settingsToggle"
-              onclick="toggleSettings()"
-              aria-label="설정"
-            >
-              ⚙️
-            </button>
-            <button
-              class="icon-btn"
-              id="darkToggle"
-              onclick="toggleDark()"
-              aria-label="다크모드"
-            >
-              🌙
-            </button>
-          </div>
-          <h1>📖 성경 통독 기록장</h1>
-          <p>매일 하느님의 말씀과 함께</p>
-        </div>
+/* ══════════════════ 모달 ══════════════════ */
+.overlay {
+  position:fixed; inset:0; background:rgba(0,0,0,.5);
+  display:flex; align-items:center; justify-content:center;
+  z-index:200; opacity:0; pointer-events:none; transition:opacity .2s;
+}
+.overlay.on { opacity:1; pointer-events:all; }
+.modal-box {
+  background:var(--card); border-radius:16px; padding:22px 20px;
+  max-width:360px; width:94%; border:1.5px solid var(--bdr);
+  transform:translateY(12px); transition:transform .2s; box-shadow:0 12px 40px rgba(0,0,0,.25);
+}
+.overlay.on .modal-box { transform:translateY(0); }
+.modal-box h3 { font-size:15px; font-weight:700; margin-bottom:14px; }
+.modal-box p  { font-size:13px; color:var(--txt2); margin-bottom:16px; line-height:1.55; }
+.modal-btns   { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+.mbtn-cancel  { padding:10px; background:var(--bg2); border:1.5px solid var(--bdr); border-radius:8px; cursor:pointer; font-size:13px; font-weight:600; color:var(--txt); }
+.mbtn-del     { padding:10px; background:var(--err); border:none; border-radius:8px; cursor:pointer; font-size:13px; font-weight:700; color:#fff; }
+.mbtn-save    { padding:10px; background:var(--p);   border:none; border-radius:8px; cursor:pointer; font-size:13px; font-weight:700; color:#fff; }
+.mbtn-adm     { padding:10px; background:var(--adm); border:none; border-radius:8px; cursor:pointer; font-size:13px; font-weight:700; color:#fff; }
 
-        <!-- 연결 상태 바 -->
-        <div class="sync-bar local" id="syncBar">
-          <div class="sync-dot" id="syncDot"></div>
-          <span id="syncMsg"
-            >로컬 저장 모드 —
-            <a onclick="toggleSettings()">Google Sheets 연결하기</a></span
-          >
-        </div>
+/* ══════════════════ 반응형 ══════════════════ */
+@media(min-width:600px) {
+  .tab-bar { display:none; }
+  body { padding-bottom:0; }
+  .page { display:block !important; }
+  .stat-grid { grid-template-columns:repeat(4,1fr); }
+}
+@media(max-width:599px) {
+  .fr { grid-template-columns:1fr; }
+  .stat-grid { grid-template-columns:repeat(2,1fr); }
+  .adm-st-grid { grid-template-columns:repeat(2,1fr); }
+}
+</style>
+</head>
+<body>
 
-        <!-- GAS URL 설정 패널 -->
-        <div class="settings-panel" id="settingsPanel">
-          <div class="settings-title">🔗 Google Sheets 연동 설정</div>
-          <div class="settings-desc">
-            Google Apps Script 웹 앱 URL을 입력하면 모든 기록이 스프레드시트에
-            자동 저장됩니다.<br />
-            설정 방법:
-          </div>
-          <ol class="steps">
-            <li>
-              <b>Google Sheets</b>를 열고 <b>확장 프로그램 → Apps Script</b>를
-              선택합니다
-            </li>
-            <li>제공된 <code>Code.gs</code> 내용을 붙여넣고 저장합니다</li>
-            <li>
-              <b>배포 → 새 배포</b>를 클릭, 유형: <code>웹 앱</code>, 액세스:
-              <code>모든 사용자</code>로 설정합니다
-            </li>
-            <li>생성된 <b>웹 앱 URL</b>을 아래에 붙여넣고 연결합니다</li>
-          </ol>
-          <br />
-          <div class="url-row">
-            <input
-              type="url"
-              class="url-input"
-              id="gasUrl"
-              placeholder="https://script.google.com/macros/s/..."
-              spellcheck="false"
-            />
-            <button class="btn-connect" onclick="connectGAS()">연결</button>
-          </div>
-          <div id="disconnectRow" style="display: none">
-            <button class="btn-disconnect" onclick="disconnectGAS()">
-              🔌 연결 해제
-            </button>
-          </div>
-        </div>
+<!-- ══════════════ 로그인 ══════════════ -->
+<div id="loginScreen">
+<div class="login-bg">
+<div class="login-box">
+  <div class="login-brand">
+    <div class="cross">✝️</div>
+    <h1>성경 통독 기록장</h1>
+    <p>매일 하느님의 말씀과 함께</p>
+  </div>
+  <div class="lf"><label class="ll">아이디</label><input id="loginId" class="li" type="text" placeholder="아이디 입력" autocomplete="username"></div>
+  <div class="lf"><label class="ll">비밀번호</label><input id="loginPw" class="li" type="password" placeholder="비밀번호 입력" autocomplete="current-password"></div>
+  <div class="login-err" id="loginErr"></div>
+  <button class="login-btn" onclick="doLogin()">로그인</button>
+</div>
+</div>
+</div>
 
-        <div class="section">
-          <div class="stats-grid">
-            <div class="stat-card">
-              <div class="stat-value" id="totalRecords">0</div>
-              <div class="stat-label">전체 기록</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value" id="monthRecords">0</div>
-              <div class="stat-label">이번 달</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value" id="consecutiveDays">0</div>
-              <div class="stat-label">🔥 연속</div>
-            </div>
-            <div class="stat-card">
-              <div class="stat-value" id="favoriteCount">0</div>
-              <div class="stat-label">즐겨찾기</div>
-            </div>
-          </div>
-          <div class="card">
-            <div class="calendar-header">
-              <button
-                class="cal-nav"
-                onclick="changeHomeMonth(-1)"
-                aria-label="이전 달"
-              >
-                ◀
-              </button>
-              <div class="calendar-month" id="homeMonth"></div>
-              <button
-                class="cal-nav"
-                onclick="changeHomeMonth(1)"
-                aria-label="다음 달"
-              >
-                ▶
-              </button>
-            </div>
-            <div class="calendar-grid" id="homeCalendar"></div>
-            <div class="cal-stats" id="homeStats"></div>
-          </div>
-        </div>
+<!-- ══════════════ 앱 ══════════════ -->
+<div id="appScreen" style="display:none">
+
+<!-- ── 홈 ── -->
+<div class="page on" id="pgHome">
+  <div class="hdr">
+    <div class="hdr-l"><span class="user-chip" id="userChip">👤</span></div>
+    <div class="hdr-r">
+      <button class="ib" onclick="toggleCfg()" title="GAS 설정">⚙️</button>
+      <button class="ib" id="darkBtn" onclick="toggleDark()" title="다크모드">🌙</button>
+      <button class="ib" onclick="doLogout()" title="로그아웃">🚪</button>
+    </div>
+    <h1>📖 성경 통독 기록장</h1>
+    <p id="homeGreet">매일 하느님의 말씀과 함께</p>
+  </div>
+
+  <!-- 싱크 바 -->
+  <div class="sync-bar" id="syncBar">
+    <div class="sd" id="syncDot"></div>
+    <span id="syncMsg">로컬 저장 모드 — <a onclick="toggleCfg()">Google Sheets 연결하기</a></span>
+  </div>
+
+  <!-- GAS 설정 패널 -->
+  <div class="cfg-panel" id="cfgPanel">
+    <div class="cfg-title">🔗 Google Sheets 연동 설정</div>
+    <div class="cfg-desc">
+      <b>방법 1 (권장)</b> — <code>index_bible_write_gas.json</code>의 <code>gas_url</code>을 수정하면 자동 적용됩니다.<br>
+      <b>방법 2</b> — 아래에 URL을 입력하면 브라우저에 저장됩니다.
+    </div>
+    <ol class="cfg-steps">
+      <li><b>Google Sheets</b> → <b>확장 프로그램 → Apps Script</b> 열기</li>
+      <li>제공된 <code>Code.gs</code> 내용 붙여넣고 저장</li>
+      <li><b>배포 → 새 배포</b> / 웹 앱 / 액세스: <b>모든 사용자</b></li>
+      <li>생성된 웹 앱 URL을 <code>gas_url</code>에 입력</li>
+    </ol>
+    <div class="url-row">
+      <input class="url-inp" id="gasUrlInput" type="url" placeholder="https://script.google.com/macros/s/...">
+      <button class="btn-conn" onclick="connectGAS()">연결</button>
+    </div>
+    <div id="discRow" style="display:none">
+      <button class="btn-disc" onclick="disconnectGAS()">🔌 연결 해제</button>
+    </div>
+  </div>
+
+  <div class="sec">
+    <div class="stat-grid">
+      <div class="stat-box"><div class="stat-v" id="stTotal">0</div><div class="stat-l">전체 기록</div></div>
+      <div class="stat-box"><div class="stat-v" id="stMonth">0</div><div class="stat-l">이번 달</div></div>
+      <div class="stat-box"><div class="stat-v" id="stStreak">0</div><div class="stat-l">🔥 연속</div></div>
+      <div class="stat-box"><div class="stat-v" id="stFav">0</div><div class="stat-l">⭐ 즐겨찾기</div></div>
+    </div>
+    <div class="card">
+      <div class="cal-hdr">
+        <button class="cal-nav" onclick="chgHomeMo(-1)">◀</button>
+        <div class="cal-mo" id="homeMoLabel"></div>
+        <button class="cal-nav" onclick="chgHomeMo(1)">▶</button>
       </div>
+      <div class="cal-grid" id="homeCal"></div>
+      <div class="cal-foot" id="homeCalFoot"></div>
+    </div>
+  </div>
+</div>
 
-      <!-- ══ 기록하기 ══ -->
-      <div class="page" id="writePage">
-        <div class="header"><h1>✍️ 기록하기</h1></div>
-        <div class="section">
-          <div class="edit-banner" id="editBanner">
-            ✏️ <strong>기록 수정 중</strong>입니다
-            <button class="cancel-edit" onclick="cancelEdit()">취소</button>
+<!-- ── 기록하기 ── -->
+<div class="page" id="pgWrite">
+  <div class="hdr"><h1>✍️ 기록하기</h1></div>
+  <div class="sec">
+    <div class="edit-banner" id="editBanner">
+      ✏️ <strong>수정 중</strong>입니다
+      <button class="cancel-edit" onclick="cancelEdit()">취소</button>
+    </div>
+    <div class="card">
+      <form id="writeForm" onsubmit="saveRecord(event)">
+        <div class="fg"><label class="fl">📅 날짜</label><input id="fDate" class="fi" type="date" required></div>
+        <div class="fr">
+          <div class="fg">
+            <label class="fl">📚 성경 책</label>
+            <select id="fBook" class="fs" required>
+              <option value="">선택하세요</option>
+              <optgroup label="── 구약 (46권)">
+                <option>창세기</option><option>탈출기</option><option>레위기</option><option>민수기</option><option>신명기</option>
+                <option>여호수아기</option><option>판관기</option><option>룻기</option><option>사무엘기 상권</option><option>사무엘기 하권</option>
+                <option>열왕기 상권</option><option>열왕기 하권</option><option>역대기 상권</option><option>역대기 하권</option><option>에즈라기</option>
+                <option>느헤미야기</option><option>토빗기</option><option>유딧기</option><option>에스테르기</option><option>마카베오기 상권</option>
+                <option>마카베오기 하권</option><option>욥기</option><option>시편</option><option>잠언</option><option>코헬렛</option>
+                <option>아가</option><option>지혜서</option><option>집회서</option><option>이사야서</option><option>예레미야서</option>
+                <option>애가</option><option>바룩서</option><option>에제키엘서</option><option>다니엘서</option><option>호세아서</option>
+                <option>요엘서</option><option>아모스서</option><option>오바드야서</option><option>요나서</option><option>미카서</option>
+                <option>나훔서</option><option>하바쿡서</option><option>스바니야서</option><option>하까이서</option><option>즈카르야서</option>
+                <option>말라키서</option>
+              </optgroup>
+              <optgroup label="── 신약 (27권)">
+                <option>마태오 복음서</option><option>마르코 복음서</option><option>루카 복음서</option><option>요한 복음서</option><option>사도행전</option>
+                <option>로마서</option><option>코린토 1서</option><option>코린토 2서</option><option>갈라티아서</option><option>에페소서</option>
+                <option>필리피서</option><option>콜로새서</option><option>테살로니카 1서</option><option>테살로니카 2서</option><option>티모테오 1서</option>
+                <option>티모테오 2서</option><option>티토서</option><option>필레몬서</option><option>히브리서</option><option>야고보서</option>
+                <option>베드로 1서</option><option>베드로 2서</option><option>요한 1서</option><option>요한 2서</option><option>요한 3서</option>
+                <option>유다서</option><option>요한 묵시록</option>
+              </optgroup>
+            </select>
           </div>
-          <div class="card">
-            <form id="writeForm" onsubmit="saveRecord(event)">
-              <div class="form-group">
-                <label class="form-label" for="date">📅 날짜</label>
-                <input type="date" id="date" class="form-input" required />
-              </div>
-              <div class="form-row">
-                <div class="form-group">
-                  <label class="form-label" for="book">📚 성경 책</label>
-                  <select id="book" class="form-select" required>
-                    <option value="">선택하세요</option>
-                    <optgroup label="── 구약 (46권)">
-                      <option>창세기</option>
-                      <option>탈출기</option>
-                      <option>레위기</option>
-                      <option>민수기</option>
-                      <option>신명기</option>
-                      <option>여호수아기</option>
-                      <option>판관기</option>
-                      <option>룻기</option>
-                      <option>사무엘기 상권</option>
-                      <option>사무엘기 하권</option>
-                      <option>열왕기 상권</option>
-                      <option>열왕기 하권</option>
-                      <option>역대기 상권</option>
-                      <option>역대기 하권</option>
-                      <option>에즈라기</option>
-                      <option>느헤미야기</option>
-                      <option>토빗기</option>
-                      <option>유딧기</option>
-                      <option>에스테르기</option>
-                      <option>마카베오기 상권</option>
-                      <option>마카베오기 하권</option>
-                      <option>욥기</option>
-                      <option>시편</option>
-                      <option>잠언</option>
-                      <option>코헬렛</option>
-                      <option>아가</option>
-                      <option>지혜서</option>
-                      <option>집회서</option>
-                      <option>이사야서</option>
-                      <option>예레미야서</option>
-                      <option>애가</option>
-                      <option>바룩서</option>
-                      <option>에제키엘서</option>
-                      <option>다니엘서</option>
-                      <option>호세아서</option>
-                      <option>요엘서</option>
-                      <option>아모스서</option>
-                      <option>오바드야서</option>
-                      <option>요나서</option>
-                      <option>미카서</option>
-                      <option>나훔서</option>
-                      <option>하바쿡서</option>
-                      <option>스바니야서</option>
-                      <option>하까이서</option>
-                      <option>즈카르야서</option>
-                      <option>말라키서</option>
-                    </optgroup>
-                    <optgroup label="── 신약 (27권)">
-                      <option>마태오 복음서</option>
-                      <option>마르코 복음서</option>
-                      <option>루카 복음서</option>
-                      <option>요한 복음서</option>
-                      <option>사도행전</option>
-                      <option>로마서</option>
-                      <option>코린토 1서</option>
-                      <option>코린토 2서</option>
-                      <option>갈라티아서</option>
-                      <option>에페소서</option>
-                      <option>필리피서</option>
-                      <option>콜로새서</option>
-                      <option>테살로니카 1서</option>
-                      <option>테살로니카 2서</option>
-                      <option>티모테오 1서</option>
-                      <option>티모테오 2서</option>
-                      <option>티토서</option>
-                      <option>필레몬서</option>
-                      <option>히브리서</option>
-                      <option>야고보서</option>
-                      <option>베드로 1서</option>
-                      <option>베드로 2서</option>
-                      <option>요한 1서</option>
-                      <option>요한 2서</option>
-                      <option>요한 3서</option>
-                      <option>유다서</option>
-                      <option>요한 묵시록</option>
-                    </optgroup>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <label class="form-label" for="chapter">🔖 장절</label>
-                  <input
-                    type="text"
-                    id="chapter"
-                    class="form-input"
-                    placeholder="예) 1:1-5"
-                    required
-                  />
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="verse"
-                  >✨ 기억에 남는 구절</label
-                >
-                <textarea
-                  id="verse"
-                  class="form-textarea"
-                  placeholder="마음에 와닿은 구절을 적어주세요"
-                  oninput="updateCount('verse', 'verseCount')"
-                  required
-                ></textarea>
-                <div class="char-count"><span id="verseCount">0</span>자</div>
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="meditation">💭 묵상</label>
-                <textarea
-                  id="meditation"
-                  class="form-textarea"
-                  placeholder="오늘 말씀을 통해 깨달은 것을 나눠주세요"
-                  oninput="updateCount('meditation', 'meditationCount')"
-                  required
-                ></textarea>
-                <div class="char-count">
-                  <span id="meditationCount">0</span>자
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="fav-label">
-                  <input type="checkbox" id="favorite" /> ⭐ 즐겨찾기에 추가
-                </label>
-              </div>
-              <button type="submit" class="btn-primary" id="submitBtn">
-                💾 저장하기
-              </button>
-            </form>
-          </div>
+          <div class="fg"><label class="fl">🔖 장절</label><input id="fChapter" class="fi" type="text" placeholder="예) 1:1-5" required></div>
         </div>
+        <div class="fg">
+          <label class="fl">✨ 기억에 남는 구절</label>
+          <textarea id="fVerse" class="ft" placeholder="마음에 와닿은 구절을 적어주세요" oninput="cc('fVerse','ccVerse')" required></textarea>
+          <div class="cc"><span id="ccVerse">0</span>자</div>
+        </div>
+        <div class="fg">
+          <label class="fl">💭 묵상</label>
+          <textarea id="fMed" class="ft" placeholder="오늘 말씀을 통해 깨달은 것을 나눠주세요" oninput="cc('fMed','ccMed')" required></textarea>
+          <div class="cc"><span id="ccMed">0</span>자</div>
+        </div>
+        <div class="fg"><label class="fav-lbl"><input id="fFav" type="checkbox"> ⭐ 즐겨찾기에 추가</label></div>
+        <button type="submit" class="btn-save" id="saveBtn">💾 저장하기</button>
+      </form>
+    </div>
+  </div>
+</div>
+
+<!-- ── 목록 ── -->
+<div class="page" id="pgList">
+  <div class="hdr"><h1>📚 기록 목록</h1></div>
+  <div class="sec">
+    <div class="card">
+      <div class="cal-hdr">
+        <button class="cal-nav" onclick="chgListMo(-1)">◀</button>
+        <div class="cal-mo" id="listMoLabel"></div>
+        <button class="cal-nav" onclick="chgListMo(1)">▶</button>
       </div>
+      <div class="cal-grid" id="listCal"></div>
+      <div class="cal-foot" id="listCalFoot"></div>
+    </div>
+    <div class="srch-wrap"><span class="srch-ico">🔍</span><input class="srch-inp" id="srchInput" type="search" placeholder="성경 책, 구절 또는 내용 검색" oninput="renderList()"></div>
+    <div id="selInfo"></div>
+    <div id="recList"></div>
+  </div>
+</div>
 
-      <!-- ══ 목록 ══ -->
-      <div class="page" id="listPage">
-        <div class="header"><h1>📚 기록 목록</h1></div>
-        <div class="section">
-          <div class="card">
-            <div class="calendar-header">
-              <button
-                class="cal-nav"
-                onclick="changeListMonth(-1)"
-                aria-label="이전 달"
-              >
-                ◀
-              </button>
-              <div class="calendar-month" id="listMonth"></div>
-              <button
-                class="cal-nav"
-                onclick="changeListMonth(1)"
-                aria-label="다음 달"
-              >
-                ▶
-              </button>
-            </div>
-            <div class="calendar-grid" id="listCalendar"></div>
-            <div class="cal-stats" id="listStats"></div>
-          </div>
-          <div class="search-wrap">
-            <span class="search-icon">🔍</span>
-            <input
-              type="search"
-              class="search-input"
-              id="searchInput"
-              placeholder="성경 책 이름 또는 내용으로 검색"
-              oninput="displayRecords()"
-            />
-          </div>
-          <div id="selectedInfo"></div>
-          <div id="recordsList"></div>
-        </div>
+<!-- ── 관리자 ── -->
+<div class="page" id="pgAdmin">
+  <div class="adm-hdr">
+    <div class="hdr-r">
+      <button class="ib" onclick="doLogout()" title="로그아웃">🚪</button>
+    </div>
+    <h1>👑 관리자 페이지</h1>
+    <p>계정 및 통독 현황 관리</p>
+  </div>
+  <div class="sec">
+    <div class="adm-st-grid" id="admStats"></div>
+    <div class="card">
+      <div class="sec-title">👥 계정 관리</div>
+      <button class="btn-add" onclick="openUserModal()">➕ 계정 추가</button>
+      <div class="sort-row">
+        정렬:
+        <select id="sortSel" onchange="renderUserTable()">
+          <option value="name">이름순</option>
+          <option value="count">기록 많은 순</option>
+          <option value="recent">최근 기록순</option>
+        </select>
+      </div>
+      <div style="overflow-x:auto">
+        <table class="utbl">
+          <thead><tr><th>이름</th><th>세례명</th><th>아이디</th><th>권한</th><th>기록 수</th><th>이번 달</th><th>관리</th></tr></thead>
+          <tbody id="userTbody"></tbody>
+        </table>
       </div>
     </div>
-
-    <!-- 하단 탭 -->
-    <nav class="bottom-nav">
-      <button
-        class="nav-item active"
-        id="nav-home"
-        onclick="showPage('home', this)"
-        aria-label="홈"
-      >
-        <div class="nav-icon">🏠</div>
-        <div class="nav-label">홈</div>
-      </button>
-      <button
-        class="nav-item"
-        id="nav-write"
-        onclick="showPage('write', this)"
-        aria-label="기록하기"
-      >
-        <div class="nav-icon">✍️</div>
-        <div class="nav-label">기록</div>
-      </button>
-      <button
-        class="nav-item"
-        id="nav-list"
-        onclick="showPage('list', this)"
-        aria-label="목록 보기"
-      >
-        <div class="nav-icon">📚</div>
-        <div class="nav-label">목록</div>
-      </button>
-    </nav>
-
-    <div id="toast" role="status" aria-live="polite"></div>
-
-    <div class="modal-overlay" id="deleteModal" role="dialog" aria-modal="true">
-      <div class="modal">
-        <h3>🗑️ 기록 삭제</h3>
-        <p>
-          이 기록을 삭제하면 복구할 수 없습니다.<br />정말 삭제하시겠습니까?
-        </p>
-        <div class="modal-btns">
-          <button class="modal-cancel" onclick="closeDeleteModal()">
-            취소
-          </button>
-          <button class="modal-confirm" id="modalConfirm">삭제</button>
-        </div>
+    <div class="card">
+      <div class="sec-title">📊 통독 현황</div>
+      <div class="adm-filter">
+        계정:
+        <select id="admUserSel" onchange="renderAdmRecords()">
+          <option value="">전체</option>
+        </select>
       </div>
+      <div id="admRecList"></div>
     </div>
+  </div>
+</div>
 
-    <script>
-      /* ═══════════════════════════════════════════
-   상태 & 설정
+<!-- 탭바 -->
+<nav class="tab-bar">
+  <button class="tab-btn on" id="tabHome"  onclick="goPage('Home',this)"><div class="tab-ico">🏠</div><div class="tab-lbl">홈</div></button>
+  <button class="tab-btn"    id="tabWrite" onclick="goPage('Write',this)"><div class="tab-ico">✍️</div><div class="tab-lbl">기록</div></button>
+  <button class="tab-btn"    id="tabList"  onclick="goPage('List',this)"><div class="tab-ico">📚</div><div class="tab-lbl">목록</div></button>
+  <button class="tab-btn adm-tab" id="adminTab" onclick="goPage('Admin',this)"><div class="tab-ico">👑</div><div class="tab-lbl">관리</div></button>
+</nav>
+
+</div><!-- /appScreen -->
+
+<div id="toast"></div>
+
+<!-- 기록 삭제 모달 -->
+<div class="overlay" id="delModal">
+  <div class="modal-box">
+    <h3>🗑️ 기록 삭제</h3>
+    <p>이 기록을 삭제하면 복구할 수 없습니다.<br>정말 삭제하시겠습니까?</p>
+    <div class="modal-btns">
+      <button class="mbtn-cancel" onclick="closeModal('delModal')">취소</button>
+      <button class="mbtn-del" id="delConfirm">삭제</button>
+    </div>
+  </div>
+</div>
+
+<!-- 계정 추가/수정 모달 -->
+<div class="overlay" id="userModal">
+  <div class="modal-box">
+    <h3 id="userModalTitle">➕ 계정 추가</h3>
+    <div class="fg"><label class="fl">이름 *</label><input id="uName" class="fi" type="text" placeholder="홍길동"></div>
+    <div class="fg"><label class="fl">세례명</label><input id="uBaptism" class="fi" type="text" placeholder="요한 (없으면 비워두세요)"></div>
+    <div class="fg"><label class="fl">아이디 *</label><input id="uId" class="fi" type="text" placeholder="영문+숫자 조합"></div>
+    <div class="fg"><label class="fl">비밀번호 *</label><input id="uPw" class="fi" type="password" placeholder="수정 시 비워두면 기존 유지"></div>
+    <div class="fg">
+      <label class="fl">권한</label>
+      <select id="uRole" class="fs"><option value="user">일반 사용자</option><option value="admin">관리자</option></select>
+    </div>
+    <div style="margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:8px">
+      <button class="mbtn-cancel" onclick="closeModal('userModal')">취소</button>
+      <button class="mbtn-adm" onclick="saveUser()">저장</button>
+    </div>
+  </div>
+</div>
+
+<!-- 계정 삭제 모달 -->
+<div class="overlay" id="delUserModal">
+  <div class="modal-box">
+    <h3>🗑️ 계정 삭제</h3>
+    <p id="delUserMsg"></p>
+    <div class="modal-btns">
+      <button class="mbtn-cancel" onclick="closeModal('delUserModal')">취소</button>
+      <button class="mbtn-del" id="delUserConfirm">삭제</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ═══════════════════════════════════════════
+   상수
 ═══════════════════════════════════════════ */
-      let records = [];
-      let editId = null;
-      let homeYear, homeMonth, listYear, listMonth, selectedDate;
-      let pendingDeleteId = null;
-      let toastTimer = null;
-      let gasUrl = ""; // GAS 웹 앱 URL
-      let isGasConnected = false;
+const LS_USERS   = 'bb_users';
+const LS_REC     = uid => `bb_rec_${uid}`;
+const LS_GAS     = 'bb_gas';
+const LS_DARK    = 'bb_dark';
+const DEFAULT_ADMIN = { id:'admin', pw:'1234', name:'관리자', baptism:'', role:'admin' };
 
-      /* ═══════════════════════════════════════════
-   초기화
+/* ═══════════════════════════════════════════
+   상태
 ═══════════════════════════════════════════ */
-      (async function init() {
-        // 다크모드
-        if (localStorage.getItem("darkMode") === "1") applyDark(true);
+let me = null;          // 로그인한 사용자
+let recs = [];          // 현재 사용자 기록
+let allRecs = {};       // 관리자용 { uid: [...] }
+let users = [];
+let editId = null;
+let pendingDelId = null;
+let editingUid = null;
+let gasUrl = '';
+let gasOk  = false;
+let homeY, homeMo, listY, listMo, selDate;
+let toastTmr = null;
 
-        // GAS URL 복원
-        gasUrl = localStorage.getItem("gasUrl") || "";
-        if (gasUrl) {
-          document.getElementById("gasUrl").value = gasUrl;
-          document.getElementById("disconnectRow").style.display = "block";
-          isGasConnected = true;
-          setSyncBar("syncing", "연결 중...");
-        }
-
-        const now = new Date();
-        homeYear = now.getFullYear();
-        homeMonth = now.getMonth() + 1;
-        listYear = now.getFullYear();
-        listMonth = now.getMonth() + 1;
-        document.getElementById("date").value = toLocalISODate(now);
-
-        // 로컬 데이터 먼저 표시
-        try {
-          records = JSON.parse(localStorage.getItem("bibleRecords") || "[]");
-        } catch (e) {
-          records = [];
-        }
-        refreshAll();
-
-        // GAS 연결 시 원격 데이터 로드
-        if (isGasConnected) await loadFromGAS();
-        else
-          setSyncBar(
-            "local",
-            '로컬 저장 모드 — <a onclick="toggleSettings()">Google Sheets 연결하기</a>',
-          );
-      })();
-
-      /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
    유틸
 ═══════════════════════════════════════════ */
-      function toLocalISODate(d) {
-        return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-      }
-      function genId() {
-        return Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
-      }
-      function saveLocal() {
-        localStorage.setItem("bibleRecords", JSON.stringify(records));
-      }
-      function refreshAll() {
-        updateStats();
-        renderHomeCalendar();
-        renderListCalendar();
-        displayRecords();
-      }
+const $ = id => document.getElementById(id);
+function toDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+function genId() { return Date.now().toString(36) + Math.random().toString(36).slice(2,6); }
+function esc(s)  { return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+function saveRecs()  { localStorage.setItem(LS_REC(me.id), JSON.stringify(recs)); }
+function loadRecs(uid) { try { return JSON.parse(localStorage.getItem(LS_REC(uid))||'[]'); } catch(e){ return []; } }
+function saveUsers() { localStorage.setItem(LS_USERS, JSON.stringify(users)); }
+function loadUsers() { try { return JSON.parse(localStorage.getItem(LS_USERS)||'null'); } catch(e){ return null; } }
+function refresh()   { updateStats(); renderHomeCal(); renderListCal(); renderList(); }
 
-      /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
+   초기화
+═══════════════════════════════════════════ */
+(async function init(){
+  if(localStorage.getItem(LS_DARK)==='1') applyDark(true);
+  const saved = loadUsers();
+  users = saved || [{ ...DEFAULT_ADMIN }];
+  if(!saved) saveUsers();
+
+  gasUrl = await loadGasJson();
+  if(!gasUrl) gasUrl = localStorage.getItem(LS_GAS)||'';
+  if(gasUrl) $('gasUrlInput').value = gasUrl;
+
+  $('loginPw').addEventListener('keydown', e=>{ if(e.key==='Enter') doLogin(); });
+  $('loginId').addEventListener('keydown', e=>{ if(e.key==='Enter') $('loginPw').focus(); });
+
+  const sid = sessionStorage.getItem('bb_uid');
+  if(sid){ const u=users.find(u=>u.id===sid); if(u){ await loginOk(u,false); return; } }
+})();
+
+async function loadGasJson(){
+  try{
+    const r = await fetch('./index_bible_write_gas.json?t='+Date.now());
+    if(!r.ok) return '';
+    const j = await r.json();
+    return (j.gas_url||'').trim();
+  }catch(e){ return ''; }
+}
+
+/* ═══════════════════════════════════════════
+   로그인 / 로그아웃
+═══════════════════════════════════════════ */
+function doLogin(){
+  const id = $('loginId').value.trim();
+  const pw = $('loginPw').value;
+  const u  = users.find(u=>u.id===id && u.pw===pw);
+  if(!u){ $('loginErr').textContent='아이디 또는 비밀번호가 올바르지 않습니다.'; return; }
+  $('loginErr').textContent='';
+  loginOk(u, true);
+}
+
+async function loginOk(u, loadRemote){
+  me = u;
+  sessionStorage.setItem('bb_uid', u.id);
+  $('loginScreen').style.display = 'none';
+  $('appScreen').style.display   = 'block';
+
+  // 관리자 탭
+  $('adminTab').style.display = u.role==='admin' ? '' : 'none';
+
+  // 사용자 칩
+  $('userChip').textContent = u.baptism ? `${u.name} (${u.baptism})` : u.name;
+  $('homeGreet').textContent = `${u.name}님, 오늘도 말씀과 함께하세요 🙏`;
+
+  const now = new Date();
+  homeY=now.getFullYear(); homeMo=now.getMonth()+1;
+  listY=now.getFullYear(); listMo=now.getMonth()+1;
+  $('fDate').value = toDate(now);
+
+  recs = loadRecs(u.id);
+  refresh();
+
+  if(gasUrl){
+    gasOk = true;
+    $('discRow').style.display = 'block';
+    if(loadRemote) await fetchFromGAS();
+    else setSyncBar('ok', `✓ Google Sheets 연동됨 — ${recs.length}개 기록`);
+  } else {
+    setSyncBar('', '로컬 저장 모드 — <a onclick="toggleCfg()">Google Sheets 연결하기</a>');
+  }
+}
+
+function doLogout(){
+  sessionStorage.removeItem('bb_uid');
+  me=null; recs=[];
+  $('appScreen').style.display = 'none';
+  $('loginScreen').style.display = 'block';
+  $('loginId').value=''; $('loginPw').value='';
+  goPage('Home');
+}
+
+/* ═══════════════════════════════════════════
    토스트
 ═══════════════════════════════════════════ */
-      function showToast(msg, dur = 2400) {
-        const el = document.getElementById("toast");
-        el.textContent = msg;
-        el.classList.add("show");
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => el.classList.remove("show"), dur);
-      }
+function toast(msg, dur=2400){
+  const el=$('toast'); el.textContent=msg; el.classList.add('on');
+  clearTimeout(toastTmr); toastTmr=setTimeout(()=>el.classList.remove('on'),dur);
+}
 
-      /* ═══════════════════════════════════════════
-   연결 상태 바
+/* ═══════════════════════════════════════════
+   싱크 바
 ═══════════════════════════════════════════ */
-      function setSyncBar(state, msg) {
-        const bar = document.getElementById("syncBar");
-        const dot = document.getElementById("syncDot");
-        const txt = document.getElementById("syncMsg");
-        bar.className = "sync-bar " + state;
-        if (document.body.classList.contains("dark")) bar.classList.add("dark");
-        dot.className = "sync-dot" + (state === "syncing" ? " spin" : "");
-        txt.innerHTML = msg;
-      }
+function setSyncBar(state, html){
+  const bar=$('syncBar'), dot=$('syncDot'), msg=$('syncMsg');
+  bar.className = 'sync-bar' + (state?' '+state:'');
+  dot.className = 'sd' + (state==='syncing'?' spin':'');
+  msg.innerHTML = html;
+}
 
-      /* ═══════════════════════════════════════════
-   GAS API 호출 — 순수 fetch GET
-   GAS 웹 앱은 Access-Control-Allow-Origin: *
-   헤더를 포함하므로 단순 GET은 CORS 통과.
-   모든 파라미터를 쿼리스트링으로 전달.
+/* ═══════════════════════════════════════════
+   GAS 연동
 ═══════════════════════════════════════════ */
-      async function gasCall(params) {
-        const url = new URL(gasUrl);
-        // callback 파라미터 제거 (순수 JSON 응답 요청)
-        Object.entries(params).forEach(([k, v]) => {
-          url.searchParams.set(
-            k,
-            typeof v === "object" ? JSON.stringify(v) : String(v),
-          );
-        });
+async function gasCall(params){
+  const url = new URL(gasUrl);
+  Object.entries(params).forEach(([k,v])=>
+    url.searchParams.set(k, typeof v==='object'?JSON.stringify(v):String(v))
+  );
+  const ctrl = new AbortController();
+  const tmr  = setTimeout(()=>ctrl.abort(), 15000);
+  try{
+    const res = await fetch(url.toString(), {method:'GET', signal:ctrl.signal});
+    clearTimeout(tmr);
+    if(!res.ok) throw new Error(`HTTP ${res.status}`);
+    const json = await res.json();
+    if(!json.ok) throw new Error(json.error||'GAS 오류');
+    return json.data;
+  }catch(e){
+    clearTimeout(tmr);
+    if(e.name==='AbortError') throw new Error('요청 시간 초과(15초)');
+    throw e;
+  }
+}
 
-        const controller = new AbortController();
-        const timer = setTimeout(() => controller.abort(), 15000);
+async function fetchFromGAS(){
+  try{
+    setSyncBar('syncing','데이터 불러오는 중...');
+    const data = await gasCall({action:'list', userId:me.id});
+    recs = Array.isArray(data)?data:[];
+    saveRecs(); refresh();
+    setSyncBar('ok',`✓ Google Sheets 연동됨 — ${recs.length}개 기록`);
+    toast('☁️ 시트에서 데이터를 불러왔습니다');
+  }catch(e){
+    setSyncBar('error','⚠️ 연결 실패 — <a onclick="toggleCfg()">설정 확인</a>');
+    toast('❌ '+e.message, 4000);
+  }
+}
 
-        try {
-          const res = await fetch(url.toString(), {
-            method: "GET",
-            signal: controller.signal,
-          });
-          clearTimeout(timer);
+function toggleCfg(){ $('cfgPanel').classList.toggle('open'); }
 
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const json = await res.json();
-          if (!json.ok) throw new Error(json.error || "GAS 오류");
-          return json.data;
-        } catch (e) {
-          clearTimeout(timer);
-          if (e.name === "AbortError") throw new Error("요청 시간 초과 (15초)");
-          throw e;
-        }
-      }
+async function connectGAS(){
+  const url = $('gasUrlInput').value.trim();
+  if(!url.startsWith('https://script.google.com/')){ toast('❌ 올바른 GAS URL을 입력하세요'); return; }
+  gasUrl=url; localStorage.setItem(LS_GAS,gasUrl);
+  gasOk=true; $('discRow').style.display='block';
+  await fetchFromGAS();
+}
+function disconnectGAS(){
+  gasUrl=''; gasOk=false; localStorage.removeItem(LS_GAS);
+  $('gasUrlInput').value=''; $('discRow').style.display='none';
+  setSyncBar('','로컬 저장 모드 — <a onclick="toggleCfg()">Google Sheets 연결하기</a>');
+  toast('🔌 연결 해제되었습니다');
+}
 
-      /* ═══════════════════════════════════════════
-   GAS 연결 / 해제
+/* ═══════════════════════════════════════════
+   다크 / 페이지
 ═══════════════════════════════════════════ */
-      async function connectGAS() {
-        const url = document.getElementById("gasUrl").value.trim();
-        if (!url.startsWith("https://script.google.com/")) {
-          showToast("❌ 올바른 GAS 웹 앱 URL을 입력하세요");
-          return;
-        }
-        gasUrl = url;
-        localStorage.setItem("gasUrl", gasUrl);
-        isGasConnected = true;
-        document.getElementById("disconnectRow").style.display = "block";
-        setSyncBar("syncing", "연결 중...");
-        await loadFromGAS();
-      }
+function applyDark(on){
+  document.body.classList.toggle('dark',on);
+  $('darkBtn').textContent = on?'☀️':'🌙';
+}
+function toggleDark(){
+  const on=!document.body.classList.contains('dark');
+  applyDark(on); localStorage.setItem(LS_DARK,on?'1':'0');
+}
+function goPage(name, btn){
+  document.querySelectorAll('.page').forEach(p=>p.classList.remove('on'));
+  document.querySelectorAll('.tab-btn').forEach(t=>t.classList.remove('on'));
+  $('pg'+name).classList.add('on');
+  const tb = btn || $('tab'+name);
+  if(tb) tb.classList.add('on');
+  if(name==='Home')  renderHomeCal();
+  if(name==='List')  { renderListCal(); renderList(); }
+  if(name==='Admin') renderAdminPage();
+}
+function openModal(id)  { $(id).classList.add('on'); }
+function closeModal(id) { $(id).classList.remove('on'); }
 
-      function disconnectGAS() {
-        gasUrl = "";
-        isGasConnected = false;
-        localStorage.removeItem("gasUrl");
-        document.getElementById("gasUrl").value = "";
-        document.getElementById("disconnectRow").style.display = "none";
-        setSyncBar(
-          "local",
-          '로컬 저장 모드 — <a onclick="toggleSettings()">Google Sheets 연결하기</a>',
-        );
-        showToast("🔌 연결 해제되었습니다");
-      }
-
-      async function loadFromGAS() {
-        try {
-          setSyncBar("syncing", "데이터 불러오는 중...");
-          const data = await gasCall({ action: "list" });
-          records = data;
-          saveLocal();
-          refreshAll();
-          setSyncBar("ok", `✓ Google Sheets 연동됨 — ${records.length}개 기록`);
-          showToast("☁️ 시트에서 데이터를 불러왔습니다");
-        } catch (e) {
-          setSyncBar(
-            "error",
-            '⚠️ 연결 실패 — <a onclick="toggleSettings()">설정 확인</a>',
-          );
-          showToast("❌ " + e.message, 4000);
-        }
-      }
-
-      /* ═══════════════════════════════════════════
-   설정 패널
-═══════════════════════════════════════════ */
-      function toggleSettings() {
-        document.getElementById("settingsPanel").classList.toggle("open");
-      }
-
-      /* ═══════════════════════════════════════════
-   다크모드
-═══════════════════════════════════════════ */
-      function applyDark(on) {
-        document.body.classList.toggle("dark", on);
-        document.getElementById("darkToggle").textContent = on ? "☀️" : "🌙";
-      }
-      function toggleDark() {
-        const on = !document.body.classList.contains("dark");
-        applyDark(on);
-        localStorage.setItem("darkMode", on ? "1" : "0");
-      }
-
-      /* ═══════════════════════════════════════════
-   페이지 전환
-═══════════════════════════════════════════ */
-      function showPage(page, btnEl) {
-        document
-          .querySelectorAll(".page")
-          .forEach((p) => p.classList.remove("active"));
-        document
-          .querySelectorAll(".nav-item")
-          .forEach((n) => n.classList.remove("active"));
-        document.getElementById(page + "Page").classList.add("active");
-        if (btnEl) btnEl.classList.add("active");
-        else {
-          const nb = document.getElementById("nav-" + page);
-          if (nb) nb.classList.add("active");
-        }
-        if (page === "home") renderHomeCalendar();
-        if (page === "list") {
-          renderListCalendar();
-          displayRecords();
-        }
-      }
-
-      /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
    통계
 ═══════════════════════════════════════════ */
-      function updateStats() {
-        document.getElementById("totalRecords").textContent = records.length;
-        const thisMonth = toLocalISODate(new Date()).slice(0, 7);
-        const mCnt = new Set(
-          records
-            .filter((r) => r.date.startsWith(thisMonth))
-            .map((r) => r.date),
-        ).size;
-        document.getElementById("monthRecords").textContent = mCnt;
-        document.getElementById("consecutiveDays").textContent =
-          calcConsecutive();
-        document.getElementById("favoriteCount").textContent = records.filter(
-          (r) => r.favorite,
-        ).length;
-      }
-      function calcConsecutive() {
-        if (!records.length) return 0;
-        const dates = [...new Set(records.map((r) => r.date))].sort().reverse();
-        const today = toLocalISODate(new Date());
-        let cnt = 0,
-          cur = new Date(today);
-        for (const d of dates) {
-          if (d === toLocalISODate(cur)) {
-            cnt++;
-            cur.setDate(cur.getDate() - 1);
-          } else break;
-        }
-        return cnt;
-      }
+function updateStats(){
+  $('stTotal').textContent  = recs.length;
+  const mo = toDate(new Date()).slice(0,7);
+  $('stMonth').textContent  = new Set(recs.filter(r=>r.date.startsWith(mo)).map(r=>r.date)).size;
+  $('stStreak').textContent = calcStreak();
+  $('stFav').textContent    = recs.filter(r=>r.favorite).length;
+}
+function calcStreak(){
+  if(!recs.length) return 0;
+  const dates=[...new Set(recs.map(r=>r.date))].sort().reverse();
+  const today=toDate(new Date()); let cnt=0, cur=new Date(today);
+  for(const d of dates){ if(d===toDate(cur)){cnt++;cur.setDate(cur.getDate()-1);}else break; }
+  return cnt;
+}
 
-      /* ═══════════════════════════════════════════
-   달력
+/* ═══════════════════════════════════════════
+   달력 공용
 ═══════════════════════════════════════════ */
-      function renderCalendar(year, month, gridId, clickable) {
-        const grid = document.getElementById(gridId);
-        grid.innerHTML = "";
-        ["일", "월", "화", "수", "목", "금", "토"].forEach((d) => {
-          const h = document.createElement("div");
-          h.className = "cal-head";
-          h.textContent = d;
-          grid.appendChild(h);
-        });
-        const firstDay = new Date(year, month - 1, 1).getDay(),
-          lastDate = new Date(year, month, 0).getDate();
-        const today = toLocalISODate(new Date());
-        for (let i = 0; i < firstDay; i++) {
-          const e = document.createElement("div");
-          e.className = "cal-day empty";
-          grid.appendChild(e);
-        }
-        for (let date = 1; date <= lastDate; date++) {
-          const ds = `${year}-${String(month).padStart(2, "0")}-${String(date).padStart(2, "0")}`;
-          const dr = records.filter((r) => r.date === ds),
-            has = dr.length > 0,
-            hasFav = dr.some((r) => r.favorite);
-          const cell = document.createElement("div");
-          cell.className = "cal-day";
-          if (has) cell.classList.add("recorded");
-          if (ds === today) cell.classList.add("today");
-          if (selectedDate === ds) cell.classList.add("selected");
-          const n = document.createElement("div");
-          n.textContent = date;
-          cell.appendChild(n);
-          if (has) {
-            const c = document.createElement("div");
-            c.className = "cal-check";
-            c.textContent = "✓";
-            cell.appendChild(c);
-          }
-          if (hasFav) {
-            const s = document.createElement("div");
-            s.className = "cal-star";
-            s.textContent = "⭐";
-            cell.appendChild(s);
-          }
-          if (clickable) {
-            cell.setAttribute("tabindex", "0");
-            cell.addEventListener("click", () => selectDate(ds));
-            cell.addEventListener("keydown", (e) => {
-              if (e.key === "Enter" || e.key === " ") selectDate(ds);
-            });
-          }
-          grid.appendChild(cell);
-        }
-      }
-      function renderHomeCalendar() {
-        document.getElementById("homeMonth").textContent =
-          `${homeYear}년 ${homeMonth}월`;
-        renderCalendar(homeYear, homeMonth, "homeCalendar", false);
-        const ms = `${homeYear}-${String(homeMonth).padStart(2, "0")}`;
-        const cnt = new Set(
-          records.filter((r) => r.date.startsWith(ms)).map((r) => r.date),
-        ).size;
-        document.getElementById("homeStats").textContent =
-          `통독: ${cnt}일 / ${new Date(homeYear, homeMonth, 0).getDate()}일`;
-      }
-      function changeHomeMonth(d) {
-        homeMonth += d;
-        if (homeMonth > 12) {
-          homeMonth = 1;
-          homeYear++;
-        }
-        if (homeMonth < 1) {
-          homeMonth = 12;
-          homeYear--;
-        }
-        renderHomeCalendar();
-      }
-      function renderListCalendar() {
-        document.getElementById("listMonth").textContent =
-          `${listYear}년 ${listMonth}월`;
-        renderCalendar(listYear, listMonth, "listCalendar", true);
-        const ms = `${listYear}-${String(listMonth).padStart(2, "0")}`;
-        const cnt = new Set(
-          records.filter((r) => r.date.startsWith(ms)).map((r) => r.date),
-        ).size;
-        document.getElementById("listStats").textContent =
-          `통독: ${cnt}일 / ${new Date(listYear, listMonth, 0).getDate()}일`;
-      }
-      function changeListMonth(d) {
-        listMonth += d;
-        if (listMonth > 12) {
-          listMonth = 1;
-          listYear++;
-        }
-        if (listMonth < 1) {
-          listMonth = 12;
-          listYear--;
-        }
-        selectedDate = null;
-        renderListCalendar();
-        displayRecords();
-      }
+function renderCal(year,month,gridId,clickable){
+  const g=$( gridId); g.innerHTML='';
+  ['일','월','화','수','목','금','토'].forEach(d=>{
+    const h=document.createElement('div');h.className='cal-dh';h.textContent=d;g.appendChild(h);
+  });
+  const first=new Date(year,month-1,1).getDay(), last=new Date(year,month,0).getDate();
+  const today=toDate(new Date());
+  for(let i=0;i<first;i++){const e=document.createElement('div');e.className='cal-day empty';g.appendChild(e);}
+  for(let d=1;d<=last;d++){
+    const ds=`${year}-${String(month).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+    const dr=recs.filter(r=>r.date===ds), has=dr.length>0, hasFav=dr.some(r=>r.favorite);
+    const cell=document.createElement('div'); cell.className='cal-day';
+    if(has)       cell.classList.add('rec');
+    if(ds===today)cell.classList.add('today');
+    if(selDate===ds)cell.classList.add('sel');
+    const n=document.createElement('div');n.textContent=d;cell.appendChild(n);
+    if(has)  {const c=document.createElement('div');c.className='cal-ck';c.textContent='✓';cell.appendChild(c);}
+    if(hasFav){const s=document.createElement('div');s.className='cal-star';s.textContent='⭐';cell.appendChild(s);}
+    if(clickable){
+      cell.setAttribute('tabindex','0');
+      cell.addEventListener('click',()=>pickDate(ds));
+      cell.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' ')pickDate(ds);});
+    }
+    g.appendChild(cell);
+  }
+}
+function renderHomeCal(){
+  $('homeMoLabel').textContent=`${homeY}년 ${homeMo}월`;
+  renderCal(homeY,homeMo,'homeCal',false);
+  const ms=`${homeY}-${String(homeMo).padStart(2,'0')}`;
+  const cnt=new Set(recs.filter(r=>r.date.startsWith(ms)).map(r=>r.date)).size;
+  $('homeCalFoot').textContent=`통독: ${cnt}일 / ${new Date(homeY,homeMo,0).getDate()}일`;
+}
+function chgHomeMo(d){homeMo+=d;if(homeMo>12){homeMo=1;homeY++;}if(homeMo<1){homeMo=12;homeY--;}renderHomeCal();}
 
-      /* ═══════════════════════════════════════════
+function renderListCal(){
+  $('listMoLabel').textContent=`${listY}년 ${listMo}월`;
+  renderCal(listY,listMo,'listCal',true);
+  const ms=`${listY}-${String(listMo).padStart(2,'0')}`;
+  const cnt=new Set(recs.filter(r=>r.date.startsWith(ms)).map(r=>r.date)).size;
+  $('listCalFoot').textContent=`통독: ${cnt}일 / ${new Date(listY,listMo,0).getDate()}일`;
+}
+function chgListMo(d){listMo+=d;if(listMo>12){listMo=1;listY++;}if(listMo<1){listMo=12;listY--;}selDate=null;renderListCal();renderList();}
+
+/* ═══════════════════════════════════════════
    날짜 선택
 ═══════════════════════════════════════════ */
-      function selectDate(date) {
-        selectedDate = selectedDate === date ? null : date;
-        renderListCalendar();
-        const info = document.getElementById("selectedInfo");
-        if (!selectedDate) {
-          info.innerHTML = "";
-          displayRecords();
-          return;
-        }
-        const dr = records.filter((r) => r.date === date);
-        const [, mm, dd] = date.split("-");
-        const banner = document.createElement("div");
-        banner.className = "selected-banner";
-        const left = document.createElement("div");
-        const h3 = document.createElement("h3");
-        h3.textContent = `${parseInt(mm)}월 ${parseInt(dd)}일 📖`;
-        const p = document.createElement("p");
-        p.textContent = dr.length
-          ? `통독 완료 🙏 (${dr.length}개)`
-          : "기록 없음";
-        left.appendChild(h3);
-        left.appendChild(p);
-        const clr = document.createElement("button");
-        clr.className = "clear-btn";
-        clr.textContent = "✕ 선택 해제";
-        clr.onclick = () => {
-          selectedDate = null;
-          info.innerHTML = "";
-          renderListCalendar();
-          displayRecords();
-        };
-        banner.appendChild(left);
-        banner.appendChild(clr);
-        info.innerHTML = "";
-        info.appendChild(banner);
-        displayRecords();
-      }
+function pickDate(date){
+  selDate = selDate===date?null:date;
+  renderListCal();
+  const info=$('selInfo');
+  if(!selDate){info.innerHTML='';renderList();return;}
+  const dr=recs.filter(r=>r.date===date), [,mm,dd]=date.split('-');
+  const banner=document.createElement('div');banner.className='sel-banner';
+  const left=document.createElement('div');
+  const h3=document.createElement('h3');h3.textContent=`${parseInt(mm)}월 ${parseInt(dd)}일 📖`;
+  const p=document.createElement('p');p.textContent=dr.length?`통독 완료 🙏 (${dr.length}개)`:'기록 없음';
+  left.appendChild(h3);left.appendChild(p);
+  const btn=document.createElement('button');btn.className='clr-btn';btn.textContent='✕ 선택 해제';
+  btn.onclick=()=>{selDate=null;info.innerHTML='';renderListCal();renderList();};
+  banner.appendChild(left);banner.appendChild(btn);
+  info.innerHTML='';info.appendChild(banner);
+  renderList();
+}
 
-      /* ═══════════════════════════════════════════
-   기록 표시
+/* ═══════════════════════════════════════════
+   기록 목록
 ═══════════════════════════════════════════ */
-      function displayRecords() {
-        const list = document.getElementById("recordsList");
-        const q = (document.getElementById("searchInput")?.value || "")
-          .toLowerCase()
-          .trim();
-        let base = selectedDate
-          ? records.filter((r) => r.date === selectedDate)
-          : records.filter((r) =>
-              r.date.startsWith(
-                `${listYear}-${String(listMonth).padStart(2, "0")}`,
-              ),
-            );
-        if (q)
-          base = base.filter(
-            (r) =>
-              r.book.toLowerCase().includes(q) ||
-              r.chapter.toLowerCase().includes(q) ||
-              r.verse.toLowerCase().includes(q) ||
-              r.meditation.toLowerCase().includes(q),
-          );
-        if (!base.length) {
-          list.innerHTML = `<div class="empty-state"><div class="empty-icon">📖</div><p>${q ? "검색 결과가 없습니다" : "기록이 없습니다"}</p></div>`;
-          return;
-        }
-        base.sort((a, b) => b.date.localeCompare(a.date));
-        list.innerHTML = "";
-        base.forEach((r) => {
-          const card = document.createElement("div");
-          card.className = "record-card" + (r.favorite ? " fav" : "");
+function renderList(){
+  const list=$('recList');
+  const q=($('srchInput')?.value||'').toLowerCase().trim();
+  let base=selDate
+    ?recs.filter(r=>r.date===selDate)
+    :recs.filter(r=>r.date.startsWith(`${listY}-${String(listMo).padStart(2,'0')}`));
+  if(q) base=base.filter(r=>
+    (r.book||'').toLowerCase().includes(q)||(r.chapter||'').toLowerCase().includes(q)||
+    (r.verse||'').toLowerCase().includes(q)||(r.meditation||'').toLowerCase().includes(q)
+  );
+  if(!base.length){list.innerHTML=`<div class="empty"><div class="empty-ico">📖</div><p>${q?'검색 결과가 없습니다':'기록이 없습니다'}</p></div>`;return;}
+  base.sort((a,b)=>b.date.localeCompare(a.date));
+  list.innerHTML='';
+  base.forEach(r=>{
+    const card=document.createElement('div');card.className='rec-card'+(r.favorite?' fav':'');
+    if(gasOk){const b=document.createElement('span');b.className='sync-badge '+(r._err?'sb-err':'sb-ok');b.textContent=r._err?'오류':'☁️';card.appendChild(b);}
+    const star=document.createElement('button');star.className='fav-btn';star.textContent=r.favorite?'⭐':'☆';star.onclick=()=>toggleFav(r.id);
+    const dateEl=document.createElement('div');dateEl.className='rc-date';dateEl.textContent=`📅 ${r.date}`;
+    const titleEl=document.createElement('div');titleEl.className='rc-title';titleEl.textContent=`📖 ${r.book} ${r.chapter}`;
+    const verseEl=document.createElement('div');verseEl.className='rc-verse';verseEl.textContent=r.verse;
+    const medEl=document.createElement('div');medEl.className='rc-med';medEl.textContent=r.meditation;
+    const acts=document.createElement('div');acts.className='rc-acts';
+    const eb=document.createElement('button');eb.className='btn-edit';eb.textContent='✏️ 수정';eb.onclick=()=>editRec(r.id);
+    const db=document.createElement('button');db.className='btn-del';db.textContent='🗑️ 삭제';db.onclick=()=>openDelModal(r.id);
+    acts.appendChild(eb);acts.appendChild(db);
+    card.appendChild(star);card.appendChild(dateEl);card.appendChild(titleEl);
+    card.appendChild(verseEl);card.appendChild(medEl);card.appendChild(acts);
+    list.appendChild(card);
+  });
+}
 
-          // 동기화 뱃지
-          if (isGasConnected) {
-            const badge = document.createElement("span");
-            badge.className =
-              "sync-badge " + (r._syncError ? "error" : "synced");
-            badge.textContent = r._syncError ? "오류" : "☁️";
-            card.appendChild(badge);
-          }
-
-          const star = document.createElement("button");
-          star.className = "fav-star";
-          star.setAttribute(
-            "aria-label",
-            r.favorite ? "즐겨찾기 해제" : "즐겨찾기 추가",
-          );
-          star.textContent = r.favorite ? "⭐" : "☆";
-          star.onclick = () => toggleFav(r.id);
-
-          const dateEl = document.createElement("div");
-          dateEl.className = "rec-date";
-          dateEl.textContent = `📅 ${r.date}`;
-          const titleEl = document.createElement("div");
-          titleEl.className = "rec-title";
-          titleEl.textContent = `📖 ${r.book} ${r.chapter}`;
-          const verseEl = document.createElement("div");
-          verseEl.className = "rec-verse";
-          verseEl.textContent = r.verse;
-          const medEl = document.createElement("div");
-          medEl.className = "rec-meditation";
-          medEl.textContent = r.meditation;
-
-          const actions = document.createElement("div");
-          actions.className = "rec-actions";
-          const editBtn = document.createElement("button");
-          editBtn.className = "btn-edit";
-          editBtn.textContent = "✏️ 수정";
-          editBtn.onclick = () => editRecord(r.id);
-          const delBtn = document.createElement("button");
-          delBtn.className = "btn-delete";
-          delBtn.textContent = "🗑️ 삭제";
-          delBtn.onclick = () => openDeleteModal(r.id);
-          actions.appendChild(editBtn);
-          actions.appendChild(delBtn);
-
-          card.appendChild(star);
-          card.appendChild(dateEl);
-          card.appendChild(titleEl);
-          card.appendChild(verseEl);
-          card.appendChild(medEl);
-          card.appendChild(actions);
-          list.appendChild(card);
-        });
-      }
-
-      /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
    저장 / 수정 / 취소
 ═══════════════════════════════════════════ */
-      function updateCount(tid, cid) {
-        document.getElementById(cid).textContent =
-          document.getElementById(tid).value.length;
-      }
+function cc(tid,cid){ $(cid).textContent=$(tid).value.length; }
 
-      async function saveRecord(e) {
-        e.preventDefault();
-        const btn = document.getElementById("submitBtn");
-        btn.disabled = true;
-        btn.textContent = "저장 중...";
+async function saveRecord(e){
+  e.preventDefault();
+  const btn=$('saveBtn');btn.disabled=true;btn.textContent='저장 중...';
+  const data={
+    id:         editId||genId(),
+    userId:     me.id,
+    date:       $('fDate').value,
+    book:       $('fBook').value,
+    chapter:    $('fChapter').value,
+    verse:      $('fVerse').value,
+    meditation: $('fMed').value,
+    favorite:   $('fFav').checked
+  };
+  if(editId) recs=recs.map(r=>r.id===editId?{...data}:r);
+  else       recs.push({...data});
+  saveRecs(); refresh();
 
-        const data = {
-          id: editId || genId(),
-          date: document.getElementById("date").value,
-          book: document.getElementById("book").value,
-          chapter: document.getElementById("chapter").value,
-          verse: document.getElementById("verse").value,
-          meditation: document.getElementById("meditation").value,
-          favorite: document.getElementById("favorite").checked,
-        };
+  if(gasOk){
+    try{
+      setSyncBar('syncing','저장 중...');
+      await gasCall({action:editId?'update':'add', record:data});
+      setSyncBar('ok',`✓ Google Sheets 연동됨 — ${recs.length}개 기록`);
+      toast(editId?'✅ 수정되었습니다!':'✅ 저장되었습니다!');
+    }catch(err){
+      const idx=recs.findIndex(r=>r.id===data.id);
+      if(idx>-1)recs[idx]._err=true;
+      saveRecs();renderList();
+      setSyncBar('error','⚠️ 시트 저장 실패 — <a onclick="retrySync()">재시도</a>');
+      toast('⚠️ 시트 저장 실패: '+err.message, 3500);
+    }
+  }else{ toast(editId?'✅ 수정되었습니다!':'✅ 저장되었습니다!'); }
 
-        // 로컬 즉시 반영
-        if (editId) {
-          records = records.map((r) => (r.id === editId ? { ...data } : r));
-        } else {
-          records.push({ ...data });
-        }
-        saveLocal();
-        refreshAll();
+  editId=null; $('editBanner').classList.remove('on');
+  btn.disabled=false; btn.textContent='💾 저장하기';
+  e.target.reset(); $('fDate').value=toDate(new Date());
+  $('ccVerse').textContent='0'; $('ccMed').textContent='0';
+  goPage('Home');
+}
 
-        // GAS 동기화
-        if (isGasConnected) {
-          try {
-            setSyncBar("syncing", "저장 중...");
-            await gasCall({ action: editId ? "update" : "add", record: data });
-            setSyncBar(
-              "ok",
-              `✓ Google Sheets 연동됨 — ${records.length}개 기록`,
-            );
-            showToast(editId ? "✅ 수정되었습니다!" : "✅ 저장되었습니다!");
-          } catch (err) {
-            // 로컬엔 저장됐으나 GAS 실패 → 오류 표시
-            const idx = records.findIndex((r) => r.id === data.id);
-            if (idx > -1) records[idx]._syncError = true;
-            saveLocal();
-            displayRecords();
-            setSyncBar(
-              "error",
-              '⚠️ 시트 저장 실패 (로컬에는 저장됨) — <a onclick="retrySync()">재시도</a>',
-            );
-            showToast("⚠️ 시트 저장 실패: " + err.message, 3500);
-          }
-        } else {
-          showToast(editId ? "✅ 수정되었습니다!" : "✅ 저장되었습니다!");
-        }
+function editRec(id){
+  const r=recs.find(r=>r.id===id);if(!r)return;
+  $('fDate').value=r.date; $('fBook').value=r.book; $('fChapter').value=r.chapter;
+  $('fVerse').value=r.verse; $('fMed').value=r.meditation; $('fFav').checked=r.favorite||false;
+  $('ccVerse').textContent=r.verse.length; $('ccMed').textContent=r.meditation.length;
+  editId=id; $('editBanner').classList.add('on'); goPage('Write');
+}
+function cancelEdit(){
+  editId=null; $('editBanner').classList.remove('on');
+  $('writeForm').reset(); $('fDate').value=toDate(new Date());
+  $('ccVerse').textContent='0'; $('ccMed').textContent='0';
+  toast('수정을 취소했습니다');
+}
 
-        editId = null;
-        document.getElementById("editBanner").classList.remove("visible");
-        btn.disabled = false;
-        btn.textContent = "💾 저장하기";
-        e.target.reset();
-        document.getElementById("date").value = toLocalISODate(new Date());
-        document.getElementById("verseCount").textContent = "0";
-        document.getElementById("meditationCount").textContent = "0";
-        showPage("home");
-      }
-
-      function editRecord(id) {
-        const r = records.find((rec) => rec.id === id);
-        if (!r) return;
-        document.getElementById("date").value = r.date;
-        document.getElementById("book").value = r.book;
-        document.getElementById("chapter").value = r.chapter;
-        document.getElementById("verse").value = r.verse;
-        document.getElementById("meditation").value = r.meditation;
-        document.getElementById("favorite").checked = r.favorite || false;
-        document.getElementById("verseCount").textContent = r.verse.length;
-        document.getElementById("meditationCount").textContent =
-          r.meditation.length;
-        editId = id;
-        document.getElementById("editBanner").classList.add("visible");
-        showPage("write");
-      }
-      function cancelEdit() {
-        editId = null;
-        document.getElementById("editBanner").classList.remove("visible");
-        document.getElementById("writeForm").reset();
-        document.getElementById("date").value = toLocalISODate(new Date());
-        document.getElementById("verseCount").textContent = "0";
-        document.getElementById("meditationCount").textContent = "0";
-        showToast("수정을 취소했습니다");
-      }
-
-      /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
    삭제
 ═══════════════════════════════════════════ */
-      function openDeleteModal(id) {
-        pendingDeleteId = id;
-        document.getElementById("deleteModal").classList.add("show");
-        document.getElementById("modalConfirm").onclick = confirmDelete;
-      }
-      function closeDeleteModal() {
-        pendingDeleteId = null;
-        document.getElementById("deleteModal").classList.remove("show");
-      }
-      async function confirmDelete() {
-        if (!pendingDeleteId) return;
-        const id = pendingDeleteId;
-        closeDeleteModal();
+function openDelModal(id){
+  pendingDelId=id; openModal('delModal');
+  $('delConfirm').onclick=confirmDel;
+}
+async function confirmDel(){
+  if(!pendingDelId)return;
+  const id=pendingDelId; closeModal('delModal');
+  recs=recs.filter(r=>r.id!==id); saveRecs(); refresh();
+  if(gasOk){
+    try{setSyncBar('syncing','삭제 중...');await gasCall({action:'delete',id});setSyncBar('ok',`✓ Google Sheets 연동됨 — ${recs.length}개 기록`);toast('🗑️ 삭제되었습니다');}
+    catch(e){setSyncBar('error','⚠️ 시트 삭제 실패 — <a onclick="fetchFromGAS()">새로고침</a>');toast('⚠️ '+e.message,3500);}
+  }else{toast('🗑️ 삭제되었습니다');}
+}
+$('delModal').addEventListener('click',function(e){if(e.target===this)closeModal('delModal');});
 
-        // 로컬 즉시 삭제
-        records = records.filter((r) => r.id !== id);
-        saveLocal();
-        refreshAll();
-
-        if (isGasConnected) {
-          try {
-            setSyncBar("syncing", "삭제 중...");
-            await gasCall({ action: "delete", id });
-            setSyncBar(
-              "ok",
-              `✓ Google Sheets 연동됨 — ${records.length}개 기록`,
-            );
-            showToast("🗑️ 삭제되었습니다");
-          } catch (err) {
-            setSyncBar(
-              "error",
-              '⚠️ 시트 삭제 실패 — <a onclick="loadFromGAS()">새로고침</a>',
-            );
-            showToast("⚠️ 시트 삭제 실패: " + err.message, 3500);
-          }
-        } else {
-          showToast("🗑️ 삭제되었습니다");
-        }
-      }
-      document
-        .getElementById("deleteModal")
-        .addEventListener("click", function (e) {
-          if (e.target === this) closeDeleteModal();
-        });
-
-      /* ═══════════════════════════════════════════
+/* ═══════════════════════════════════════════
    즐겨찾기
 ═══════════════════════════════════════════ */
-      async function toggleFav(id) {
-        const r = records.find((rec) => rec.id === id);
-        if (!r) return;
-        r.favorite = !r.favorite;
-        saveLocal();
-        updateStats();
-        renderHomeCalendar();
-        renderListCalendar();
-        displayRecords();
-        showToast(r.favorite ? "⭐ 즐겨찾기 추가" : "즐겨찾기 해제");
+async function toggleFav(id){
+  const r=recs.find(r=>r.id===id);if(!r)return;
+  r.favorite=!r.favorite; saveRecs(); updateStats(); renderHomeCal(); renderListCal(); renderList();
+  toast(r.favorite?'⭐ 즐겨찾기 추가':'즐겨찾기 해제');
+  if(gasOk){try{await gasCall({action:'fav',id,favorite:r.favorite});}catch(e){toast('⚠️ 시트 동기화 실패',2000);}}
+}
 
-        if (isGasConnected) {
-          try {
-            await gasCall({ action: "fav", id, favorite: r.favorite });
-          } catch (err) {
-            showToast("⚠️ 시트 동기화 실패", 2000);
-          }
-        }
-      }
-
-      /* ═══════════════════════════════════════════
-   오류 기록 재시도 (동기화)
+/* ═══════════════════════════════════════════
+   재시도
 ═══════════════════════════════════════════ */
-      async function retrySync() {
-        const failed = records.filter((r) => r._syncError);
-        if (!failed.length) {
-          await loadFromGAS();
-          return;
-        }
-        setSyncBar("syncing", "재시도 중...");
-        let ok = true;
-        for (const r of failed) {
-          try {
-            const clean = { ...r };
-            delete clean._syncError;
-            await gasCall({ action: "update", record: clean });
-            r._syncError = false;
-          } catch (e) {
-            ok = false;
-          }
-        }
-        saveLocal();
-        displayRecords();
-        if (ok) {
-          setSyncBar("ok", `✓ Google Sheets 연동됨 — ${records.length}개 기록`);
-          showToast("✅ 재동기화 완료");
-        } else {
-          setSyncBar(
-            "error",
-            '⚠️ 일부 기록 동기화 실패 — <a onclick="retrySync()">재시도</a>',
-          );
-        }
-      }
-    </script>
-  </body>
+async function retrySync(){
+  const failed=recs.filter(r=>r._err);
+  if(!failed.length){await fetchFromGAS();return;}
+  setSyncBar('syncing','재시도 중...');let ok=true;
+  for(const r of failed){
+    try{const c={...r};delete c._err;await gasCall({action:'update',record:c});r._err=false;}
+    catch(e){ok=false;}
+  }
+  saveRecs();renderList();
+  if(ok){setSyncBar('ok',`✓ Google Sheets 연동됨 — ${recs.length}개 기록`);toast('✅ 재동기화 완료');}
+  else  {setSyncBar('error','⚠️ 일부 동기화 실패 — <a onclick="retrySync()">재시도</a>');}
+}
+
+/* ═══════════════════════════════════════════
+   ★ 관리자 페이지
+═══════════════════════════════════════════ */
+function renderAdminPage(){
+  if(!me||me.role!=='admin') return;
+  allRecs={};
+  users.forEach(u=>{ allRecs[u.id]=loadRecs(u.id); });
+  renderAdmStats();
+  renderUserTable();
+  populateAdmUserSel();
+  renderAdmRecords();
+}
+
+function renderAdmStats(){
+  const total = Object.values(allRecs).flat().length;
+  const mo    = toDate(new Date()).slice(0,7);
+  const moCnt = Object.values(allRecs).flat().filter(r=>r.date.startsWith(mo)).length;
+  $('admStats').innerHTML=`
+    <div class="adm-st"><div class="v">${users.length}</div><div class="l">전체 계정</div></div>
+    <div class="adm-st"><div class="v">${total}</div><div class="l">전체 기록</div></div>
+    <div class="adm-st"><div class="v">${moCnt}</div><div class="l">이번 달 기록</div></div>
+  `;
+}
+
+function renderUserTable(){
+  const sort=$('sortSel').value;
+  const mo=toDate(new Date()).slice(0,7);
+  let list=users.map(u=>({
+    ...u,
+    cnt:   (allRecs[u.id]||[]).length,
+    moCnt: new Set((allRecs[u.id]||[]).filter(r=>r.date.startsWith(mo)).map(r=>r.date)).size,
+    last:  (allRecs[u.id]||[]).map(r=>r.date).sort().pop()||''
+  }));
+  if(sort==='count')  list.sort((a,b)=>b.cnt-a.cnt);
+  else if(sort==='recent') list.sort((a,b)=>b.last.localeCompare(a.last));
+  else list.sort((a,b)=>a.name.localeCompare(b.name,'ko'));
+
+  const max=Math.max(...list.map(u=>u.cnt),1);
+  const tbody=$('userTbody'); tbody.innerHTML='';
+  list.forEach(u=>{
+    const pct=Math.round(u.cnt/max*100);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`
+      <td><b>${esc(u.name)}</b></td>
+      <td>${esc(u.baptism||'—')}</td>
+      <td><code style="font-size:11px">${esc(u.id)}</code></td>
+      <td><span class="${u.role==='admin'?'badge-adm':'badge-usr'}">${u.role==='admin'?'관리자':'일반'}</span></td>
+      <td>${u.cnt}개<span class="prog"><span class="prog-f" style="width:${pct}%"></span></span></td>
+      <td>${u.moCnt}일</td>
+      <td></td>
+    `;
+    const td=tr.querySelector('td:last-child');
+    const wrap=document.createElement('div');wrap.className='tact';
+    const vb=document.createElement('button');vb.className='bsm bsm-v';vb.textContent='기록';vb.onclick=()=>{$('admUserSel').value=u.id;renderAdmRecords();$('admRecList').scrollIntoView({behavior:'smooth'});};
+    const eb=document.createElement('button');eb.className='bsm bsm-e';eb.textContent='수정';eb.onclick=()=>openUserModal(u.id);
+    wrap.appendChild(vb);wrap.appendChild(eb);
+    if(u.id!=='admin'){
+      const db=document.createElement('button');db.className='bsm bsm-d';db.textContent='삭제';db.onclick=()=>openDelUserModal(u.id);
+      wrap.appendChild(db);
+    }
+    td.appendChild(wrap);tbody.appendChild(tr);
+  });
+}
+
+function populateAdmUserSel(){
+  const sel=$('admUserSel');
+  sel.innerHTML='<option value="">전체</option>';
+  users.forEach(u=>{
+    const o=document.createElement('option');
+    o.value=u.id; o.textContent=u.baptism?`${u.name} (${u.baptism})`:u.name;
+    sel.appendChild(o);
+  });
+}
+
+function renderAdmRecords(){
+  const uid=$('admUserSel').value;
+  const list=$('admRecList');
+  let base=uid?(allRecs[uid]||[]):Object.values(allRecs).flat();
+  base=base.sort((a,b)=>b.date.localeCompare(a.date)).slice(0,60);
+  if(!base.length){list.innerHTML='<div class="empty"><div class="empty-ico">📖</div><p>기록이 없습니다</p></div>';return;}
+  list.innerHTML='';
+  base.forEach(r=>{
+    const u=users.find(u=>u.id===r.userId);
+    const card=document.createElement('div');card.className='rec-card'+(r.favorite?' fav':'');
+    const owner=document.createElement('div');owner.className='rec-owner';
+    owner.textContent=u?(u.baptism?`${u.name} (${u.baptism})`:u.name):'알 수 없음';
+    const dateEl=document.createElement('div');dateEl.className='rc-date';dateEl.textContent=`📅 ${r.date}`;
+    const titleEl=document.createElement('div');titleEl.className='rc-title';titleEl.textContent=`📖 ${r.book} ${r.chapter}`;
+    const verseEl=document.createElement('div');verseEl.className='rc-verse';verseEl.textContent=r.verse;
+    const medEl=document.createElement('div');medEl.className='rc-med';medEl.textContent=r.meditation;
+    card.appendChild(owner);card.appendChild(dateEl);card.appendChild(titleEl);card.appendChild(verseEl);card.appendChild(medEl);
+    list.appendChild(card);
+  });
+  if(base.length===60){const n=document.createElement('p');n.style.cssText='text-align:center;font-size:12px;color:var(--txt2);padding:8px';n.textContent='최근 60개만 표시됩니다';list.appendChild(n);}
+}
+
+/* ══ 계정 추가/수정 모달 ══ */
+function openUserModal(uid=null){
+  editingUid=uid;
+  const u=uid?users.find(u=>u.id===uid):null;
+  $('userModalTitle').textContent=uid?'✏️ 계정 수정':'➕ 계정 추가';
+  $('uName').value    =u?u.name:'';
+  $('uBaptism').value =u?u.baptism:'';
+  $('uId').value      =u?u.id:'';
+  $('uId').disabled   =!!uid;
+  $('uPw').value      ='';
+  $('uRole').value    =u?u.role:'user';
+  openModal('userModal');
+}
+function saveUser(){
+  const name=   $('uName').value.trim();
+  const baptism=$('uBaptism').value.trim();
+  const id=     $('uId').value.trim();
+  const pw=     $('uPw').value;
+  const role=   $('uRole').value;
+  if(!name){ toast('❌ 이름을 입력하세요'); return; }
+  if(!editingUid&&!id){ toast('❌ 아이디를 입력하세요'); return; }
+  if(!editingUid&&users.find(u=>u.id===id)){ toast('❌ 이미 사용 중인 아이디입니다'); return; }
+  if(!editingUid&&!pw){ toast('❌ 비밀번호를 입력하세요'); return; }
+  if(editingUid){
+    const u=users.find(u=>u.id===editingUid);
+    if(!u)return;
+    u.name=name; u.baptism=baptism; u.role=role;
+    if(pw) u.pw=pw;
+    toast('✅ 계정이 수정되었습니다');
+  }else{
+    users.push({id,pw,name,baptism,role});
+    toast('✅ 계정이 추가되었습니다');
+  }
+  saveUsers(); closeModal('userModal');
+  $('uId').disabled=false;
+  allRecs={}; users.forEach(u=>{ allRecs[u.id]=loadRecs(u.id); });
+  renderAdmStats(); renderUserTable(); populateAdmUserSel();
+}
+$('userModal').addEventListener('click',function(e){if(e.target===this){closeModal('userModal');$('uId').disabled=false;}});
+
+/* ══ 계정 삭제 모달 ══ */
+function openDelUserModal(uid){
+  const u=users.find(u=>u.id===uid);if(!u)return;
+  $('delUserMsg').textContent=`"${u.name}" 계정과 모든 기록을 삭제합니다. 복구할 수 없습니다.`;
+  $('delUserConfirm').onclick=()=>confirmDelUser(uid);
+  openModal('delUserModal');
+}
+function confirmDelUser(uid){
+  users=users.filter(u=>u.id!==uid);
+  localStorage.removeItem(LS_REC(uid));
+  saveUsers(); closeModal('delUserModal');
+  allRecs={}; users.forEach(u=>{ allRecs[u.id]=loadRecs(u.id); });
+  renderAdmStats(); renderUserTable(); populateAdmUserSel(); renderAdmRecords();
+  toast('🗑️ 계정이 삭제되었습니다');
+}
+$('delUserModal').addEventListener('click',function(e){if(e.target===this)closeModal('delUserModal');});
+</script>
+</body>
 </html>
