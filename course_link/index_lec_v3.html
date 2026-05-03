@@ -3,6 +3,27 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <!-- 🔒 Content Security Policy: 허용된 리소스 출처만 로드 -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="
+      default-src 'self';
+      script-src 'self' 'unsafe-inline'
+        https://cdn.jsdelivr.net
+        https://script.google.com
+        https://script.googleusercontent.com
+        https://www.gstatic.com;
+      style-src 'self' 'unsafe-inline'
+        https://cdn.jsdelivr.net;
+      font-src 'self'
+        https://cdn.jsdelivr.net;
+      img-src 'self' data:;
+      connect-src 'none';
+      object-src 'none';
+      base-uri 'self';
+      form-action 'none';
+    "
+    />
     <title>과목 링크 생성기</title>
     <link
       rel="stylesheet"
@@ -1772,24 +1793,151 @@
         });
       }
 
+      // ══════════════════════════════════════════════
+      // 🔒 보안 유틸리티
+      // ══════════════════════════════════════════════
+
+      // ① SHA-256 해싱 (Web Crypto API)
+      // 비밀번호를 평문으로 전송하지 않고 해시값만 전송합니다.
+      async function sha256(str) {
+        const buf = await crypto.subtle.digest(
+          "SHA-256",
+          new TextEncoder().encode(str),
+        );
+        return Array.from(new Uint8Array(buf))
+          .map((b) => b.toString(16).padStart(2, "0"))
+          .join("");
+      }
+
+      // ② 입력값 살균 — HTML 특수문자 이스케이프 (XSS 방어)
+      function sanitizeText(str) {
+        if (typeof str !== "string") return "";
+        return str
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#x27;")
+          .replace(/\//g, "&#x2F;");
+      }
+
+      // ③ URL 검증 — http/https 스킴만 허용 (XSS via href 방어)
+      function isSafeUrl(url) {
+        try {
+          const u = new URL(url);
+          return u.protocol === "http:" || u.protocol === "https:";
+        } catch {
+          return false;
+        }
+      }
+
+      // ④ GAS URL 화이트리스트 검증
+      // script.google.com 또는 script.googleusercontent.com 도메인만 허용
+      function isValidGasUrl(url) {
+        try {
+          const u = new URL(url);
+          return (
+            u.protocol === "https:" &&
+            (u.hostname === "script.google.com" ||
+              u.hostname.endsWith(".googleusercontent.com")) &&
+            u.pathname.includes("/macros/")
+          );
+        } catch {
+          return false;
+        }
+      }
+
+      // ⑤ 비밀번호 길이/문자 검증 (4~64자, 제어문자 금지)
+      function isValidPassword(pw) {
+        return (
+          typeof pw === "string" &&
+          pw.length >= 4 &&
+          pw.length <= 64 &&
+          !/[\x00-\x1f\x7f]/.test(pw)
+        ); // 제어문자 금지
+      }
+
+      // ⑥ 로그인 시도 횟수 제한 (Brute-force 방어)
+      // 5회 실패 시 30초 잠금
+      const RATE_LIMIT = { MAX: 5, LOCK_MS: 30_000, KEY: "login_attempts" };
+      function getRateState() {
+        try {
+          return (
+            JSON.parse(sessionStorage.getItem(RATE_LIMIT.KEY)) || {
+              count: 0,
+              since: 0,
+            }
+          );
+        } catch {
+          return { count: 0, since: 0 };
+        }
+      }
+      function saveRateState(s) {
+        sessionStorage.setItem(RATE_LIMIT.KEY, JSON.stringify(s));
+      }
+      function isRateLocked() {
+        const s = getRateState();
+        if (s.count >= RATE_LIMIT.MAX) {
+          const elapsed = Date.now() - s.since;
+          if (elapsed < RATE_LIMIT.LOCK_MS)
+            return Math.ceil((RATE_LIMIT.LOCK_MS - elapsed) / 1000);
+          saveRateState({ count: 0, since: 0 }); // 잠금 해제
+        }
+        return 0;
+      }
+      function recordFailedAttempt() {
+        const s = getRateState();
+        saveRateState({
+          count: s.count + 1,
+          since: s.count === 0 ? Date.now() : s.since,
+        });
+      }
+      function resetAttempts() {
+        saveRateState({ count: 0, since: 0 });
+      }
+
       // ══ 세션 ══════════════════════════════════════
       const SESSION_KEY = "app_session";
       const isLoggedIn = () => sessionStorage.getItem(SESSION_KEY) === "1";
       const setLoggedIn = () => sessionStorage.setItem(SESSION_KEY, "1");
       const clearSession = () => sessionStorage.removeItem(SESSION_KEY);
 
-      // ══ 로그인 (GAS → 구글 시트 비밀번호 검증) ══
+      // ══ 로그인 (SHA-256 해싱 + 횟수 제한) ═══════
       async function tryLogin() {
+        // ① 잠금 확인
+        const locked = isRateLocked();
+        if (locked) {
+          showToast(
+            `⛔ ${locked}초 후 다시 시도하세요. (${RATE_LIMIT.MAX}회 실패 잠금)`,
+            "error",
+            4000,
+          );
+          return;
+        }
+
         const pw = document.getElementById("loginPassword").value;
         if (!pw) {
           document.getElementById("loginPassword").focus();
           return;
         }
+
+        // ② 입력 유효성 검증
+        if (!isValidPassword(pw)) {
+          showToast(
+            "비밀번호는 4~64자이며 특수 제어문자를 포함할 수 없습니다.",
+            "error",
+          );
+          return;
+        }
+
         const btn = document.getElementById("btnLogin");
-        setLoading(btn, true, "구글 시트 확인 중...");
+        setLoading(btn, true, "확인 중...");
         try {
-          const data = await gasCall({ action: "verify", pw });
+          // ③ SHA-256 해시 후 전송 (평문 비밀번호 미전송)
+          const pwHash = await sha256(pw);
+          const data = await gasCall({ action: "verify", pwHash });
           if (data.ok) {
+            resetAttempts();
             document.getElementById("loginPassword").classList.remove("error");
             document.getElementById("loginErrorMsg").classList.remove("show");
             setLoggedIn();
@@ -1798,9 +1946,15 @@
             checkStorageAvailable();
             updateGasUI();
           } else {
+            // ④ 실패 기록
+            recordFailedAttempt();
+            const s = getRateState();
+            const remain = RATE_LIMIT.MAX - s.count;
             document.getElementById("loginPassword").classList.add("error");
             document.getElementById("loginErrorMsg").textContent =
-              data.msg || "비밀번호가 올바르지 않습니다.";
+              remain > 0
+                ? `비밀번호가 올바르지 않습니다. (${remain}회 남음)`
+                : `로그인이 잠겼습니다. ${RATE_LIMIT.LOCK_MS / 1000}초 후 재시도하세요.`;
             document.getElementById("loginErrorMsg").classList.add("show");
             document.getElementById("loginPassword").value = "";
             document.getElementById("loginPassword").focus();
@@ -1822,27 +1976,36 @@
         showToast("로그아웃되었습니다.", "info");
       }
 
-      // ══ 비밀번호 변경 (GAS → 구글 시트) ══════════
+      // ══ 비밀번호 변경 (SHA-256 해싱) ════════════
       async function changePassword() {
         const oldPw = document.getElementById("currPw").value;
         const newPw = document.getElementById("newPw").value;
         const conf = document.getElementById("confirmPw").value;
+
         if (!oldPw || !newPw || !conf) {
           showToast("모든 필드를 입력하세요.", "error");
           return;
         }
-        if (newPw.length < 4) {
-          showToast("새 비밀번호는 최소 4자 이상이어야 합니다.", "error");
+        if (!isValidPassword(oldPw) || !isValidPassword(newPw)) {
+          showToast(
+            "비밀번호는 4~64자이며 특수 제어문자를 포함할 수 없습니다.",
+            "error",
+          );
           return;
         }
         if (newPw !== conf) {
           showToast("새 비밀번호가 일치하지 않습니다.", "error");
           return;
         }
+
         const btn = document.getElementById("btnChangePw");
         setLoading(btn, true, "저장 중...");
         try {
-          const data = await gasCall({ action: "changePw", oldPw, newPw });
+          const [oldHash, newHash] = await Promise.all([
+            sha256(oldPw),
+            sha256(newPw),
+          ]);
+          const data = await gasCall({ action: "changePw", oldHash, newHash });
           if (data.ok) {
             document.getElementById("currPw").value = "";
             document.getElementById("newPw").value = "";
@@ -2111,12 +2274,29 @@
         r.readAsText(file);
       }
       function processJsonData(data) {
+        // 🔒 구조 검증
         if (!data.base_address || !Array.isArray(data.courses))
           throw new Error("base_address, courses 필드가 필요합니다.");
+        // 🔒 base_address URL 스킴 검증 (XSS via href 방어)
+        if (!isSafeUrl(data.base_address))
+          throw new Error(
+            "base_address가 안전하지 않은 URL입니다. (http/https만 허용)",
+          );
         baseAddress = data.base_address;
-        coursesData = data.courses;
+        // 🔒 각 강좌 데이터 검증 및 살균
+        coursesData = data.courses
+          .filter((c) => {
+            const code = c.code || c.Code || c.id || "";
+            // 강의 코드: 알파벳·숫자·_·- 만 허용 (경로 순회 방지)
+            return code && /^[a-zA-Z0-9_\-]+$/.test(code);
+          })
+          .map((c) => ({
+            title: String(c.title || "").slice(0, 200), // 최대 200자
+            code: String(c.code || c.Code || c.id || ""),
+            lecture_count: parseInt(c.lecture_count, 10) || 0, // 정수만
+          }));
         if (!coursesData.length) {
-          showToast("강좌 데이터가 비어 있습니다.", "error");
+          showToast("유효한 강좌 데이터가 없습니다.", "error");
           return;
         }
         currentPage = 1;
@@ -2271,7 +2451,12 @@
           showToast("강의 코드 또는 횟수 오류", "error");
           return;
         }
-        const cnt = parseInt(match[0], 10);
+        // 🔒 생성 시 재검증
+        if (!isSafeUrl(baseAddress)) {
+          showToast("base_address URL이 안전하지 않습니다.", "error");
+          return;
+        }
+        const cnt = Math.min(parseInt(match[0], 10), 999); // 최대 999강 제한
         const contentEl = document.getElementById(`links-${index}`);
         contentEl.innerHTML = "";
         const vKey = `visited-${code}`;
@@ -2487,9 +2672,14 @@
           .getElementById("btnStep1Next")
           .addEventListener("click", async () => {
             const url = document.getElementById("loginGasUrl").value.trim();
-            if (!url || !url.startsWith("http")) {
+            // 🔒 GAS URL 화이트리스트 검증 (script.google.com 도메인만 허용)
+            if (!isValidGasUrl(url)) {
               document.getElementById("loginGasUrl").classList.add("error");
-              showToast("올바른 URL을 입력하세요.", "error");
+              showToast(
+                "올바른 GAS 웹앱 URL이 아닙니다. (script.google.com 도메인 필요)",
+                "error",
+                5000,
+              );
               return;
             }
             document.getElementById("loginGasUrl").classList.remove("error");
