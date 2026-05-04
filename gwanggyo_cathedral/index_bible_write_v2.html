@@ -141,6 +141,8 @@
         min-height: 18px;
         margin-bottom: 10px;
         text-align: center;
+        word-break: keep-all;
+        line-height: 1.4;
       }
       .login-btn {
         width: 100%;
@@ -818,6 +820,17 @@
       </div>
       <div class="cfg-panel" id="cfgPanel">
         <h3 style="font-size: 15px; margin-bottom: 10px">⚙️ GAS 연동 주소</h3>
+        <p
+          style="
+            font-size: 12px;
+            color: var(--err);
+            margin-bottom: 10px;
+            word-break: keep-all;
+          "
+        >
+          * 통신 에러 발생시 GAS 배포 설정이 <b>'모든 사람(Anyone)'</b>인지 꼭
+          확인하세요!
+        </p>
         <div class="url-row">
           <input class="url-inp" id="gasUrlInput" type="text" /><button
             class="btn-conn"
@@ -1175,9 +1188,26 @@
         return new Date(d.getTime() - offset).toISOString().slice(0, 10);
       }
 
-      // ★ 에러 원인 차단: 더 강력해진 GAS 통신 함수
+      // ★ 에러 원인 1 완벽 차단: 어떤 텍스트가 와도 강제로 "YYYY-MM-DD" 형태로 파싱
+      function parseDateStr(dStr) {
+        if (!dStr) return "";
+        let s = String(dStr)
+          .replace(/\s*\(.*\)$/, "")
+          .trim(); // "(한국 표준시)" 제거
+        let d = new Date(s);
+        if (!isNaN(d.getTime())) {
+          return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+        }
+        return s; // 변환 실패시 원본 반환
+      }
+
+      // ★ 에러 원인 2 완벽 차단: CORS 차단을 막기 위해 "text/plain" 헤더 강제 지정
       async function gasCall(payload, isGet = false) {
-        if (!gasUrl) throw new Error("GAS 주소가 설정되지 않았습니다.");
+        if (!gasUrl)
+          throw new Error(
+            "GAS 주소가 설정되지 않았습니다. 우측 상단 ⚙️버튼을 눌러 설정해주세요.",
+          );
+
         payload.token = localStorage.getItem("bb_token") || "";
         payload.userId = localStorage.getItem("bb_uid") || "";
         if (
@@ -1190,13 +1220,13 @@
         const ctl = new AbortController(),
           tmr = setTimeout(() => ctl.abort(), 15000);
         try {
-          // GitHub Pages에서의 CORS 및 리다이렉트를 확실히 허용
+          // preflight(사전 요청) 차단을 막기 위해 charset=utf-8 등을 제거한 순수 text/plain 사용
           const opt = isGet
             ? { redirect: "follow" }
             : {
                 method: "POST",
                 body: JSON.stringify(payload),
-                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                headers: { "Content-Type": "text/plain" },
                 redirect: "follow",
               };
           const url = isGet
@@ -1205,7 +1235,7 @@
           const res = await fetch(url, opt);
           clearTimeout(tmr);
 
-          if (!res.ok) throw new Error(`HTTP ${res.status} 에러`);
+          if (!res.ok) throw new Error(`HTTP ${res.status}`);
           const json = await res.json();
           if (!json.ok) throw new Error(json.error || "GAS 반환 에러");
           return json.data;
@@ -1230,7 +1260,16 @@
           localStorage.setItem("bb_me", JSON.stringify(me));
           loginOk();
         } catch (err) {
-          $("loginErr").textContent = "로그인 실패: " + err.message;
+          // Failed to fetch 에러가 발생하면 친절한 안내 문구 출력
+          if (
+            err.message.includes("Failed to fetch") ||
+            err.name === "TypeError"
+          ) {
+            $("loginErr").innerHTML =
+              "서버 통신 실패 (CORS)<br>구글 앱스 스크립트 배포 설정이 <b>'모든 사람'</b>인지 확인하세요.";
+          } else {
+            $("loginErr").textContent = "로그인 실패: " + err.message;
+          }
         } finally {
           btn.disabled = false;
           btn.textContent = "로그인";
@@ -1263,7 +1302,7 @@
       (async function init() {
         if (localStorage.getItem("bb_dark") === "1") toggleDark(true);
         try {
-          const res = await fetch("./index_bible_write_gas.json");
+          const res = await fetch("./index_bible_write_gas_v2.json");
           if (res.ok) gasUrl = (await res.json()).gas_url;
         } catch (e) {}
         if (!gasUrl) gasUrl = localStorage.getItem("bb_gas") || "";
@@ -1280,7 +1319,6 @@
         }
       })();
 
-      // ★ 핵심 해결: 데이터 로드 시 빈 행 무시 & 한국어 시간 텍스트 제거
       async function fetchFromGAS() {
         try {
           setSyncBar("syncing", "데이터 로딩중...");
@@ -1289,35 +1327,21 @@
           recs = Array.isArray(data)
             ? data
                 .map((r) => {
-                  if (!r || !r.id) return null; // 💡 에러 원인 1: 시트의 빈 행 데이터 무시
-
-                  let dStr = String(r.date || "");
-                  // 💡 에러 원인 2: (한국 표준시) 같은 괄호 텍스트를 제거하여 Date 파싱 오류 원천 차단
-                  let cleanDateStr = dStr.replace(/\s*\(.*\)$/, "").trim();
-
-                  if (
-                    cleanDateStr.includes("GMT") ||
-                    cleanDateStr.includes("T") ||
-                    cleanDateStr.length > 10
-                  ) {
-                    const d = new Date(cleanDateStr);
-                    if (!isNaN(d)) {
-                      r.date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-                    }
-                  }
+                  if (!r || !r.id) return null; // 빈 행 데이터 무시
+                  r.date = parseDateStr(r.date); // 날짜 강제 파싱 적용
                   return r;
                 })
                 .filter((r) => r !== null)
-            : []; // null로 반환된 쓰레기 데이터는 목록에서 완전 제거
+            : [];
 
           setSyncBar("ok", "✓ 동기화 완료");
           refresh();
         } catch (e) {
-          console.error("fetchFromGAS 에러:", e);
+          console.error(e);
           setSyncBar(
             "error",
-            e.message.includes("Failed to fetch")
-              ? "⚠️ 통신/CORS 에러"
+            e.message.includes("fetch")
+              ? "⚠️ 통신 권한(CORS) 에러"
               : "⚠️ 데이터 에러",
           );
         }
@@ -1499,7 +1523,7 @@
         }
       }
 
-      /* 프로필 및 기타 공통 함수들 */
+      /* 프로필 및 관리자 */
       async function updateProfile(e) {
         e.preventDefault();
         const btn = e.target.querySelector("button");
