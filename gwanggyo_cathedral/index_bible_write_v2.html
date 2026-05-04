@@ -1310,6 +1310,7 @@
         return new Date(d.getTime() - offset).toISOString().slice(0, 10);
       }
 
+      // ★ Github/외부환경을 위해 CORS 및 리다이렉트 옵션이 추가된 gasCall 함수
       async function gasCall(payload, isGet = false) {
         if (!gasUrl) throw new Error("GAS 연결 안됨");
         payload.token = localStorage.getItem("bb_token");
@@ -1326,7 +1327,14 @@
         try {
           const opt = isGet
             ? {}
-            : { method: "POST", body: JSON.stringify(payload) };
+            : {
+                method: "POST",
+                body: JSON.stringify(payload),
+                headers: {
+                  "Content-Type": "text/plain;charset=utf-8", // CORS Preflight 방지
+                },
+                redirect: "follow", // GAS 리다이렉트 처리 허용
+              };
           const url = isGet
             ? `${gasUrl}?${new URLSearchParams(payload)}`
             : gasUrl;
@@ -1391,7 +1399,7 @@
       (async function init() {
         if (localStorage.getItem("bb_dark") === "1") toggleDark(true);
         try {
-          gasUrl = (await (await fetch("/index_bible_write_gas_v2.json")).json())
+          gasUrl = (await (await fetch("./index_bible_write_gas_v2.json")).json())
             .gas_url;
         } catch (e) {}
         if (!gasUrl) gasUrl = localStorage.getItem("bb_gas") || "";
