@@ -1399,7 +1399,7 @@
       (async function init() {
         if (localStorage.getItem("bb_dark") === "1") toggleDark(true);
         try {
-          gasUrl = (await (await fetch("./index_bible_write_gas_v2.json")).json())
+          gasUrl = (await (await fetch("index_bible_write_gas_v2.json")).json())
             .gas_url;
         } catch (e) {}
         if (!gasUrl) gasUrl = localStorage.getItem("bb_gas") || "";
