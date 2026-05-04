@@ -20,27 +20,24 @@
         box-sizing: border-box;
       }
 
-      /* ★ Color Hunt 테마: Sage Green & Warm Off-White */
       :root {
-        --p: #6a826c; /* 메인 포인트 (세이지 그린) */
-        --pd: #4c604e; /* 진한 포인트 */
-        --plt: #e8efe9; /* 연한 포인트 배경 */
-        --gold: #d4b872; /* 강조색 (소프트 골드) */
-        --bg: #f7f6f2; /* 전체 배경 (웜 화이트) */
-        --bg2: #efece5; /* 카드 내부 또는 보조 배경 */
-        --card: #ffffff; /* 카드 배경 */
-        --txt: #2c302b; /* 기본 텍스트 (다크 차콜) */
-        --txt2: #757a73; /* 보조 텍스트 (그레이시 그린) */
-        --bdr: #e0ddd6; /* 테두리 색상 */
-        --ok: #5b8a6a; /* 긍정/완료 */
-        --err: #c25953; /* 에러/삭제 */
-        --adm: #645c8a; /* 관리자 전용 컬러 */
+        --p: #6a826c;
+        --pd: #4c604e;
+        --plt: #e8efe9;
+        --gold: #d4b872;
+        --bg: #f7f6f2;
+        --bg2: #efece5;
+        --card: #ffffff;
+        --txt: #2c302b;
+        --txt2: #757a73;
+        --bdr: #e0ddd6;
+        --ok: #5b8a6a;
+        --err: #c25953;
+        --adm: #645c8a;
         --adm-d: #48406b;
-        --r: 14px; /* 기본 라운드 값 */
-        --sh: 0 4px 20px rgba(0, 0, 0, 0.05); /* 부드러운 그림자 */
+        --r: 14px;
+        --sh: 0 4px 20px rgba(0, 0, 0, 0.05);
       }
-
-      /* 다크모드 테마 */
       body.dark {
         --p: #8ba88e;
         --pd: #a5c2a8;
@@ -57,8 +54,6 @@
         --adm-d: #6c6494;
         --sh: 0 4px 20px rgba(0, 0, 0, 0.3);
       }
-
-      /* ★ 1. 일반 사이즈 최대 620px 고정 중앙 정렬 */
       body {
         font-family:
           "Pretendard",
@@ -68,13 +63,13 @@
         color: var(--txt);
         min-height: 100vh;
         padding-bottom: 72px;
-        transition:
-          background 0.3s,
-          color 0.3s;
         max-width: 620px;
         margin: 0 auto;
         position: relative;
-        box-shadow: 0 0 30px rgba(0, 0, 0, 0.08); /* 양옆 입체감 */
+        box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
+        transition:
+          background 0.3s,
+          color 0.3s;
       }
 
       /* 로그인 화면 */
@@ -167,7 +162,7 @@
         cursor: not-allowed;
       }
 
-      /* 헤더 */
+      /* 헤더 & 싱크바 */
       .hdr {
         background: var(--card);
         color: var(--txt);
@@ -180,7 +175,6 @@
         font-family: "Nanum Myeongjo", serif;
         font-size: 20px;
         font-weight: 800;
-        letter-spacing: 0.5px;
         color: var(--p);
       }
       .hdr p {
@@ -233,7 +227,6 @@
         color: var(--txt);
       }
 
-      /* 설정 및 동기화 바 */
       .sync-bar {
         display: flex;
         align-items: center;
@@ -267,6 +260,19 @@
         border-radius: 50%;
         background: currentColor;
       }
+      @keyframes spin {
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+      .sd.spin {
+        border-radius: 50%;
+        border: 2px solid currentColor;
+        border-top-color: transparent;
+        background: transparent;
+        animation: spin 1s linear infinite;
+      }
+
       .cfg-panel {
         display: none;
         background: var(--card);
@@ -300,7 +306,7 @@
         cursor: pointer;
       }
 
-      /* 공통 레이아웃 */
+      /* 공통 & 통계 & 달력 */
       .sec {
         padding: 16px;
       }
@@ -330,7 +336,6 @@
         font-size: 24px;
         font-weight: 800;
         color: var(--p);
-        font-family: "Pretendard", sans-serif;
       }
       .stat-l {
         font-size: 12px;
@@ -339,7 +344,6 @@
         margin-top: 4px;
       }
 
-      /* 달력 */
       .cal-hdr {
         display: flex;
         justify-content: space-between;
@@ -354,14 +358,10 @@
         height: 32px;
         border-radius: 8px;
         cursor: pointer;
-        font-size: 13px;
-        flex-shrink: 0;
       }
       .cal-mo {
         font-size: 16px;
         font-weight: 700;
-        color: var(--txt);
-        font-family: "Pretendard", sans-serif;
       }
       .cal-grid {
         display: grid;
@@ -383,7 +383,6 @@
         background: var(--bg);
         border-radius: 8px;
         cursor: pointer;
-        border: 1px solid transparent;
       }
       .cal-day-inner {
         position: absolute;
@@ -420,7 +419,7 @@
         line-height: 1;
       }
 
-      /* 폼 & 입력 */
+      /* 폼 */
       .edit-banner {
         background: var(--plt);
         border: 1px solid var(--p);
@@ -449,10 +448,6 @@
         padding: 4px 12px;
         border-radius: 14px;
         cursor: pointer;
-        font-weight: 600;
-      }
-      body.dark .cancel-edit {
-        color: var(--txt);
       }
       .fg {
         margin-bottom: 16px;
@@ -476,7 +471,6 @@
         color: var(--txt);
         font-family: "Pretendard", sans-serif;
         outline: none;
-        transition: border-color 0.2s;
       }
       .fi:focus,
       .fs:focus,
@@ -487,7 +481,6 @@
       .ft {
         min-height: 90px;
         resize: vertical;
-        line-height: 1.5;
       }
       .btn-save {
         width: 100%;
@@ -499,13 +492,9 @@
         font-size: 16px;
         font-weight: 700;
         cursor: pointer;
-        transition: background 0.2s;
-      }
-      .btn-save:hover {
-        background: var(--pd);
       }
 
-      /* ★ 2. 목록 카드 디자인 가독성 전면 개편 */
+      /* 목록 카드 */
       .rec-card {
         background: var(--card);
         border: 1px solid var(--bdr);
@@ -521,8 +510,6 @@
         align-items: flex-start;
         margin-bottom: 12px;
       }
-
-      /* 날짜 */
       .rc-date {
         font-size: 13px;
         font-weight: 600;
@@ -530,23 +517,15 @@
         background: var(--bg2);
         padding: 4px 10px;
         border-radius: 6px;
-        display: inline-block;
       }
-
-      /* 말씀 제목 (깔끔하고 시원하게 좌측 정렬) */
       .rc-title {
-        font-family: "Pretendard", sans-serif;
         font-size: 18px;
         font-weight: 700;
         color: var(--txt);
         margin-bottom: 12px;
-        letter-spacing: -0.5px;
       }
-
-      /* 성경 구절 본문 (가독성 높은 인용구 스타일) */
       .rc-verse-band {
         background: var(--bg);
-        color: var(--txt);
         border-left: 4px solid var(--p);
         padding: 14px 16px;
         margin: 0 0 14px 0;
@@ -554,20 +533,14 @@
         font-size: 15px;
         line-height: 1.6;
         font-weight: 500;
-        letter-spacing: -0.3px;
       }
-
-      /* 묵상 본문 (자간/행간을 넓혀 읽기 편하게) */
       .rc-med {
         color: var(--txt);
         line-height: 1.7;
         font-size: 15px;
         margin-bottom: 14px;
         white-space: pre-wrap;
-        letter-spacing: -0.2px;
       }
-
-      /* 버튼 영역 */
       .rc-acts {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -591,13 +564,12 @@
       }
       .btn-del {
         background: #a06c69;
-      } /* 톤다운된 레드 */
+      }
       .fav-btn {
         background: none;
         border: none;
         font-size: 18px;
         cursor: pointer;
-        padding: 0;
       }
 
       .srch-wrap {
@@ -627,8 +599,6 @@
         color: var(--txt2);
         font-weight: 500;
       }
-
-      /* 페이징 버튼 */
       .pagination {
         display: flex;
         justify-content: center;
@@ -652,7 +622,7 @@
         border-color: var(--p);
       }
 
-      /* 관리자 페이지 */
+      /* 관리자 등 기타 */
       .hdr.adm-hdr {
         border-bottom-color: var(--adm);
       }
@@ -707,15 +677,12 @@
         background: #a06c69;
       }
 
-      /* 탭 및 모달 등 */
       .page {
         display: none;
       }
       .page.on {
         display: block;
       }
-
-      /* ★ 탭 바도 620px에 맞게 고정 */
       .tab-bar {
         position: fixed;
         bottom: 0;
@@ -728,7 +695,6 @@
         display: flex;
         padding-bottom: env(safe-area-inset-bottom);
         z-index: 100;
-        box-shadow: 0 -4px 10px rgba(0, 0, 0, 0.03);
       }
       .tab-btn {
         flex: 1;
@@ -751,8 +717,6 @@
         font-weight: 700;
         margin-top: 6px;
       }
-
-      /* ★ 토스트 알림창도 620px 바운더리 내에 위치 */
       .toast {
         position: fixed;
         bottom: 90px;
@@ -797,11 +761,6 @@
         padding: 24px;
         box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
       }
-      .modal-box h3 {
-        margin-bottom: 16px;
-        font-size: 18px;
-        color: var(--txt);
-      }
       .modal-btns {
         display: grid;
         grid-template-columns: 1fr 1fr;
@@ -833,28 +792,15 @@
           <div class="login-brand">
             <div class="cross">🌿</div>
             <h1>성경 통독 기록장</h1>
-            <p>매일 하느님의 말씀과 함께</p>
           </div>
           <form onsubmit="doLogin(event)">
             <div class="lf">
               <label class="ll">아이디</label
-              ><input
-                id="loginId"
-                class="li"
-                type="text"
-                required
-                placeholder="영문, 숫자"
-              />
+              ><input id="loginId" class="li" type="text" required />
             </div>
             <div class="lf">
               <label class="ll">비밀번호</label
-              ><input
-                id="loginPw"
-                class="li"
-                type="password"
-                required
-                placeholder="비밀번호"
-              />
+              ><input id="loginPw" class="li" type="password" required />
             </div>
             <div class="login-err" id="loginErr"></div>
             <button id="loginBtn" class="login-btn" type="submit">
@@ -871,39 +817,34 @@
         <span id="syncTxt">연결 대기중...</span>
       </div>
       <div class="cfg-panel" id="cfgPanel">
-        <h3 class="cfg-title" style="font-size: 15px; margin-bottom: 10px">
-          ⚙️ Google Sheets 설정
-        </h3>
+        <h3 style="font-size: 15px; margin-bottom: 10px">⚙️ GAS 연동 주소</h3>
         <div class="url-row">
-          <input
-            class="url-inp"
-            id="gasUrlInput"
-            type="text"
-            placeholder="https://script.google.com/.../exec"
-          />
-          <button class="btn-conn" onclick="connectGAS()">연결</button>
+          <input class="url-inp" id="gasUrlInput" type="text" /><button
+            class="btn-conn"
+            onclick="connectGAS()"
+          >
+            연결
+          </button>
         </div>
       </div>
 
       <div class="page on" id="pgHome">
         <div class="hdr">
           <div class="hdr-l">
-            <button class="ib" onclick="toggleDark()" title="다크모드">
-              🌓
-            </button>
+            <button class="ib" onclick="toggleDark()">🌓</button>
           </div>
           <div class="hdr-r">
             <div class="user-chip" id="userChip"></div>
             <button class="ib" onclick="toggleCfg()">⚙️</button>
           </div>
-          <h1 id="homeGreet">성경통독 기록장</h1>
+          <h1>성경통독 기록장</h1>
           <p>나의 통독 요약</p>
         </div>
         <div class="sec">
           <div class="stat-grid">
             <div class="stat-box">
               <div class="stat-v" id="stTotal">0</div>
-              <div class="stat-l">전체 기록</div>
+              <div class="stat-l">전체</div>
             </div>
             <div class="stat-box">
               <div class="stat-v" id="stMonth">0</div>
@@ -930,14 +871,11 @@
       </div>
 
       <div class="page" id="pgWrite">
-        <div class="hdr">
-          <h1>✍️ 기록하기</h1>
-          <p>오늘의 말씀을 담아보세요</p>
-        </div>
+        <div class="hdr"><h1>✍️ 기록하기</h1></div>
         <div class="sec">
           <div class="edit-banner" id="editBanner">
-            ✏️ 수정 중입니다<button class="cancel-edit" onclick="cancelEdit()">
-              작성 취소
+            ✏️ 수정 중<button class="cancel-edit" onclick="cancelEdit()">
+              취소
             </button>
           </div>
           <div class="card">
@@ -946,148 +884,113 @@
                 <label class="fl">📅 날짜 (필수)</label
                 ><input id="fDate" class="fi" type="date" required />
               </div>
-              <div class="fr">
-                <div class="fg">
-                  <label class="fl">📚 성경 책 (필수)</label>
-                  <select id="fBook" class="fs" required>
-                    <option value="">선택하세요</option>
-                    <option>창세기</option>
-                    <option>탈출기</option>
-                    <option>레위기</option>
-                    <option>민수기</option>
-                    <option>신명기</option>
-                    <option>여호수아기</option>
-                    <option>판관기</option>
-                    <option>룻기</option>
-                    <option>사무엘기 상권</option>
-                    <option>사무엘기 하권</option>
-                    <option>열왕기 상권</option>
-                    <option>열왕기 하권</option>
-                    <option>역대기 상권</option>
-                    <option>역대기 하권</option>
-                    <option>에즈라기</option>
-                    <option>느헤미야기</option>
-                    <option>토빗기</option>
-                    <option>유딧기</option>
-                    <option>에스테르기</option>
-                    <option>마카베오기 상권</option>
-                    <option>마카베오기 하권</option>
-                    <option>욥기</option>
-                    <option>시편</option>
-                    <option>잠언</option>
-                    <option>코헬렛</option>
-                    <option>아가</option>
-                    <option>지혜서</option>
-                    <option>집회서</option>
-                    <option>이사야서</option>
-                    <option>예레미야서</option>
-                    <option>애가</option>
-                    <option>바룩서</option>
-                    <option>에제키엘서</option>
-                    <option>다니엘서</option>
-                    <option>호세아서</option>
-                    <option>요엘서</option>
-                    <option>아모스서</option>
-                    <option>오바드야서</option>
-                    <option>요나서</option>
-                    <option>미카서</option>
-                    <option>나훔서</option>
-                    <option>하바쿡서</option>
-                    <option>스바니야서</option>
-                    <option>하까이서</option>
-                    <option>즈카르야서</option>
-                    <option>말라키서</option>
-                    <option>마태오 복음서</option>
-                    <option>마르코 복음서</option>
-                    <option>루카 복음서</option>
-                    <option>요한 복음서</option>
-                    <option>사도행전</option>
-                    <option>로마서</option>
-                    <option>코린토 1서</option>
-                    <option>코린토 2서</option>
-                    <option>갈라티아서</option>
-                    <option>에페소서</option>
-                    <option>필리피서</option>
-                    <option>콜로새서</option>
-                    <option>테살로니카 1서</option>
-                    <option>테살로니카 2서</option>
-                    <option>티모테오 1서</option>
-                    <option>티모테오 2서</option>
-                    <option>티토서</option>
-                    <option>필레몬서</option>
-                    <option>히브리서</option>
-                    <option>야고보서</option>
-                    <option>베드로 1서</option>
-                    <option>베드로 2서</option>
-                    <option>요한 1서</option>
-                    <option>요한 2서</option>
-                    <option>요한 3서</option>
-                    <option>유다서</option>
-                    <option>요한 묵시록</option>
-                  </select>
-                </div>
-                <div style="display: flex; gap: 10px">
-                  <div class="fg" style="flex: 1">
-                    <label class="fl">장 (필수)</label
-                    ><input
-                      id="fChapter"
-                      class="fi"
-                      type="number"
-                      min="1"
-                      required
-                    />
-                  </div>
-                  <div class="fg" style="flex: 1">
-                    <label class="fl">절 (선택)</label
-                    ><input
-                      id="fVerse"
-                      class="fi"
-                      type="text"
-                      placeholder="예: 14"
-                    />
-                  </div>
-                </div>
-              </div>
               <div class="fg">
-                <label class="fl">📖 성경 구절 본문 (필수)</label>
-                <textarea
-                  id="fVerseText"
-                  class="ft"
-                  style="min-height: 80px"
-                  placeholder="기억하고 싶은 말씀의 내용을 입력하세요."
-                  required
-                ></textarea>
+                <label class="fl">📚 성경 책 (필수)</label>
+                <select id="fBook" class="fs" required>
+                  <option value="">선택하세요</option>
+                  <option>창세기</option>
+                  <option>탈출기</option>
+                  <option>레위기</option>
+                  <option>민수기</option>
+                  <option>신명기</option>
+                  <option>여호수아기</option>
+                  <option>판관기</option>
+                  <option>룻기</option>
+                  <option>사무엘기 상권</option>
+                  <option>사무엘기 하권</option>
+                  <option>열왕기 상권</option>
+                  <option>열왕기 하권</option>
+                  <option>역대기 상권</option>
+                  <option>역대기 하권</option>
+                  <option>에즈라기</option>
+                  <option>느헤미야기</option>
+                  <option>토빗기</option>
+                  <option>유딧기</option>
+                  <option>에스테르기</option>
+                  <option>마카베오기 상권</option>
+                  <option>마카베오기 하권</option>
+                  <option>욥기</option>
+                  <option>시편</option>
+                  <option>잠언</option>
+                  <option>코헬렛</option>
+                  <option>아가</option>
+                  <option>지혜서</option>
+                  <option>집회서</option>
+                  <option>이사야서</option>
+                  <option>예레미야서</option>
+                  <option>애가</option>
+                  <option>바룩서</option>
+                  <option>에제키엘서</option>
+                  <option>다니엘서</option>
+                  <option>호세아서</option>
+                  <option>요엘서</option>
+                  <option>아모스서</option>
+                  <option>오바드야서</option>
+                  <option>요나서</option>
+                  <option>미카서</option>
+                  <option>나훔서</option>
+                  <option>하바쿡서</option>
+                  <option>스바니야서</option>
+                  <option>하까이서</option>
+                  <option>즈카르야서</option>
+                  <option>말라키서</option>
+                  <option>마태오 복음서</option>
+                  <option>마르코 복음서</option>
+                  <option>루카 복음서</option>
+                  <option>요한 복음서</option>
+                  <option>사도행전</option>
+                  <option>로마서</option>
+                  <option>코린토 1서</option>
+                  <option>코린토 2서</option>
+                  <option>갈라티아서</option>
+                  <option>에페소서</option>
+                  <option>필리피서</option>
+                  <option>콜로새서</option>
+                  <option>테살로니카 1서</option>
+                  <option>테살로니카 2서</option>
+                  <option>티모테오 1서</option>
+                  <option>티모테오 2서</option>
+                  <option>티토서</option>
+                  <option>필레몬서</option>
+                  <option>히브리서</option>
+                  <option>야고보서</option>
+                  <option>베드로 1서</option>
+                  <option>베드로 2서</option>
+                  <option>요한 1서</option>
+                  <option>요한 2서</option>
+                  <option>요한 3서</option>
+                  <option>유다서</option>
+                  <option>요한 묵시록</option>
+                </select>
               </div>
-              <div class="fg">
-                <label class="fl">💭 묵상 및 은혜 (선택)</label>
-                <textarea
-                  id="fMed"
-                  class="ft"
-                  placeholder="오늘 말씀에서 느낀 점을 자유롭게 적어보세요."
-                ></textarea>
-              </div>
-              <div
-                class="fg"
-                style="
-                  display: flex;
-                  justify-content: space-between;
-                  align-items: center;
-                "
-              >
-                <label
-                  style="
-                    font-weight: 600;
-                    font-size: 14px;
-                    display: flex;
-                    align-items: center;
-                    gap: 6px;
-                    cursor: pointer;
-                  "
+              <div style="display: flex; gap: 10px">
+                <div class="fg" style="flex: 1">
+                  <label class="fl">장</label
                   ><input
-                    type="checkbox"
-                    id="fFav"
-                    style="width: 16px; height: 16px"
-                  />⭐ 즐겨찾기에 저장</label
+                    id="fChapter"
+                    class="fi"
+                    type="number"
+                    min="1"
+                    required
+                  />
+                </div>
+                <div class="fg" style="flex: 1">
+                  <label class="fl">절 (선택)</label
+                  ><input id="fVerse" class="fi" type="text" />
+                </div>
+              </div>
+              <div class="fg">
+                <label class="fl">📖 구절 내용</label
+                ><textarea id="fVerseText" class="ft" required></textarea>
+              </div>
+              <div class="fg">
+                <label class="fl">💭 묵상</label
+                ><textarea id="fMed" class="ft"></textarea>
+              </div>
+              <div class="fg">
+                <label
+                  style="font-weight: 600; font-size: 14px; cursor: pointer"
+                  ><input type="checkbox" id="fFav" /> ⭐ 즐겨찾기</label
                 >
               </div>
               <button id="btnSave" class="btn-save" type="submit">
@@ -1099,10 +1002,7 @@
       </div>
 
       <div class="page" id="pgList">
-        <div class="hdr">
-          <h1>📖 나의 기록</h1>
-          <p>말씀의 발자취</p>
-        </div>
+        <div class="hdr"><h1>📖 나의 기록</h1></div>
         <div class="sec">
           <div class="card" style="padding: 12px 16px; margin-bottom: 14px">
             <div class="cal-hdr" style="margin-bottom: 0">
@@ -1111,49 +1011,32 @@
               <button class="cal-nav" onclick="chgListMo(1)">▶</button>
             </div>
           </div>
-
           <div class="srch-wrap">
             <span class="srch-ico">🔍</span
             ><input
               class="srch-inp"
               id="srchInput"
               type="search"
-              placeholder="성경 책, 구절 내용 검색"
+              placeholder="검색"
               oninput="renderList(1)"
             />
           </div>
-
           <div id="recList"></div>
         </div>
       </div>
 
       <div class="page" id="pgProfile">
-        <div class="hdr">
-          <h1>👤 내 프로필</h1>
-          <p>내 정보 수정</p>
-        </div>
+        <div class="hdr"><h1>👤 내 프로필</h1></div>
         <div class="sec">
           <div class="card">
-            <form id="profileForm" onsubmit="updateProfile(event)">
+            <form onsubmit="updateProfile(event)">
               <div class="fg">
                 <label class="fl">아이디</label
-                ><input
-                  id="pId"
-                  class="li"
-                  type="text"
-                  disabled
-                  readonly
-                  style="background: var(--bg)"
-                />
+                ><input id="pId" class="li" type="text" disabled />
               </div>
               <div class="fg">
                 <label class="fl">새 비밀번호</label
-                ><input
-                  id="pPw"
-                  class="fi"
-                  type="password"
-                  placeholder="변경할 경우에만 입력하세요"
-                />
+                ><input id="pPw" class="fi" type="password" />
               </div>
               <div class="fg">
                 <label class="fl">이름</label
@@ -1163,30 +1046,21 @@
                 <label class="fl">세례명</label
                 ><input id="pBaptism" class="fi" type="text" />
               </div>
-              <button class="btn-save" type="submit">💾 프로필 수정</button>
+              <button class="btn-save" type="submit">수정</button>
             </form>
           </div>
           <button
             class="btn-del"
-            style="
-              width: 100%;
-              padding: 16px;
-              margin-top: 20px;
-              font-size: 15px;
-              border-radius: 12px;
-            "
+            style="width: 100%; padding: 16px; margin-top: 20px"
             onclick="doLogout()"
           >
-            🚪 안전하게 로그아웃
+            로그아웃
           </button>
         </div>
       </div>
 
       <div class="page" id="pgAdmin">
-        <div class="hdr adm-hdr">
-          <h1>👑 관리자 페이지</h1>
-          <p>전체 사용자 계정 관리</p>
-        </div>
+        <div class="hdr adm-hdr"><h1>👑 관리자</h1></div>
         <div class="sec">
           <div class="card">
             <div
@@ -1197,20 +1071,15 @@
                 margin-bottom: 16px;
               "
             >
-              <div style="font-weight: 700; color: var(--adm); font-size: 15px">
+              <div style="font-weight: 700; color: var(--adm)">
                 👥 사용자 목록
               </div>
               <button
                 class="btn-save"
-                style="
-                  width: auto;
-                  padding: 8px 14px;
-                  font-size: 13px;
-                  background: var(--adm);
-                "
+                style="width: auto; padding: 8px 14px; background: var(--adm)"
                 onclick="openUserModal()"
               >
-                ➕ 사용자 추가
+                ➕ 추가
               </button>
             </div>
             <div id="admUserList"></div>
@@ -1245,19 +1114,14 @@
 
       <div class="overlay" id="userModal">
         <div class="modal-box">
-          <h3 id="umTitle">➕ 사용자 추가</h3>
+          <h3 id="umTitle">사용자 관리</h3>
           <div class="fg">
-            <label class="fl">아이디 *</label
+            <label class="fl">ID</label
             ><input id="uId" class="fi" type="text" />
           </div>
           <div class="fg">
-            <label class="fl">비밀번호 *</label
-            ><input
-              id="uPw"
-              class="fi"
-              type="password"
-              placeholder="수정 시 빈칸이면 기존 유지"
-            />
+            <label class="fl">PW</label
+            ><input id="uPw" class="fi" type="password" />
           </div>
           <div class="fg">
             <label class="fl">이름</label
@@ -1270,12 +1134,15 @@
           <div class="fg">
             <label class="fl">권한</label
             ><select id="uRole" class="fs">
-              <option value="user">일반 사용자</option>
+              <option value="user">일반</option>
               <option value="admin">관리자</option>
             </select>
           </div>
           <div class="modal-btns">
-            <button class="mbtn mbtn-cancel" onclick="closeModal('userModal')">
+            <button
+              class="mbtn mbtn-cancel"
+              onclick="$('userModal').style.display = 'none'"
+            >
               취소
             </button>
             <button class="mbtn mbtn-adm" onclick="saveAdminUser()">
@@ -1297,24 +1164,22 @@
         homeMo,
         editId = null,
         umEditId = null;
-
       let listY,
         listMo,
         listPage = 1;
       const listPerPage = 5;
 
-      // KST 날짜 변환
       function getLocalToday() {
         const d = new Date(),
           offset = d.getTimezoneOffset() * 60000;
         return new Date(d.getTime() - offset).toISOString().slice(0, 10);
       }
 
-      // ★ Github/외부환경을 위해 CORS 및 리다이렉트 옵션이 추가된 gasCall 함수
+      // ★ 에러 원인 차단: 더 강력해진 GAS 통신 함수
       async function gasCall(payload, isGet = false) {
-        if (!gasUrl) throw new Error("GAS 연결 안됨");
-        payload.token = localStorage.getItem("bb_token");
-        payload.userId = localStorage.getItem("bb_uid");
+        if (!gasUrl) throw new Error("GAS 주소가 설정되지 않았습니다.");
+        payload.token = localStorage.getItem("bb_token") || "";
+        payload.userId = localStorage.getItem("bb_uid") || "";
         if (
           ["userList", "userAdd", "userUpdate", "userDelete"].includes(
             payload.action,
@@ -1325,23 +1190,24 @@
         const ctl = new AbortController(),
           tmr = setTimeout(() => ctl.abort(), 15000);
         try {
+          // GitHub Pages에서의 CORS 및 리다이렉트를 확실히 허용
           const opt = isGet
-            ? {}
+            ? { redirect: "follow" }
             : {
                 method: "POST",
                 body: JSON.stringify(payload),
-                headers: {
-                  "Content-Type": "text/plain;charset=utf-8", // CORS Preflight 방지
-                },
-                redirect: "follow", // GAS 리다이렉트 처리 허용
+                headers: { "Content-Type": "text/plain;charset=utf-8" },
+                redirect: "follow",
               };
           const url = isGet
             ? `${gasUrl}?${new URLSearchParams(payload)}`
             : gasUrl;
           const res = await fetch(url, opt);
           clearTimeout(tmr);
+
+          if (!res.ok) throw new Error(`HTTP ${res.status} 에러`);
           const json = await res.json();
-          if (!json.ok) throw new Error(json.error);
+          if (!json.ok) throw new Error(json.error || "GAS 반환 에러");
           return json.data;
         } catch (e) {
           clearTimeout(tmr);
@@ -1364,7 +1230,7 @@
           localStorage.setItem("bb_me", JSON.stringify(me));
           loginOk();
         } catch (err) {
-          $("loginErr").textContent = err.message || "로그인 실패";
+          $("loginErr").textContent = "로그인 실패: " + err.message;
         } finally {
           btn.disabled = false;
           btn.textContent = "로그인";
@@ -1389,9 +1255,7 @@
 
       function doLogout() {
         if (confirm("안전하게 로그아웃 하시겠습니까?")) {
-          localStorage.removeItem("bb_uid");
-          localStorage.removeItem("bb_token");
-          localStorage.removeItem("bb_me");
+          localStorage.clear();
           location.reload();
         }
       }
@@ -1399,8 +1263,8 @@
       (async function init() {
         if (localStorage.getItem("bb_dark") === "1") toggleDark(true);
         try {
-          gasUrl = (await (await fetch("./index_bible_write_gas_v2.json")).json())
-            .gas_url;
+          const res = await fetch("./index_bible_write_gas.json");
+          if (res.ok) gasUrl = (await res.json()).gas_url;
         } catch (e) {}
         if (!gasUrl) gasUrl = localStorage.getItem("bb_gas") || "";
         if (gasUrl) {
@@ -1416,133 +1280,46 @@
         }
       })();
 
-      async function updateProfile(e) {
-        e.preventDefault();
-        const btn = e.target.querySelector("button");
-        btn.disabled = true;
-        const u = {
-          id: me.id,
-          pw: $("pPw").value,
-          name: $("pName").value,
-          baptism: $("pBaptism").value,
-          role: me.role,
-        };
-        try {
-          await gasCall({ action: "userUpdate", user: u });
-          toast("✅ 수정 완료");
-          me.name = u.name;
-          me.baptism = u.baptism;
-          localStorage.setItem("bb_me", JSON.stringify(me));
-          $("userChip").textContent = me.baptism
-            ? `${me.name} (${me.baptism})`
-            : me.name;
-          $("pPw").value = "";
-        } catch (err) {
-          toast("❌ 수정 실패");
-        } finally {
-          btn.disabled = false;
-        }
-      }
-
-      async function fetchAdminUsers() {
-        if (me.role !== "admin") return;
-        try {
-          adminUsers = await gasCall({ action: "userList" }, true);
-          renderAdminUsers();
-        } catch (e) {}
-      }
-
-      function renderAdminUsers() {
-        const wrap = $("admUserList");
-        wrap.innerHTML = "";
-        adminUsers.forEach((u) => {
-          wrap.innerHTML += `
-            <div class="user-card">
-              <div class="uc-info"><div class="uc-name">${u.name} <span class="${u.role === "admin" ? "badge-adm" : "badge-usr"}">${u.role}</span></div><div class="uc-meta">ID: ${u.id}</div></div>
-              <div class="uc-acts" style="margin-top:0; border:none; padding:0; display:flex; gap:6px;"><button class="bsm bsm-e" onclick="openUserModal('${u.id}')">수정</button>
-              ${u.id !== me.id ? `<button class="bsm bsm-d" onclick="delAdminUser('${u.id}')">삭제</button>` : ""}</div>
-            </div>`;
-        });
-      }
-
-      function openUserModal(uid = null) {
-        umEditId = uid;
-        if (uid) {
-          const u = adminUsers.find((x) => x.id === uid);
-          $("uId").value = u.id;
-          $("uId").disabled = true;
-          $("uPw").value = "";
-          $("uName").value = u.name;
-          $("uBaptism").value = u.baptism;
-          $("uRole").value = u.role;
-        } else {
-          $("uId").value = "";
-          $("uId").disabled = false;
-          $("uPw").value = "";
-          $("uName").value = "";
-          $("uBaptism").value = "";
-          $("uRole").value = "user";
-        }
-        $("userModal").style.display = "flex";
-      }
-
-      function closeModal(id) {
-        $(id).style.display = "none";
-      }
-      async function saveAdminUser() {
-        const u = {
-          id: $("uId").value,
-          pw: $("uPw").value,
-          name: $("uName").value,
-          baptism: $("uBaptism").value,
-          role: $("uRole").value,
-        };
-        try {
-          await gasCall({
-            action: umEditId ? "userUpdate" : "userAdd",
-            user: u,
-          });
-          closeModal("userModal");
-          fetchAdminUsers();
-          toast("✅ 완료");
-        } catch (e) {
-          toast("❌ 실패");
-        }
-      }
-      async function delAdminUser(uid) {
-        if (!confirm("삭제하시겠습니까?")) return;
-        try {
-          await gasCall({ action: "userDelete", id: uid });
-          fetchAdminUsers();
-          toast("✅ 삭제됨");
-        } catch (e) {}
-      }
-
+      // ★ 핵심 해결: 데이터 로드 시 빈 행 무시 & 한국어 시간 텍스트 제거
       async function fetchFromGAS() {
         try {
-          setSyncBar("syncing", "로딩중...");
+          setSyncBar("syncing", "데이터 로딩중...");
           let data = await gasCall({ action: "list" }, true);
 
           recs = Array.isArray(data)
-            ? data.map((r) => {
-                if (
-                  r.date.includes("GMT") ||
-                  r.date.includes("한국") ||
-                  r.date.includes("시간") ||
-                  r.date.length > 10
-                ) {
-                  const d = new Date(r.date);
-                  if (!isNaN(d))
-                    r.date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-                }
-                return r;
-              })
-            : [];
+            ? data
+                .map((r) => {
+                  if (!r || !r.id) return null; // 💡 에러 원인 1: 시트의 빈 행 데이터 무시
 
-          setSyncBar("ok", "✓ 연결됨");
+                  let dStr = String(r.date || "");
+                  // 💡 에러 원인 2: (한국 표준시) 같은 괄호 텍스트를 제거하여 Date 파싱 오류 원천 차단
+                  let cleanDateStr = dStr.replace(/\s*\(.*\)$/, "").trim();
+
+                  if (
+                    cleanDateStr.includes("GMT") ||
+                    cleanDateStr.includes("T") ||
+                    cleanDateStr.length > 10
+                  ) {
+                    const d = new Date(cleanDateStr);
+                    if (!isNaN(d)) {
+                      r.date = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+                    }
+                  }
+                  return r;
+                })
+                .filter((r) => r !== null)
+            : []; // null로 반환된 쓰레기 데이터는 목록에서 완전 제거
+
+          setSyncBar("ok", "✓ 동기화 완료");
           refresh();
         } catch (e) {
-          setSyncBar("error", "⚠️ 에러");
+          console.error("fetchFromGAS 에러:", e);
+          setSyncBar(
+            "error",
+            e.message.includes("Failed to fetch")
+              ? "⚠️ 통신/CORS 에러"
+              : "⚠️ 데이터 에러",
+          );
         }
       }
 
@@ -1569,7 +1346,7 @@
           goPage("Home");
           toast("✅ 저장 완료!");
         } catch (err) {
-          toast("⚠️ 실패");
+          toast("⚠️ 저장 실패");
         } finally {
           $("btnSave").disabled = false;
         }
@@ -1580,7 +1357,7 @@
           r = recs.find((x) => x.id === id);
         if (r) r.favorite = newVal;
         renderList(listPage);
-        gasCall({ action: "fav", id, favorite: newVal }, false)
+        gasCall({ action: "fav", id, favorite: newVal })
           .then(() => fetchFromGAS())
           .catch((e) => {
             if (r) r.favorite = curVal;
@@ -1620,7 +1397,9 @@
         $("stMonth").textContent = recs.filter((r) =>
           r.date.startsWith(curMo),
         ).length;
-        $("stFav").textContent = recs.filter((r) => r.favorite).length;
+        $("stFav").textContent = recs.filter(
+          (r) => r.favorite === true || r.favorite === "true",
+        ).length;
         let streak = 0;
         if (recs.length > 0) {
           const sorted = [...recs]
@@ -1647,8 +1426,7 @@
         $("homeMoLabel").textContent = `${homeY}년 ${homeMo}월`;
         const wrap = $("homeCal");
         wrap.innerHTML = "";
-        const days = ["일", "월", "화", "수", "목", "금", "토"];
-        days.forEach((d) => {
+        ["일", "월", "화", "수", "목", "금", "토"].forEach((d) => {
           let div = document.createElement("div");
           div.className = "cal-dh";
           div.textContent = d;
@@ -1663,26 +1441,14 @@
           wrap.appendChild(e);
         }
         for (let d = 1; d <= lDate; d++) {
-          let yyyy_mm_dd = `${homeY}-${String(homeMo).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-          let isToday = yyyy_mm_dd === todayStr,
-            hasRec = recs.some((r) => r.date === yyyy_mm_dd);
+          let y_m_d = `${homeY}-${String(homeMo).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
+          let isToday = y_m_d === todayStr,
+            hasRec = recs.some((r) => r.date === y_m_d);
           let cell = document.createElement("div");
           cell.className = `cal-day ${isToday ? "today" : ""} ${hasRec ? "rec" : ""}`;
           cell.innerHTML = `<div class="cal-day-inner">${d}${hasRec ? `<div class="cal-ck">●</div>` : ""}</div>`;
           wrap.appendChild(cell);
         }
-      }
-
-      function chgListMo(v) {
-        listMo += v;
-        if (listMo < 1) {
-          listY--;
-          listMo = 12;
-        } else if (listMo > 12) {
-          listY++;
-          listMo = 1;
-        }
-        renderList(1);
       }
 
       function renderList(page = 1) {
@@ -1704,7 +1470,7 @@
           );
 
         if (arr.length === 0) {
-          wrap.innerHTML = `<div class="empty">이 달의 기록이 없습니다.</div>`;
+          wrap.innerHTML = `<div class="empty">기록이 없습니다.</div>`;
           return;
         }
 
@@ -1716,17 +1482,11 @@
             const card = document.createElement("div");
             card.className = "rec-card";
             card.innerHTML = `
-            <div class="rc-header">
-              <div class="rc-date">🗓️ ${r.date}</div>
-              <button class="fav-btn" onclick="toggleFav('${r.id}', ${isFav})" title="즐겨찾기">${isFav ? "⭐" : "☆"}</button>
-            </div>
+            <div class="rc-header"><div class="rc-date">🗓️ ${r.date}</div><button class="fav-btn" onclick="toggleFav('${r.id}', ${isFav})">${isFav ? "⭐" : "☆"}</button></div>
             <div class="rc-title">${r.book} ${r.chapter}장${r.verse ? ` ${r.verse}절` : ""}</div>
             ${r.verseText ? `<div class="rc-verse-band">"${r.verseText}"</div>` : ""}
             ${r.meditation ? `<div class="rc-med">${r.meditation}</div>` : ""}
-            <div class="rc-acts">
-              <button class="btn-edit" onclick="startEdit('${r.id}')">수정</button>
-              <button class="btn-del" onclick="delRecord('${r.id}')">삭제</button>
-            </div>
+            <div class="rc-acts"><button class="btn-edit" onclick="startEdit('${r.id}')">수정</button><button class="btn-del" onclick="delRecord('${r.id}')">삭제</button></div>
           `;
             wrap.appendChild(card);
           });
@@ -1739,6 +1499,97 @@
         }
       }
 
+      /* 프로필 및 기타 공통 함수들 */
+      async function updateProfile(e) {
+        e.preventDefault();
+        const btn = e.target.querySelector("button");
+        btn.disabled = true;
+        const u = {
+          id: me.id,
+          pw: $("pPw").value,
+          name: $("pName").value,
+          baptism: $("pBaptism").value,
+          role: me.role,
+        };
+        try {
+          await gasCall({ action: "userUpdate", user: u });
+          toast("✅ 수정 완료");
+          me.name = u.name;
+          me.baptism = u.baptism;
+          localStorage.setItem("bb_me", JSON.stringify(me));
+          $("userChip").textContent = me.baptism
+            ? `${me.name} (${me.baptism})`
+            : me.name;
+          $("pPw").value = "";
+        } catch (err) {
+          toast("❌ 실패");
+        } finally {
+          btn.disabled = false;
+        }
+      }
+      async function fetchAdminUsers() {
+        if (me.role !== "admin") return;
+        try {
+          adminUsers = await gasCall({ action: "userList" }, true);
+          renderAdminUsers();
+        } catch (e) {}
+      }
+      function renderAdminUsers() {
+        const wrap = $("admUserList");
+        wrap.innerHTML = "";
+        adminUsers.forEach((u) => {
+          wrap.innerHTML += `<div class="user-card"><div class="uc-info"><div class="uc-name">${u.name} <span class="${u.role === "admin" ? "badge-adm" : "badge-usr"}">${u.role}</span></div><div class="uc-meta">ID: ${u.id}</div></div><div class="uc-acts" style="display:flex; gap:6px;"><button class="bsm bsm-e" onclick="openUserModal('${u.id}')">수정</button>${u.id !== me.id ? `<button class="bsm bsm-d" onclick="delAdminUser('${u.id}')">삭제</button>` : ""}</div></div>`;
+        });
+      }
+      function openUserModal(uid = null) {
+        umEditId = uid;
+        if (uid) {
+          const u = adminUsers.find((x) => x.id === uid);
+          $("uId").value = u.id;
+          $("uId").disabled = true;
+          $("uPw").value = "";
+          $("uName").value = u.name;
+          $("uBaptism").value = u.baptism;
+          $("uRole").value = u.role;
+        } else {
+          $("uId").value = "";
+          $("uId").disabled = false;
+          $("uPw").value = "";
+          $("uName").value = "";
+          $("uBaptism").value = "";
+          $("uRole").value = "user";
+        }
+        $("userModal").style.display = "flex";
+      }
+      async function saveAdminUser() {
+        const u = {
+          id: $("uId").value,
+          pw: $("uPw").value,
+          name: $("uName").value,
+          baptism: $("uBaptism").value,
+          role: $("uRole").value,
+        };
+        try {
+          await gasCall({
+            action: umEditId ? "userUpdate" : "userAdd",
+            user: u,
+          });
+          $("userModal").style.display = "none";
+          fetchAdminUsers();
+          toast("✅ 완료");
+        } catch (e) {
+          toast("❌ 실패");
+        }
+      }
+      async function delAdminUser(uid) {
+        if (!confirm("삭제하시겠습니까?")) return;
+        try {
+          await gasCall({ action: "userDelete", id: uid });
+          fetchAdminUsers();
+          toast("✅ 삭제됨");
+        } catch (e) {}
+      }
+
       function chgHomeMo(v) {
         homeMo += v;
         if (homeMo < 1) {
@@ -1749,6 +1600,17 @@
           homeMo = 1;
         }
         refresh();
+      }
+      function chgListMo(v) {
+        listMo += v;
+        if (listMo < 1) {
+          listY--;
+          listMo = 12;
+        } else if (listMo > 12) {
+          listY++;
+          listMo = 1;
+        }
+        renderList(1);
       }
       function goPage(n) {
         document
