@@ -44,14 +44,31 @@
       .login-btn{width:100%;padding:16px;border:none;border-radius:12px;background:var(--p);color:#fff;font-size:17px;font-weight:700;cursor:pointer;transition:background 0.2s; font-family: var(--font);}
       .login-btn:hover{background:var(--pd);}
       
-      /* 헤더 */
-      .hdr{background:var(--card);color:var(--txt);padding:32px 20px 24px;text-align:center;position:relative;border-bottom:1px solid var(--bdr); border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: var(--sh); z-index: 10;}
+      /* 헤더 (높이 축소 반영) */
+      .hdr{background:var(--card);color:var(--txt);padding:18px 20px 14px;text-align:center;position:relative;border-bottom:1px solid var(--bdr); border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: var(--sh); z-index: 10;}
       .hdr h1{font-size:22px;font-weight:800;color:var(--p); letter-spacing:-0.3px;}
       .hdr p{font-size:14px;color:var(--txt2);margin-top:6px; font-weight:500;}
-      .hdr-l{position:absolute;top:24px;left:16px;}
-      .hdr-r{position:absolute;top:24px;right:16px;display:flex;gap:8px;align-items:center;}
-      .ib{background:var(--bg2);border:1px solid var(--bdr);color:var(--txt);width:40px;height:40px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s; font-size:18px;}
-      .user-chip{background:var(--plt);border:1px solid rgba(90,114,92,0.2);color:var(--pd);border-radius:10px;padding:6px 12px;font-size:14px;font-weight:700;}
+      .hdr-l{position:absolute;top:14px;left:16px;}
+      .hdr-r{position:absolute;top:14px;right:16px;display:flex;gap:8px;align-items:center;}
+      .ib{background:var(--bg2);border:1px solid var(--bdr);color:var(--txt);width:36px;height:36px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s; font-size:16px;}
+      
+      /* user-chip 디자인 (너비 확대 & 개별 색상 변수 적용) */
+      .user-chip{
+        --u-color: var(--p); /* 기본색 (자바스크립트에서 덮어씀) */
+        display: inline-flex; align-items: center; justify-content: center;
+        background: var(--card); border: 1px solid var(--bdr); color: var(--txt);
+        border-radius: 12px; padding: 12px 36px; font-size: 15px; font-weight: 800;
+        margin-top: 16px; letter-spacing: -0.3px; 
+        box-shadow: 0 4px 16px rgba(0,0,0,0.06);
+        position: relative; overflow: hidden; 
+      }
+      .user-chip::before { content: '👤'; margin-right: 8px; font-size: 16px; }
+      /* 하단 띠밴드 디자인 (개별 색상 변수 사용) */
+      .user-chip::after { 
+        content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 5px;
+        background: var(--u-color);
+      }
+      body.dark .user-chip { background: var(--bg2); }
       
       .sync-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;font-size:13px;font-weight:600;background:var(--bg2);border-bottom:1px solid var(--bdr); margin-top: -1px;}
       .sync-bar.ok{background:#EBFBEE;color:#2B8A3E;}
@@ -81,35 +98,33 @@
       .cal-nav{background:var(--bg2);border:1px solid var(--bdr);color:var(--txt);width:36px;height:36px;border-radius:10px;cursor:pointer; font-weight:bold;}
       .cal-mo{font-size:17px;font-weight:800; color:var(--txt);}
       
-      .cal-dh-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: clamp(2px, 1.5vw, 8px); margin-bottom: 8px; width: 100%; }
-      .cal-dh { text-align: center; font-size: clamp(10px, 2.5vw, 12px); font-weight: 700; color: var(--txt2); padding: 4px 0; min-width: 0; }
+      .cal-dh-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: clamp(2px, 1.5vw, 8px); margin-bottom: 10px; width: 100%; }
+      
+      .cal-dh { text-align: center; font-size: clamp(11px, 2.5vw, 13px); font-weight: 800; color: var(--txt); padding: 6px 0; border-radius: 8px; background: var(--bg2); min-width: 0;}
+      .cal-dh:nth-child(1) { color: #e03131; background: #fff5f5; } 
+      .cal-dh:nth-child(7) { color: #3b5bdb; background: #edf2ff; } 
+      
+      body.dark .cal-dh:nth-child(1) { color: #ff8787; background: #2b1111; }
+      body.dark .cal-dh:nth-child(7) { color: #748ffc; background: #141c30; }
       
       .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: clamp(2px, 1.5vw, 8px); width: 100%; }
       
-      /* 달력 칸 크기 완벽 고정 */
       .cal-day { 
-        aspect-ratio: 1 / 1; 
-        width: 100%; 
-        display: flex; 
-        flex-direction: column; 
-        align-items: center; 
-        justify-content: center; 
-        background: var(--bg2); 
-        border-radius: clamp(4px, 1.5vw, 10px); 
-        cursor: pointer; 
-        border: 2px solid transparent; 
-        transition: transform 0.1s;
-        font-size: clamp(11px, 2.8vw, 14px); 
-        font-weight: 600;
-        min-height: 0; /* 내부 콘텐츠 때문에 크기가 틀어지는 것 방지 */
+        aspect-ratio: 1 / 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+        background: var(--bg2); border-radius: clamp(4px, 1.5vw, 10px); cursor: pointer; border: 2px solid transparent; 
+        transition: transform 0.1s; font-size: clamp(11px, 2.8vw, 14px); font-weight: 700; min-height: 0; padding: 0;
       }
       .cal-day:active { transform: scale(0.95); }
       
-      /* 빈 칸은 보이지만 않을 뿐 내부에 숫자+점 공간은 그대로 차지함 */
-      .cal-day.empty { visibility: hidden; pointer-events: none; }
+      .cal-day:nth-child(7n+1) { color: #e03131; }
+      .cal-day:nth-child(7n) { color: #3b5bdb; }
       
+      body.dark .cal-day:nth-child(7n+1) { color: #ff8787; }
+      body.dark .cal-day:nth-child(7n) { color: #748ffc; }
+
+      .cal-day.empty { visibility: hidden; pointer-events: none; }
       .cal-day.today { border-color: var(--p); background: var(--card); }
-      .cal-day.rec { background: var(--plt); color: var(--pd); }
+      .cal-day.rec { background: var(--plt) !important; color: var(--pd) !important; }
       .cal-ck{font-size:clamp(8px, 2vw, 12px);margin-top:2px;color:var(--p);line-height:1;}
       
       @media (max-width: 400px) {
@@ -149,9 +164,6 @@
       .hdr.adm-hdr h1{color:var(--adm);}
       .user-card{background:var(--card); border:1px solid var(--bdr); border-radius:12px; padding:16px; margin-bottom:10px; display:flex; gap:12px; align-items:center; box-shadow:var(--sh);}
       .uc-info{flex:1;}
-      .uc-name{font-size:15px; font-weight:700;}
-      .uc-meta{font-size:12px; color:var(--txt2); margin-top:4px;}
-      .badge-adm{font-size:11px; padding:3px 8px; border-radius:12px; background:var(--adm); color:#fff; margin-left:6px; font-weight:700;}
       
       .page{display:none;} .page.on{display:block;}
       .tab-bar{ position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:620px; background:var(--card); border-top:1px solid var(--bdr); display:flex; padding-bottom:env(safe-area-inset-bottom); z-index:100; box-shadow: 0 -4px 12px rgba(0,0,0,0.03);}
@@ -204,8 +216,10 @@
     <div id="appScreen" style="display: none">
       <div class="hdr">
         <div class="hdr-l"><button class="ib" onclick="toggleDark()">🌓</button></div>
-        <div class="hdr-r"><div class="user-chip" id="userChip">사용자</div><button class="ib" onclick="toggleCfg()">⚙️</button></div>
-        <h1>기록 요약</h1><p>성실하게 통독 중입니다</p>
+        <div class="hdr-r"><button class="ib" onclick="toggleCfg()">⚙️</button></div>
+        <h1>기록 요약</h1>
+        <p>성실하게 통독 중입니다</p>
+        <div class="user-chip" id="userChip">사용자</div>
       </div>
 
       <div class="sync-bar" id="syncBar"><div class="sd" id="syncDot"></div><span id="syncTxt">연결 중...</span></div>
@@ -355,6 +369,23 @@
       let homeY, homeMo, editId = null, umEditId = null;
       let listY, listMo, listPage = 1; const listPerPage = 5;
 
+      // 사용자별 고유 색상(해시) 생성 함수
+      function getUserColor(str) {
+        let hash = 0;
+        for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
+        const hue = Math.abs(hash) % 360;
+        return `hsl(${hue}, 60%, 45%)`; // 적절한 채도와 밝기로 조정
+      }
+
+      // 화면에 사용자 이름과 색상 적용
+      function applyUserChip(user) {
+        const uName = user.baptism ? `${user.name} (${user.baptism})` : user.name;
+        const chip = $("userChip");
+        chip.textContent = uName;
+        // 개인별 고유 색상을 CSS 변수(--u-color)로 덮어쓰기
+        chip.style.setProperty('--u-color', getUserColor(user.id || user.name || "default"));
+      }
+
       // 디버거 로직
       function logD(msg) {
         const dText = $("debugText");
@@ -460,7 +491,9 @@
 
       function loginOk() {
         $("loginScreen").style.display = "none"; $("appScreen").style.display = "block";
-        $("userChip").textContent = me.baptism ? `${me.name} (${me.baptism})` : me.name;
+        
+        applyUserChip(me); // 색상 및 이름 적용
+        
         $("tabAdmin").style.display = (me.role === "admin") ? "block" : "none";
 
         const d = new Date(getLocalToday());
@@ -561,26 +594,23 @@
         $("stStreak").textContent = streak; renderHomeCal(); renderList(1);
       }
 
-      // 🔥 달력 크기 틀어짐 완벽 해결 로직
       function renderHomeCal() {
         $("homeMoLabel").textContent = `${homeY}년 ${homeMo}월`;
         const wrap = $("homeCal"); wrap.innerHTML = "";
         const fDay = new Date(homeY, homeMo - 1, 1).getDay(), lDate = new Date(homeY, homeMo, 0).getDate(), today = getLocalToday();
         
-        // 1. 빈 칸: 안에 똑같이 <span>숫자</span>와 <div class="cal-ck">●</div>를 넣어서 브라우저가 크기를 동일하게 강제 계산하도록 만듦 (단순히 숨김 처리)
         for (let i=0; i<fDay; i++) {
-          wrap.innerHTML += `<div class="cal-day empty"><span>0</span><div class="cal-ck">●</div></div>`;
+          wrap.innerHTML += `<div class="cal-day empty"><span>0</span><div class="cal-ck">♥</div></div>`;
         }
         
         for (let d=1; d<=lDate; d++) {
           let ymd = `${homeY}-${String(homeMo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
           let has = recs.some(r => String(r.date).startsWith(ymd));
           
-          // 2. 내용 있는 날: 기록이 없는 날도 점(●) 요소를 투명도 0으로 놔둬서 높이를 강제로 똑같이 맞춤
           wrap.innerHTML += `
             <div class="cal-day ${ymd===today?'today':''} ${has?'rec':''}" onclick="$('fDate').value='${ymd}';goPage('Write')">
               <span>${d}</span>
-              <div class="cal-ck" style="opacity:${has ? '1' : '0'}">●</div>
+              <div class="cal-ck" style="opacity:${has ? '1' : '0'}">♥</div>
             </div>`;
         }
       }
@@ -614,7 +644,17 @@
 
       async function updateProfile(e) {
         e.preventDefault(); const btn = e.target.querySelector("button"); btn.disabled = true;
-        try { await gasCall({ action: "userUpdate", user: { pw: $("pPw").value, name: $("pName").value, baptism: $("pBaptism").value } }); toast("✅ 수정되었습니다."); me.name = $("pName").value; me.baptism = $("pBaptism").value; localStorage.setItem("bb_me", JSON.stringify(me)); $("userChip").textContent = me.baptism ? `${me.name} (${me.baptism})` : me.name; $("pPw").value = ""; } catch (e) { toast("❌ 수정 실패: " + e.message); } finally { btn.disabled = false; }
+        try { 
+          await gasCall({ action: "userUpdate", user: { pw: $("pPw").value, name: $("pName").value, baptism: $("pBaptism").value } }); 
+          toast("✅ 수정되었습니다."); 
+          me.name = $("pName").value; 
+          me.baptism = $("pBaptism").value; 
+          localStorage.setItem("bb_me", JSON.stringify(me)); 
+          
+          applyUserChip(me); // 변경된 프로필로 다시 적용
+          
+          $("pPw").value = ""; 
+        } catch (e) { toast("❌ 수정 실패: " + e.message); } finally { btn.disabled = false; }
       }
 
       async function fetchAdminUsers() {
@@ -622,10 +662,28 @@
         try { adminUsers = await gasCall({ action: "userList" }); renderAdminUsers(); } catch (e) { toast("❌ 사용자 목록 불러오기 실패"); }
       }
       
+      // 관리자: 계정 관리 페이지 렌더링 (이름, 세례명, ID 강력하게 강조)
       function renderAdminUsers() {
         const wrap = $("admUserList"); wrap.innerHTML = "";
         adminUsers.forEach((u) => {
-          wrap.innerHTML += `<div class="user-card"><div class="uc-info"><div class="uc-name">${u.name} <span class="${u.role === "admin" ? "badge-adm" : ""}" style="font-size:11px; padding:3px 8px; border-radius:12px; background:var(--adm); color:#fff; font-weight:700; display:${u.role==='admin'?'inline-block':'none'}">${u.role}</span></div><div class="uc-meta">ID: ${u.id}</div></div><div class="uc-acts" style="display:flex; gap:6px;"><button class="bsm bsm-e" style="background:var(--p); color:#fff; border:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer;" onclick="openUserModal('${u.id}')">수정</button>${u.id !== me.id ? `<button class="bsm bsm-d" style="background:#E03131; color:#fff; border:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer;" onclick="delAdminUser('${u.id}')">삭제</button>` : ""}</div></div>`;
+          const baptismStr = u.baptism ? `<span style="color:#E03131; font-size:15px; margin-left:4px;">(${u.baptism})</span>` : "";
+          
+          wrap.innerHTML += `
+            <div class="user-card">
+              <div class="uc-info">
+                <div class="uc-name" style="font-size:18px; font-weight:900; color:var(--p);">
+                  ${u.name}${baptismStr}
+                  <span class="${u.role === "admin" ? "badge-adm" : ""}" style="font-size:11px; padding:3px 8px; border-radius:12px; background:var(--adm); color:#fff; margin-left:6px; font-weight:700; display:${u.role==='admin'?'inline-block':'none'}">${u.role}</span>
+                </div>
+                <div class="uc-meta" style="font-size:14px; color:var(--txt2); font-weight:700; margin-top:6px;">
+                  ID: <span style="color:#2B8A3E; font-size:15px; text-decoration:underline;">${u.id}</span>
+                </div>
+              </div>
+              <div class="uc-acts" style="display:flex; gap:6px;">
+                <button class="bsm bsm-e" style="background:var(--p); color:#fff; border:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer;" onclick="openUserModal('${u.id}')">수정</button>
+                ${u.id !== me.id ? `<button class="bsm bsm-d" style="background:#E03131; color:#fff; border:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer;" onclick="delAdminUser('${u.id}')">삭제</button>` : ""}
+              </div>
+            </div>`;
         });
       }
 
