@@ -2,1098 +2,318 @@
 <html lang="ko">
   <head>
     <meta charset="UTF-8" />
-    <meta
-      name="viewport"
-      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"
-    />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>성경 통독 기록장</title>
-    <link
-      href="https://fonts.googleapis.com/css2?family=Nanum+Myeongjo:wght@400;700;800&family=Pretendard:wght@300;400;500;600;700&display=swap"
-      rel="stylesheet"
-    />
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
     <style>
-      *,
-      *::before,
-      *::after {
-        margin: 0;
-        padding: 0;
-        box-sizing: border-box;
+      *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+      
+      :root{
+        --p: #5A725C; --pd: #3E4F3F; --plt: #EBF2ED; --gold: #C5A45D; 
+        --bg: #F8F9FA; --bg2: #F1F3F5; --card: #FFFFFF; --txt: #212529; 
+        --txt2: #868E96; --bdr: #E9ECEF; --ok: #40C057; --err: #FA5252; 
+        --adm: #5C7CFA; --adm-d: #4C6EF5; --r: 20px; 
+        --sh: 0 4px 12px rgba(0,0,0,0.05);
+        --font: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif;
       }
 
-      :root {
-        --p: #6a826c;
-        --pd: #4c604e;
-        --plt: #e8efe9;
-        --gold: #d4b872;
-        --bg: #f7f6f2;
-        --bg2: #efece5;
-        --card: #ffffff;
-        --txt: #2c302b;
-        --txt2: #757a73;
-        --bdr: #e0ddd6;
-        --ok: #5b8a6a;
-        --err: #c25953;
-        --adm: #645c8a;
-        --adm-d: #48406b;
-        --r: 14px;
-        --sh: 0 4px 20px rgba(0, 0, 0, 0.05);
-      }
-      body.dark {
-        --p: #8ba88e;
-        --pd: #a5c2a8;
-        --plt: #2a302b;
-        --bg: #1a1b1a;
-        --bg2: #242623;
-        --card: #2c2e2b;
-        --txt: #e4e6e3;
-        --txt2: #9fa49d;
-        --bdr: #3e423d;
-        --ok: #6eab81;
-        --err: #d96a63;
-        --adm: #8a81b8;
-        --adm-d: #6c6494;
-        --sh: 0 4px 20px rgba(0, 0, 0, 0.3);
-      }
-      body {
-        font-family:
-          "Pretendard",
-          -apple-system,
-          sans-serif;
-        background: var(--bg);
-        color: var(--txt);
-        min-height: 100vh;
-        padding-bottom: 72px;
-        max-width: 620px;
-        margin: 0 auto;
-        position: relative;
-        box-shadow: 0 0 30px rgba(0, 0, 0, 0.08);
-        transition:
-          background 0.3s,
-          color 0.3s;
+      body.dark{
+        --p: #8BA88E; --pd: #A5C2A8; --plt: #2A302B; --bg: #121212; 
+        --bg2: #1E1E1E; --card: #252525; --txt: #E9ECEF; --txt2: #ADB5BD; 
+        --bdr: #343A40; --sh: 0 4px 12px rgba(0,0,0,0.3);
       }
 
-      /* 로그인 화면 */
-      .login-bg {
-        min-height: 100vh;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background: var(--bg);
-        padding: 20px;
+      body { 
+        font-family: var(--font); background: var(--bg); color: var(--txt); 
+        min-height: 100vh; padding-bottom: 80px; max-width: 620px; 
+        margin: 0 auto; position: relative; transition: background 0.3s, color 0.3s;
+        -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; line-height: 1.6; letter-spacing: -0.3px;
       }
-      .login-box {
-        background: var(--card);
-        border-radius: 24px;
-        padding: 40px 32px;
-        width: 100%;
-        max-width: 380px;
-        box-shadow: var(--sh);
-        border: 1px solid var(--bdr);
-      }
-      .login-brand {
-        text-align: center;
-        margin-bottom: 30px;
-      }
-      .login-brand .cross {
-        font-size: 36px;
-        margin-bottom: 12px;
-      }
-      .login-brand h1 {
-        font-family: "Nanum Myeongjo", serif;
-        font-size: 24px;
-        color: var(--p);
-        font-weight: 800;
-      }
-      .login-brand p {
-        font-size: 14px;
-        color: var(--txt2);
-        margin-top: 6px;
-      }
-      .lf {
-        margin-bottom: 16px;
-      }
-      .ll {
-        display: block;
-        font-size: 13px;
+      
+      .login-bg{min-height:100vh;display:flex;align-items:center;justify-content:center;background:var(--bg);padding:24px;}
+      .login-box{background:var(--card);border-radius:24px;padding:48px 32px;width:100%;max-width:400px;box-shadow:var(--sh); border:1px solid var(--bdr);}
+      .login-brand{text-align:center;margin-bottom:32px;}
+      .login-brand .cross{font-size:40px;margin-bottom:12px;display:block;}
+      .login-brand h1{font-size:26px;color:var(--p);font-weight:800;letter-spacing:-0.5px;}
+      .login-brand p{font-size:15px;color:var(--txt2);margin-top:8px;}
+      .lf{margin-bottom:20px;}
+      .ll{display:block;font-size:14px;font-weight:600;color:var(--txt);margin-bottom:8px;}
+      .li{width:100%;padding:14px 16px;border:1.5px solid var(--bdr);border-radius:12px;font-size:16px;background:var(--bg2);color:var(--txt);outline:none;transition:all 0.2s; font-family: var(--font);}
+      .li:focus{border-color:var(--p);background:var(--card);box-shadow:0 0 0 3px rgba(90, 114, 92, 0.15);}
+      .login-err{font-size:13px;color:var(--err);min-height:18px;margin-bottom:12px;text-align:center; word-break:keep-all; line-height:1.4; font-weight: 500;}
+      .login-btn{width:100%;padding:16px;border:none;border-radius:12px;background:var(--p);color:#fff;font-size:17px;font-weight:700;cursor:pointer;transition:background 0.2s; font-family: var(--font);}
+      .login-btn:hover{background:var(--pd);}
+      
+      /* 헤더 */
+      .hdr{background:var(--card);color:var(--txt);padding:32px 20px 24px;text-align:center;position:relative;border-bottom:1px solid var(--bdr); border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: var(--sh); z-index: 10;}
+      .hdr h1{font-size:22px;font-weight:800;color:var(--p); letter-spacing:-0.3px;}
+      .hdr p{font-size:14px;color:var(--txt2);margin-top:6px; font-weight:500;}
+      .hdr-l{position:absolute;top:24px;left:16px;}
+      .hdr-r{position:absolute;top:24px;right:16px;display:flex;gap:8px;align-items:center;}
+      .ib{background:var(--bg2);border:1px solid var(--bdr);color:var(--txt);width:40px;height:40px;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s; font-size:18px;}
+      .user-chip{background:var(--plt);border:1px solid rgba(90,114,92,0.2);color:var(--pd);border-radius:10px;padding:6px 12px;font-size:14px;font-weight:700;}
+      
+      .sync-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;font-size:13px;font-weight:600;background:var(--bg2);border-bottom:1px solid var(--bdr); margin-top: -1px;}
+      .sync-bar.ok{background:#EBFBEE;color:#2B8A3E;}
+      .sync-bar.error{background:#FFF5F5;color:var(--err);}
+      body.dark .sync-bar.ok{background:#1B2B1E;color:#8ce99a;}
+      .sd{width:8px;height:8px;border-radius:50%;background:currentColor;}
+      @keyframes spin{ 100%{transform:rotate(360deg);} }
+      .sd.spin{ border-radius:50%; border:2px solid currentColor; border-top-color:transparent; background:transparent; animation:spin 1s linear infinite; }
+      
+      .cfg-panel{display:none;background:var(--card);border-bottom:1px solid var(--bdr);padding:20px;}
+      .cfg-panel.open{display:block;}
+      .url-row{display:flex;gap:8px;margin-top:12px;}
+      .url-inp{flex:1;padding:12px 14px;border:1.5px solid var(--bdr);border-radius:12px;font-size:14px;background:var(--bg2);color:var(--txt); font-family:var(--font);}
+      .btn-conn{padding:12px 18px;background:var(--p);color:#fff;border:none;border-radius:12px;font-weight:700;cursor:pointer;}
+      .btn-reset{width:100%; padding:12px; margin-top:12px; background:#FA5252; color:#fff; border:none; border-radius:12px; font-weight:700; cursor:pointer;}
+      .btn-debug{width:100%; padding:12px; margin-top:8px; background:#343A40; color:#fff; border:none; border-radius:12px; font-weight:700; cursor:pointer;}
+      
+      .sec{padding:20px;}
+      .card{background:var(--card);padding:20px;border-radius:var(--r);border:1px solid var(--bdr);margin-bottom:16px;box-shadow:var(--sh);}
+      
+      .stat-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:clamp(4px, 1.5vw, 12px);margin-bottom:16px;}
+      .stat-box{background:var(--card);padding:clamp(10px, 3vw, 16px) clamp(2px, 1vw, 8px);border-radius:16px;border:1px solid var(--bdr);text-align:center;box-shadow:var(--sh);}
+      .stat-v{font-size:clamp(15px, 4vw, 22px);font-weight:800;color:var(--p);}
+      .stat-l{font-size:clamp(10px, 2.5vw, 13px);font-weight:600;color:var(--txt2);margin-top:6px;}
+      
+      .cal-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;}
+      .cal-nav{background:var(--bg2);border:1px solid var(--bdr);color:var(--txt);width:36px;height:36px;border-radius:10px;cursor:pointer; font-weight:bold;}
+      .cal-mo{font-size:17px;font-weight:800; color:var(--txt);}
+      
+      .cal-dh-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: clamp(2px, 1.5vw, 8px); margin-bottom: 8px; width: 100%; }
+      .cal-dh { text-align: center; font-size: clamp(10px, 2.5vw, 12px); font-weight: 700; color: var(--txt2); padding: 4px 0; min-width: 0; }
+      
+      .cal-grid { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: clamp(2px, 1.5vw, 8px); width: 100%; }
+      
+      /* 달력 칸 크기 완벽 고정 */
+      .cal-day { 
+        aspect-ratio: 1 / 1; 
+        width: 100%; 
+        display: flex; 
+        flex-direction: column; 
+        align-items: center; 
+        justify-content: center; 
+        background: var(--bg2); 
+        border-radius: clamp(4px, 1.5vw, 10px); 
+        cursor: pointer; 
+        border: 2px solid transparent; 
+        transition: transform 0.1s;
+        font-size: clamp(11px, 2.8vw, 14px); 
         font-weight: 600;
-        color: var(--txt2);
-        margin-bottom: 6px;
+        min-height: 0; /* 내부 콘텐츠 때문에 크기가 틀어지는 것 방지 */
       }
-      .li {
-        width: 100%;
-        padding: 13px 14px;
-        border: 1.5px solid var(--bdr);
-        border-radius: 12px;
-        font-size: 15px;
-        background: var(--bg2);
-        color: var(--txt);
-        outline: none;
-        transition: all 0.2s;
-      }
-      .li:focus {
-        border-color: var(--p);
-        background: var(--card);
-        box-shadow: 0 0 0 3px var(--plt);
-      }
-      .login-err {
-        font-size: 13px;
-        color: var(--err);
-        min-height: 18px;
-        margin-bottom: 10px;
-        text-align: center;
-        word-break: keep-all;
-        line-height: 1.4;
-      }
-      .login-btn {
-        width: 100%;
-        padding: 14px;
-        border: none;
-        border-radius: 12px;
-        background: var(--p);
-        color: #fff;
-        font-size: 16px;
-        font-weight: 700;
-        cursor: pointer;
-        transition: background 0.2s;
-      }
-      .login-btn:hover {
-        background: var(--pd);
-      }
-      .login-btn:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
+      .cal-day:active { transform: scale(0.95); }
+      
+      /* 빈 칸은 보이지만 않을 뿐 내부에 숫자+점 공간은 그대로 차지함 */
+      .cal-day.empty { visibility: hidden; pointer-events: none; }
+      
+      .cal-day.today { border-color: var(--p); background: var(--card); }
+      .cal-day.rec { background: var(--plt); color: var(--pd); }
+      .cal-ck{font-size:clamp(8px, 2vw, 12px);margin-top:2px;color:var(--p);line-height:1;}
+      
+      @media (max-width: 400px) {
+        .sec { padding: 12px 8px; }
+        .card { padding: 16px 8px; }
       }
 
-      /* 헤더 & 싱크바 */
-      .hdr {
-        background: var(--card);
-        color: var(--txt);
-        padding: 24px 16px 16px;
-        text-align: center;
-        position: relative;
-        border-bottom: 1px solid var(--bdr);
-      }
-      .hdr h1 {
-        font-family: "Nanum Myeongjo", serif;
-        font-size: 20px;
-        font-weight: 800;
-        color: var(--p);
-      }
-      .hdr p {
-        font-size: 13px;
-        color: var(--txt2);
-        margin-top: 4px;
-      }
-      .hdr-l {
-        position: absolute;
-        top: 18px;
-        left: 12px;
-        display: flex;
-        gap: 6px;
-        align-items: center;
-      }
-      .hdr-r {
-        position: absolute;
-        top: 18px;
-        right: 12px;
-        display: flex;
-        gap: 6px;
-        align-items: center;
-      }
-      .ib {
-        background: var(--bg2);
-        border: 1px solid var(--bdr);
-        color: var(--txt);
-        width: 36px;
-        height: 36px;
-        border-radius: 50%;
-        cursor: pointer;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        transition: background 0.2s;
-      }
-      .ib:hover {
-        background: var(--bdr);
-      }
-      .user-chip {
-        background: var(--plt);
-        border: 1px solid var(--p);
-        color: var(--pd);
-        border-radius: 18px;
-        padding: 4px 12px;
-        font-size: 13px;
-        font-weight: 600;
-      }
-      body.dark .user-chip {
-        color: var(--txt);
-      }
+      .edit-banner{background:var(--plt);border:1px solid var(--p);border-radius:16px;padding:14px 18px;margin-bottom:16px;display:none;align-items:center;gap:10px;font-size:15px;color:var(--pd);font-weight:700;}
+      .edit-banner.on{display:flex;}
+      .cancel-edit{margin-left:auto;background:var(--card);border:1px solid var(--p);color:var(--pd);font-size:13px;padding:6px 14px;border-radius:20px;cursor:pointer; font-weight:700;}
+      .fg{margin-bottom:20px;}
+      .fl{display:block;margin-bottom:8px;font-weight:700;font-size:14px;color:var(--txt);}
+      .fi,.fs,.ft{width:100%;padding:14px;border:1.5px solid var(--bdr);border-radius:12px;font-size:16px;background:var(--bg2);color:var(--txt);font-family:var(--font);outline:none;}
+      .ft{min-height:120px;line-height:1.6;resize:none;}
+      .btn-save{width:100%;padding:16px;border:none;border-radius:14px;background:var(--p);color:#fff;font-size:17px;font-weight:700;cursor:pointer;}
+      
+      .rec-card{background:var(--card);border:1px solid var(--bdr);border-radius:20px;padding:24px;margin-bottom:18px;box-shadow:var(--sh);}
+      .rc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
+      .rc-date{font-size:13px;font-weight:700;color:var(--txt2);background:var(--bg2);padding:6px 12px;border-radius:8px;}
+      .rc-title{font-size:19px;font-weight:800;color:var(--txt);margin-bottom:14px; letter-spacing: -0.5px;}
+      .rc-verse-band { background: var(--bg2); border-left: 5px solid var(--p); padding: 16px 18px; margin: 0 0 16px 0; border-radius: 6px 12px 12px 6px; font-size: 16px; line-height: 1.6; font-weight: 600; color: var(--txt); word-break: keep-all;}
+      .rc-med{color:var(--txt);line-height:1.75;font-size:16px;margin-bottom:16px;white-space:pre-wrap; font-weight:400;}
+      .rc-acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px;border-top:1px solid var(--bdr);padding-top:20px;}
+      .btn-edit,.btn-del{padding:12px;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px; color:#fff; font-family:var(--font);}
+      .btn-edit{background:var(--p);} .btn-del{background:#E03131;}
+      .fav-btn{background:none;border:none;font-size:22px;cursor:pointer; padding:4px;}
+      
+      .srch-wrap{position:relative;margin-bottom:16px;}
+      .srch-inp{width:100%;padding:14px 14px 14px 44px;border:1.5px solid var(--bdr);border-radius:14px;font-size:15px;background:var(--card);color:var(--txt); font-family:var(--font);}
+      .srch-ico{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:18px;opacity:0.4;}
+      .empty{text-align:center;color:var(--txt2);font-weight:600; font-size:15px;}
+      .pagination { display:flex; justify-content:center; gap:8px; margin-top:24px; flex-wrap: wrap;}
+      .page-btn { padding:10px 16px; border:1px solid var(--bdr); background:var(--card); border-radius:10px; cursor:pointer; font-weight:700; color:var(--txt2); font-size:14px; font-family:var(--font);}
+      .page-btn.on { background:var(--p); color:#fff; border-color:var(--p); }
 
-      .sync-bar {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        gap: 8px;
-        padding: 8px 14px;
-        font-size: 12px;
-        font-weight: 600;
-        background: var(--bg2);
-        border-bottom: 1px solid var(--bdr);
-      }
-      .sync-bar.ok {
-        background: #e8f0ea;
-        color: #3f6b4c;
-      }
-      .sync-bar.error {
-        background: #fceeea;
-        color: var(--err);
-      }
-      body.dark .sync-bar.ok {
-        background: #26362b;
-        color: #7bc092;
-      }
-      body.dark .sync-bar.error {
-        background: #3d2524;
-        color: #e67a73;
-      }
-      .sd {
-        width: 8px;
-        height: 8px;
-        border-radius: 50%;
-        background: currentColor;
-      }
-      @keyframes spin {
-        100% {
-          transform: rotate(360deg);
-        }
-      }
-      .sd.spin {
-        border-radius: 50%;
-        border: 2px solid currentColor;
-        border-top-color: transparent;
-        background: transparent;
-        animation: spin 1s linear infinite;
-      }
+      .hdr.adm-hdr{border-bottom-color:var(--adm);}
+      .hdr.adm-hdr h1{color:var(--adm);}
+      .user-card{background:var(--card); border:1px solid var(--bdr); border-radius:12px; padding:16px; margin-bottom:10px; display:flex; gap:12px; align-items:center; box-shadow:var(--sh);}
+      .uc-info{flex:1;}
+      .uc-name{font-size:15px; font-weight:700;}
+      .uc-meta{font-size:12px; color:var(--txt2); margin-top:4px;}
+      .badge-adm{font-size:11px; padding:3px 8px; border-radius:12px; background:var(--adm); color:#fff; margin-left:6px; font-weight:700;}
+      
+      .page{display:none;} .page.on{display:block;}
+      .tab-bar{ position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:620px; background:var(--card); border-top:1px solid var(--bdr); display:flex; padding-bottom:env(safe-area-inset-bottom); z-index:100; box-shadow: 0 -4px 12px rgba(0,0,0,0.03);}
+      .tab-btn{flex:1;background:none;border:none;padding:16px 0;font-size:22px;color:var(--txt2);cursor:pointer; transition:all 0.2s; font-family:var(--font);}
+      .tab-btn.on{color:var(--p);} .tab-btn span{display:block;font-size:11px;font-weight:800;margin-top:6px; letter-spacing: 0;}
+      
+      .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(33,37,41,0.95);color:#fff;padding:14px 28px;border-radius:30px;font-size:14px;font-weight:700;z-index:1000;opacity:0;transition:all 0.3s; pointer-events:none; white-space:nowrap; box-shadow: 0 8px 24px rgba(0,0,0,0.2);}
+      .toast.show{opacity:1; bottom:110px;}
 
-      .cfg-panel {
-        display: none;
-        background: var(--card);
-        border-bottom: 1px solid var(--bdr);
-        padding: 16px;
-      }
-      .cfg-panel.open {
-        display: block;
-      }
-      .url-row {
-        display: flex;
-        gap: 8px;
-        margin-top: 10px;
-      }
-      .url-inp {
-        flex: 1;
-        padding: 10px 12px;
-        border: 1.5px solid var(--bdr);
-        border-radius: 10px;
-        font-size: 13px;
-        background: var(--bg2);
-        color: var(--txt);
-      }
-      .btn-conn {
-        padding: 10px 16px;
-        background: var(--p);
-        color: #fff;
-        border: none;
-        border-radius: 10px;
-        font-weight: 600;
-        cursor: pointer;
-      }
+      .overlay { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); display: none; align-items: center; justify-content: center; z-index: 999; padding: 20px; }
+      .modal-box { background: var(--card); border-radius: 20px; width: 100%; max-width: 340px; padding: 28px 24px; box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2); }
+      .modal-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 24px; }
+      .mbtn { padding: 14px; border-radius: 12px; font-size: 15px; font-weight: 700; cursor: pointer; border: none; font-family: var(--font); }
+      .mbtn-cancel { background: var(--bg2); color: var(--txt); }
+      .mbtn-adm { background: var(--adm); color: #fff; }
 
-      /* 공통 & 통계 & 달력 */
-      .sec {
-        padding: 16px;
-      }
-      .card {
-        background: var(--card);
-        padding: 18px;
-        border-radius: var(--r);
-        border: 1px solid var(--bdr);
-        margin-bottom: 14px;
-        box-shadow: var(--sh);
-      }
-      .stat-grid {
-        display: grid;
-        grid-template-columns: repeat(4, 1fr);
-        gap: 10px;
-        margin-bottom: 14px;
-      }
-      .stat-box {
-        background: var(--card);
-        padding: 14px 8px;
-        border-radius: var(--r);
-        border: 1px solid var(--bdr);
-        text-align: center;
-        box-shadow: var(--sh);
-      }
-      .stat-v {
-        font-size: 24px;
-        font-weight: 800;
-        color: var(--p);
-      }
-      .stat-l {
-        font-size: 12px;
-        font-weight: 500;
-        color: var(--txt2);
-        margin-top: 4px;
-      }
-
-      .cal-hdr {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 12px;
-      }
-      .cal-nav {
-        background: var(--bg2);
-        border: 1px solid var(--bdr);
-        color: var(--txt);
-        width: 32px;
-        height: 32px;
-        border-radius: 8px;
-        cursor: pointer;
-      }
-      .cal-mo {
-        font-size: 16px;
-        font-weight: 700;
-      }
-      .cal-grid {
-        display: grid;
-        grid-template-columns: repeat(7, minmax(0, 1fr));
-        gap: 4px;
-        width: 100%;
-      }
-      .cal-dh {
-        text-align: center;
-        padding: 6px 0;
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--txt2);
-      }
-      .cal-day {
-        position: relative;
-        width: 100%;
-        padding-bottom: 100%;
-        background: var(--bg);
-        border-radius: 8px;
-        cursor: pointer;
-      }
-      .cal-day-inner {
-        position: absolute;
-        inset: 0;
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        font-size: 13px;
-        font-weight: 500;
-      }
-      .cal-day.empty {
-        background: transparent;
-      }
-      .cal-day.today {
-        border-color: var(--p);
-        font-weight: 700;
-      }
-      .cal-day.rec {
-        background: var(--plt);
-        border-color: var(--p);
-      }
-      .cal-day.rec .cal-day-inner {
-        color: var(--pd);
-        font-weight: 700;
-      }
-      body.dark .cal-day.rec .cal-day-inner {
-        color: var(--txt);
-      }
-      .cal-ck {
-        font-size: 12px;
-        margin-top: 2px;
-        color: var(--p);
-        line-height: 1;
-      }
-
-      /* 폼 */
-      .edit-banner {
-        background: var(--plt);
-        border: 1px solid var(--p);
-        border-radius: var(--r);
-        padding: 12px 16px;
-        margin-bottom: 14px;
-        display: none;
-        align-items: center;
-        gap: 8px;
-        font-size: 14px;
-        color: var(--pd);
-        font-weight: 600;
-      }
-      body.dark .edit-banner {
-        color: var(--txt);
-      }
-      .edit-banner.on {
-        display: flex;
-      }
-      .cancel-edit {
-        margin-left: auto;
-        background: var(--card);
-        border: 1px solid var(--p);
-        color: var(--pd);
-        font-size: 12px;
-        padding: 4px 12px;
-        border-radius: 14px;
-        cursor: pointer;
-      }
-      .fg {
-        margin-bottom: 16px;
-      }
-      .fl {
-        display: block;
-        margin-bottom: 6px;
-        font-weight: 600;
-        font-size: 13px;
-        color: var(--txt2);
-      }
-      .fi,
-      .fs,
-      .ft {
-        width: 100%;
-        padding: 12px 14px;
-        border: 1.5px solid var(--bdr);
-        border-radius: 10px;
-        font-size: 15px;
-        background: var(--bg2);
-        color: var(--txt);
-        font-family: "Pretendard", sans-serif;
-        outline: none;
-      }
-      .fi:focus,
-      .fs:focus,
-      .ft:focus {
-        border-color: var(--p);
-        background: var(--card);
-      }
-      .ft {
-        min-height: 90px;
-        resize: vertical;
-      }
-      .btn-save {
-        width: 100%;
-        padding: 14px;
-        border: none;
-        border-radius: 12px;
-        background: var(--p);
-        color: #fff;
-        font-size: 16px;
-        font-weight: 700;
-        cursor: pointer;
-      }
-
-      /* 목록 카드 */
-      .rec-card {
-        background: var(--card);
-        border: 1px solid var(--bdr);
-        border-radius: var(--r);
-        padding: 20px;
-        margin-bottom: 14px;
-        position: relative;
-        box-shadow: var(--sh);
-      }
-      .rc-header {
-        display: flex;
-        justify-content: space-between;
-        align-items: flex-start;
-        margin-bottom: 12px;
-      }
-      .rc-date {
-        font-size: 13px;
-        font-weight: 600;
-        color: var(--txt2);
-        background: var(--bg2);
-        padding: 4px 10px;
-        border-radius: 6px;
-      }
-      .rc-title {
-        font-size: 18px;
-        font-weight: 700;
-        color: var(--txt);
-        margin-bottom: 12px;
-      }
-      .rc-verse-band {
-        background: var(--bg);
-        border-left: 4px solid var(--p);
-        padding: 14px 16px;
-        margin: 0 0 14px 0;
-        border-radius: 4px 8px 8px 4px;
-        font-size: 15px;
-        line-height: 1.6;
-        font-weight: 500;
-      }
-      .rc-med {
-        color: var(--txt);
-        line-height: 1.7;
-        font-size: 15px;
-        margin-bottom: 14px;
-        white-space: pre-wrap;
-      }
-      .rc-acts {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 8px;
-        margin-top: 16px;
-        border-top: 1px dashed var(--bdr);
-        padding-top: 16px;
-      }
-      .btn-edit,
-      .btn-del {
-        padding: 10px;
-        border: none;
-        border-radius: 8px;
-        font-weight: 600;
-        cursor: pointer;
-        font-size: 13px;
-        color: #fff;
-      }
-      .btn-edit {
-        background: var(--p);
-      }
-      .btn-del {
-        background: #a06c69;
-      }
-      .fav-btn {
-        background: none;
-        border: none;
-        font-size: 18px;
-        cursor: pointer;
-      }
-
-      .srch-wrap {
-        position: relative;
-        margin-bottom: 14px;
-      }
-      .srch-inp {
-        width: 100%;
-        padding: 12px 14px 12px 38px;
-        border: 1.5px solid var(--bdr);
-        border-radius: 12px;
-        font-size: 14px;
-        background: var(--card);
-        color: var(--txt);
-      }
-      .srch-ico {
-        position: absolute;
-        left: 12px;
-        top: 50%;
-        transform: translateY(-50%);
-        font-size: 16px;
-        opacity: 0.5;
-      }
-      .empty {
-        text-align: center;
-        padding: 40px 20px;
-        color: var(--txt2);
-        font-weight: 500;
-      }
-      .pagination {
-        display: flex;
-        justify-content: center;
-        gap: 8px;
-        margin-top: 20px;
-        flex-wrap: wrap;
-      }
-      .page-btn {
-        padding: 8px 14px;
-        border: 1px solid var(--bdr);
-        background: var(--card);
-        border-radius: 8px;
-        cursor: pointer;
-        font-weight: 600;
-        color: var(--txt2);
-        font-size: 14px;
-      }
-      .page-btn.on {
-        background: var(--p);
-        color: #fff;
-        border-color: var(--p);
-      }
-
-      /* 관리자 등 기타 */
-      .hdr.adm-hdr {
-        border-bottom-color: var(--adm);
-      }
-      .hdr.adm-hdr h1 {
-        color: var(--adm);
-      }
-      .user-card {
-        background: var(--card);
-        border: 1px solid var(--bdr);
-        border-radius: 12px;
-        padding: 16px;
-        margin-bottom: 10px;
-        display: flex;
-        gap: 12px;
-        align-items: center;
-        box-shadow: var(--sh);
-      }
-      .uc-info {
-        flex: 1;
-      }
-      .uc-name {
-        font-size: 15px;
-        font-weight: 700;
-      }
-      .uc-meta {
-        font-size: 12px;
-        color: var(--txt2);
-        margin-top: 4px;
-      }
-      .badge-adm {
-        font-size: 11px;
-        padding: 3px 8px;
-        border-radius: 12px;
-        background: var(--adm);
-        color: #fff;
-        margin-left: 6px;
-        font-weight: 600;
-      }
-      .bsm {
-        padding: 8px 12px;
-        border: none;
-        border-radius: 8px;
-        font-size: 12px;
-        font-weight: 600;
-        color: #fff;
-        cursor: pointer;
-      }
-      .bsm-e {
-        background: var(--p);
-      }
-      .bsm-d {
-        background: #a06c69;
-      }
-
-      .page {
-        display: none;
-      }
-      .page.on {
-        display: block;
-      }
-      .tab-bar {
-        position: fixed;
-        bottom: 0;
-        left: 50%;
-        transform: translateX(-50%);
-        width: 100%;
-        max-width: 620px;
-        background: var(--card);
-        border-top: 1px solid var(--bdr);
-        display: flex;
-        padding-bottom: env(safe-area-inset-bottom);
-        z-index: 100;
-      }
-      .tab-btn {
-        flex: 1;
-        background: none;
-        border: none;
-        padding: 14px 0;
-        font-size: 20px;
-        color: var(--txt2);
-        cursor: pointer;
-        opacity: 0.5;
-        transition: all 0.2s;
-      }
-      .tab-btn.on {
-        color: var(--p);
-        opacity: 1;
-      }
-      .tab-btn span {
-        display: block;
-        font-size: 11px;
-        font-weight: 700;
-        margin-top: 6px;
-      }
-      .toast {
-        position: fixed;
-        bottom: 90px;
-        left: 50%;
-        transform: translateX(-50%);
-        background: rgba(44, 48, 43, 0.9);
-        color: #fff;
-        padding: 12px 24px;
-        border-radius: 24px;
-        font-size: 14px;
-        font-weight: 600;
-        z-index: 1000;
-        opacity: 0;
-        transition: all 0.3s;
-        pointer-events: none;
-        white-space: nowrap;
-        max-width: 580px;
-      }
-      .toast.show {
-        opacity: 1;
-      }
-      body.dark .toast {
-        background: rgba(228, 230, 227, 0.9);
-        color: #1a1b1a;
-      }
-
-      .overlay {
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.6);
-        display: none;
-        align-items: center;
-        justify-content: center;
-        z-index: 999;
-        padding: 20px;
-      }
-      .modal-box {
-        background: var(--card);
-        border-radius: 20px;
-        width: 100%;
-        max-width: 340px;
-        padding: 24px;
-        box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-      }
-      .modal-btns {
-        display: grid;
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
-        margin-top: 20px;
-      }
-      .mbtn {
-        padding: 12px;
-        border-radius: 10px;
-        font-size: 14px;
-        font-weight: 700;
-        cursor: pointer;
-        border: none;
-      }
-      .mbtn-cancel {
-        background: var(--bg2);
-        color: var(--txt);
-      }
-      .mbtn-adm {
-        background: var(--adm);
-        color: #fff;
-      }
+      #debugPanel { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); z-index: 99999; padding: 20px; flex-direction: column; }
+      #debugText { flex: 1; background: #1e1e1e; color: #0f0; font-family: monospace; font-size: 12px; padding: 10px; border-radius: 8px; overflow-y: auto; white-space: pre-wrap; word-break: break-all; }
+      .debug-btns { display: flex; gap: 10px; margin-top: 10px; }
+      .db-btn { flex: 1; padding: 12px; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; }
     </style>
   </head>
   <body>
+    <div id="debugPanel">
+      <h3 style="color: #fff; margin-bottom: 10px;">🛠️ 디버그 로그</h3>
+      <div id="debugText"></div>
+      <div class="debug-btns">
+        <button class="db-btn" style="background:#4dabf7; color:#fff;" onclick="copyDebug()">로그 복사하기</button>
+        <button class="db-btn" style="background:#e03131; color:#fff;" onclick="closeDebug()">닫기</button>
+      </div>
+    </div>
+
     <div id="loginScreen">
       <div class="login-bg">
         <div class="login-box">
-          <div class="login-brand">
-            <div class="cross">🌿</div>
-            <h1>성경 통독 기록장</h1>
-          </div>
+          <div class="login-brand"><span class="cross">🌿</span><h1>성경 통독 기록장</h1></div>
           <form onsubmit="doLogin(event)">
-            <div class="lf">
-              <label class="ll">아이디</label
-              ><input id="loginId" class="li" type="text" required />
-            </div>
-            <div class="lf">
-              <label class="ll">비밀번호</label
-              ><input id="loginPw" class="li" type="password" required />
-            </div>
+            <div class="lf"><label class="ll">아이디</label><input id="loginId" class="li" type="text" placeholder="아이디 입력" required /></div>
+            <div class="lf"><label class="ll">비밀번호</label><input id="loginPw" class="li" type="password" placeholder="비밀번호 입력" required /></div>
             <div class="login-err" id="loginErr"></div>
-            <button id="loginBtn" class="login-btn" type="submit">
-              로그인
-            </button>
+            <button id="loginBtn" class="login-btn" type="submit">로그인하기</button>
           </form>
+          <div style="text-align:center; margin-top:20px;">
+            <button onclick="toggleCfg()" style="background:none; border:none; color:var(--txt2); font-size:13px; text-decoration:underline; cursor:pointer;">서버 설정 및 디버그</button>
+          </div>
         </div>
       </div>
     </div>
 
     <div id="appScreen" style="display: none">
-      <div class="sync-bar" id="syncBar">
-        <div class="sd" id="syncDot"></div>
-        <span id="syncTxt">연결 대기중...</span>
+      <div class="hdr">
+        <div class="hdr-l"><button class="ib" onclick="toggleDark()">🌓</button></div>
+        <div class="hdr-r"><div class="user-chip" id="userChip">사용자</div><button class="ib" onclick="toggleCfg()">⚙️</button></div>
+        <h1>기록 요약</h1><p>성실하게 통독 중입니다</p>
       </div>
+
+      <div class="sync-bar" id="syncBar"><div class="sd" id="syncDot"></div><span id="syncTxt">연결 중...</span></div>
+      
       <div class="cfg-panel" id="cfgPanel">
-        <h3 style="font-size: 15px; margin-bottom: 10px">⚙️ GAS 연동 주소</h3>
-        <p
-          style="
-            font-size: 12px;
-            color: var(--err);
-            margin-bottom: 10px;
-            word-break: keep-all;
-          "
-        >
-          * 통신 에러 발생시 GAS 배포 설정이 <b>'모든 사람(Anyone)'</b>인지 꼭
-          확인하세요!
-        </p>
-        <div class="url-row">
-          <input class="url-inp" id="gasUrlInput" type="text" /><button
-            class="btn-conn"
-            onclick="connectGAS()"
-          >
-            연결
-          </button>
-        </div>
+        <h3 style="font-size:16px; font-weight:800; margin-bottom:10px;">⚙️ 서버 설정</h3>
+        <p style="font-size:13px; color:var(--err); line-height:1.4; font-weight:600;">* 배포 시 반드시 '모든 사용자(Anyone)' 권한이어야 합니다.</p>
+        <div class="url-row"><input class="url-inp" id="gasUrlInput" type="text" placeholder="https://script.google.com/..." /><button class="btn-conn" onclick="connectGAS()">저장</button></div>
+        <button class="btn-debug" onclick="openDebug()">🛠️ 디버그 로그 보기</button>
+        <button class="btn-reset" onclick="hardReset()">🔄 데이터 초기화 및 재로그인</button>
       </div>
 
       <div class="page on" id="pgHome">
-        <div class="hdr">
-          <div class="hdr-l">
-            <button class="ib" onclick="toggleDark()">🌓</button>
-          </div>
-          <div class="hdr-r">
-            <div class="user-chip" id="userChip"></div>
-            <button class="ib" onclick="toggleCfg()">⚙️</button>
-          </div>
-          <h1>성경통독 기록장</h1>
-          <p>나의 통독 요약</p>
-        </div>
         <div class="sec">
           <div class="stat-grid">
-            <div class="stat-box">
-              <div class="stat-v" id="stTotal">0</div>
-              <div class="stat-l">전체</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-v" id="stMonth">0</div>
-              <div class="stat-l">이번 달</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-v" id="stStreak">0</div>
-              <div class="stat-l">🔥 연속</div>
-            </div>
-            <div class="stat-box">
-              <div class="stat-v" id="stFav">0</div>
-              <div class="stat-l">⭐ 즐겨찾기</div>
-            </div>
+            <div class="stat-box"><div class="stat-v" id="stTotal">0</div><div class="stat-l">전체</div></div>
+            <div class="stat-box"><div class="stat-v" id="stMonth">0</div><div class="stat-l">이번 달</div></div>
+            <div class="stat-box"><div class="stat-v" id="stStreak">0</div><div class="stat-l">연속</div></div>
+            <div class="stat-box"><div class="stat-v" id="stFav">0</div><div class="stat-l">즐겨찾기</div></div>
           </div>
           <div class="card">
             <div class="cal-hdr">
-              <button class="cal-nav" onclick="chgHomeMo(-1)">◀</button>
+              <button class="cal-nav" onclick="chgHomeMo(-1)">‹</button>
               <div class="cal-mo" id="homeMoLabel"></div>
-              <button class="cal-nav" onclick="chgHomeMo(1)">▶</button>
+              <button class="cal-nav" onclick="chgHomeMo(1)">›</button>
+            </div>
+            
+            <div class="cal-dh-row">
+              <div class="cal-dh">일</div><div class="cal-dh">월</div><div class="cal-dh">화</div><div class="cal-dh">수</div><div class="cal-dh">목</div><div class="cal-dh">금</div><div class="cal-dh">토</div>
             </div>
             <div class="cal-grid" id="homeCal"></div>
+            
           </div>
         </div>
       </div>
 
       <div class="page" id="pgWrite">
-        <div class="hdr"><h1>✍️ 기록하기</h1></div>
         <div class="sec">
-          <div class="edit-banner" id="editBanner">
-            ✏️ 수정 중<button class="cancel-edit" onclick="cancelEdit()">
-              취소
-            </button>
-          </div>
+          <div class="edit-banner" id="editBanner">✏️ 기록 수정 중<button class="cancel-edit" onclick="cancelEdit()">취소</button></div>
           <div class="card">
             <form id="writeForm" onsubmit="saveRecord(event)">
-              <div class="fg">
-                <label class="fl">📅 날짜 (필수)</label
-                ><input id="fDate" class="fi" type="date" required />
-              </div>
-              <div class="fg">
-                <label class="fl">📚 성경 책 (필수)</label>
+              <div class="fg"><label class="fl">📅 날짜</label><input id="fDate" class="fi" type="date" required /></div>
+              <div class="fg"><label class="fl">📚 성경 책</label>
                 <select id="fBook" class="fs" required>
-                  <option value="">선택하세요</option>
-                  <option>창세기</option>
-                  <option>탈출기</option>
-                  <option>레위기</option>
-                  <option>민수기</option>
-                  <option>신명기</option>
-                  <option>여호수아기</option>
-                  <option>판관기</option>
-                  <option>룻기</option>
-                  <option>사무엘기 상권</option>
-                  <option>사무엘기 하권</option>
-                  <option>열왕기 상권</option>
-                  <option>열왕기 하권</option>
-                  <option>역대기 상권</option>
-                  <option>역대기 하권</option>
-                  <option>에즈라기</option>
-                  <option>느헤미야기</option>
-                  <option>토빗기</option>
-                  <option>유딧기</option>
-                  <option>에스테르기</option>
-                  <option>마카베오기 상권</option>
-                  <option>마카베오기 하권</option>
-                  <option>욥기</option>
-                  <option>시편</option>
-                  <option>잠언</option>
-                  <option>코헬렛</option>
-                  <option>아가</option>
-                  <option>지혜서</option>
-                  <option>집회서</option>
-                  <option>이사야서</option>
-                  <option>예레미야서</option>
-                  <option>애가</option>
-                  <option>바룩서</option>
-                  <option>에제키엘서</option>
-                  <option>다니엘서</option>
-                  <option>호세아서</option>
-                  <option>요엘서</option>
-                  <option>아모스서</option>
-                  <option>오바드야서</option>
-                  <option>요나서</option>
-                  <option>미카서</option>
-                  <option>나훔서</option>
-                  <option>하바쿡서</option>
-                  <option>스바니야서</option>
-                  <option>하까이서</option>
-                  <option>즈카르야서</option>
-                  <option>말라키서</option>
-                  <option>마태오 복음서</option>
-                  <option>마르코 복음서</option>
-                  <option>루카 복음서</option>
-                  <option>요한 복음서</option>
-                  <option>사도행전</option>
-                  <option>로마서</option>
-                  <option>코린토 1서</option>
-                  <option>코린토 2서</option>
-                  <option>갈라티아서</option>
-                  <option>에페소서</option>
-                  <option>필리피서</option>
-                  <option>콜로새서</option>
-                  <option>테살로니카 1서</option>
-                  <option>테살로니카 2서</option>
-                  <option>티모테오 1서</option>
-                  <option>티모테오 2서</option>
-                  <option>티토서</option>
-                  <option>필레몬서</option>
-                  <option>히브리서</option>
-                  <option>야고보서</option>
-                  <option>베드로 1서</option>
-                  <option>베드로 2서</option>
-                  <option>요한 1서</option>
-                  <option>요한 2서</option>
-                  <option>요한 3서</option>
-                  <option>유다서</option>
-                  <option>요한 묵시록</option>
+                  <option value="">성경 선택</option>
+                  <optgroup label="구약성경">
+                    <option>창세기</option><option>탈출기</option><option>레위기</option><option>민수기</option><option>신명기</option>
+                    <option>여호수아기</option><option>판관기</option><option>룻기</option><option>사무엘기 상권</option><option>사무엘기 하권</option>
+                    <option>열왕기 상권</option><option>열왕기 하권</option><option>역대기 상권</option><option>역대기 하권</option><option>에즈라기</option>
+                    <option>느헤미야기</option><option>토빗기</option><option>유딧기</option><option>에스테르기</option><option>마카베오기 상권</option><option>마카베오기 하권</option>
+                    <option>욥기</option><option>시편</option><option>잠언</option><option>코헬렛</option><option>아가</option><option>지혜서</option><option>집회서</option>
+                    <option>이사야서</option><option>예레미야서</option><option>애가</option><option>바룩서</option><option>에제키엘서</option><option>다니엘서</option>
+                    <option>호세아서</option><option>요엘서</option><option>아모스서</option><option>오바드야서</option><option>요나서</option><option>미카서</option>
+                    <option>나훔서</option><option>하바쿡서</option><option>스바니야서</option><option>하까이서</option><option>즈카르야서</option><option>말라키서</option>
+                  </optgroup>
+                  <optgroup label="신약성경">
+                    <option>마태오 복음서</option><option>마르코 복음서</option><option>루카 복음서</option><option>요한 복음서</option><option>사도행전</option>
+                    <option>로마서</option><option>코린토 1서</option><option>코린토 2서</option><option>갈라티아서</option><option>에페소서</option>
+                    <option>필리피서</option><option>콜로새서</option><option>테살로니카 1서</option><option>테살로니카 2서</option><option>티모테오 1서</option>
+                    <option>티모테오 2서</option><option>티토서</option><option>필레몬서</option><option>히브리서</option>
+                    <option>야고보서</option><option>베드로 1서</option><option>베드로 2서</option><option>요한 1서</option><option>요한 2서</option>
+                    <option>요한 3서</option><option>유다서</option><option>요한 묵시록</option>
+                  </optgroup>
                 </select>
               </div>
-              <div style="display: flex; gap: 10px">
-                <div class="fg" style="flex: 1">
-                  <label class="fl">장</label
-                  ><input
-                    id="fChapter"
-                    class="fi"
-                    type="number"
-                    min="1"
-                    required
-                  />
-                </div>
-                <div class="fg" style="flex: 1">
-                  <label class="fl">절 (선택)</label
-                  ><input id="fVerse" class="fi" type="text" />
-                </div>
+              <div style="display:flex; gap:12px;">
+                <div class="fg" style="flex:1;"><label class="fl">장</label><input id="fChapter" class="fi" type="number" min="1" placeholder="장" required /></div>
+                <div class="fg" style="flex:1;"><label class="fl">절 (선택)</label><input id="fVerse" class="fi" type="text" placeholder="예: 1-10" /></div>
               </div>
-              <div class="fg">
-                <label class="fl">📖 구절 내용</label
-                ><textarea id="fVerseText" class="ft" required></textarea>
-              </div>
-              <div class="fg">
-                <label class="fl">💭 묵상</label
-                ><textarea id="fMed" class="ft"></textarea>
-              </div>
-              <div class="fg">
-                <label
-                  style="font-weight: 600; font-size: 14px; cursor: pointer"
-                  ><input type="checkbox" id="fFav" /> ⭐ 즐겨찾기</label
-                >
-              </div>
-              <button id="btnSave" class="btn-save" type="submit">
-                💾 저장하기
-              </button>
+              <div class="fg"><label class="fl">📖 구절 내용</label><textarea id="fVerseText" class="ft" placeholder="핵심 구절을 적어보세요" required></textarea></div>
+              <div class="fg"><label class="fl">💭 묵상</label><textarea id="fMed" class="ft" placeholder="느낀 점을 자유롭게 적어보세요"></textarea></div>
+              <div class="fg"><label style="font-weight:700; font-size:15px; cursor:pointer; display:flex; align-items:center; gap:8px;"><input type="checkbox" id="fFav" style="width:18px; height:18px; accent-color:var(--p);"> ⭐ 이 기록을 즐겨찾기에 추가</label></div>
+              <button id="btnSave" class="btn-save" type="submit">💾 기록 저장하기</button>
             </form>
           </div>
         </div>
       </div>
 
       <div class="page" id="pgList">
-        <div class="hdr"><h1>📖 나의 기록</h1></div>
         <div class="sec">
-          <div class="card" style="padding: 12px 16px; margin-bottom: 14px">
-            <div class="cal-hdr" style="margin-bottom: 0">
-              <button class="cal-nav" onclick="chgListMo(-1)">◀</button>
-              <div class="cal-mo" id="listMoLabel"></div>
-              <button class="cal-nav" onclick="chgListMo(1)">▶</button>
-            </div>
-          </div>
-          <div class="srch-wrap">
-            <span class="srch-ico">🔍</span
-            ><input
-              class="srch-inp"
-              id="srchInput"
-              type="search"
-              placeholder="검색"
-              oninput="renderList(1)"
-            />
-          </div>
+          <div class="card" style="padding:14px 20px; margin-bottom:16px;"><div class="cal-hdr" style="margin-bottom:0;"><button class="cal-nav" onclick="chgListMo(-1)">‹</button><div class="cal-mo" id="listMoLabel"></div><button class="cal-nav" onclick="chgListMo(1)">›</button></div></div>
+          <div class="srch-wrap"><span class="srch-ico">🔍</span><input class="srch-inp" id="srchInput" type="search" placeholder="기록 내용이나 성경 제목 검색" oninput="renderList(1)" /></div>
           <div id="recList"></div>
         </div>
       </div>
 
       <div class="page" id="pgProfile">
-        <div class="hdr"><h1>👤 내 프로필</h1></div>
         <div class="sec">
           <div class="card">
+            <h2 style="margin-bottom:20px; color:var(--txt);">👤 계정 설정</h2>
             <form onsubmit="updateProfile(event)">
-              <div class="fg">
-                <label class="fl">아이디</label
-                ><input id="pId" class="li" type="text" disabled />
-              </div>
-              <div class="fg">
-                <label class="fl">새 비밀번호</label
-                ><input id="pPw" class="fi" type="password" />
-              </div>
-              <div class="fg">
-                <label class="fl">이름</label
-                ><input id="pName" class="fi" type="text" required />
-              </div>
-              <div class="fg">
-                <label class="fl">세례명</label
-                ><input id="pBaptism" class="fi" type="text" />
-              </div>
-              <button class="btn-save" type="submit">수정</button>
+              <div class="fg"><label class="fl">아이디</label><input id="pId" class="li" type="text" disabled /></div>
+              <div class="fg"><label class="fl">비밀번호 변경 (입력시에만 변경)</label><input id="pPw" class="fi" type="password" placeholder="새 비밀번호" /></div>
+              <div class="fg"><label class="fl">이름</label><input id="pName" class="fi" type="text" required /></div>
+              <div class="fg"><label class="fl">세례명</label><input id="pBaptism" class="fi" type="text" /></div>
+              <button class="btn-save" type="submit">회원정보 수정</button>
             </form>
           </div>
-          <button
-            class="btn-del"
-            style="width: 100%; padding: 16px; margin-top: 20px"
-            onclick="doLogout()"
-          >
-            로그아웃
-          </button>
+          <button class="btn-del" style="width:100%; padding:18px; margin-top:16px; background:#495057;" onclick="doLogout()">로그아웃</button>
         </div>
       </div>
 
       <div class="page" id="pgAdmin">
-        <div class="hdr adm-hdr"><h1>👑 관리자</h1></div>
         <div class="sec">
           <div class="card">
-            <div
-              style="
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-                margin-bottom: 16px;
-              "
-            >
-              <div style="font-weight: 700; color: var(--adm)">
-                👥 사용자 목록
-              </div>
-              <button
-                class="btn-save"
-                style="width: auto; padding: 8px 14px; background: var(--adm)"
-                onclick="openUserModal()"
-              >
-                ➕ 추가
-              </button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:16px;">
+              <div style="font-weight:800; font-size:18px; color:var(--adm);">👑 사용자 목록</div>
+              <button class="btn-save" style="width:auto; padding:10px 16px; background:var(--adm); border-radius:10px;" onclick="openUserModal()">➕ 추가</button>
             </div>
             <div id="admUserList"></div>
           </div>
@@ -1101,587 +321,348 @@
       </div>
 
       <div class="tab-bar">
-        <button id="tabHome" class="tab-btn on" onclick="goPage('Home')">
-          🏠<span>홈</span>
-        </button>
-        <button id="tabWrite" class="tab-btn" onclick="goPage('Write')">
-          ✍️<span>기록</span>
-        </button>
-        <button id="tabList" class="tab-btn" onclick="goPage('List')">
-          📖<span>목록</span>
-        </button>
-        <button id="tabProfile" class="tab-btn" onclick="goPage('Profile')">
-          👤<span>계정</span>
-        </button>
-        <button
-          id="tabAdmin"
-          class="tab-btn"
-          onclick="goPage('Admin')"
-          style="display: none"
-        >
-          👑<span>관리</span>
-        </button>
+        <button id="tabHome" class="tab-btn on" onclick="goPage('Home')">🏠<span>홈</span></button>
+        <button id="tabWrite" class="tab-btn" onclick="goPage('Write')">✍️<span>기록</span></button>
+        <button id="tabList" class="tab-btn" onclick="goPage('List')">📖<span>목록</span></button>
+        <button id="tabProfile" class="tab-btn" onclick="goPage('Profile')">👤<span>계정</span></button>
+        <button id="tabAdmin" class="tab-btn" onclick="goPage('Admin')" style="display:none;">👑<span>관리</span></button>
       </div>
-
-      <div id="toast" class="toast">알림</div>
+      
+      <div id="toast" class="toast">알림 메시지</div>
 
       <div class="overlay" id="userModal">
         <div class="modal-box">
-          <h3 id="umTitle">사용자 관리</h3>
-          <div class="fg">
-            <label class="fl">ID</label
-            ><input id="uId" class="fi" type="text" />
-          </div>
-          <div class="fg">
-            <label class="fl">PW</label
-            ><input id="uPw" class="fi" type="password" />
-          </div>
-          <div class="fg">
-            <label class="fl">이름</label
-            ><input id="uName" class="fi" type="text" />
-          </div>
-          <div class="fg">
-            <label class="fl">세례명</label
-            ><input id="uBaptism" class="fi" type="text" />
-          </div>
-          <div class="fg">
-            <label class="fl">권한</label
-            ><select id="uRole" class="fs">
-              <option value="user">일반</option>
-              <option value="admin">관리자</option>
-            </select>
+          <h3 id="umTitle" style="font-weight: 800; font-size: 20px; margin-bottom: 20px;">사용자 관리</h3>
+          <div class="fg"><label class="fl">ID</label><input id="uId" class="fi" type="text" /></div>
+          <div class="fg"><label class="fl">PW</label><input id="uPw" class="fi" type="password" placeholder="변경시에만 입력" /></div>
+          <div class="fg"><label class="fl">이름</label><input id="uName" class="fi" type="text" /></div>
+          <div class="fg"><label class="fl">세례명</label><input id="uBaptism" class="fi" type="text" /></div>
+          <div class="fg"><label class="fl">권한</label>
+            <select id="uRole" class="fs"><option value="user">일반 사용자</option><option value="admin">관리자</option></select>
           </div>
           <div class="modal-btns">
-            <button
-              class="mbtn mbtn-cancel"
-              onclick="$('userModal').style.display = 'none'"
-            >
-              취소
-            </button>
-            <button class="mbtn mbtn-adm" onclick="saveAdminUser()">
-              저장
-            </button>
+            <button class="mbtn mbtn-cancel" type="button" onclick="$('userModal').style.display='none'">취소</button>
+            <button class="mbtn mbtn-adm" type="button" onclick="saveAdminUser()">저장</button>
           </div>
         </div>
       </div>
+
     </div>
 
     <script>
       const $ = (id) => document.getElementById(id);
-      let me = null,
-        gasUrl = "",
-        gasOk = false;
-      let recs = [],
-        adminUsers = [];
-      let homeY,
-        homeMo,
-        editId = null,
-        umEditId = null;
-      let listY,
-        listMo,
-        listPage = 1;
-      const listPerPage = 5;
+      let me = null, gasUrl = "", gasOk = false, recs = [], adminUsers = [];
+      let homeY, homeMo, editId = null, umEditId = null;
+      let listY, listMo, listPage = 1; const listPerPage = 5;
+
+      // 디버거 로직
+      function logD(msg) {
+        const dText = $("debugText");
+        const time = new Date().toLocaleTimeString();
+        dText.innerHTML += `[${time}] ${msg}\n`;
+        dText.scrollTop = dText.scrollHeight;
+        console.log(`[DEBUG] ${msg}`);
+      }
+      function openDebug() { $("debugPanel").style.display = "flex"; }
+      function closeDebug() { $("debugPanel").style.display = "none"; }
+      function copyDebug() {
+        navigator.clipboard.writeText($("debugText").innerText).then(()=>alert("복사되었습니다. AI에게 전달해주세요!"));
+      }
 
       function getLocalToday() {
-        const d = new Date(),
-          offset = d.getTimezoneOffset() * 60000;
+        const d = new Date(), offset = d.getTimezoneOffset() * 60000;
         return new Date(d.getTime() - offset).toISOString().slice(0, 10);
       }
 
-      // ★ 에러 원인 1 완벽 차단: 어떤 텍스트가 와도 강제로 "YYYY-MM-DD" 형태로 파싱
-      function parseDateStr(dStr) {
-        if (!dStr) return "";
-        let s = String(dStr)
-          .replace(/\s*\(.*\)$/, "")
-          .trim(); // "(한국 표준시)" 제거
-        let d = new Date(s);
-        if (!isNaN(d.getTime())) {
-          return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-        }
-        return s; // 변환 실패시 원본 반환
+      function getSafeStorage(key) {
+        const val = localStorage.getItem(key);
+        return (!val || val === "undefined" || val === "null") ? "" : val;
       }
 
-      // ★ 에러 원인 2 완벽 차단: CORS 차단을 막기 위해 "text/plain" 헤더 강제 지정
-      async function gasCall(payload, isGet = false) {
-        if (!gasUrl)
-          throw new Error(
-            "GAS 주소가 설정되지 않았습니다. 우측 상단 ⚙️버튼을 눌러 설정해주세요.",
-          );
-
-        payload.token = localStorage.getItem("bb_token") || "";
-        payload.userId = localStorage.getItem("bb_uid") || "";
-        if (
-          ["userList", "userAdd", "userUpdate", "userDelete"].includes(
-            payload.action,
-          )
-        )
-          payload.adminId = payload.userId;
-
-        const ctl = new AbortController(),
-          tmr = setTimeout(() => ctl.abort(), 15000);
+      // GAS 통신
+      async function gasCall(payload) {
+        logD("--- API 호출 시작 ---");
+        if (!gasUrl) throw new Error("설정(⚙️)에서 GAS 주소를 먼저 연결해주세요.");
+        
+        payload.token = getSafeStorage("bb_token");
+        payload.uid = getSafeStorage("bb_uid"); 
+        
+        logD("URL: " + gasUrl);
+        logD("Action: " + payload.action);
+        
+        const ctl = new AbortController();
+        const tmr = setTimeout(() => ctl.abort(), 20000); 
+        
         try {
-          // preflight(사전 요청) 차단을 막기 위해 charset=utf-8 등을 제거한 순수 text/plain 사용
-          const opt = isGet
-            ? { redirect: "follow" }
-            : {
-                method: "POST",
-                body: JSON.stringify(payload),
-                headers: { "Content-Type": "text/plain" },
-                redirect: "follow",
-              };
-          const url = isGet
-            ? `${gasUrl}?${new URLSearchParams(payload)}`
-            : gasUrl;
-          const res = await fetch(url, opt);
+          const res = await fetch(gasUrl, { 
+            method: "POST",
+            redirect: "follow",
+            body: JSON.stringify(payload),
+            headers: { "Content-Type": "text/plain;charset=utf-8" }, 
+            signal: ctl.signal
+          }); 
           clearTimeout(tmr);
-
-          if (!res.ok) throw new Error(`HTTP ${res.status}`);
-          const json = await res.json();
-          if (!json.ok) throw new Error(json.error || "GAS 반환 에러");
-          return json.data;
-        } catch (e) {
-          clearTimeout(tmr);
-          throw e;
-        }
-      }
-
-      async function doLogin(e) {
-        e.preventDefault();
-        const id = $("loginId").value.trim(),
-          pw = $("loginPw").value.trim(),
-          btn = $("loginBtn");
-        btn.disabled = true;
-        btn.textContent = "확인 중...";
-        try {
-          const data = await gasCall({ action: "userAuth", id, pw });
-          me = data;
-          localStorage.setItem("bb_uid", me.id);
-          localStorage.setItem("bb_token", me.token);
-          localStorage.setItem("bb_me", JSON.stringify(me));
-          loginOk();
-        } catch (err) {
-          // Failed to fetch 에러가 발생하면 친절한 안내 문구 출력
-          if (
-            err.message.includes("Failed to fetch") ||
-            err.name === "TypeError"
-          ) {
-            $("loginErr").innerHTML =
-              "서버 통신 실패 (CORS)<br>구글 앱스 스크립트 배포 설정이 <b>'모든 사람'</b>인지 확인하세요.";
-          } else {
-            $("loginErr").textContent = "로그인 실패: " + err.message;
+          
+          logD("HTTP 상태: " + res.status);
+          if(!res.ok) throw new Error(`서버 응답 에러 (${res.status})`);
+          
+          const text = await res.text();
+          if (text.includes("<html") || text.includes("Sign in - Google Accounts")) {
+             throw new Error("CORS_HTML_ERROR");
           }
-        } finally {
-          btn.disabled = false;
-          btn.textContent = "로그인";
+          
+          let json;
+          try { json = JSON.parse(text); } catch(err) { throw new Error("서버가 올바르지 않은 응답을 보냈습니다."); }
+
+          if (!json.ok) {
+            const errMsg = json.error || "알 수 없는 에러";
+            if (errMsg.includes("권한") || errMsg.includes("로그인") || errMsg.includes("AUTH_FAIL")) {
+              hardReset();
+              throw new Error("세션이 만료되었습니다. 다시 로그인 해주세요.");
+            }
+            throw new Error(errMsg);
+          }
+          return json.data;
+
+        } catch (e) { 
+          clearTimeout(tmr); 
+          logD("🚨 예외 잡힘: " + e.message);
+          if (e.message === "CORS_HTML_ERROR") {
+             openDebug(); 
+             throw new Error("🚨 구글 스크립트 배포 설정 오류입니다.");
+          }
+          throw e; 
         }
+      }
+
+      function hardReset() {
+        const tempGas = localStorage.getItem("bb_gas");
+        localStorage.clear();
+        if(tempGas) localStorage.setItem("bb_gas", tempGas);
+        location.reload();
+      }
+
+      async function doLogin(event) {
+        event.preventDefault();
+        const id = $("loginId").value.trim(), pw = $("loginPw").value.trim(), btn = $("loginBtn");
+        btn.disabled = true; btn.textContent = "통신 중...";
+        logD("👉 로그인 시도: " + id);
+        try {
+          const data = await gasCall({ action: "userAuth", id: id, pw: pw });
+          me = data;
+          localStorage.setItem("bb_uid", me.id); 
+          localStorage.setItem("bb_token", me.token); 
+          localStorage.setItem("bb_me", JSON.stringify(me)); 
+          loginOk();
+        } catch (err) { $("loginErr").innerHTML = err.message; } 
+        finally { btn.disabled = false; btn.textContent = "로그인하기"; }
       }
 
       function loginOk() {
-        $("loginScreen").style.display = "none";
-        $("appScreen").style.display = "block";
-        $("userChip").textContent = me.baptism
-          ? `${me.name} (${me.baptism})`
-          : me.name;
-        $("tabAdmin").style.display = me.role === "admin" ? "block" : "none";
+        $("loginScreen").style.display = "none"; $("appScreen").style.display = "block";
+        $("userChip").textContent = me.baptism ? `${me.name} (${me.baptism})` : me.name;
+        $("tabAdmin").style.display = (me.role === "admin") ? "block" : "none";
 
         const d = new Date(getLocalToday());
-        homeY = listY = d.getFullYear();
-        homeMo = listMo = d.getMonth() + 1;
-        $("fDate").value = getLocalToday();
-        fetchFromGAS();
-        goPage("Home");
+        homeY = listY = d.getFullYear(); homeMo = listMo = d.getMonth() + 1;
+        $("fDate").value = getLocalToday(); 
+        fetchFromGAS(); goPage("Home");
       }
 
-      function doLogout() {
-        if (confirm("안전하게 로그아웃 하시겠습니까?")) {
-          localStorage.clear();
-          location.reload();
-        }
-      }
+      function doLogout() { if(confirm("로그아웃 하시겠습니까?")) { localStorage.clear(); location.reload(); } }
 
       (async function init() {
         if (localStorage.getItem("bb_dark") === "1") toggleDark(true);
-        try {
+        if(!gasUrl) gasUrl = getSafeStorage("bb_gas");
+        
+        try { 
           const res = await fetch("./index_bible_write_gas_v2.json");
-          if (res.ok) gasUrl = (await res.json()).gas_url;
-        } catch (e) {}
-        if (!gasUrl) gasUrl = localStorage.getItem("bb_gas") || "";
-        if (gasUrl) {
-          $("gasUrlInput").value = gasUrl;
-          gasOk = true;
-        }
+          if(res.ok) {
+             const json = await res.json();
+             if(json.gas_url) { gasUrl = json.gas_url; localStorage.setItem("bb_gas", gasUrl); logD("JSON 파일에서 URL 셋업 완료"); }
+          }
+        } catch(e) { logD("JSON 패치 실패, 로컬 스토리지 사용"); }
 
-        const storedMe = localStorage.getItem("bb_me"),
-          token = localStorage.getItem("bb_token");
-        if (storedMe && token && gasOk) {
-          me = JSON.parse(storedMe);
-          loginOk();
+        if(gasUrl) { $("gasUrlInput").value = gasUrl; gasOk = true; }
+        else { logD("⚠️ 연결된 GAS URL이 없습니다."); }
+        
+        const storedMe = getSafeStorage("bb_me");
+        if (storedMe && getSafeStorage("bb_token") && gasOk) { 
+            try { me = JSON.parse(storedMe); loginOk(); } catch(e) { hardReset(); }
         }
       })();
 
       async function fetchFromGAS() {
-        try {
-          setSyncBar("syncing", "데이터 로딩중...");
-          let data = await gasCall({ action: "list" }, true);
+        if (!gasUrl) { setSyncBar("error", "GAS 주소 연결 필요"); $("cfgPanel").classList.add("open"); return; }
+        try { 
+          setSyncBar("syncing", "동기화 중..."); 
+          let data = await gasCall({ action: "list" }); 
+          
+          recs = Array.isArray(data) ? data : [];
+          recs.forEach(r => {
+            let dStr = String(r.date);
+            if (dStr.includes("T")) {
+              let d = new Date(dStr);
+              if (!isNaN(d.getTime())) {
+                let offset = d.getTimezoneOffset() * 60000;
+                r.date = new Date(d.getTime() - offset).toISOString().slice(0, 10);
+              }
+            } else {
+              r.date = dStr.substring(0, 10);
+            }
+          });
 
-          recs = Array.isArray(data)
-            ? data
-                .map((r) => {
-                  if (!r || !r.id) return null; // 빈 행 데이터 무시
-                  r.date = parseDateStr(r.date); // 날짜 강제 파싱 적용
-                  return r;
-                })
-                .filter((r) => r !== null)
-            : [];
-
-          setSyncBar("ok", "✓ 동기화 완료");
-          refresh();
-        } catch (e) {
-          console.error(e);
-          setSyncBar(
-            "error",
-            e.message.includes("fetch")
-              ? "⚠️ 통신 권한(CORS) 에러"
-              : "⚠️ 데이터 에러",
-          );
+          setSyncBar("ok", "동기화 완료"); refresh(); 
+        } 
+        catch (e) { 
+          if(e.message !== "세션이 만료되었습니다. 다시 로그인 해주세요.") {
+             setSyncBar("error", `연결 실패`); 
+             $("cfgPanel").classList.add("open");
+             toast("통신 실패: " + e.message);
+          }
         }
       }
 
       async function saveRecord(e) {
-        e.preventDefault();
-        $("btnSave").disabled = true;
-        const isFav = $("fFav").checked;
-        const data = {
-          id: editId || Date.now().toString(),
-          date: $("fDate").value,
-          book: $("fBook").value,
-          chapter: $("fChapter").value,
-          verse: $("fVerse").value,
-          verseText: $("fVerseText").value,
-          meditation: $("fMed").value,
-          favorite: isFav,
-        };
-        try {
-          await gasCall({ action: editId ? "update" : "add", record: data });
-          editId = null;
-          $("writeForm").reset();
-          $("fDate").value = getLocalToday();
-          fetchFromGAS();
-          goPage("Home");
-          toast("✅ 저장 완료!");
-        } catch (err) {
-          toast("⚠️ 저장 실패");
-        } finally {
-          $("btnSave").disabled = false;
-        }
+        e.preventDefault(); $("btnSave").disabled = true;
+        const data = { id: editId||"", date:$("fDate").value, book:$("fBook").value, chapter:$("fChapter").value, verse:$("fVerse").value, verseText:$("fVerseText").value, meditation:$("fMed").value, favorite:$("fFav").checked };
+        try { await gasCall({ action: editId ? "update" : "add", record: data }); cancelEdit(); fetchFromGAS(); goPage("Home"); toast("✅ 저장되었습니다."); }
+        catch (err) { toast("❌ 실패: " + err.message); openDebug(); } finally { $("btnSave").disabled = false; }
       }
 
-      function toggleFav(id, curVal) {
-        const newVal = !curVal,
-          r = recs.find((x) => x.id === id);
-        if (r) r.favorite = newVal;
-        renderList(listPage);
-        gasCall({ action: "fav", id, favorite: newVal })
-          .then(() => fetchFromGAS())
-          .catch((e) => {
-            if (r) r.favorite = curVal;
-            renderList(listPage);
-            toast("❌ 변경 실패");
-          });
+      function toggleFav(id, cur) {
+        gasCall({ action: "fav", id: String(id), favorite: !cur }).then(() => { fetchFromGAS(); }).catch(err => toast("❌ 실패"));
       }
 
-      function delRecord(id) {
-        if (confirm("삭제할까요?"))
-          gasCall({ action: "delete", id }).then(() => fetchFromGAS());
+      function delRecord(id) { 
+        if (confirm("정말로 삭제할까요?")) { gasCall({ action: "delete", id: String(id) }).then(()=>fetchFromGAS()).catch(err => toast("❌ 실패")); }
       }
+      
       function startEdit(id) {
-        const r = recs.find((x) => x.id === id);
+        const r = recs.find(x => String(x.id) === String(id)); 
         if (!r) return;
-        editId = id;
-        $("fDate").value = r.date;
-        $("fBook").value = r.book;
-        $("fChapter").value = r.chapter;
-        $("fVerse").value = r.verse || "";
-        $("fVerseText").value = r.verseText || "";
-        $("fMed").value = r.meditation || "";
-        $("fFav").checked = r.favorite === true || r.favorite === "true";
-        goPage("Write");
-        $("editBanner").classList.add("on");
+        editId = id; $("fDate").value = r.date; $("fBook").value = r.book; $("fChapter").value = r.chapter; $("fVerse").value = r.verse||""; $("fVerseText").value = r.verseText||""; $("fMed").value = r.meditation||""; $("fFav").checked = (r.favorite === true || String(r.favorite) === 'true');
+        goPage("Write"); $("editBanner").classList.add("on");
       }
-      function cancelEdit() {
-        editId = null;
-        $("writeForm").reset();
-        $("editBanner").classList.remove("on");
-        $("fDate").value = getLocalToday();
-      }
+      
+      function cancelEdit() { editId=null; $("writeForm").reset(); $("editBanner").classList.remove("on"); $("fDate").value = getLocalToday(); }
 
       function refresh() {
-        const curMo = `${homeY}-${String(homeMo).padStart(2, "0")}`;
-        $("stTotal").textContent = recs.length;
-        $("stMonth").textContent = recs.filter((r) =>
-          r.date.startsWith(curMo),
-        ).length;
-        $("stFav").textContent = recs.filter(
-          (r) => r.favorite === true || r.favorite === "true",
-        ).length;
-        let streak = 0;
-        if (recs.length > 0) {
-          const sorted = [...recs]
-            .map((r) => r.date)
-            .sort()
-            .reverse();
-          let prev = new Date(sorted[0]);
-          streak = 1;
+        const curMo = `${homeY}-${String(homeMo).padStart(2,'0')}`;
+        $("stTotal").textContent = recs.length; $("stMonth").textContent = recs.filter(r => String(r.date).startsWith(curMo)).length; $("stFav").textContent = recs.filter(r => (r.favorite===true || String(r.favorite)==='true')).length;
+        let streak = 0; if (recs.length > 0) {
+          const sorted = [...new Set(recs.map(r => r.date))].sort().reverse();
+          let prev = new Date(sorted[0]); streak = 1;
           for (let i = 1; i < sorted.length; i++) {
-            let d = new Date(sorted[i]),
-              diff = (prev - d) / 86400000;
-            if (diff === 1) {
-              streak++;
-              prev = d;
-            } else if (diff > 1) break;
+            let d = new Date(sorted[i]), diff = (prev - d) / 86400000;
+            if (diff === 1) { streak++; prev = d; } else break;
           }
         }
-        $("stStreak").textContent = streak;
-        renderHomeCal();
-        renderList(1);
+        $("stStreak").textContent = streak; renderHomeCal(); renderList(1);
       }
 
+      // 🔥 달력 크기 틀어짐 완벽 해결 로직
       function renderHomeCal() {
         $("homeMoLabel").textContent = `${homeY}년 ${homeMo}월`;
-        const wrap = $("homeCal");
-        wrap.innerHTML = "";
-        ["일", "월", "화", "수", "목", "금", "토"].forEach((d) => {
-          let div = document.createElement("div");
-          div.className = "cal-dh";
-          div.textContent = d;
-          wrap.appendChild(div);
-        });
-        const fDate = new Date(homeY, homeMo - 1, 1).getDay(),
-          lDate = new Date(homeY, homeMo, 0).getDate(),
-          todayStr = getLocalToday();
-        for (let i = 0; i < fDate; i++) {
-          let e = document.createElement("div");
-          e.className = "cal-day empty";
-          wrap.appendChild(e);
+        const wrap = $("homeCal"); wrap.innerHTML = "";
+        const fDay = new Date(homeY, homeMo - 1, 1).getDay(), lDate = new Date(homeY, homeMo, 0).getDate(), today = getLocalToday();
+        
+        // 1. 빈 칸: 안에 똑같이 <span>숫자</span>와 <div class="cal-ck">●</div>를 넣어서 브라우저가 크기를 동일하게 강제 계산하도록 만듦 (단순히 숨김 처리)
+        for (let i=0; i<fDay; i++) {
+          wrap.innerHTML += `<div class="cal-day empty"><span>0</span><div class="cal-ck">●</div></div>`;
         }
-        for (let d = 1; d <= lDate; d++) {
-          let y_m_d = `${homeY}-${String(homeMo).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-          let isToday = y_m_d === todayStr,
-            hasRec = recs.some((r) => r.date === y_m_d);
-          let cell = document.createElement("div");
-          cell.className = `cal-day ${isToday ? "today" : ""} ${hasRec ? "rec" : ""}`;
-          cell.innerHTML = `<div class="cal-day-inner">${d}${hasRec ? `<div class="cal-ck">●</div>` : ""}</div>`;
-          wrap.appendChild(cell);
+        
+        for (let d=1; d<=lDate; d++) {
+          let ymd = `${homeY}-${String(homeMo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
+          let has = recs.some(r => String(r.date).startsWith(ymd));
+          
+          // 2. 내용 있는 날: 기록이 없는 날도 점(●) 요소를 투명도 0으로 놔둬서 높이를 강제로 똑같이 맞춤
+          wrap.innerHTML += `
+            <div class="cal-day ${ymd===today?'today':''} ${has?'rec':''}" onclick="$('fDate').value='${ymd}';goPage('Write')">
+              <span>${d}</span>
+              <div class="cal-ck" style="opacity:${has ? '1' : '0'}">●</div>
+            </div>`;
         }
       }
 
       function renderList(page = 1) {
-        listPage = page;
-        $("listMoLabel").textContent = `${listY}년 ${listMo}월`;
-        const wrap = $("recList");
-        wrap.innerHTML = "";
-        let arr = recs
-          .filter((r) =>
-            r.date.startsWith(`${listY}-${String(listMo).padStart(2, "0")}`),
-          )
-          .sort((a, b) => b.date.localeCompare(a.date));
+        listPage = page; $("listMoLabel").textContent = `${listY}년 ${listMo}월`;
+        const wrap = $("recList"); wrap.innerHTML = "";
+        let arr = recs.filter(r => String(r.date).startsWith(`${listY}-${String(listMo).padStart(2,'0')}`)).sort((a,b) => String(b.date).localeCompare(String(a.date)));
         const kw = $("srchInput").value.trim().toLowerCase();
-        if (kw)
-          arr = arr.filter((r) =>
-            (r.book + r.chapter + r.verse + (r.verseText || "") + r.meditation)
-              .toLowerCase()
-              .includes(kw),
-          );
-
-        if (arr.length === 0) {
-          wrap.innerHTML = `<div class="empty">기록이 없습니다.</div>`;
-          return;
-        }
-
-        const totalPages = Math.ceil(arr.length / listPerPage);
-        arr
-          .slice((listPage - 1) * listPerPage, listPage * listPerPage)
-          .forEach((r) => {
-            const isFav = r.favorite === true || r.favorite === "true";
-            const card = document.createElement("div");
-            card.className = "rec-card";
-            card.innerHTML = `
-            <div class="rc-header"><div class="rc-date">🗓️ ${r.date}</div><button class="fav-btn" onclick="toggleFav('${r.id}', ${isFav})">${isFav ? "⭐" : "☆"}</button></div>
-            <div class="rc-title">${r.book} ${r.chapter}장${r.verse ? ` ${r.verse}절` : ""}</div>
-            ${r.verseText ? `<div class="rc-verse-band">"${r.verseText}"</div>` : ""}
-            ${r.meditation ? `<div class="rc-med">${r.meditation}</div>` : ""}
-            <div class="rc-acts"><button class="btn-edit" onclick="startEdit('${r.id}')">수정</button><button class="btn-del" onclick="delRecord('${r.id}')">삭제</button></div>
-          `;
-            wrap.appendChild(card);
-          });
-
-        if (totalPages > 1) {
-          let pageHtml = `<div class="pagination">`;
-          for (let i = 1; i <= totalPages; i++)
-            pageHtml += `<button class="page-btn ${i === listPage ? "on" : ""}" onclick="renderList(${i})">${i}</button>`;
-          wrap.innerHTML += pageHtml + `</div>`;
+        if (kw) arr = arr.filter(r => (r.book+r.verseText+r.meditation).toLowerCase().includes(kw));
+        if (arr.length === 0) { wrap.innerHTML = `<div class="empty">기록이 없습니다.</div>`; return; }
+        
+        const total = Math.ceil(arr.length / listPerPage);
+        arr.slice((listPage - 1) * listPerPage, listPage * listPerPage).forEach(r => {
+          const isFav = r.favorite===true || String(r.favorite)==='true';
+          wrap.innerHTML += `
+            <div class="rec-card">
+              <div class="rc-header"><div class="rc-date">🗓️ ${r.date}</div><button class="fav-btn" onclick="toggleFav('${r.id}', ${isFav})">${isFav?'⭐':'☆'}</button></div>
+              <div class="rc-title">${r.book} ${r.chapter}장${r.verse ? ` ${r.verse}절` : ''}</div>
+              ${r.verseText ? `<div class="rc-verse-band">${r.verseText}</div>` : ''}
+              ${r.meditation ? `<div class="rc-med">${r.meditation}</div>` : ''}
+              <div class="rc-acts"><button class="btn-edit" onclick="startEdit('${r.id}')">수정하기</button><button class="btn-del" onclick="delRecord('${r.id}')">삭제하기</button></div>
+            </div>`;
+        });
+        if (total > 1) {
+          let pgh = `<div class="pagination">`;
+          for (let i=1; i<=total; i++) pgh += `<button class="page-btn ${i===listPage?'on':''}" onclick="renderList(${i})">${i}</button>`;
+          wrap.innerHTML += pgh + `</div>`;
         }
       }
 
-      /* 프로필 및 관리자 */
       async function updateProfile(e) {
-        e.preventDefault();
-        const btn = e.target.querySelector("button");
-        btn.disabled = true;
-        const u = {
-          id: me.id,
-          pw: $("pPw").value,
-          name: $("pName").value,
-          baptism: $("pBaptism").value,
-          role: me.role,
-        };
-        try {
-          await gasCall({ action: "userUpdate", user: u });
-          toast("✅ 수정 완료");
-          me.name = u.name;
-          me.baptism = u.baptism;
-          localStorage.setItem("bb_me", JSON.stringify(me));
-          $("userChip").textContent = me.baptism
-            ? `${me.name} (${me.baptism})`
-            : me.name;
-          $("pPw").value = "";
-        } catch (err) {
-          toast("❌ 실패");
-        } finally {
-          btn.disabled = false;
-        }
+        e.preventDefault(); const btn = e.target.querySelector("button"); btn.disabled = true;
+        try { await gasCall({ action: "userUpdate", user: { pw: $("pPw").value, name: $("pName").value, baptism: $("pBaptism").value } }); toast("✅ 수정되었습니다."); me.name = $("pName").value; me.baptism = $("pBaptism").value; localStorage.setItem("bb_me", JSON.stringify(me)); $("userChip").textContent = me.baptism ? `${me.name} (${me.baptism})` : me.name; $("pPw").value = ""; } catch (e) { toast("❌ 수정 실패: " + e.message); } finally { btn.disabled = false; }
       }
+
       async function fetchAdminUsers() {
         if (me.role !== "admin") return;
-        try {
-          adminUsers = await gasCall({ action: "userList" }, true);
-          renderAdminUsers();
-        } catch (e) {}
+        try { adminUsers = await gasCall({ action: "userList" }); renderAdminUsers(); } catch (e) { toast("❌ 사용자 목록 불러오기 실패"); }
       }
+      
       function renderAdminUsers() {
-        const wrap = $("admUserList");
-        wrap.innerHTML = "";
+        const wrap = $("admUserList"); wrap.innerHTML = "";
         adminUsers.forEach((u) => {
-          wrap.innerHTML += `<div class="user-card"><div class="uc-info"><div class="uc-name">${u.name} <span class="${u.role === "admin" ? "badge-adm" : "badge-usr"}">${u.role}</span></div><div class="uc-meta">ID: ${u.id}</div></div><div class="uc-acts" style="display:flex; gap:6px;"><button class="bsm bsm-e" onclick="openUserModal('${u.id}')">수정</button>${u.id !== me.id ? `<button class="bsm bsm-d" onclick="delAdminUser('${u.id}')">삭제</button>` : ""}</div></div>`;
+          wrap.innerHTML += `<div class="user-card"><div class="uc-info"><div class="uc-name">${u.name} <span class="${u.role === "admin" ? "badge-adm" : ""}" style="font-size:11px; padding:3px 8px; border-radius:12px; background:var(--adm); color:#fff; font-weight:700; display:${u.role==='admin'?'inline-block':'none'}">${u.role}</span></div><div class="uc-meta">ID: ${u.id}</div></div><div class="uc-acts" style="display:flex; gap:6px;"><button class="bsm bsm-e" style="background:var(--p); color:#fff; border:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer;" onclick="openUserModal('${u.id}')">수정</button>${u.id !== me.id ? `<button class="bsm bsm-d" style="background:#E03131; color:#fff; border:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer;" onclick="delAdminUser('${u.id}')">삭제</button>` : ""}</div></div>`;
         });
       }
+
       function openUserModal(uid = null) {
         umEditId = uid;
-        if (uid) {
-          const u = adminUsers.find((x) => x.id === uid);
-          $("uId").value = u.id;
-          $("uId").disabled = true;
-          $("uPw").value = "";
-          $("uName").value = u.name;
-          $("uBaptism").value = u.baptism;
-          $("uRole").value = u.role;
-        } else {
-          $("uId").value = "";
-          $("uId").disabled = false;
-          $("uPw").value = "";
-          $("uName").value = "";
-          $("uBaptism").value = "";
-          $("uRole").value = "user";
-        }
+        if (uid) { const u = adminUsers.find((x) => x.id === uid); $("uId").value = u.id; $("uId").disabled = true; $("uPw").value = ""; $("uName").value = u.name; $("uBaptism").value = u.baptism || ""; $("uRole").value = u.role; } 
+        else { $("uId").value = ""; $("uId").disabled = false; $("uPw").value = ""; $("uName").value = ""; $("uBaptism").value = ""; $("uRole").value = "user"; }
         $("userModal").style.display = "flex";
       }
+
       async function saveAdminUser() {
-        const u = {
-          id: $("uId").value,
-          pw: $("uPw").value,
-          name: $("uName").value,
-          baptism: $("uBaptism").value,
-          role: $("uRole").value,
-        };
-        try {
-          await gasCall({
-            action: umEditId ? "userUpdate" : "userAdd",
-            user: u,
-          });
-          $("userModal").style.display = "none";
-          fetchAdminUsers();
-          toast("✅ 완료");
-        } catch (e) {
-          toast("❌ 실패");
-        }
-      }
-      async function delAdminUser(uid) {
-        if (!confirm("삭제하시겠습니까?")) return;
-        try {
-          await gasCall({ action: "userDelete", id: uid });
-          fetchAdminUsers();
-          toast("✅ 삭제됨");
-        } catch (e) {}
+        const u = { id: $("uId").value, pw: $("uPw").value, name: $("uName").value, baptism: $("uBaptism").value, role: $("uRole").value };
+        try { await gasCall({ action: umEditId ? "userAdminUpdate" : "userAdd", user: u }); $("userModal").style.display = "none"; fetchAdminUsers(); toast("✅ 저장 완료"); } catch (e) { toast("❌ 실패: " + e.message); }
       }
 
-      function chgHomeMo(v) {
-        homeMo += v;
-        if (homeMo < 1) {
-          homeY--;
-          homeMo = 12;
-        } else if (homeMo > 12) {
-          homeY++;
-          homeMo = 1;
-        }
-        refresh();
+      async function delAdminUser(uid) {
+        if (!confirm("삭제하시겠습니까?")) return;
+        try { await gasCall({ action: "userDelete", id: uid }); fetchAdminUsers(); toast("✅ 삭제됨"); } catch (e) { toast("❌ 삭제 실패"); }
       }
-      function chgListMo(v) {
-        listMo += v;
-        if (listMo < 1) {
-          listY--;
-          listMo = 12;
-        } else if (listMo > 12) {
-          listY++;
-          listMo = 1;
-        }
-        renderList(1);
+
+      function chgHomeMo(v) { homeMo += v; if(homeMo<1) { homeY--; homeMo=12; } else if(homeMo>12) { homeY++; homeMo=1; } refresh(); }
+      function chgListMo(v) { listMo += v; if(listMo < 1) { listY--; listMo = 12; } else if(listMo > 12) { listY++; listMo = 1; } renderList(1); }
+      function goPage(n) { 
+        document.querySelectorAll(".page, .tab-btn").forEach(p => p.classList.remove("on")); $("pg"+n).classList.add("on"); if($("tab"+n)) $("tab"+n).classList.add("on"); 
+        const h1 = document.querySelector('.hdr h1'); const hp = document.querySelector('.hdr p');
+        if(n==='Home') { refresh(); h1.textContent="기록 요약"; hp.textContent="성실하게 통독 중입니다"; } 
+        if(n==='Write') { h1.textContent="✍️ 통독 기록"; hp.textContent="마음에 남는 말씀을 기록하세요"; }
+        if(n==='List') { renderList(1); h1.textContent="목록 보기"; hp.textContent="지난 기록을 돌아봅니다"; } 
+        if(n==='Profile' && me) { h1.textContent="계정 설정"; hp.textContent="내 정보를 확인합니다"; $("pId").value=me.id || me.uid; $("pName").value=me.name; $("pBaptism").value=me.baptism||""; } 
+        if(n==='Admin') { fetchAdminUsers(); h1.textContent="👑 계정 관리"; hp.textContent="전체 사용자 계정 관리"; } 
+        window.scrollTo(0,0); 
       }
-      function goPage(n) {
-        document
-          .querySelectorAll(".page, .tab-btn")
-          .forEach((p) => p.classList.remove("on"));
-        $("pg" + n).classList.add("on");
-        if ($("tab" + n)) $("tab" + n).classList.add("on");
-        if (n === "Home") refresh();
-        if (n === "List") renderList(1);
-        if (n === "Profile" && me) {
-          $("pId").value = me.id;
-          $("pName").value = me.name;
-          $("pBaptism").value = me.baptism || "";
-        }
-        if (n === "Admin") fetchAdminUsers();
-        window.scrollTo(0, 0);
-      }
-      function toggleDark(f) {
-        const isDark =
-          f === true ||
-          (f !== false && !document.body.classList.contains("dark"));
-        document.body.classList.toggle("dark", isDark);
-        localStorage.setItem("bb_dark", isDark ? "1" : "0");
-      }
-      function toggleCfg() {
-        $("cfgPanel").classList.toggle("open");
-      }
-      function setSyncBar(st, msg) {
-        $("syncBar").className = "sync-bar " + st;
-        $("syncTxt").textContent = msg;
-        $("syncDot").className = "sd " + (st === "syncing" ? "spin" : "");
-      }
-      function toast(m) {
-        const t = $("toast");
-        t.textContent = m;
-        t.classList.add("show");
-        setTimeout(() => t.classList.remove("show"), 3000);
-      }
-      function connectGAS() {
-        const u = $("gasUrlInput").value.trim();
-        if (u) {
-          gasUrl = u;
-          localStorage.setItem("bb_gas", u);
-          gasOk = true;
-          fetchFromGAS();
-        }
-      }
+      function toggleDark(f) { const isD = f === true || (f !== false && !document.body.classList.contains("dark")); document.body.classList.toggle("dark", isD); localStorage.setItem("bb_dark", isD ? "1" : "0"); }
+      function toggleCfg(){ $("cfgPanel").classList.toggle("open"); }
+      function setSyncBar(st, msg) { $("syncBar").className="sync-bar "+st; $("syncTxt").textContent=msg; $("syncDot").className="sd "+(st==="syncing"?"spin":""); }
+      function toast(m) { const t=$("toast"); t.textContent=m; t.classList.add("show"); setTimeout(() => t.classList.remove("show"), 3000); }
+      function connectGAS() { const u = $("gasUrlInput").value.trim(); if(u) { gasUrl = u; localStorage.setItem("bb_gas", u); gasOk = true; alert("URL이 저장되었습니다."); location.reload(); } }
     </script>
   </body>
 </html>
