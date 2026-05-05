@@ -709,7 +709,7 @@
       function goPage(n) { 
         document.querySelectorAll(".page, .tab-btn").forEach(p => p.classList.remove("on")); $("pg"+n).classList.add("on"); if($("tab"+n)) $("tab"+n).classList.add("on"); 
         const h1 = document.querySelector('.hdr h1'); const hp = document.querySelector('.hdr p');
-        if(n==='Home') { refresh(); h1.textContent="기록 요약"; hp.textContent="성실하게 통독 중입니다"; } 
+        if(n==='Home') { refresh(); h1.textContent="2026 말씀과 함께"; hp.textContent="광교1동성당 성실하게 성경통독 중입니다"; } 
         if(n==='Write') { h1.textContent="✍️ 통독 기록"; hp.textContent="마음에 남는 말씀을 기록하세요"; }
         if(n==='List') { renderList(1); h1.textContent="목록 보기"; hp.textContent="지난 기록을 돌아봅니다"; } 
         if(n==='Profile' && me) { h1.textContent="계정 설정"; hp.textContent="내 정보를 확인합니다"; $("pId").value=me.id || me.uid; $("pName").value=me.name; $("pBaptism").value=me.baptism||""; } 
