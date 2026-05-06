@@ -35,737 +35,152 @@
         --transition: 0.18s ease;
       }
 
-      *,
-      *::before,
-      *::after {
-        box-sizing: border-box;
-        margin: 0;
-        padding: 0;
-      }
-
-      body {
-        font-family: "IBM Plex Sans KR", sans-serif;
-        background-color: var(--bg);
-        color: var(--text-primary);
-        min-height: 100vh;
-        padding: 24px 20px;
-      }
+      *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+      body { font-family: "IBM Plex Sans KR", sans-serif; background-color: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 24px 20px; }
 
       /* ── SCREENS ── */
-      .screen {
-        display: none;
-      }
-      .screen.active {
-        display: block;
-      }
+      .screen { display: none; }
+      .screen.active { display: block; }
 
       /* ── AUTH BOX ── */
-      .auth-wrap {
-        display: flex;
-        justify-content: center;
-        align-items: center;
-        min-height: calc(100vh - 48px);
-      }
-      .auth-box {
-        background: var(--surface);
-        padding: 40px 36px 36px;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-lg);
-        width: 100%;
-        max-width: 380px;
-        border-top: 4px solid var(--accent);
-        animation: slideUp 0.3s ease;
-      }
-      .auth-logo {
-        text-align: center;
-        margin-bottom: 28px;
-      }
-      .auth-logo .logo-icon {
-        font-size: 2.4rem;
-        display: block;
-        margin-bottom: 8px;
-      }
-      .auth-logo h2 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        letter-spacing: -0.3px;
-      }
-      .auth-logo p {
-        font-size: 0.78rem;
-        color: var(--text-muted);
-        margin-top: 4px;
-        font-family: "IBM Plex Mono", monospace;
-      }
-      .auth-notice {
-        font-size: 0.8rem;
-        color: var(--danger);
-        background: var(--danger-light);
-        padding: 10px 14px;
-        border-radius: var(--radius-sm);
-        margin-bottom: 18px;
-        text-align: center;
-      }
-      .input-group {
-        position: relative;
-        margin-bottom: 14px;
-      }
-      .input-group input {
-        width: 100%;
-        padding: 13px 14px;
-        border: 1.5px solid var(--border);
-        border-radius: var(--radius-sm);
-        font-size: 0.93rem;
-        font-family: inherit;
-        color: var(--text-primary);
-        background: var(--surface2);
-        transition:
-          border-color var(--transition),
-          box-shadow var(--transition);
-        outline: none;
-      }
-      .input-group input:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12);
-        background: var(--surface);
-      }
-      .input-group input.error {
-        border-color: var(--danger);
-        box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.1);
-      }
-      .btn-auth {
-        width: 100%;
-        background: var(--accent);
-        color: white;
-        border: none;
-        padding: 13px;
-        border-radius: var(--radius-sm);
-        font-weight: 700;
-        font-size: 0.95rem;
-        font-family: inherit;
-        cursor: pointer;
-        transition:
-          background var(--transition),
-          transform var(--transition),
-          opacity var(--transition);
-        letter-spacing: 0.3px;
-        margin-top: 4px;
-      }
-      .btn-auth:hover:not(:disabled) {
-        background: #1557b0;
-        transform: translateY(-1px);
-      }
-      .btn-auth:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-        transform: none;
-      }
+      .auth-wrap { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 48px); }
+      .auth-box { background: var(--surface); padding: 40px 36px 36px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 100%; max-width: 380px; border-top: 4px solid var(--accent); animation: slideUp 0.3s ease; }
+      .auth-logo { text-align: center; margin-bottom: 28px; }
+      .auth-logo .logo-icon { font-size: 2.4rem; display: block; margin-bottom: 8px; }
+      .auth-logo h2 { font-size: 1.1rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.3px; }
+      .auth-logo p { font-size: 0.78rem; color: var(--text-muted); margin-top: 4px; font-family: "IBM Plex Mono", monospace; }
+      .auth-notice { font-size: 0.8rem; color: var(--danger); background: var(--danger-light); padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 18px; text-align: center; }
+      .input-group { position: relative; margin-bottom: 14px; }
+      .input-group input { width: 100%; padding: 13px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.93rem; font-family: inherit; color: var(--text-primary); background: var(--surface2); transition: border-color var(--transition), box-shadow var(--transition); outline: none; }
+      .input-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12); background: var(--surface); }
+      .input-group input.error { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.1); }
+      .btn-auth { width: 100%; background: var(--accent); color: white; border: none; padding: 13px; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.95rem; font-family: inherit; cursor: pointer; transition: background var(--transition), transform var(--transition), opacity var(--transition); letter-spacing: 0.3px; margin-top: 4px; }
+      .btn-auth:hover:not(:disabled) { background: #1557b0; transform: translateY(-1px); }
+      .btn-auth:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
       /* ── MAIN SCREEN ── */
-      .container {
-        max-width: 1080px;
-        margin: 0 auto;
-        animation: fadeIn 0.3s ease;
-      }
+      .container { max-width: 1080px; margin: 0 auto; animation: fadeIn 0.3s ease; }
+      .header-area { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 14px; background: var(--surface); padding: 18px 24px; border-radius: var(--radius-lg); box-shadow: var(--shadow-sm); }
+      .header-title { display: flex; align-items: center; gap: 10px; }
+      .header-title h1 { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.5px; }
+      .header-title .count-badge { background: var(--accent-light); color: var(--accent); font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; font-family: "IBM Plex Mono", monospace; }
 
-      .header-area {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        margin-bottom: 24px;
-        flex-wrap: wrap;
-        gap: 14px;
-        background: var(--surface);
-        padding: 18px 24px;
-        border-radius: var(--radius-lg);
-        box-shadow: var(--shadow-sm);
-      }
-      .header-title {
-        display: flex;
-        align-items: center;
-        gap: 10px;
-      }
-      .header-title h1 {
-        font-size: 1.25rem;
-        font-weight: 700;
-        color: var(--text-primary);
-        letter-spacing: -0.5px;
-      }
-      .header-title .count-badge {
-        background: var(--accent-light);
-        color: var(--accent);
-        font-size: 0.75rem;
-        font-weight: 700;
-        padding: 3px 10px;
-        border-radius: 999px;
-        font-family: "IBM Plex Mono", monospace;
-      }
-
-      .btn-group {
-        display: flex;
-        gap: 8px;
-        flex-wrap: wrap;
-      }
-      .btn-main {
-        border: none;
-        padding: 9px 16px;
-        border-radius: var(--radius-sm);
-        font-weight: 600;
-        cursor: pointer;
-        color: white;
-        transition:
-          opacity var(--transition),
-          transform var(--transition);
-        font-size: 0.85rem;
-        font-family: inherit;
-        white-space: nowrap;
-      }
-      .btn-main:hover {
-        opacity: 0.85;
-        transform: translateY(-1px);
-      }
-      .btn-blue {
-        background: var(--accent);
-      }
-      .btn-green {
-        background: #34a853;
-      }
-      .btn-gray {
-        background: #4b5563;
-      }
-      .btn-light {
-        background: #9ca3af;
-      }
-      .btn-red {
-        background: var(--danger);
-      }
+      .btn-group { display: flex; gap: 8px; flex-wrap: wrap; }
+      .btn-main { border: none; padding: 9px 16px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; color: white; transition: opacity var(--transition), transform var(--transition); font-size: 0.85rem; font-family: inherit; white-space: nowrap; }
+      .btn-main:hover { opacity: 0.85; transform: translateY(-1px); }
+      .btn-blue { background: var(--accent); } 
+      .btn-green { background: #34a853; } 
+      .btn-gray { background: #4b5563; } 
+      .btn-light { background: #9ca3af; } 
+      .btn-red { background: var(--danger); }
+      .btn-purple { background: #8b5cf6; } /* 이메일 복사 버튼 색상 추가 */
 
       /* ── SEARCH BAR ── */
-      .search-bar {
-        display: flex;
-        gap: 10px;
-        margin-bottom: 20px;
-        align-items: center;
-      }
-      .search-wrap {
-        position: relative;
-        flex: 1;
-      }
-      .search-wrap .search-icon {
-        position: absolute;
-        left: 13px;
-        top: 50%;
-        transform: translateY(-50%);
-        color: var(--text-muted);
-        font-size: 1rem;
-        pointer-events: none;
-      }
-      .search-wrap input {
-        width: 100%;
-        padding: 11px 14px 11px 38px;
-        border: 1.5px solid var(--border);
-        border-radius: var(--radius-sm);
-        font-size: 0.9rem;
-        font-family: inherit;
-        background: var(--surface);
-        color: var(--text-primary);
-        transition:
-          border-color var(--transition),
-          box-shadow var(--transition);
-        outline: none;
-      }
-      .search-wrap input:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
-      }
-      .search-clear {
-        background: none;
-        border: 1.5px solid var(--border);
-        border-radius: var(--radius-sm);
-        padding: 10px 14px;
-        font-size: 0.85rem;
-        font-family: inherit;
-        color: var(--text-secondary);
-        cursor: pointer;
-        transition: all var(--transition);
-        white-space: nowrap;
-        font-weight: 600;
-      }
-      .search-clear:hover {
-        border-color: var(--accent);
-        color: var(--accent);
-      }
+      .search-bar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
+      .search-wrap { position: relative; flex: 1; }
+      .search-wrap .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1rem; pointer-events: none; }
+      .search-wrap input { width: 100%; padding: 11px 14px 11px 38px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.9rem; font-family: inherit; background: var(--surface); color: var(--text-primary); transition: border-color var(--transition), box-shadow var(--transition); outline: none; }
+      .search-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1); }
+      .search-clear { background: none; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.85rem; font-family: inherit; color: var(--text-secondary); cursor: pointer; transition: all var(--transition); white-space: nowrap; font-weight: 600; }
+      .search-clear:hover { border-color: var(--accent); color: var(--accent); }
 
-      .search-stats {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        margin-bottom: 16px;
-        font-family: "IBM Plex Mono", monospace;
-      }
-      .search-stats strong {
-        color: var(--accent);
-      }
+      .search-stats { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; font-family: "IBM Plex Mono", monospace; }
+      .search-stats strong { color: var(--accent); }
 
-      /* ── CARD GRID ── */
-      .card-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-        gap: 16px;
-      }
+      /* ── CARD GRID (색상 띠 적용) ── */
+      .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 16px; }
+      
       .card {
         background: var(--surface);
         border-radius: var(--radius-md);
-        padding: 20px;
         box-shadow: var(--shadow-sm);
+        display: flex; /* 가로 배치 활성화 */
+        overflow: hidden; /* 색상 띠가 둥근 모서리에 맞춰지도록 */
         position: relative;
-        transition:
-          transform var(--transition),
-          box-shadow var(--transition);
+        transition: transform var(--transition), box-shadow var(--transition);
         border: 1.5px solid transparent;
         animation: cardIn 0.25s ease both;
       }
-      .card:hover {
-        transform: translateY(-3px);
-        box-shadow: var(--shadow-md);
-      }
-      .card.selected {
-        border-color: var(--accent);
-        background: #fafcff;
-      }
-      .checkbox-container {
-        position: absolute;
-        top: 14px;
-        right: 14px;
-      }
-      .contact-check {
-        width: 20px;
-        height: 20px;
-        cursor: pointer;
-        accent-color: var(--accent);
-      }
+      .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
+      .card.selected { border-color: var(--accent); background: #fafcff; }
+      
+      /* 새로 추가된 왼쪽 색상 띠 */
+      .card-band { width: 8px; flex-shrink: 0; }
+      
+      /* 기존 카드의 내부 콘텐츠 영역 */
+      .card-body { padding: 20px; flex: 1; position: relative; }
 
-      .company-name {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 6px;
-        padding-right: 30px;
-        letter-spacing: -0.3px;
-      }
-      .name-tag {
-        font-size: 0.92rem;
-        margin-bottom: 14px;
-        border-bottom: 1px dashed var(--border);
-        padding-bottom: 12px;
-        padding-right: 28px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        flex-wrap: wrap;
-      }
-      .job-title {
-        font-weight: 700;
-        color: var(--danger);
-        background: var(--danger-light);
-        padding: 2px 8px;
-        border-radius: 999px;
-        font-size: 0.75rem;
-        letter-spacing: 0.3px;
-      }
-      .info-row {
-        display: flex;
-        margin-bottom: 5px;
-        font-size: 0.86rem;
-        line-height: 1.5;
-      }
-      .label {
-        width: 60px;
-        color: var(--text-muted);
-        flex-shrink: 0;
-        font-weight: 600;
-        font-size: 0.78rem;
-        padding-top: 1px;
-        font-family: "IBM Plex Mono", monospace;
-      }
-      .value {
-        word-break: break-all;
-        color: var(--text-secondary);
-      }
-      .value.address {
-        font-size: 0.8rem;
-        color: var(--text-muted);
-        margin-top: 8px;
-      }
+      .checkbox-container { position: absolute; top: 14px; right: 14px; }
+      .contact-check { width: 20px; height: 20px; cursor: pointer; accent-color: var(--accent); }
+
+      .company-name { font-size: 1.1rem; font-weight: 700; margin-bottom: 6px; padding-right: 30px; letter-spacing: -0.3px; }
+      .name-tag { font-size: 0.92rem; margin-bottom: 14px; border-bottom: 1px dashed var(--border); padding-bottom: 12px; padding-right: 28px; display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+      .job-title { font-weight: 700; color: var(--danger); background: var(--danger-light); padding: 2px 8px; border-radius: 999px; font-size: 0.75rem; letter-spacing: 0.3px; }
+      .info-row { display: flex; margin-bottom: 5px; font-size: 0.86rem; line-height: 1.5; }
+      .label { width: 60px; color: var(--text-muted); flex-shrink: 0; font-weight: 600; font-size: 0.78rem; padding-top: 1px; font-family: "IBM Plex Mono", monospace; }
+      .value { word-break: break-all; color: var(--text-secondary); }
+      .value.address { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; }
 
       /* ── EMPTY / LOADING / ERROR ── */
-      .status-box {
-        text-align: center;
-        padding: 60px 20px;
-        color: var(--text-muted);
-        background: var(--surface);
-        border-radius: var(--radius-lg);
-        border: 1.5px dashed var(--border);
-      }
-      .status-box .status-icon {
-        font-size: 2.5rem;
-        margin-bottom: 12px;
-      }
-      .status-box p {
-        font-size: 0.92rem;
-        margin-bottom: 16px;
-      }
-
-      /* spinner */
-      .spinner {
-        width: 36px;
-        height: 36px;
-        border: 3px solid var(--border);
-        border-top-color: var(--accent);
-        border-radius: 50%;
-        animation: spin 0.7s linear infinite;
-        margin: 0 auto 14px;
-      }
+      .status-box { text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--surface); border-radius: var(--radius-lg); border: 1.5px dashed var(--border); }
+      .status-box .status-icon { font-size: 2.5rem; margin-bottom: 12px; }
+      .status-box p { font-size: 0.92rem; margin-bottom: 16px; }
+      .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 14px; }
 
       /* ── MODAL ── */
-      .modal-overlay {
-        display: none;
-        position: fixed;
-        inset: 0;
-        background: rgba(0, 0, 0, 0.45);
-        z-index: 1000;
-        justify-content: center;
-        align-items: center;
-        backdrop-filter: blur(2px);
-        padding: 20px;
-      }
-      .modal-overlay.open {
-        display: flex;
-        animation: fadeIn 0.2s ease;
-      }
-      .modal-content {
-        background: var(--surface);
-        padding: 28px;
-        border-radius: var(--radius-lg);
-        width: 100%;
-        max-width: 480px;
-        box-shadow: var(--shadow-lg);
-        animation: slideUp 0.25s ease;
-      }
-      .modal-content h3 {
-        font-size: 1.1rem;
-        font-weight: 700;
-        margin-bottom: 20px;
-        padding-bottom: 14px;
-        border-bottom: 1px solid var(--border);
-      }
-      .form-group {
-        margin-bottom: 14px;
-      }
-      .form-group label {
-        display: block;
-        font-size: 0.8rem;
-        font-weight: 600;
-        margin-bottom: 6px;
-        color: var(--text-secondary);
-        font-family: "IBM Plex Mono", monospace;
-      }
-      .form-group input,
-      .form-group textarea {
-        width: 100%;
-        padding: 10px 12px;
-        border: 1.5px solid var(--border);
-        border-radius: var(--radius-sm);
-        font-size: 0.9rem;
-        font-family: inherit;
-        color: var(--text-primary);
-        background: var(--surface2);
-        outline: none;
-        transition:
-          border-color var(--transition),
-          box-shadow var(--transition);
-      }
-      .form-group input:focus,
-      .form-group textarea:focus {
-        border-color: var(--accent);
-        box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1);
-        background: var(--surface);
-      }
-      .form-group input[readonly] {
-        background: var(--bg);
-        color: var(--text-muted);
-        cursor: default;
-        font-size: 0.82rem;
-      }
-      .form-group textarea {
-        height: 120px;
-        resize: vertical;
-      }
+      .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(2px); padding: 20px; }
+      .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
+      .modal-content { background: var(--surface); padding: 28px; border-radius: var(--radius-lg); width: 100%; max-width: 480px; box-shadow: var(--shadow-lg); animation: slideUp 0.25s ease; }
+      .modal-content h3 { font-size: 1.1rem; font-weight: 700; margin-bottom: 20px; padding-bottom: 14px; border-bottom: 1px solid var(--border); }
+      .form-group { margin-bottom: 14px; }
+      .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary); font-family: "IBM Plex Mono", monospace; }
+      .form-group input, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.9rem; font-family: inherit; color: var(--text-primary); background: var(--surface2); outline: none; transition: border-color var(--transition), box-shadow var(--transition); }
+      .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1); background: var(--surface); }
+      .form-group input[readonly] { background: var(--bg); color: var(--text-muted); cursor: default; font-size: 0.82rem; }
+      .form-group textarea { height: 120px; resize: vertical; }
 
-      .file-info {
-        font-size: 0.75rem;
-        color: var(--text-muted);
-        margin-top: 5px;
-      }
-      .file-warn {
-        font-size: 0.75rem;
-        color: var(--warn);
-        margin-top: 5px;
-        display: none;
-      }
+      .file-info { font-size: 0.75rem; color: var(--text-muted); margin-top: 5px; }
+      .file-warn { font-size: 0.75rem; color: var(--warn); margin-top: 5px; display: none; }
 
-      .modal-btns {
-        display: flex;
-        gap: 10px;
-        margin-top: 22px;
-      }
-      .btn-cancel {
-        flex: 1;
-        background: var(--surface2);
-        color: var(--text-secondary);
-        border: 1.5px solid var(--border);
-        padding: 11px;
-        border-radius: var(--radius-sm);
-        font-weight: 600;
-        font-size: 0.9rem;
-        font-family: inherit;
-        cursor: pointer;
-        transition: all var(--transition);
-      }
-      .btn-cancel:hover {
-        border-color: var(--text-secondary);
-      }
-      .btn-send {
-        flex: 2;
-        background: var(--accent);
-        color: white;
-        border: none;
-        padding: 11px;
-        border-radius: var(--radius-sm);
-        font-weight: 700;
-        font-size: 0.9rem;
-        font-family: inherit;
-        cursor: pointer;
-        transition: all var(--transition);
-      }
-      .btn-send:hover:not(:disabled) {
-        background: #1557b0;
-      }
-      .btn-send:disabled {
-        opacity: 0.6;
-        cursor: not-allowed;
-      }
+      .modal-btns { display: flex; gap: 10px; margin-top: 22px; }
+      .btn-cancel { flex: 1; background: var(--surface2); color: var(--text-secondary); border: 1.5px solid var(--border); padding: 11px; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all var(--transition); }
+      .btn-cancel:hover { border-color: var(--text-secondary); }
+      .btn-send { flex: 2; background: var(--accent); color: white; border: none; padding: 11px; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all var(--transition); }
+      .btn-send:hover:not(:disabled) { background: #1557b0; }
+      .btn-send:disabled { opacity: 0.6; cursor: not-allowed; }
 
       /* ── TOAST ── */
-      .toast {
-        position: fixed;
-        bottom: 28px;
-        left: 50%;
-        transform: translateX(-50%) translateY(20px);
-        background: #1a1d23;
-        color: white;
-        padding: 12px 22px;
-        border-radius: 999px;
-        font-size: 0.88rem;
-        font-weight: 600;
-        z-index: 9999;
-        opacity: 0;
-        transition: all 0.3s ease;
-        pointer-events: none;
-        white-space: nowrap;
-        box-shadow: var(--shadow-lg);
-      }
-      .toast.show {
-        opacity: 1;
-        transform: translateX(-50%) translateY(0);
-      }
-      .toast.success {
-        background: #1e7e34;
-      }
-      .toast.error {
-        background: var(--danger);
-      }
-      .toast.info {
-        background: var(--accent);
-      }
+      .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1d23; color: white; padding: 12px 22px; border-radius: 999px; font-size: 0.88rem; font-weight: 600; z-index: 9999; opacity: 0; transition: all 0.3s ease; pointer-events: none; white-space: nowrap; box-shadow: var(--shadow-lg); }
+      .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+      .toast.success { background: #1e7e34; } .toast.error { background: var(--danger); } .toast.info { background: var(--accent); }
 
-      /* ── HIGHLIGHT ── */
-      .highlight {
-        background: #fff3cd;
-        border-radius: 2px;
-        padding: 0 1px;
-      }
-
-      /* ── ANIMATIONS ── */
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      @keyframes slideUp {
-        from {
-          opacity: 0;
-          transform: translateY(16px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      @keyframes cardIn {
-        from {
-          opacity: 0;
-          transform: translateY(8px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-      @keyframes spin {
-        to {
-          transform: rotate(360deg);
-        }
-      }
+      /* ── HIGHLIGHT & ANIMATIONS ── */
+      .highlight { background: #fff3cd; border-radius: 2px; padding: 0 1px; }
+      @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+      @keyframes spin { to { transform: rotate(360deg); } }
 
       /* ── FOOTER ── */
-      .site-footer {
-        margin-top: 48px;
-        padding-bottom: 32px;
-      }
-      .footer-card {
-        background: linear-gradient(135deg, #1a1d23 0%, #2d3340 100%);
-        border-radius: var(--radius-lg);
-        padding: 26px 30px;
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 20px;
-        flex-wrap: wrap;
-        box-shadow: var(--shadow-md);
-        position: relative;
-        overflow: hidden;
-      }
-      .footer-card::before {
-        content: "";
-        position: absolute;
-        top: -50px;
-        right: -50px;
-        width: 180px;
-        height: 180px;
-        background: rgba(26, 115, 232, 0.1);
-        border-radius: 50%;
-        pointer-events: none;
-      }
-      .footer-card::after {
-        content: "";
-        position: absolute;
-        bottom: -35px;
-        left: 80px;
-        width: 110px;
-        height: 110px;
-        background: rgba(52, 168, 83, 0.07);
-        border-radius: 50%;
-        pointer-events: none;
-      }
-      .footer-left {
-        display: flex;
-        align-items: center;
-        gap: 16px;
-        position: relative;
-        z-index: 1;
-      }
-      .footer-emblem {
-        width: 50px;
-        height: 50px;
-        background: linear-gradient(135deg, #1a73e8, #34a853);
-        border-radius: 13px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        font-size: 1.5rem;
-        flex-shrink: 0;
-        box-shadow: 0 4px 14px rgba(26, 115, 232, 0.4);
-      }
-      .footer-school {
-        font-size: 0.72rem;
-        color: rgba(255, 255, 255, 0.45);
-        font-family: "IBM Plex Mono", monospace;
-        letter-spacing: 0.5px;
-        margin-bottom: 3px;
-        text-transform: uppercase;
-      }
-      .footer-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #ffffff;
-        letter-spacing: -0.3px;
-      }
-      .footer-sub {
-        font-size: 0.75rem;
-        color: rgba(255, 255, 255, 0.35);
-        margin-top: 3px;
-      }
-      .footer-right {
-        display: flex;
-        gap: 8px;
-        align-items: center;
-        position: relative;
-        z-index: 1;
-        flex-wrap: wrap;
-      }
-      .footer-badge {
-        background: rgba(255, 255, 255, 0.07);
-        border: 1px solid rgba(255, 255, 255, 0.11);
-        color: rgba(255, 255, 255, 0.55);
-        font-size: 0.72rem;
-        font-weight: 600;
-        padding: 5px 11px;
-        border-radius: 999px;
-        font-family: "IBM Plex Mono", monospace;
-        letter-spacing: 0.3px;
-      }
-      .footer-badge.accent {
-        background: rgba(26, 115, 232, 0.22);
-        border-color: rgba(26, 115, 232, 0.38);
-        color: #7cb8ff;
-      }
+      .site-footer { margin-top: 48px; padding-bottom: 32px; }
+      .footer-card { background: linear-gradient(135deg, #1a1d23 0%, #2d3340 100%); border-radius: var(--radius-lg); padding: 26px 30px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; box-shadow: var(--shadow-md); position: relative; overflow: hidden; }
+      .footer-card::before { content: ""; position: absolute; top: -50px; right: -50px; width: 180px; height: 180px; background: rgba(26, 115, 232, 0.1); border-radius: 50%; pointer-events: none; }
+      .footer-card::after { content: ""; position: absolute; bottom: -35px; left: 80px; width: 110px; height: 110px; background: rgba(52, 168, 83, 0.07); border-radius: 50%; pointer-events: none; }
+      .footer-left { display: flex; align-items: center; gap: 16px; position: relative; z-index: 1; }
+      .footer-emblem { width: 50px; height: 50px; background: linear-gradient(135deg, #1a73e8, #34a853); border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; box-shadow: 0 4px 14px rgba(26, 115, 232, 0.4); }
+      .footer-school { font-size: 0.72rem; color: rgba(255, 255, 255, 0.45); font-family: "IBM Plex Mono", monospace; letter-spacing: 0.5px; margin-bottom: 3px; text-transform: uppercase; }
+      .footer-title { font-size: 1rem; font-weight: 700; color: #ffffff; letter-spacing: -0.3px; }
+      .footer-sub { font-size: 0.75rem; color: rgba(255, 255, 255, 0.35); margin-top: 3px; }
+      .footer-right { display: flex; gap: 8px; align-items: center; position: relative; z-index: 1; flex-wrap: wrap; }
+      .footer-badge { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.11); color: rgba(255, 255, 255, 0.55); font-size: 0.72rem; font-weight: 600; padding: 5px 11px; border-radius: 999px; font-family: "IBM Plex Mono", monospace; }
+      .footer-badge.accent { background: rgba(26, 115, 232, 0.22); border-color: rgba(26, 115, 232, 0.38); color: #7cb8ff; }
 
-      /* ── RESPONSIVE ── */
       @media (max-width: 600px) {
-        body {
-          padding: 14px 12px;
-        }
-        .header-area {
-          padding: 14px 16px;
-        }
-        .btn-main {
-          padding: 8px 12px;
-          font-size: 0.8rem;
-        }
-        .card-grid {
-          grid-template-columns: 1fr;
-        }
-        .header-title h1 {
-          font-size: 1.05rem;
-        }
-        .toast {
-          white-space: normal;
-          text-align: center;
-          max-width: 90%;
-        }
-        .footer-card {
-          padding: 18px 20px;
-        }
-        .footer-title {
-          font-size: 0.92rem;
-        }
+        body { padding: 14px 12px; } .header-area { padding: 14px 16px; } .card-grid { grid-template-columns: 1fr; }
       }
     </style>
   </head>
   <body>
-    <!-- ══ LOGIN ══ -->
     <div id="loginScreen" class="screen">
       <div class="auth-wrap">
         <div class="auth-box">
@@ -775,19 +190,16 @@
             <p>PARTNER PORTAL v2</p>
           </div>
           <div class="input-group">
-            <input
-              type="password"
-              id="loginPw"
-              placeholder="비밀번호를 입력하세요"
-              autocomplete="current-password"
-            />
+            <input type="text" id="loginId" placeholder="아이디를 입력하세요" autocomplete="username" />
+          </div>
+          <div class="input-group">
+            <input type="password" id="loginPw" placeholder="비밀번호를 입력하세요" autocomplete="current-password" />
           </div>
           <button id="btnLogin" class="btn-auth">로그인</button>
         </div>
       </div>
     </div>
 
-    <!-- ══ PW CHANGE ══ -->
     <div id="pwChangeScreen" class="screen">
       <div class="auth-wrap">
         <div class="auth-box">
@@ -799,27 +211,16 @@
             보안을 위해 초기 비밀번호를 변경해주세요.
           </div>
           <div class="input-group">
-            <input
-              type="password"
-              id="newPw"
-              placeholder="새 비밀번호"
-              autocomplete="new-password"
-            />
+            <input type="password" id="newPw" placeholder="새 비밀번호" autocomplete="new-password" />
           </div>
           <div class="input-group">
-            <input
-              type="password"
-              id="newPwConfirm"
-              placeholder="새 비밀번호 확인"
-              autocomplete="new-password"
-            />
+            <input type="password" id="newPwConfirm" placeholder="새 비밀번호 확인" autocomplete="new-password" />
           </div>
           <button id="btnPwChange" class="btn-auth">변경 완료</button>
         </div>
       </div>
     </div>
 
-    <!-- ══ MAIN ══ -->
     <div id="mainScreen" class="screen container">
       <div class="header-area">
         <div class="header-title">
@@ -827,31 +228,19 @@
           <span class="count-badge" id="totalCount">0건</span>
         </div>
         <div class="btn-group">
-          <button class="btn-main btn-gray" id="btnSelectAll">
-            ✓ 전체선택
-          </button>
-          <button class="btn-main btn-light" id="btnDeselectAll">
-            ✗ 전체해제
-          </button>
-          <button class="btn-main btn-green" id="btnCopyPhone">
-            📱 전화번호 복사
-          </button>
-          <button class="btn-main btn-blue" id="btnOpenMail">
-            ✉️ 메일 발송
-          </button>
+          <button class="btn-main btn-gray" id="btnSelectAll">✓ 전체선택</button>
+          <button class="btn-main btn-light" id="btnDeselectAll">✗ 전체해제</button>
+          <button class="btn-main btn-green" id="btnCopyPhone">📱 연락처 복사</button>
+          <button class="btn-main btn-purple" id="btnCopyEmail">📧 이메일 복사</button>
+          <button class="btn-main btn-blue" id="btnOpenMail">✉️ 메일 발송</button>
           <button class="btn-main btn-red" id="btnLogout">🚪 로그아웃</button>
         </div>
       </div>
 
-      <!-- 검색 바 -->
       <div class="search-bar">
         <div class="search-wrap">
           <span class="search-icon">🔍</span>
-          <input
-            type="text"
-            id="searchInput"
-            placeholder="이름, 회사명, 직함, 이메일로 검색..."
-          />
+          <input type="text" id="searchInput" placeholder="이름, 회사명, 직함, 이메일로 검색..." />
         </div>
         <button class="search-clear" id="btnClearSearch">초기화</button>
       </div>
@@ -863,7 +252,6 @@
       </div>
       <div id="cardGrid" class="card-grid"></div>
 
-      <!-- ══ FOOTER ══ -->
       <footer class="site-footer">
         <div class="footer-card">
           <div class="footer-left">
@@ -871,9 +259,7 @@
             <div>
               <div class="footer-school">Sungil Information High School</div>
               <div class="footer-title">성일정보고등학교 도제</div>
-              <div class="footer-sub">
-                산학일체형 도제학교 · 현장 파트너 관리 시스템
-              </div>
+              <div class="footer-sub">산학일체형 도제학교 · 현장 파트너 관리 시스템</div>
             </div>
           </div>
           <div class="footer-right">
@@ -885,7 +271,6 @@
       </footer>
     </div>
 
-    <!-- ══ EMAIL MODAL ══ -->
     <div id="emailModal" class="modal-overlay">
       <div class="modal-content">
         <h3>✉️ 이메일 작성</h3>
@@ -895,11 +280,7 @@
         </div>
         <div class="form-group">
           <label>제목</label>
-          <input
-            type="text"
-            id="mailSubject"
-            placeholder="이메일 제목을 입력하세요"
-          />
+          <input type="text" id="mailSubject" placeholder="이메일 제목을 입력하세요" />
         </div>
         <div class="form-group">
           <label>내용</label>
@@ -920,70 +301,49 @@
       </div>
     </div>
 
-    <!-- ══ TOAST ══ -->
     <div id="toast" class="toast"></div>
 
     <script>
-      /* ═══════════════════════════════════════════════
-         CONSTANTS & STATE
-      ═══════════════════════════════════════════════ */
       const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
-      const SESSION_KEY = "doje_session"; // localStorage 키 (토큰 기반)
+      const SESSION_KEY = "doje_session";
 
       let GAS_URL = "";
-      let allData = []; // 전체 원본 데이터 (헤더 제외)
-      let filtered = []; // 검색 후 표시 데이터
-      let headers = {}; // 컬럼명 → 인덱스 매핑
-      let sessionUser = ""; // 현재 로그인 userId (메모리만)
-      let _tempOldPw = ""; // 비밀번호 변경 진입 시만 임시 보관, 완료 즉시 소멸
+      let allData = [];
+      let filtered = [];
+      let headers = {};
+      let sessionUser = "";
+      let _tempOldPw = "";
 
-      /* ═══════════════════════════════════════════════
-         INIT
-      ═══════════════════════════════════════════════ */
+      /* 🎨 기업별 색상 띠 밴드 적용을 위한 팔레트 생성 */
+      const palette = ["#1a73e8", "#34a853", "#ea4335", "#fbbc04", "#9334e6", "#00bcd4", "#ff9800", "#009688", "#673ab7", "#795548"];
+      const companyColorMap = {};
+      let colorIndex = 0;
+
+      function getCompanyColor(name) {
+        if (!companyColorMap[name]) {
+          companyColorMap[name] = palette[colorIndex % palette.length];
+          colorIndex++;
+        }
+        return companyColorMap[name];
+      }
+
       window.addEventListener("DOMContentLoaded", async () => {
-        // 버튼 이벤트 등록 (인라인 onXxx 제거)
-        document
-          .getElementById("btnLogin")
-          .addEventListener("click", attemptLogin);
-        document.getElementById("loginPw").addEventListener("keyup", (e) => {
-          if (e.key === "Enter") attemptLogin();
-        });
-        document
-          .getElementById("btnPwChange")
-          .addEventListener("click", attemptPwChange);
-        document
-          .getElementById("newPwConfirm")
-          .addEventListener("keyup", (e) => {
-            if (e.key === "Enter") attemptPwChange();
-          });
-        document
-          .getElementById("btnSelectAll")
-          .addEventListener("click", selectAll);
-        document
-          .getElementById("btnDeselectAll")
-          .addEventListener("click", deselectAll);
-        document
-          .getElementById("btnCopyPhone")
-          .addEventListener("click", copySelectedPhones);
-        document
-          .getElementById("btnOpenMail")
-          .addEventListener("click", openBulkModal);
+        document.getElementById("btnLogin").addEventListener("click", attemptLogin);
+        document.getElementById("loginPw").addEventListener("keyup", (e) => { if (e.key === "Enter") attemptLogin(); });
+        document.getElementById("btnPwChange").addEventListener("click", attemptPwChange);
+        document.getElementById("newPwConfirm").addEventListener("keyup", (e) => { if (e.key === "Enter") attemptPwChange(); });
+        document.getElementById("btnSelectAll").addEventListener("click", selectAll);
+        document.getElementById("btnDeselectAll").addEventListener("click", deselectAll);
+        document.getElementById("btnCopyPhone").addEventListener("click", copySelectedPhones);
+        document.getElementById("btnCopyEmail").addEventListener("click", copySelectedEmails); // ✅ 이벤트 리스너 추가
+        document.getElementById("btnOpenMail").addEventListener("click", openBulkModal);
         document.getElementById("btnLogout").addEventListener("click", logout);
-        document
-          .getElementById("btnCancelMail")
-          .addEventListener("click", closeModal);
+        document.getElementById("btnCancelMail").addEventListener("click", closeModal);
         document.getElementById("sendBtn").addEventListener("click", sendMail);
-        document
-          .getElementById("searchInput")
-          .addEventListener("input", handleSearch);
-        document
-          .getElementById("btnClearSearch")
-          .addEventListener("click", clearSearch);
-        document
-          .getElementById("fileInput")
-          .addEventListener("change", validateFiles);
+        document.getElementById("searchInput").addEventListener("input", handleSearch);
+        document.getElementById("btnClearSearch").addEventListener("click", clearSearch);
+        document.getElementById("fileInput").addEventListener("change", validateFiles);
 
-        // 모달 외부 클릭 닫기
         document.getElementById("emailModal").addEventListener("click", (e) => {
           if (e.target === document.getElementById("emailModal")) closeModal();
         });
@@ -994,10 +354,8 @@
           const config = await response.json();
           GAS_URL = config.api_url;
 
-          // [보안] localStorage에 userId만 저장하던 방식 → 세션 토큰 기반으로 변경
           const token = sessionStorage.getItem(SESSION_KEY);
           if (token) {
-            // 이미 탭 내에서 인증된 세션
             const saved = JSON.parse(token);
             sessionUser = saved.id;
             switchScreen("mainScreen");
@@ -1007,37 +365,26 @@
           }
         } catch (error) {
           console.error(error);
-          alert(
-            "서버 설정 파일을 불러오는데 실패했습니다.\n(project26_04_gas_url.json 파일을 확인해주세요.)",
-          );
+          alert("서버 설정 파일을 불러오는데 실패했습니다.\n(project26_04_gas_url.json 파일을 확인해주세요.)");
         }
       });
 
-      /* ═══════════════════════════════════════════════
-         SCREEN
-      ═══════════════════════════════════════════════ */
       function switchScreen(id) {
-        document
-          .querySelectorAll(".screen")
-          .forEach((s) => s.classList.remove("active"));
+        document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
         document.getElementById(id).classList.add("active");
       }
 
-      /* ═══════════════════════════════════════════════
-         LOGIN  (비밀번호 전용 — 공용 계정 방식)
-      ═══════════════════════════════════════════════ */
       async function attemptLogin() {
+        const id = document.getElementById("loginId").value.trim();
         const pw = document.getElementById("loginPw").value.trim();
         const pwInput = document.getElementById("loginPw");
         pwInput.classList.remove("error");
 
-        if (!pw) {
+        if (!id || !pw) {
           pwInput.classList.add("error");
+          showToast("아이디와 비밀번호를 모두 입력해주세요.", "error");
           return;
         }
-
-        // 비밀번호 전용 로그인 — 공용 아이디 "doje" 고정
-        const SHARED_ID = "doje";
 
         const btn = document.getElementById("btnLogin");
         btn.textContent = "로그인 중...";
@@ -1046,30 +393,26 @@
         try {
           const response = await fetch(GAS_URL, {
             method: "POST",
-            body: JSON.stringify({ action: "login", id: SHARED_ID, pw }),
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ action: "login", id: id, pw }),
           });
           const res = await response.json();
 
           if (res.success) {
-            sessionUser = SHARED_ID;
-
+            sessionUser = id;
             if (res.requirePwChange) {
-              _tempOldPw = pw; // 비밀번호 변경에만 사용, 이후 즉시 소멸
+              _tempOldPw = pw;
               document.getElementById("loginPw").value = "";
               switchScreen("pwChangeScreen");
             } else {
               document.getElementById("loginPw").value = "";
-              const token = {
-                id: SHARED_ID,
-                ts: Date.now(),
-                nonce: crypto.randomUUID(),
-              };
+              const token = { id: id, ts: Date.now(), nonce: crypto.randomUUID() };
               sessionStorage.setItem(SESSION_KEY, JSON.stringify(token));
               switchScreen("mainScreen");
               fetchData();
             }
           } else {
-            showToast("비밀번호가 올바르지 않습니다.", "error");
+            showToast(res.error || "비밀번호가 올바르지 않습니다.", "error");
             pwInput.classList.add("error");
           }
         } catch (err) {
@@ -1080,84 +423,52 @@
         }
       }
 
-      /* ═══════════════════════════════════════════════
-         PASSWORD CHANGE
-         [개선] 실패 케이스 처리 추가, 성공 후 pw 메모리 즉시 소멸
-      ═══════════════════════════════════════════════ */
       async function attemptPwChange() {
         const newPw = document.getElementById("newPw").value.trim();
-        const newPwConfirm = document
-          .getElementById("newPwConfirm")
-          .value.trim();
-        const oldPw = _tempOldPw; // 로그인 시 임시 보관한 값 사용
+        const newPwConfirm = document.getElementById("newPwConfirm").value.trim();
+        const oldPw = _tempOldPw;
 
         if (!oldPw) {
           showToast("세션이 만료되었습니다. 다시 로그인해주세요.", "error");
           switchScreen("loginScreen");
           return;
         }
-        if (newPw === "1234") {
-          showToast("초기 비밀번호는 사용할 수 없습니다.", "error");
-          return;
-        }
-        if (newPw !== newPwConfirm) {
-          showToast("새 비밀번호가 일치하지 않습니다.", "error");
-          return;
-        }
-        if (newPw.length < 4) {
-          showToast("비밀번호는 4자 이상이어야 합니다.", "error");
-          return;
-        }
+        if (newPw === "1234") { showToast("초기 비밀번호는 사용할 수 없습니다.", "error"); return; }
+        if (newPw !== newPwConfirm) { showToast("새 비밀번호가 일치하지 않습니다.", "error"); return; }
+        if (newPw.length < 4) { showToast("비밀번호는 4자 이상이어야 합니다.", "error"); return; }
 
         const btn = document.getElementById("btnPwChange");
-        btn.textContent = "변경 중...";
-        btn.disabled = true;
+        btn.textContent = "변경 중..."; btn.disabled = true;
 
         try {
           const response = await fetch(GAS_URL, {
-            method: "POST",
-            body: JSON.stringify({
-              action: "changePassword",
-              id: sessionUser,
-              oldPw,
-              newPw,
-            }),
+            method: "POST", headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ action: "changePassword", id: sessionUser, oldPw, newPw }),
           });
           const res = await response.json();
 
           if (res.success) {
-            _tempOldPw = ""; // 사용 즉시 소멸
+            _tempOldPw = "";
             showToast("비밀번호가 변경되었습니다.", "success");
             document.getElementById("newPw").value = "";
             document.getElementById("newPwConfirm").value = "";
 
-            const token = {
-              id: sessionUser,
-              ts: Date.now(),
-              nonce: crypto.randomUUID(),
-            };
+            const token = { id: sessionUser, ts: Date.now(), nonce: crypto.randomUUID() };
             sessionStorage.setItem(SESSION_KEY, JSON.stringify(token));
             switchScreen("mainScreen");
             fetchData();
           } else {
             showToast(res.error || "비밀번호 변경에 실패했습니다.", "error");
           }
-        } catch (err) {
-          showToast("서버 오류가 발생했습니다.", "error");
-        } finally {
-          btn.textContent = "변경 완료";
-          btn.disabled = false;
-        }
+        } catch (err) { showToast("서버 오류가 발생했습니다.", "error"); } 
+        finally { btn.textContent = "변경 완료"; btn.disabled = false; }
       }
 
-      /* ═══════════════════════════════════════════════
-         LOGOUT
-      ═══════════════════════════════════════════════ */
       function logout() {
         sessionStorage.removeItem(SESSION_KEY);
         sessionUser = "";
-        allData = [];
-        filtered = [];
+        allData = []; filtered = [];
+        document.getElementById("loginId").value = "";
         document.getElementById("loginPw").value = "";
         document.getElementById("cardGrid").innerHTML = "";
         document.getElementById("searchInput").value = "";
@@ -1166,193 +477,109 @@
         switchScreen("loginScreen");
       }
 
-      /* ═══════════════════════════════════════════════
-         FETCH DATA
-         [보안] GET 요청에도 세션 토큰 포함
-      ═══════════════════════════════════════════════ */
       async function fetchData() {
         showStatusBox("loading");
         try {
           const tokenRaw = sessionStorage.getItem(SESSION_KEY);
-          if (!tokenRaw) {
-            logout();
-            return;
-          }
+          if (!tokenRaw) { logout(); return; }
           const token = JSON.parse(tokenRaw);
 
-          // [보안] 인증 없이 GAS_URL GET 직접 호출하던 방식 개선
-          //   → POST + 세션 토큰으로 데이터 요청
           const response = await fetch(GAS_URL, {
-            method: "POST",
-            body: JSON.stringify({
-              action: "getData",
-              id: token.id,
-              nonce: token.nonce,
-            }),
+            method: "POST", headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify({ action: "getData", id: token.id, nonce: token.nonce }),
           });
           const data = await response.json();
 
-          if (!data || data.length < 2) {
-            showStatusBox("empty");
-            return;
-          }
+          if (!data || data.length < 2) { showStatusBox("empty"); return; }
 
-          // [개선] 헤더 기반 컬럼 매핑 (하드코딩 숫자 인덱스 제거)
           const rawHeaders = data[0];
-          rawHeaders.forEach((h, i) => {
-            headers[h] = i;
-          });
+          rawHeaders.forEach((h, i) => { headers[h] = i; });
 
-          allData = data
-            .slice(1)
-            .filter((row) => row[col("기업명")] || row[col("이름")]);
+          allData = data.slice(1).filter((row) => row[col("기업명")] || row[col("이름")]);
           filtered = [...allData];
           renderCards(filtered);
           updateCount(filtered.length);
-        } catch (error) {
-          console.error(error);
-          showStatusBox("error");
-        }
+        } catch (error) { showStatusBox("error"); }
       }
 
-      // 헤더 인덱스 헬퍼 (없으면 숫자 인덱스 fallback)
-      // 실제 시트 컬럼: A(no) B(기업명) C(담당업무) D(이름) E(직급) F(전화번호) G(핸드폰) H(이메일) I(주소)
       function col(name) {
-        return headers[name] !== undefined
-          ? headers[name]
-          : {
-              기업명: 1,
-              담당업무: 2,
-              이름: 3,
-              직급: 4,
-              전화번호: 5,
-              핸드폰: 6,
-              이메일: 7,
-              주소: 8,
-            }[name];
+        return headers[name] !== undefined ? headers[name] : { 기업명: 1, 담당업무: 2, 이름: 3, 직급: 4, 전화번호: 5, 핸드폰: 6, 이메일: 7, 주소: 8 }[name];
       }
 
-      /* ═══════════════════════════════════════════════
-         RENDER
-      ═══════════════════════════════════════════════ */
-      const colorPalette = [
-        "#1a73e8",
-        "#34a853",
-        "#ea4335",
-        "#fbbc04",
-        "#9334e6",
-        "#00bcd4",
-        "#ff9800",
-        "#009688",
-        "#673ab7",
-        "#795548",
-      ];
-      const companyColorMap = {};
-      let colorIndex = 0;
-
-      function getCompanyColor(name) {
-        if (!companyColorMap[name]) {
-          companyColorMap[name] =
-            colorPalette[colorIndex % colorPalette.length];
-          colorIndex++;
-        }
-        return companyColorMap[name];
+      function highlight(text, query) {
+        if (!query || !text) return text || "-";
+        const escaped = String(query).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+        return String(text).replace(new RegExp(`(${escaped})`, "gi"), '<mark class="highlight">$1</mark>');
       }
 
       function renderCards(rows, query = "") {
         const grid = document.getElementById("cardGrid");
         grid.innerHTML = "";
-
-        if (rows.length === 0) {
-          showStatusBox("noresult");
-          return;
-        }
         hideStatusBox();
 
+        if (rows.length === 0) { showStatusBox(query ? "noresult" : "empty"); return; }
+
         rows.forEach((row, idx) => {
-          const company = row[col("기업명")] || "";
-          const jobTitle = row[col("담당업무")] || "";
-          const name = row[col("이름")] || "";
-          const grade = row[col("직급")] || ""; // 직급 (교사/주임/수석 등)
-          const tel = row[col("전화번호")] || "-"; // 사무실 전화번호
-          const phone = row[col("핸드폰")] || "-";
-          const email = row[col("이메일")] || "-";
-          const address = row[col("주소")] || "-";
-
-          const themeColor = getCompanyColor(company);
-
-          const hl = (str) =>
-            query
-              ? str.replace(
-                  new RegExp(`(${escapeRegex(query)})`, "gi"),
-                  '<mark class="highlight">$1</mark>',
-                )
-              : str;
+          const company  = row[col("기업명")]   || "-";
+          const task     = row[col("담당업무")] || "";
+          const name     = row[col("이름")]     || "-";
+          const rank     = row[col("직급")]     || "";
+          const phone    = row[col("전화번호")] || "-";
+          const mobile   = row[col("핸드폰")]   || "-";
+          const email    = row[col("이메일")]   || "-";
+          const address  = row[col("주소")]     || "";
+          
+          const color    = getCompanyColor(company);
 
           const card = document.createElement("div");
           card.className = "card";
-          card.style.borderTop = `4px solid ${themeColor}`;
-          card.style.animationDelay = `${idx * 30}ms`;
+          card.style.animationDelay = `${Math.min(idx * 0.03, 0.3)}s`;
+
+          const phoneForCopy = (mobile !== "-" && mobile) ? mobile : (phone !== "-" ? phone : "");
+
           card.innerHTML = `
-            <div class="checkbox-container">
-              <input type="checkbox" class="contact-check"
-                data-email="${escapeAttr(email)}"
-                data-phone="${escapeAttr(phone)}">
-            </div>
-            <div class="company-name" style="color:${themeColor};">${hl(company)}</div>
-            <div class="name-tag">
-              <strong>${hl(name)}</strong>
-              ${grade ? `<span class="job-title">${hl(grade)}</span>` : ""}
-              ${jobTitle ? `<span class="job-title" style="background:#e8f0fe;color:#1a73e8;">${hl(jobTitle)}</span>` : ""}
-            </div>
-            <div class="info-row"><span class="label">이메일</span><span class="value">${hl(email)}</span></div>
-            <div class="info-row"><span class="label">핸드폰</span><span class="value">${phone}</span></div>
-            <div class="info-row"><span class="label">전화</span><span class="value">${tel}</span></div>
-            <div class="info-row" style="margin-top:6px;">
-              <span class="label">주소</span>
-              <span class="value address">${address}</span>
+            <div class="card-band" style="background:${color}"></div>
+            <div class="card-body">
+              <div class="checkbox-container">
+                <input type="checkbox" class="contact-check" data-email="${escapeAttr(email !== "-" ? email : "")}" data-phone="${escapeAttr(phoneForCopy)}" />
+              </div>
+              <div class="company-name" style="color:${color}">
+                ${highlight(company, query)}
+              </div>
+              <div class="name-tag">
+                ${task ? `<span class="job-title">${highlight(task, query)}</span>` : ""}
+                ${highlight(name, query)}
+                ${rank ? `<span style="color:var(--text-muted);font-size:0.8rem">/ ${highlight(rank, query)}</span>` : ""}
+              </div>
+              <div class="info-row"><span class="label">전화</span><span class="value">${highlight(phone, query)}</span></div>
+              <div class="info-row"><span class="label">핸드폰</span><span class="value">${highlight(mobile, query)}</span></div>
+              <div class="info-row"><span class="label">이메일</span><span class="value">${highlight(email, query)}</span></div>
+              ${address ? `<div class="info-row"><span class="value address">📍 ${highlight(address, query)}</span></div>` : ""}
             </div>
           `;
 
-          // 카드 클릭으로 체크박스 토글
           card.addEventListener("click", (e) => {
             if (e.target.type === "checkbox") return;
             const cb = card.querySelector(".contact-check");
             cb.checked = !cb.checked;
             card.classList.toggle("selected", cb.checked);
           });
-          card
-            .querySelector(".contact-check")
-            .addEventListener("change", (e) => {
-              card.classList.toggle("selected", e.target.checked);
-            });
+          card.querySelector(".contact-check").addEventListener("change", (e) => {
+            card.classList.toggle("selected", e.target.checked);
+          });
 
           grid.appendChild(card);
         });
       }
 
-      /* ═══════════════════════════════════════════════
-         SEARCH
-      ═══════════════════════════════════════════════ */
       function handleSearch() {
-        const q = document
-          .getElementById("searchInput")
-          .value.trim()
-          .toLowerCase();
+        const q = document.getElementById("searchInput").value.trim().toLowerCase();
         if (!q) {
           filtered = [...allData];
           document.getElementById("searchStats").style.display = "none";
         } else {
           filtered = allData.filter((row) => {
-            const haystack = [
-              row[col("기업명")],
-              row[col("담당업무")],
-              row[col("이름")],
-              row[col("직급")],
-              row[col("이메일")],
-            ]
-              .join(" ")
-              .toLowerCase();
+            const haystack = [row[col("기업명")], row[col("담당업무")], row[col("이름")], row[col("직급")], row[col("이메일")]].join(" ").toLowerCase();
             return haystack.includes(q);
           });
           const stats = document.getElementById("searchStats");
@@ -1364,73 +591,51 @@
         deselectAll();
       }
 
-      function clearSearch() {
-        document.getElementById("searchInput").value = "";
-        handleSearch();
-      }
+      function clearSearch() { document.getElementById("searchInput").value = ""; handleSearch(); }
 
-      /* ═══════════════════════════════════════════════
-         SELECT / DESELECT
-      ═══════════════════════════════════════════════ */
-      function selectAll() {
-        document.querySelectorAll(".contact-check").forEach((cb) => {
-          cb.checked = true;
-          cb.closest(".card").classList.add("selected");
-        });
-      }
-      function deselectAll() {
-        document.querySelectorAll(".contact-check").forEach((cb) => {
-          cb.checked = false;
-          cb.closest(".card").classList.remove("selected");
-        });
-      }
+      function selectAll() { document.querySelectorAll(".contact-check").forEach((cb) => { cb.checked = true; cb.closest(".card").classList.add("selected"); }); }
+      function deselectAll() { document.querySelectorAll(".contact-check").forEach((cb) => { cb.checked = false; cb.closest(".card").classList.remove("selected"); }); }
 
-      /* ═══════════════════════════════════════════════
-         COPY PHONES
-         [개선] deprecated execCommand → navigator.clipboard API 로 교체
-      ═══════════════════════════════════════════════ */
       async function copySelectedPhones() {
         const checks = document.querySelectorAll(".contact-check:checked");
-        const phones = Array.from(checks)
-          .map((c) => c.dataset.phone)
-          .filter((p) => p && p.trim() !== "" && p !== "-");
+        const phones = Array.from(checks).map((c) => c.dataset.phone).filter((p) => p && p.trim() !== "" && p !== "-");
 
-        if (phones.length === 0) {
-          showToast("대상을 하나 이상 선택해주세요.", "error");
-          return;
-        }
+        if (phones.length === 0) { showToast("대상을 하나 이상 선택해주세요.", "error"); return; }
 
         const textToCopy = phones.join(", ");
         try {
           await navigator.clipboard.writeText(textToCopy);
           showToast(`📱 ${phones.length}건 복사됨`, "success");
         } catch {
-          // fallback (구형 브라우저)
-          const ta = Object.assign(document.createElement("textarea"), {
-            value: textToCopy,
-            style: "position:fixed;top:-9999px;",
-          });
-          document.body.appendChild(ta);
-          ta.select();
-          document.execCommand("copy");
-          document.body.removeChild(ta);
+          const ta = Object.assign(document.createElement("textarea"), { value: textToCopy, style: "position:fixed;top:-9999px;" });
+          document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
           showToast(`📱 ${phones.length}건 복사됨`, "success");
         }
       }
 
-      /* ═══════════════════════════════════════════════
-         EMAIL MODAL
-      ═══════════════════════════════════════════════ */
+      /* ✅ 이메일 복사 기능 함수 추가 */
+      async function copySelectedEmails() {
+        const checks = document.querySelectorAll(".contact-check:checked");
+        const emails = Array.from(checks).map((c) => c.dataset.email).filter((e) => e && e.trim() !== "" && e !== "-");
+
+        if (emails.length === 0) { showToast("대상을 하나 이상 선택해주세요.", "error"); return; }
+
+        const textToCopy = emails.join(", ");
+        try {
+          await navigator.clipboard.writeText(textToCopy);
+          showToast(`📧 ${emails.length}건 복사됨`, "success");
+        } catch {
+          const ta = Object.assign(document.createElement("textarea"), { value: textToCopy, style: "position:fixed;top:-9999px;" });
+          document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta);
+          showToast(`📧 ${emails.length}건 복사됨`, "success");
+        }
+      }
+
       function openBulkModal() {
         const checks = document.querySelectorAll(".contact-check:checked");
-        const emails = Array.from(checks)
-          .map((c) => c.dataset.email)
-          .filter((e) => e && e !== "-" && isValidEmail(e));
+        const emails = Array.from(checks).map((c) => c.dataset.email).filter((e) => e && e !== "-" && isValidEmail(e));
 
-        if (emails.length === 0) {
-          showToast("유효한 이메일이 있는 대상을 선택해주세요.", "error");
-          return;
-        }
+        if (emails.length === 0) { showToast("유효한 이메일이 있는 대상을 선택해주세요.", "error"); return; }
         document.getElementById("targetEmail").value = emails.join(", ");
         document.getElementById("mailSubject").value = "";
         document.getElementById("mailBody").value = "";
@@ -1439,133 +644,87 @@
         document.getElementById("emailModal").classList.add("open");
       }
 
-      function closeModal() {
-        document.getElementById("emailModal").classList.remove("open");
-      }
+      function closeModal() { document.getElementById("emailModal").classList.remove("open"); }
 
-      /* ═══════════════════════════════════════════════
-         FILE VALIDATION
-         [개선] 첨부파일 용량 검사
-      ═══════════════════════════════════════════════ */
       function validateFiles() {
         const files = document.getElementById("fileInput").files;
         const totalSize = Array.from(files).reduce((s, f) => s + f.size, 0);
         const warn = document.getElementById("fileWarn");
-        if (totalSize > MAX_FILE_SIZE) {
-          warn.style.display = "block";
-          return false;
-        }
-        warn.style.display = "none";
-        return true;
+        if (totalSize > MAX_FILE_SIZE) { warn.style.display = "block"; return false; }
+        warn.style.display = "none"; return true;
       }
 
-      /* ═══════════════════════════════════════════════
-         SEND MAIL
-      ═══════════════════════════════════════════════ */
-      const fileToB64 = (file) =>
-        new Promise((res, rej) => {
-          const r = new FileReader();
-          r.onload = () => res({ name: file.name, data: r.result });
-          r.onerror = rej;
-          r.readAsDataURL(file);
-        });
+      const fileToB64 = (file) => new Promise((res, rej) => {
+        const r = new FileReader();
+        r.onload = () => res({ name: file.name, data: r.result });
+        r.onerror = rej;
+        r.readAsDataURL(file);
+      });
 
       async function sendMail() {
         const subject = document.getElementById("mailSubject").value.trim();
-        const body = document.getElementById("mailBody").value.trim();
-        if (!subject || !body) {
-          showToast("제목과 내용을 입력해주세요.", "error");
-          return;
-        }
+        const body    = document.getElementById("mailBody").value.trim();
+
+        if (!subject || !body) { showToast("제목과 내용을 입력해주세요.", "error"); return; }
         if (!validateFiles()) return;
 
         const sendBtn = document.getElementById("sendBtn");
-        sendBtn.textContent = "발송 중...";
-        sendBtn.disabled = true;
+        sendBtn.textContent = "발송 중..."; sendBtn.disabled = true;
 
         try {
           const fileInput = document.getElementById("fileInput");
-          const filesData = await Promise.all(
-            Array.from(fileInput.files).map(fileToB64),
-          );
+          const filesData = await Promise.all(Array.from(fileInput.files).map(fileToB64));
 
           const payload = {
             action: "sendEmail",
             to: document.getElementById("targetEmail").value,
-            subject,
-            body,
-            files: filesData,
+            subject, body, files: filesData,
           };
 
           const res = await fetch(GAS_URL, {
-            method: "POST",
+            method: "POST", headers: { "Content-Type": "text/plain" },
             body: JSON.stringify(payload),
           }).then((r) => r.json());
 
           if (res.success) {
-            showToast("✉️ 메일이 발송되었습니다.", "success");
+            showToast(`✉️ ${res.sent}건 메일이 발송되었습니다.`, "success");
             closeModal();
           } else {
-            showToast(
-              "발송 실패: " + (res.error || "알 수 없는 오류"),
-              "error",
-            );
+            showToast("발송 실패: " + (res.error || "알 수 없는 오류"), "error");
           }
-        } catch {
-          showToast("네트워크 오류가 발생했습니다.", "error");
+        } catch (err) {
+          showToast("네트워크 오류: " + err.message, "error");
         } finally {
-          sendBtn.textContent = "발송하기";
-          sendBtn.disabled = false;
+          sendBtn.textContent = "발송하기"; sendBtn.disabled = false;
         }
       }
 
-      /* ═══════════════════════════════════════════════
-         UI HELPERS
-      ═══════════════════════════════════════════════ */
       function showStatusBox(type) {
-        const box = document.getElementById("statusBox");
+        const box  = document.getElementById("statusBox");
         const grid = document.getElementById("cardGrid");
-        grid.innerHTML = "";
-        box.style.display = "block";
+        grid.innerHTML = ""; box.style.display = "block";
 
         const templates = {
-          loading: `<div class="spinner"></div><p>데이터를 불러오는 중입니다...</p>`,
-          empty: `<div class="status-icon">📭</div><p>데이터가 없습니다.</p>`,
+          loading:  `<div class="spinner"></div><p>데이터를 불러오는 중입니다...</p>`,
+          empty:    `<div class="status-icon">📭</div><p>데이터가 없습니다.</p>`,
           noresult: `<div class="status-icon">🔍</div><p>검색 결과가 없습니다.</p>`,
-          error: `<div class="status-icon">⚠️</div><p>데이터를 불러오지 못했습니다.</p>
-                     <button class="btn-main btn-blue" style="margin:0 auto; display:block;" onclick="fetchData()">다시 시도</button>`,
+          error:    `<div class="status-icon">⚠️</div><p>데이터를 불러오지 못했습니다.</p><button class="btn-main btn-blue" style="margin:0 auto; display:block;" onclick="fetchData()">다시 시도</button>`,
         };
         box.innerHTML = templates[type] || templates.loading;
       }
 
-      function hideStatusBox() {
-        document.getElementById("statusBox").style.display = "none";
-      }
-
-      function updateCount(n) {
-        document.getElementById("totalCount").textContent = `${n}건`;
-      }
+      function hideStatusBox() { document.getElementById("statusBox").style.display = "none"; }
+      function updateCount(n) { document.getElementById("totalCount").textContent = `${n}건`; }
 
       let toastTimer;
       function showToast(msg, type = "info") {
         const toast = document.getElementById("toast");
-        toast.textContent = msg;
-        toast.className = `toast ${type} show`;
-        clearTimeout(toastTimer);
-        toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
+        toast.textContent = msg; toast.className = `toast ${type} show`;
+        clearTimeout(toastTimer); toastTimer = setTimeout(() => toast.classList.remove("show"), 2800);
       }
 
-      function isValidEmail(email) {
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
-      }
-
-      function escapeRegex(str) {
-        return str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-      }
-
-      function escapeAttr(str) {
-        return str.replace(/"/g, "&quot;").replace(/'/g, "&#39;");
-      }
+      function isValidEmail(email) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email); }
+      function escapeAttr(str) { return str.replace(/"/g, "&quot;").replace(/'/g, "&#39;"); }
     </script>
   </body>
 </html>
