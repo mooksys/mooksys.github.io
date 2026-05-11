@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <title>성경 통독 기록장</title>
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     <style>
       *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
       
@@ -44,7 +45,6 @@
       .login-btn{width:100%;padding:16px;border:none;border-radius:12px;background:var(--p);color:#fff;font-size:17px;font-weight:700;cursor:pointer;transition:background 0.2s; font-family: var(--font);}
       .login-btn:hover{background:var(--pd);}
       
-      /* 헤더 (높이 축소 반영) */
       .hdr{background:var(--card);color:var(--txt);padding:18px 20px 14px;text-align:center;position:relative;border-bottom:1px solid var(--bdr); border-bottom-left-radius: 24px; border-bottom-right-radius: 24px; box-shadow: var(--sh); z-index: 10;}
       .hdr h1{font-size:22px;font-weight:800;color:var(--p); letter-spacing:-0.3px;}
       .hdr p{font-size:14px;color:var(--txt2);margin-top:6px; font-weight:500;}
@@ -52,9 +52,8 @@
       .hdr-r{position:absolute;top:14px;right:16px;display:flex;gap:8px;align-items:center;}
       .ib{background:var(--bg2);border:1px solid var(--bdr);color:var(--txt);width:36px;height:36px;border-radius:10px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:background 0.2s; font-size:16px;}
       
-      /* user-chip 디자인 (너비 확대 & 개별 색상 변수 적용) */
       .user-chip{
-        --u-color: var(--p); /* 기본색 (자바스크립트에서 덮어씀) */
+        --u-color: var(--p);
         display: inline-flex; align-items: center; justify-content: center;
         background: var(--card); border: 1px solid var(--bdr); color: var(--txt);
         border-radius: 12px; padding: 12px 36px; font-size: 15px; font-weight: 800;
@@ -63,7 +62,6 @@
         position: relative; overflow: hidden; 
       }
       .user-chip::before { content: '👤'; margin-right: 8px; font-size: 16px; }
-      /* 하단 띠밴드 디자인 (개별 색상 변수 사용) */
       .user-chip::after { 
         content: ''; position: absolute; bottom: 0; left: 0; width: 100%; height: 5px;
         background: var(--u-color);
@@ -113,6 +111,7 @@
         aspect-ratio: 1 / 1; width: 100%; display: flex; flex-direction: column; align-items: center; justify-content: center; 
         background: var(--bg2); border-radius: clamp(4px, 1.5vw, 10px); cursor: pointer; border: 2px solid transparent; 
         transition: transform 0.1s; font-size: clamp(11px, 2.8vw, 14px); font-weight: 700; min-height: 0; padding: 0;
+        align-self: start; /* Grid item 늘어남 방지 */
       }
       .cal-day:active { transform: scale(0.95); }
       
@@ -122,7 +121,7 @@
       body.dark .cal-day:nth-child(7n+1) { color: #ff8787; }
       body.dark .cal-day:nth-child(7n) { color: #748ffc; }
 
-      .cal-day.empty { visibility: hidden; pointer-events: none; }
+      .cal-day.empty { visibility: hidden; pointer-events: none; background: transparent; border: none; }
       .cal-day.today { border-color: var(--p); background: var(--card); }
       .cal-day.rec { background: var(--plt) !important; color: var(--pd) !important; }
       .cal-ck{font-size:clamp(8px, 2vw, 12px);margin-top:2px;color:var(--p);line-height:1;}
@@ -144,12 +143,20 @@
       .rec-card{background:var(--card);border:1px solid var(--bdr);border-radius:20px;padding:24px;margin-bottom:18px;box-shadow:var(--sh);}
       .rc-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px;}
       .rc-date{font-size:13px;font-weight:700;color:var(--txt2);background:var(--bg2);padding:6px 12px;border-radius:8px;}
+      
+      .rc-author { font-size: 13px; font-weight: 700; color: var(--p); background: var(--plt); padding: 6px 12px; border-radius: 8px; display: inline-flex; align-items: center; gap: 4px; }
+      body.dark .rc-author { color: var(--p); background: rgba(139, 168, 142, 0.15); }
+      
       .rc-title{font-size:19px;font-weight:800;color:var(--txt);margin-bottom:14px; letter-spacing: -0.5px;}
       .rc-verse-band { background: var(--bg2); border-left: 5px solid var(--p); padding: 16px 18px; margin: 0 0 16px 0; border-radius: 6px 12px 12px 6px; font-size: 16px; line-height: 1.6; font-weight: 600; color: var(--txt); word-break: keep-all;}
       .rc-med{color:var(--txt);line-height:1.75;font-size:16px;margin-bottom:16px;white-space:pre-wrap; font-weight:400;}
-      .rc-acts{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:20px;border-top:1px solid var(--bdr);padding-top:20px;}
-      .btn-edit,.btn-del{padding:12px;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px; color:#fff; font-family:var(--font);}
-      .btn-edit{background:var(--p);} .btn-del{background:#E03131;}
+      
+      .rc-acts{display:grid;grid-template-columns:repeat(3, 1fr);gap:8px;margin-top:20px;border-top:1px solid var(--bdr);padding-top:20px;}
+      .btn-edit,.btn-del,.btn-img{padding:12px;border:none;border-radius:10px;font-weight:700;cursor:pointer;font-size:14px; color:#fff; font-family:var(--font);}
+      .btn-edit{background:var(--p);} 
+      .btn-del{background:#E03131;}
+      .btn-img{background:#0C8599;} 
+      
       .fav-btn{background:none;border:none;font-size:22px;cursor:pointer; padding:4px;}
       
       .srch-wrap{position:relative;margin-bottom:16px;}
@@ -217,8 +224,8 @@
       <div class="hdr">
         <div class="hdr-l"><button class="ib" onclick="toggleDark()">🌓</button></div>
         <div class="hdr-r"><button class="ib" onclick="toggleCfg()">⚙️</button></div>
-        <h1>2026 말씀과 함께</h1>
-        <p>광교1동성당 성실하게 성경통독 중입니다</p>
+        <h1>기록 요약</h1>
+        <p>성실하게 통독 중입니다</p>
         <div class="user-chip" id="userChip">사용자</div>
       </div>
 
@@ -369,24 +376,35 @@
       let homeY, homeMo, editId = null, umEditId = null;
       let listY, listMo, listPage = 1; const listPerPage = 5;
 
-      // 사용자별 고유 색상(해시) 생성 함수
+      // 🌟 추가된 함수: "6-7" 입력 시 스프레드시트가 날짜로 강제 변환한 데이터를 다시 문자열로 예쁘게 복구
+      function formatVerse(v) {
+        if (!v) return "";
+        let s = String(v).trim();
+        // 스프레드시트가 날짜 객체로 보내서 ISO String (예: 2026-08-08T15:00:00.000Z) 으로 온 경우 파싱
+        if (s.includes("T") && s.includes(".000Z")) {
+          let d = new Date(s);
+          if (!isNaN(d.getTime())) {
+            // 시간대를 고려하여 월-일 포맷으로 예쁘게 변환 (8-9 형식)
+            return `${d.getMonth() + 1}-${d.getDate()}`;
+          }
+        }
+        return s;
+      }
+
       function getUserColor(str) {
         let hash = 0;
         for (let i = 0; i < str.length; i++) hash = str.charCodeAt(i) + ((hash << 5) - hash);
         const hue = Math.abs(hash) % 360;
-        return `hsl(${hue}, 60%, 45%)`; // 적절한 채도와 밝기로 조정
+        return `hsl(${hue}, 60%, 45%)`; 
       }
 
-      // 화면에 사용자 이름과 색상 적용
       function applyUserChip(user) {
         const uName = user.baptism ? `${user.name} (${user.baptism})` : user.name;
         const chip = $("userChip");
         chip.textContent = uName;
-        // 개인별 고유 색상을 CSS 변수(--u-color)로 덮어쓰기
         chip.style.setProperty('--u-color', getUserColor(user.id || user.name || "default"));
       }
 
-      // 디버거 로직
       function logD(msg) {
         const dText = $("debugText");
         const time = new Date().toLocaleTimeString();
@@ -396,9 +414,7 @@
       }
       function openDebug() { $("debugPanel").style.display = "flex"; }
       function closeDebug() { $("debugPanel").style.display = "none"; }
-      function copyDebug() {
-        navigator.clipboard.writeText($("debugText").innerText).then(()=>alert("복사되었습니다. AI에게 전달해주세요!"));
-      }
+      function copyDebug() { navigator.clipboard.writeText($("debugText").innerText).then(()=>alert("복사되었습니다. AI에게 전달해주세요!")); }
 
       function getLocalToday() {
         const d = new Date(), offset = d.getTimezoneOffset() * 60000;
@@ -410,67 +426,42 @@
         return (!val || val === "undefined" || val === "null") ? "" : val;
       }
 
-      // GAS 통신
       async function gasCall(payload) {
         logD("--- API 호출 시작 ---");
         if (!gasUrl) throw new Error("설정(⚙️)에서 GAS 주소를 먼저 연결해주세요.");
+        payload.token = getSafeStorage("bb_token"); payload.uid = getSafeStorage("bb_uid"); 
+        logD("URL: " + gasUrl); logD("Action: " + payload.action);
         
-        payload.token = getSafeStorage("bb_token");
-        payload.uid = getSafeStorage("bb_uid"); 
-        
-        logD("URL: " + gasUrl);
-        logD("Action: " + payload.action);
-        
-        const ctl = new AbortController();
-        const tmr = setTimeout(() => ctl.abort(), 20000); 
-        
+        const ctl = new AbortController(); const tmr = setTimeout(() => ctl.abort(), 20000); 
         try {
           const res = await fetch(gasUrl, { 
-            method: "POST",
-            redirect: "follow",
-            body: JSON.stringify(payload),
-            headers: { "Content-Type": "text/plain;charset=utf-8" }, 
-            signal: ctl.signal
+            method: "POST", redirect: "follow", body: JSON.stringify(payload),
+            headers: { "Content-Type": "text/plain;charset=utf-8" }, signal: ctl.signal
           }); 
           clearTimeout(tmr);
-          
           logD("HTTP 상태: " + res.status);
           if(!res.ok) throw new Error(`서버 응답 에러 (${res.status})`);
-          
           const text = await res.text();
-          if (text.includes("<html") || text.includes("Sign in - Google Accounts")) {
-             throw new Error("CORS_HTML_ERROR");
-          }
+          if (text.includes("<html") || text.includes("Sign in - Google Accounts")) throw new Error("CORS_HTML_ERROR");
           
           let json;
           try { json = JSON.parse(text); } catch(err) { throw new Error("서버가 올바르지 않은 응답을 보냈습니다."); }
-
           if (!json.ok) {
             const errMsg = json.error || "알 수 없는 에러";
-            if (errMsg.includes("권한") || errMsg.includes("로그인") || errMsg.includes("AUTH_FAIL")) {
-              hardReset();
-              throw new Error("세션이 만료되었습니다. 다시 로그인 해주세요.");
-            }
+            if (errMsg.includes("권한") || errMsg.includes("로그인") || errMsg.includes("AUTH_FAIL")) { hardReset(); throw new Error("세션이 만료되었습니다. 다시 로그인 해주세요."); }
             throw new Error(errMsg);
           }
           return json.data;
-
         } catch (e) { 
-          clearTimeout(tmr); 
-          logD("🚨 예외 잡힘: " + e.message);
-          if (e.message === "CORS_HTML_ERROR") {
-             openDebug(); 
-             throw new Error("🚨 구글 스크립트 배포 설정 오류입니다.");
-          }
+          clearTimeout(tmr); logD("🚨 예외 잡힘: " + e.message);
+          if (e.message === "CORS_HTML_ERROR") { openDebug(); throw new Error("🚨 구글 스크립트 배포 설정 오류입니다."); }
           throw e; 
         }
       }
 
       function hardReset() {
-        const tempGas = localStorage.getItem("bb_gas");
-        localStorage.clear();
-        if(tempGas) localStorage.setItem("bb_gas", tempGas);
-        location.reload();
+        const tempGas = localStorage.getItem("bb_gas"); localStorage.clear();
+        if(tempGas) localStorage.setItem("bb_gas", tempGas); location.reload();
       }
 
       async function doLogin(event) {
@@ -480,26 +471,17 @@
         logD("👉 로그인 시도: " + id);
         try {
           const data = await gasCall({ action: "userAuth", id: id, pw: pw });
-          me = data;
-          localStorage.setItem("bb_uid", me.id); 
-          localStorage.setItem("bb_token", me.token); 
-          localStorage.setItem("bb_me", JSON.stringify(me)); 
+          me = data; localStorage.setItem("bb_uid", me.id); localStorage.setItem("bb_token", me.token); localStorage.setItem("bb_me", JSON.stringify(me)); 
           loginOk();
-        } catch (err) { $("loginErr").innerHTML = err.message; } 
-        finally { btn.disabled = false; btn.textContent = "로그인하기"; }
+        } catch (err) { $("loginErr").innerHTML = err.message; } finally { btn.disabled = false; btn.textContent = "로그인하기"; }
       }
 
       function loginOk() {
         $("loginScreen").style.display = "none"; $("appScreen").style.display = "block";
-        
-        applyUserChip(me); // 색상 및 이름 적용
-        
+        applyUserChip(me); 
         $("tabAdmin").style.display = (me.role === "admin") ? "block" : "none";
-
-        const d = new Date(getLocalToday());
-        homeY = listY = d.getFullYear(); homeMo = listMo = d.getMonth() + 1;
-        $("fDate").value = getLocalToday(); 
-        fetchFromGAS(); goPage("Home");
+        const d = new Date(getLocalToday()); homeY = listY = d.getFullYear(); homeMo = listMo = d.getMonth() + 1;
+        $("fDate").value = getLocalToday(); fetchFromGAS(); goPage("Home");
       }
 
       function doLogout() { if(confirm("로그아웃 하시겠습니까?")) { localStorage.clear(); location.reload(); } }
@@ -507,111 +489,84 @@
       (async function init() {
         if (localStorage.getItem("bb_dark") === "1") toggleDark(true);
         if(!gasUrl) gasUrl = getSafeStorage("bb_gas");
-        
         try { 
           const res = await fetch("./index_bible_write_gas_v2.json");
-          if(res.ok) {
-             const json = await res.json();
-             if(json.gas_url) { gasUrl = json.gas_url; localStorage.setItem("bb_gas", gasUrl); logD("JSON 파일에서 URL 셋업 완료"); }
-          }
+          if(res.ok) { const json = await res.json(); if(json.gas_url) { gasUrl = json.gas_url; localStorage.setItem("bb_gas", gasUrl); logD("JSON 파일에서 URL 셋업 완료"); } }
         } catch(e) { logD("JSON 패치 실패, 로컬 스토리지 사용"); }
 
-        if(gasUrl) { $("gasUrlInput").value = gasUrl; gasOk = true; }
-        else { logD("⚠️ 연결된 GAS URL이 없습니다."); }
-        
+        if(gasUrl) { $("gasUrlInput").value = gasUrl; gasOk = true; } else { logD("⚠️ 연결된 GAS URL이 없습니다."); }
         const storedMe = getSafeStorage("bb_me");
-        if (storedMe && getSafeStorage("bb_token") && gasOk) { 
-            try { me = JSON.parse(storedMe); loginOk(); } catch(e) { hardReset(); }
-        }
+        if (storedMe && getSafeStorage("bb_token") && gasOk) { try { me = JSON.parse(storedMe); loginOk(); } catch(e) { hardReset(); } }
       })();
 
       async function fetchFromGAS() {
         if (!gasUrl) { setSyncBar("error", "GAS 주소 연결 필요"); $("cfgPanel").classList.add("open"); return; }
         try { 
-          setSyncBar("syncing", "동기화 중..."); 
-          let data = await gasCall({ action: "list" }); 
-          
+          setSyncBar("syncing", "동기화 중..."); let data = await gasCall({ action: "list" }); 
           recs = Array.isArray(data) ? data : [];
           recs.forEach(r => {
             let dStr = String(r.date);
             if (dStr.includes("T")) {
               let d = new Date(dStr);
-              if (!isNaN(d.getTime())) {
-                let offset = d.getTimezoneOffset() * 60000;
-                r.date = new Date(d.getTime() - offset).toISOString().slice(0, 10);
-              }
-            } else {
-              r.date = dStr.substring(0, 10);
-            }
+              if (!isNaN(d.getTime())) { let offset = d.getTimezoneOffset() * 60000; r.date = new Date(d.getTime() - offset).toISOString().slice(0, 10); }
+            } else { r.date = dStr.substring(0, 10); }
           });
-
           setSyncBar("ok", "동기화 완료"); refresh(); 
         } 
         catch (e) { 
-          if(e.message !== "세션이 만료되었습니다. 다시 로그인 해주세요.") {
-             setSyncBar("error", `연결 실패`); 
-             $("cfgPanel").classList.add("open");
-             toast("통신 실패: " + e.message);
-          }
+          if(e.message !== "세션이 만료되었습니다. 다시 로그인 해주세요.") { setSyncBar("error", `연결 실패`); $("cfgPanel").classList.add("open"); toast("통신 실패: " + e.message); }
         }
       }
 
       async function saveRecord(e) {
         e.preventDefault(); $("btnSave").disabled = true;
-        const data = { id: editId||"", date:$("fDate").value, book:$("fBook").value, chapter:$("fChapter").value, verse:$("fVerse").value, verseText:$("fVerseText").value, meditation:$("fMed").value, favorite:$("fFav").checked };
+        
+        let rawVerse = $("fVerse").value.trim();
+        // 🌟 수정: 입력값이 숫자로 시작하고 하이픈 등 기호가 포함된 경우(예: 6-7), 맨 앞에 작은따옴표(')를 추가하여 시트에 날짜 대신 순수 텍스트로 저장되게 강제
+        if (rawVerse && /^\d/.test(rawVerse) && (rawVerse.includes("-") || rawVerse.includes(",") || rawVerse.includes(":"))) {
+          rawVerse = "'" + rawVerse;
+        }
+
+        const data = { id: editId||"", date:$("fDate").value, book:$("fBook").value, chapter:$("fChapter").value, verse: rawVerse, verseText:$("fVerseText").value, meditation:$("fMed").value, favorite:$("fFav").checked };
         try { await gasCall({ action: editId ? "update" : "add", record: data }); cancelEdit(); fetchFromGAS(); goPage("Home"); toast("✅ 저장되었습니다."); }
         catch (err) { toast("❌ 실패: " + err.message); openDebug(); } finally { $("btnSave").disabled = false; }
       }
 
-      function toggleFav(id, cur) {
-        gasCall({ action: "fav", id: String(id), favorite: !cur }).then(() => { fetchFromGAS(); }).catch(err => toast("❌ 실패"));
-      }
-
-      function delRecord(id) { 
-        if (confirm("정말로 삭제할까요?")) { gasCall({ action: "delete", id: String(id) }).then(()=>fetchFromGAS()).catch(err => toast("❌ 실패")); }
-      }
+      function toggleFav(id, cur) { gasCall({ action: "fav", id: String(id), favorite: !cur }).then(() => { fetchFromGAS(); }).catch(err => toast("❌ 실패")); }
+      function delRecord(id) { if (confirm("정말로 삭제할까요?")) { gasCall({ action: "delete", id: String(id) }).then(()=>fetchFromGAS()).catch(err => toast("❌ 실패")); } }
       
       function startEdit(id) {
-        const r = recs.find(x => String(x.id) === String(id)); 
-        if (!r) return;
-        editId = id; $("fDate").value = r.date; $("fBook").value = r.book; $("fChapter").value = r.chapter; $("fVerse").value = r.verse||""; $("fVerseText").value = r.verseText||""; $("fMed").value = r.meditation||""; $("fFav").checked = (r.favorite === true || String(r.favorite) === 'true');
+        const r = recs.find(x => String(x.id) === String(id)); if (!r) return;
+        editId = id; $("fDate").value = r.date; $("fBook").value = r.book; $("fChapter").value = r.chapter; 
+        
+        // 🌟 수정: 기존에 깨진 채로 저장된 날짜 데이터도 수정 시 정상적으로 보이게끔 포맷 적용
+        $("fVerse").value = formatVerse(r.verse) || ""; 
+        
+        $("fVerseText").value = r.verseText||""; $("fMed").value = r.meditation||""; $("fFav").checked = (r.favorite === true || String(r.favorite) === 'true');
         goPage("Write"); $("editBanner").classList.add("on");
       }
-      
       function cancelEdit() { editId=null; $("writeForm").reset(); $("editBanner").classList.remove("on"); $("fDate").value = getLocalToday(); }
 
       function refresh() {
         const curMo = `${homeY}-${String(homeMo).padStart(2,'0')}`;
         $("stTotal").textContent = recs.length; $("stMonth").textContent = recs.filter(r => String(r.date).startsWith(curMo)).length; $("stFav").textContent = recs.filter(r => (r.favorite===true || String(r.favorite)==='true')).length;
         let streak = 0; if (recs.length > 0) {
-          const sorted = [...new Set(recs.map(r => r.date))].sort().reverse();
-          let prev = new Date(sorted[0]); streak = 1;
-          for (let i = 1; i < sorted.length; i++) {
-            let d = new Date(sorted[i]), diff = (prev - d) / 86400000;
-            if (diff === 1) { streak++; prev = d; } else break;
-          }
+          const sorted = [...new Set(recs.map(r => r.date))].sort().reverse(); let prev = new Date(sorted[0]); streak = 1;
+          for (let i = 1; i < sorted.length; i++) { let d = new Date(sorted[i]), diff = (prev - d) / 86400000; if (diff === 1) { streak++; prev = d; } else break; }
         }
         $("stStreak").textContent = streak; renderHomeCal(); renderList(1);
       }
 
       function renderHomeCal() {
-        $("homeMoLabel").textContent = `${homeY}년 ${homeMo}월`;
-        const wrap = $("homeCal"); wrap.innerHTML = "";
+        $("homeMoLabel").textContent = `${homeY}년 ${homeMo}월`; const wrap = $("homeCal"); wrap.innerHTML = "";
         const fDay = new Date(homeY, homeMo - 1, 1).getDay(), lDate = new Date(homeY, homeMo, 0).getDate(), today = getLocalToday();
         
-        for (let i=0; i<fDay; i++) {
-          wrap.innerHTML += `<div class="cal-day empty"><span>0</span><div class="cal-ck">♥</div></div>`;
-        }
-        
+        // 🌟 수정: 빈칸에 내용물을 삭제하고 완전 투명하게 유지하여 그리드에서 세로로 이상하게 늘어나는(버그) 현상 방지
+        for (let i=0; i<fDay; i++) { wrap.innerHTML += `<div class="cal-day empty"></div>`; }
         for (let d=1; d<=lDate; d++) {
           let ymd = `${homeY}-${String(homeMo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
           let has = recs.some(r => String(r.date).startsWith(ymd));
-          
-          wrap.innerHTML += `
-            <div class="cal-day ${ymd===today?'today':''} ${has?'rec':''}" onclick="$('fDate').value='${ymd}';goPage('Write')">
-              <span>${d}</span>
-              <div class="cal-ck" style="opacity:${has ? '1' : '0'}">♥</div>
-            </div>`;
+          wrap.innerHTML += `<div class="cal-day ${ymd===today?'today':''} ${has?'rec':''}" onclick="$('fDate').value='${ymd}';goPage('Write')"><span>${d}</span><div class="cal-ck" style="opacity:${has ? '1' : '0'}">♥</div></div>`;
         }
       }
 
@@ -623,16 +578,31 @@
         if (kw) arr = arr.filter(r => (r.book+r.verseText+r.meditation).toLowerCase().includes(kw));
         if (arr.length === 0) { wrap.innerHTML = `<div class="empty">기록이 없습니다.</div>`; return; }
         
+        const authorName = me ? (me.baptism ? `${me.name} (${me.baptism})` : me.name) : "사용자";
         const total = Math.ceil(arr.length / listPerPage);
+        
         arr.slice((listPage - 1) * listPerPage, listPage * listPerPage).forEach(r => {
           const isFav = r.favorite===true || String(r.favorite)==='true';
+          // 🌟 수정: 포맷터를 거쳐서 출력 (이상한 Date String이 날아와도 예쁜 "월-일" 형태로 복원됨)
+          const cleanVerse = formatVerse(r.verse);
+          
           wrap.innerHTML += `
-            <div class="rec-card">
-              <div class="rc-header"><div class="rc-date">🗓️ ${r.date}</div><button class="fav-btn" onclick="toggleFav('${r.id}', ${isFav})">${isFav?'⭐':'☆'}</button></div>
-              <div class="rc-title">${r.book} ${r.chapter}장${r.verse ? ` ${r.verse}절` : ''}</div>
+            <div class="rec-card" id="rec-card-${r.id}">
+              <div class="rc-header">
+                <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                  <div class="rc-date">🗓️ ${r.date}</div>
+                  <div class="rc-author">🌿 ${authorName}</div>
+                </div>
+                <button class="fav-btn" onclick="toggleFav('${r.id}', ${isFav})">${isFav?'⭐':'☆'}</button>
+              </div>
+              <div class="rc-title">${r.book} ${r.chapter}장${cleanVerse ? ` ${cleanVerse}절` : ''}</div>
               ${r.verseText ? `<div class="rc-verse-band">${r.verseText}</div>` : ''}
               ${r.meditation ? `<div class="rc-med">${r.meditation}</div>` : ''}
-              <div class="rc-acts"><button class="btn-edit" onclick="startEdit('${r.id}')">수정하기</button><button class="btn-del" onclick="delRecord('${r.id}')">삭제하기</button></div>
+              <div class="rc-acts" data-html2canvas-ignore="true">
+                <button class="btn-edit" onclick="startEdit('${r.id}')">수정하기</button>
+                <button class="btn-del" onclick="delRecord('${r.id}')">삭제하기</button>
+                <button class="btn-img" onclick="saveCardAsImage('rec-card-${r.id}')">이미지 저장</button>
+              </div>
             </div>`;
         });
         if (total > 1) {
@@ -642,18 +612,73 @@
         }
       }
 
+      async function saveCardAsImage(cardId) {
+        const originalCard = document.getElementById(cardId);
+        if (!originalCard) return;
+
+        try {
+          toast("⏳ 이쁜 이미지 생성 중...");
+          
+          const clone = originalCard.cloneNode(true);
+          const acts = clone.querySelector('.rc-acts');
+          if (acts) acts.remove();
+
+          const isDark = document.body.classList.contains("dark");
+          const bgColor = isDark ? "#1E1E1E" : "#F1F3F5"; 
+          const cardBg = isDark ? "#252525" : "#FFFFFF"; 
+          const borderColor = isDark ? "#A5C2A8" : "#5A725C"; 
+
+          const wrapper = document.createElement("div");
+          wrapper.style.position = "absolute";
+          wrapper.style.left = "-9999px"; 
+          wrapper.style.top = "0";
+          wrapper.style.width = originalCard.offsetWidth + "px"; 
+          wrapper.style.padding = "24px"; 
+          wrapper.style.backgroundColor = bgColor;
+          
+          const dashedBox = document.createElement("div");
+          dashedBox.style.border = `3px dashed ${borderColor}`;
+          dashedBox.style.borderRadius = "24px"; 
+          dashedBox.style.padding = "24px"; 
+          dashedBox.style.backgroundColor = cardBg;
+          dashedBox.style.boxShadow = "0 8px 24px rgba(0,0,0,0.08)";
+
+          clone.style.margin = "0";
+          clone.style.border = "none";
+          clone.style.boxShadow = "none";
+          clone.style.padding = "0";
+          clone.style.backgroundColor = "transparent";
+
+          dashedBox.appendChild(clone);
+          wrapper.appendChild(dashedBox);
+          document.body.appendChild(wrapper);
+
+          const canvas = await html2canvas(wrapper, {
+            scale: 3, 
+            useCORS: true, 
+            backgroundColor: bgColor
+          });
+
+          document.body.removeChild(wrapper);
+
+          const link = document.createElement("a");
+          link.download = `성경통독기록_${Date.now()}.png`;
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+          
+          toast("✅ 이쁜 디자인으로 저장되었습니다.");
+        } catch (error) {
+          console.error(error);
+          toast("❌ 이미지 저장에 실패했습니다.");
+        }
+      }
+
       async function updateProfile(e) {
         e.preventDefault(); const btn = e.target.querySelector("button"); btn.disabled = true;
         try { 
           await gasCall({ action: "userUpdate", user: { pw: $("pPw").value, name: $("pName").value, baptism: $("pBaptism").value } }); 
-          toast("✅ 수정되었습니다."); 
-          me.name = $("pName").value; 
-          me.baptism = $("pBaptism").value; 
-          localStorage.setItem("bb_me", JSON.stringify(me)); 
-          
-          applyUserChip(me); // 변경된 프로필로 다시 적용
-          
-          $("pPw").value = ""; 
+          toast("✅ 수정되었습니다."); me.name = $("pName").value; me.baptism = $("pBaptism").value; localStorage.setItem("bb_me", JSON.stringify(me)); 
+          applyUserChip(me); $("pPw").value = ""; renderList(listPage);
         } catch (e) { toast("❌ 수정 실패: " + e.message); } finally { btn.disabled = false; }
       }
 
@@ -662,22 +687,15 @@
         try { adminUsers = await gasCall({ action: "userList" }); renderAdminUsers(); } catch (e) { toast("❌ 사용자 목록 불러오기 실패"); }
       }
       
-      // 관리자: 계정 관리 페이지 렌더링 (이름, 세례명, ID 강력하게 강조)
       function renderAdminUsers() {
         const wrap = $("admUserList"); wrap.innerHTML = "";
         adminUsers.forEach((u) => {
           const baptismStr = u.baptism ? `<span style="color:#E03131; font-size:15px; margin-left:4px;">(${u.baptism})</span>` : "";
-          
           wrap.innerHTML += `
             <div class="user-card">
               <div class="uc-info">
-                <div class="uc-name" style="font-size:18px; font-weight:900; color:var(--p);">
-                  ${u.name}${baptismStr}
-                  <span class="${u.role === "admin" ? "badge-adm" : ""}" style="font-size:11px; padding:3px 8px; border-radius:12px; background:var(--adm); color:#fff; margin-left:6px; font-weight:700; display:${u.role==='admin'?'inline-block':'none'}">${u.role}</span>
-                </div>
-                <div class="uc-meta" style="font-size:14px; color:var(--txt2); font-weight:700; margin-top:6px;">
-                  ID: <span style="color:#2B8A3E; font-size:15px; text-decoration:underline;">${u.id}</span>
-                </div>
+                <div class="uc-name" style="font-size:18px; font-weight:900; color:var(--p);">${u.name}${baptismStr}<span class="${u.role === "admin" ? "badge-adm" : ""}" style="font-size:11px; padding:3px 8px; border-radius:12px; background:var(--adm); color:#fff; margin-left:6px; font-weight:700; display:${u.role==='admin'?'inline-block':'none'}">${u.role}</span></div>
+                <div class="uc-meta" style="font-size:14px; color:var(--txt2); font-weight:700; margin-top:6px;">ID: <span style="color:#2B8A3E; font-size:15px; text-decoration:underline;">${u.id}</span></div>
               </div>
               <div class="uc-acts" style="display:flex; gap:6px;">
                 <button class="bsm bsm-e" style="background:var(--p); color:#fff; border:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer;" onclick="openUserModal('${u.id}')">수정</button>
@@ -709,7 +727,7 @@
       function goPage(n) { 
         document.querySelectorAll(".page, .tab-btn").forEach(p => p.classList.remove("on")); $("pg"+n).classList.add("on"); if($("tab"+n)) $("tab"+n).classList.add("on"); 
         const h1 = document.querySelector('.hdr h1'); const hp = document.querySelector('.hdr p');
-        if(n==='Home') { refresh(); h1.textContent="2026 말씀과 함께"; hp.textContent="광교1동성당 성실하게 성경통독 중입니다"; } 
+        if(n==='Home') { refresh(); h1.textContent="기록 요약"; hp.textContent="성실하게 통독 중입니다"; } 
         if(n==='Write') { h1.textContent="✍️ 통독 기록"; hp.textContent="마음에 남는 말씀을 기록하세요"; }
         if(n==='List') { renderList(1); h1.textContent="목록 보기"; hp.textContent="지난 기록을 돌아봅니다"; } 
         if(n==='Profile' && me) { h1.textContent="계정 설정"; hp.textContent="내 정보를 확인합니다"; $("pId").value=me.id || me.uid; $("pName").value=me.name; $("pBaptism").value=me.baptism||""; } 
