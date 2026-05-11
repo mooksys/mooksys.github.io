@@ -162,7 +162,7 @@
       .srch-wrap{position:relative;margin-bottom:16px;}
       .srch-inp{width:100%;padding:14px 14px 14px 44px;border:1.5px solid var(--bdr);border-radius:14px;font-size:15px;background:var(--card);color:var(--txt); font-family:var(--font);}
       .srch-ico{position:absolute;left:16px;top:50%;transform:translateY(-50%);font-size:18px;opacity:0.4;}
-      .empty{text-align:center;padding:60px 20px;color:var(--txt2);font-weight:600; font-size:15px;}
+      .empty{text-align:center;color:var(--txt2);font-weight:600; font-size:15px;}
       .pagination { display:flex; justify-content:center; gap:8px; margin-top:24px; flex-wrap: wrap;}
       .page-btn { padding:10px 16px; border:1px solid var(--bdr); background:var(--card); border-radius:10px; cursor:pointer; font-weight:700; color:var(--txt2); font-size:14px; font-family:var(--font);}
       .page-btn.on { background:var(--p); color:#fff; border-color:var(--p); }
@@ -566,7 +566,7 @@
         for (let d=1; d<=lDate; d++) {
           let ymd = `${homeY}-${String(homeMo).padStart(2,'0')}-${String(d).padStart(2,'0')}`;
           let has = recs.some(r => String(r.date).startsWith(ymd));
-          wrap.innerHTML += `<div class="cal-day ${ymd===today?'today':''} ${has?'rec':''}" onclick="$('fDate').value='${ymd}';goPage('Write')"><span>${d}</span><div class="cal-ck" style="opacity:${has ? '1' : '0'}">●</div></div>`;
+          wrap.innerHTML += `<div class="cal-day ${ymd===today?'today':''} ${has?'rec':''}" onclick="$('fDate').value='${ymd}';goPage('Write')"><span>${d}</span><div class="cal-ck" style="opacity:${has ? '1' : '0'}">♥</div></div>`;
         }
       }
 
