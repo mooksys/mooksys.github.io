@@ -100,7 +100,7 @@
       .search-wrap { position: relative; flex: 1; }
       .search-wrap .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1rem; pointer-events: none; }
       .search-wrap input { width: 100%; padding: 11px 14px 11px 38px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.9rem; font-family: inherit; background: var(--surface); color: var(--text-primary); transition: border-color var(--transition), box-shadow var(--transition); outline: none; }
-      .search-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12); background: var(--surface); }
+      .search-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1); }
       .search-clear { background: none; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.85rem; font-family: inherit; color: var(--text-secondary); cursor: pointer; transition: all var(--transition); white-space: nowrap; font-weight: 600; }
       .search-clear:hover { border-color: var(--accent); color: var(--accent); }
 
@@ -152,7 +152,7 @@
       .form-group { margin-bottom: 14px; }
       .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary); font-family: "IBM Plex Mono", monospace; }
       .form-group input, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.9rem; font-family: inherit; color: var(--text-primary); background: var(--surface2); outline: none; transition: border-color var(--transition), box-shadow var(--transition); }
-      .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12); background: var(--surface); }
+      .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1); background: var(--surface); }
       .form-group input[readonly] { background: var(--bg); color: var(--text-muted); cursor: default; font-size: 0.82rem; }
       .form-group textarea { height: 120px; resize: vertical; }
 
@@ -262,7 +262,7 @@
       <div class="search-bar">
         <div class="search-wrap">
           <span class="search-icon">🔍</span>
-          <input type="text" id="searchInput" placeholder="이름, 회사명, 직함, 이메일로 검색..." />
+          <input type="text" id="searchInput" placeholder="이름, 회사명, 직함, 이메일, 전화번호로 검색..." />
         </div>
         <button class="search-clear" id="btnClearSearch">초기화</button>
       </div>
@@ -517,7 +517,7 @@
 
       function highlight(text, query) {
         if (!query || !text) return text || "-";
-        const escaped = String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&"); // query escape before replace (fixed for better matching)
+        const escaped = String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         const qEscaped = String(query).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
         return String(text).replace(new RegExp(`(${qEscaped})`, "gi"), '<mark class="highlight">$1</mark>');
       }
@@ -576,9 +576,21 @@
 
       function handleSearch() {
         const q = document.getElementById("searchInput").value.trim().toLowerCase();
-        if (!q) { filtered = [...allData]; document.getElementById("searchStats").style.display = "none"; } 
-        else {
-          filtered = allData.filter((row) => [row[col("기업명")], row[col("담당업무")], row[col("이름")], row[col("직급")], row[col("이메일")]].join(" ").toLowerCase().includes(q));
+        if (!q) { 
+          filtered = [...allData]; 
+          document.getElementById("searchStats").style.display = "none"; 
+        } else {
+          // ✅ 전화번호와 핸드폰 번호 항목 추가
+          filtered = allData.filter((row) => [
+            row[col("기업명")], 
+            row[col("담당업무")], 
+            row[col("이름")], 
+            row[col("직급")], 
+            row[col("이메일")],
+            row[col("전화번호")], 
+            row[col("핸드폰")]
+          ].join(" ").toLowerCase().includes(q));
+          
           document.getElementById("searchStats").style.display = "block";
           document.getElementById("searchStats").innerHTML = `<strong>${filtered.length}</strong>건 검색됨 / 전체 ${allData.length}건`;
         }
@@ -607,7 +619,6 @@
         catch { const ta = Object.assign(document.createElement("textarea"), { value: textToCopy, style: "position:fixed;top:-9999px;" }); document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); showToast(`📧 ${emails.length}건 복사됨`, "success"); }
       }
 
-      /* ✅ [완전 수정됨] 텍스트 증발 문제를 해결한 이미지 저장 함수 (Bulletproof Method) */
       async function saveSelectedAsImage() {
         const selectedCards = document.querySelectorAll('.card.selected');
         if (selectedCards.length === 0) {
@@ -623,15 +634,13 @@
         try {
           await document.fonts.ready;
 
-          // 1. 화면 밖으로만 보이지 않게 배치 (visibility: hidden 절대 사용 안함)
           const captureWrapper = document.createElement('div');
           captureWrapper.style.position = 'absolute';
           captureWrapper.style.top = '0';
-          captureWrapper.style.left = '-9999px'; // 화면 좌측으로 멀리 밀어냄
+          captureWrapper.style.left = '-9999px'; 
           captureWrapper.style.padding = '40px';
           captureWrapper.style.background = '#ffffff';
 
-          // 2. 인라인 스타일을 강제 주입할 전용 스타일 태그 추가
           const style = document.createElement('style');
           style.textContent = `
             .capture-grid {
@@ -681,12 +690,10 @@
           title.textContent = '🏢 2026 Doje Company List';
           tempContainer.appendChild(title);
 
-          // 3. 카드 복제 및 CSS 변수를 Hex 코드로 '텍스트 치환'
           selectedCards.forEach(card => {
             const clone = document.createElement('div');
             clone.className = 'capture-card';
             
-            // HTML 내부의 var(...) 변수를 모조리 실제 색상 코드로 하드코딩
             let cardHTML = card.innerHTML;
             cardHTML = cardHTML.replace(/var\(--text-primary\)/g, "#1a1d23")
                                .replace(/var\(--text-secondary\)/g, "#5a6270")
@@ -697,11 +704,9 @@
             
             clone.innerHTML = cardHTML;
 
-            // 캡처에 불필요한 요소 강제 삭제
             const checkbox = clone.querySelector('.checkbox-container');
             if (checkbox) checkbox.remove();
 
-            // <mark> 검색 하이라이트 태그 완전히 해체하여 텍스트만 남김
             clone.querySelectorAll('mark.highlight').forEach(mark => {
               const textNode = document.createTextNode(mark.textContent);
               mark.parentNode.replaceChild(textNode, mark);
@@ -713,10 +718,8 @@
           captureWrapper.appendChild(tempContainer);
           document.body.appendChild(captureWrapper);
 
-          // 브라우저가 DOM을 그리고 스타일을 적용할 시간 확보
           await new Promise(r => setTimeout(r, 600));
 
-          // 4. scale 2배율 적용 (너무 높으면 메모리 초과로 글자 렌더링 생략됨)
           const canvas = await html2canvas(captureWrapper, {
             scale: 2, 
             useCORS: true,
