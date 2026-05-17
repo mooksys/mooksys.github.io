@@ -139,7 +139,7 @@
         "title": "성일정보 도제(3-12)체크리스트",
         "url": "school_project26/school_project_01_check.v0.1.html",
         "type": "primary",
-        "disabled": true
+        "visible": true,
       },
       {
         "title": "School02 (준비중)",
