@@ -132,13 +132,13 @@
     "title": "School Project",
     "icon": "fa-school",
     "category": "project",
-    "description": "학교 업무 자동화 및 교육 지원 프로젝트 (준비중)",
+    "description": "학교 업무 자동화 및 교육 지원 프로젝트",
     "visible": true,
     "links": [
       {
         "title": "성일정보 도제(3-12)체크리스트",
         "url": "school_project26/school_project_01_check.v0.1.html",
-        "type": "secondary",
+        "type": "primary",
         "disabled": true
       },
       {
