@@ -1,0 +1,880 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>성일정보 도제(3-12) 체크리스트</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <style>
+    /* 🎨 CSS 변수를 활용한 다이나믹 테마 설정 */
+    :root {
+      --ch-dark: #222831;
+      --ch-secondary: #393E46;
+      --ch-primary: #00ADB5;
+      --ch-primary-hover: #00939A;
+      --ch-primary-light: #E6F7F8;
+      --ch-primary-border: #80D6DA;
+      --ch-light: #EEEEEE;
+      --ch-bg: #FAFAFA;
+    }
+  </style>
+
+  <script>
+    // Tailwind 설정에 CSS 변수 매핑
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'ch-dark': 'var(--ch-dark)',
+            'ch-secondary': 'var(--ch-secondary)',
+            'ch-primary': 'var(--ch-primary)',
+            'ch-primary-hover': 'var(--ch-primary-hover)',
+            'ch-primary-light': 'var(--ch-primary-light)',
+            'ch-primary-border': 'var(--ch-primary-border)',
+            'ch-light': 'var(--ch-light)',
+            'ch-bg': 'var(--ch-bg)',
+            'ch-danger': '#F05454',
+            'ch-success': '#16C79A'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+    body { font-family: 'Inter', sans-serif; background-color: var(--ch-bg); transition: background-color 0.3s ease; }
+    
+    .tab-active { 
+      border-bottom: 3px solid var(--ch-primary); 
+      color: var(--ch-primary); 
+      font-weight: 800; 
+      background-color: #ffffff; 
+      transition: all 0.3s ease;
+    }
+    
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    @media print {
+      .no-print { display: none !important; }
+      #print-section { display: block !important; width: 100%; }
+      .print-page { page-break-after: always; padding: 0 !important; border: none !important; box-shadow: none !important; margin-bottom: 0 !important;}
+      .print-page:last-child { page-break-after: auto; }
+      table { border-collapse: collapse; width: 100%; margin-bottom: 30px;}
+      th, td { border: 1px solid #000 !important; padding: 6px; text-align: center; }
+    }
+  </style>
+</head>
+<body class="text-ch-dark">
+
+  <div id="login-section" class="flex items-center justify-center min-h-screen">
+    <div class="bg-white p-10 rounded-3xl shadow-xl w-full max-w-md text-center border border-gray-100">
+      <div class="w-16 h-16 bg-ch-light rounded-full flex items-center justify-center text-3xl mx-auto mb-6">🏫</div>
+      <h1 class="text-2xl font-extrabold text-ch-dark mb-2">성일정보 도제(3-12) 체크리스트</h1>
+      <p class="text-gray-500 text-sm mb-8">데이터 보호를 위해 비밀번호를 입력해주세요.</p>
+      
+      <div class="mb-6">
+        <input type="password" id="login-password" placeholder="비밀번호 입력" 
+               class="w-full border-2 border-gray-200 rounded-xl px-5 py-4 text-center text-lg focus:border-ch-primary focus:ring-4 focus:ring-ch-primary-light outline-none transition-all"
+               onkeypress="if(event.key === 'Enter') attemptLogin()">
+      </div>
+      
+      <button id="login-btn" onclick="attemptLogin()" class="w-full bg-ch-primary text-white font-bold py-4 rounded-xl shadow-md hover:bg-ch-primary-hover transition-colors text-lg">
+        입장하기
+      </button>
+      <p class="text-xs text-gray-400 mt-6">초기 비밀번호는 시트 '설정' 탭에 있습니다.</p>
+    </div>
+  </div>
+
+  <div id="main-app" class="hidden max-w-6xl mx-auto p-4 md:p-8 relative">
+    
+    <header class="no-print mb-8">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-xl md:text-3xl font-extrabold tracking-tight text-ch-dark flex items-center gap-2 transition-colors">
+          🏫 성일정보 도제(3-12) 체크리스트
+        </h1>
+        <div class="flex items-center gap-2">
+          <button onclick="logout()" class="text-sm font-bold text-gray-400 hover:text-ch-danger transition px-3 py-2 md:py-1 bg-white rounded-lg border shadow-sm">🔒 로그아웃</button>
+          
+          <button onclick="toggleMobileMenu()" class="md:hidden p-2 bg-white border border-gray-200 rounded-lg shadow-sm text-gray-600 hover:text-ch-primary transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="mb-4 bg-white p-2 rounded-2xl shadow-sm border border-gray-200 flex flex-col md:flex-row md:items-center">
+        <div class="flex justify-between items-center w-full md:w-auto">
+          <span class="text-sm font-black text-ch-secondary px-3 whitespace-nowrap">Select ▶</span>
+          
+          <button onclick="toggleMobileClassMenu()" class="md:hidden px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-600 hover:text-ch-primary transition flex items-center gap-1">
+            <span id="current-class-mobile-label" class="text-xs font-black">로딩중</span>
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </button>
+        </div>
+        
+        <div id="class-selector" class="hidden md:flex flex-col md:flex-row flex-1 gap-2 no-scrollbar px-2 py-1 mt-2 md:mt-0 w-full md:w-auto"></div>
+      </div>
+      
+      <nav id="main-nav" class="hidden md:flex flex-col md:flex-row overflow-hidden md:overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-200 transition-all duration-300">
+        <button onclick="switchTab('check'); closeMobileMenu()" id="tab-check" class="flex-1 py-3 px-4 text-sm font-semibold transition-all tab-active whitespace-nowrap text-left md:text-center">📝 체크 관리</button>
+        <button onclick="switchTab('view'); closeMobileMenu()" id="tab-view" class="flex-1 py-3 px-4 text-sm font-semibold text-gray-500 hover:text-ch-primary transition-all border-t md:border-t-0 md:border-l border-gray-100 whitespace-nowrap text-left md:text-center">📊 과제별 현황</button>
+        <button onclick="switchTab('manage'); closeMobileMenu()" id="tab-manage" class="flex-1 py-3 px-4 text-sm font-semibold text-gray-500 hover:text-ch-primary transition-all border-t md:border-t-0 md:border-l border-gray-100 whitespace-nowrap text-left md:text-center">⚙️ 데이터 관리</button>
+        <button onclick="switchTab('print'); closeMobileMenu()" id="tab-print" class="flex-1 py-3 px-4 text-sm font-semibold text-gray-500 hover:text-ch-primary transition-all border-t md:border-t-0 md:border-l border-gray-100 whitespace-nowrap text-left md:text-center">🖨️ 인쇄 출력</button>
+      </nav>
+    </header>
+
+    <div id="loader" class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-[100] flex-col items-center justify-center">
+      <div class="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+      <p class="mt-4 text-white font-bold">작업 처리 중...</p>
+    </div>
+
+    <main id="check-section" class="hidden no-print relative">
+      <div id="save-bar" class="hidden sticky top-4 z-50 bg-[#FFF9D7] border-2 border-[#FFE45E] p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <span class="text-[#9C7A00] font-bold text-sm">⚠️ 저장되지 않은 체크 데이터가 있습니다.</span>
+        <button onclick="saveChanges()" class="bg-ch-primary text-white px-8 py-2 rounded-xl font-black shadow-md hover:bg-ch-primary-hover transition w-full sm:w-auto">💾 구글 시트에 즉시 저장하기</button>
+      </div>
+
+      <div class="mb-6 flex flex-col gap-4">
+        <div class="w-full">
+          <h2 class="text-sm font-bold text-ch-secondary mb-3 uppercase tracking-wider">📌 과제 선택</h2>
+          <div id="task-selector" class="flex flex-wrap gap-2"></div>
+        </div>
+        
+        <div id="task-action-buttons" class="hidden flex flex-wrap items-center justify-between gap-3 w-full p-3 bg-white rounded-2xl border border-gray-100 shadow-sm">
+          <div class="flex flex-wrap gap-2">
+            <button onclick="toggleAll('완료')" class="px-4 py-2 bg-ch-primary-light text-ch-primary border border-ch-primary-border rounded-xl text-sm font-bold hover:bg-ch-light transition">✅ 전체 완료</button>
+            <button onclick="toggleAll('')" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-xl text-sm font-bold hover:bg-gray-300 transition">❌ 전체 미완료</button>
+            <button onclick="toggleAll('해당없음')" class="px-4 py-2 bg-gray-500 text-white rounded-xl text-sm font-bold hover:bg-gray-600 transition">➖ 전체 해당없음</button>
+          </div>
+          <button onclick="saveAsImage()" class="px-4 py-2 bg-ch-secondary text-white rounded-xl text-sm font-bold hover:bg-ch-dark shadow-md transition w-full sm:w-auto">📸 현재 표 저장</button>
+        </div>
+      </div>
+
+      <div id="capture-area" class="bg-white p-4 md:p-6 rounded-3xl border border-gray-100 shadow-sm">
+        <div class="mb-6 px-2 flex items-center gap-2">
+          <span id="current-class-badge" class="bg-ch-secondary text-white text-sm font-bold px-3 py-1 rounded-lg"></span>
+          <h3 id="current-task-title" class="font-bold text-ch-dark text-xl">과제를 선택해주세요</h3>
+        </div>
+        <div id="check-grid" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3"></div>
+      </div>
+    </main>
+
+    <main id="view-section" class="hidden no-print">
+      <div class="mb-4 flex justify-between items-end">
+        <h2 class="text-xl font-bold text-ch-dark">과제 제출 진척도</h2>
+        <span class="text-sm font-semibold text-gray-600 bg-gray-200 px-3 py-1 rounded-full" id="view-total-students">총 0명</span>
+      </div>
+      <div id="task-status-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+      <div id="view-pagination" class="mt-8 flex justify-center items-center gap-4"></div>
+    </main>
+
+    <main id="manage-section" class="hidden no-print">
+      <div class="flex flex-wrap gap-3 mb-8 border-b border-gray-200 pb-4">
+        <button onclick="switchSubTab('manage-student')" id="subtab-student" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all bg-ch-secondary text-white shadow-md">👨‍🎓 학생 관리</button>
+        <button onclick="switchSubTab('manage-task')" id="subtab-task" class="px-5 py-2.5 rounded-full text-sm font-bold text-gray-500 hover:bg-gray-100 transition-all">📘 과제 관리</button>
+        <button onclick="switchSubTab('manage-class')" id="subtab-class" class="px-5 py-2.5 rounded-full text-sm font-bold text-gray-500 hover:bg-gray-100 transition-all md:ml-auto border border-gray-200 w-full md:w-auto">🏫 반 추가/삭제</button>
+      </div>
+
+      <div id="manage-student-area" class="space-y-6">
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
+          <h3 class="text-lg font-bold text-ch-dark mb-5 flex items-center gap-2">
+            <span class="bg-ch-primary-light text-ch-primary p-2 rounded-xl text-base">➕</span> 새로운 학생 등록
+          </h3>
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+              <label class="block text-xs font-bold text-ch-secondary mb-1.5 ml-1">학번</label>
+              <input type="text" id="add-sid" placeholder="예: 10101" class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-ch-primary outline-none bg-gray-50 focus:bg-white transition-all">
+            </div>
+            <div class="flex-1">
+              <label class="block text-xs font-bold text-ch-secondary mb-1.5 ml-1">이름</label>
+              <input type="text" id="add-sname" placeholder="예: 홍길동" class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-ch-primary outline-none bg-gray-50 focus:bg-white transition-all">
+            </div>
+            <div class="flex items-end">
+              <button onclick="apiAction('add_student')" class="w-full md:w-auto bg-ch-secondary text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-ch-dark shadow-md hover:shadow-lg transition-all">등록하기</button>
+            </div>
+          </div>
+        </div>
+        <div class="flex justify-between items-center mb-2 px-2">
+          <h3 class="font-bold text-ch-secondary text-sm">📋 등록된 학생 목록 (<span id="manage-student-count">0</span>명)</h3>
+        </div>
+        <div id="manage-student-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4"></div>
+      </div>
+
+      <div id="manage-task-area" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
+          <h3 class="text-lg font-bold text-ch-dark mb-5 flex items-center gap-2">
+            <span class="bg-ch-primary-light text-ch-primary p-2 rounded-xl text-base">📘</span> 새로운 과제 생성
+          </h3>
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+              <label class="block text-xs font-bold text-ch-secondary mb-1.5 ml-1">과제 명칭</label>
+              <input type="text" id="add-topic" placeholder="예: 1단원 수학 문제풀이" class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-ch-primary outline-none bg-gray-50 focus:bg-white transition-all">
+            </div>
+            <div class="flex items-end">
+              <button onclick="apiAction('add_topic')" class="w-full md:w-auto bg-ch-primary text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-ch-primary-hover shadow-md hover:shadow-lg transition-all">과제 추가</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+          <table class="w-full text-left border-collapse">
+            <thead class="bg-white border-b border-gray-100 text-xs text-gray-400 uppercase">
+              <tr>
+                <th class="px-6 py-4">과제명</th>
+                <th class="px-6 py-4 text-right">관리</th>
+              </tr>
+            </thead>
+            <tbody id="manage-task-tbody" class="divide-y divide-gray-50 text-sm"></tbody>
+          </table>
+          <div id="task-pagination" class="p-4 border-t border-gray-100 flex justify-center items-center gap-4 bg-gray-50/50"></div>
+        </div>
+      </div>
+
+      <div id="manage-class-area" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-200">
+          <h3 class="text-lg font-bold text-ch-dark mb-5 flex items-center gap-2">
+            <span class="bg-ch-primary-light text-ch-primary p-2 rounded-xl text-base">🏢</span> 새로운 반(시트) 만들기
+          </h3>
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1">
+              <label class="block text-xs font-bold text-ch-secondary mb-1.5 ml-1">반 이름</label>
+              <input type="text" id="add-class-name" placeholder="예: 3학년 2반" class="w-full border border-gray-300 rounded-xl px-4 py-3 text-sm focus:ring-2 focus:ring-ch-primary outline-none bg-gray-50 focus:bg-white transition-all">
+            </div>
+            <div class="flex items-end">
+              <button onclick="apiAction('add_sheet')" class="w-full md:w-auto bg-ch-dark text-white px-8 py-3 rounded-xl text-sm font-bold hover:bg-black shadow-md hover:shadow-lg transition-all">반 생성하기</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-200 overflow-hidden">
+          <ul id="manage-class-list" class="divide-y divide-gray-50 text-sm"></ul>
+          <div id="class-pagination" class="p-4 border-t border-gray-100 flex justify-center items-center gap-4 bg-gray-50/50"></div>
+        </div>
+      </div>
+    </main>
+
+    <main id="print-section" class="hidden">
+      <div class="no-print flex justify-end gap-3 mb-6">
+        <button onclick="exportToExcel()" class="bg-ch-success text-white px-6 py-2 rounded-xl font-bold hover:bg-[#12A882] shadow-md transition">📗 엑셀 저장</button>
+        <button onclick="window.print()" class="bg-ch-dark text-white px-6 py-2 rounded-xl font-bold hover:bg-black shadow-md transition">🖨️ 인쇄하기</button>
+      </div>
+      <div id="print-container"></div>
+    </main>
+
+  </div>
+
+  <script>
+    let API_URL = "";
+    const SECRET_API_KEY = "VIBE_SMART_CHECK_2026_SECURE_KEY";
+    
+    let sheetNames = [];
+    let currentSheetName = "";
+    let sheetData = { headers: [], students: [] };
+    
+    let currentSelectedTask = "";
+    let pendingUpdates = {};
+    
+    let currentTaskPage = 1; const tasksPerPage = 5;
+    let currentViewPage = 1; const viewTasksPerPage = 6; 
+    let currentClassPage = 1; const classesPerPage = 5;
+
+    // 🍔 메인 메뉴 토글 로직
+    function toggleMobileMenu() {
+      const nav = document.getElementById('main-nav');
+      if (nav.classList.contains('hidden')) {
+        nav.classList.remove('hidden'); nav.classList.add('flex');
+      } else {
+        nav.classList.add('hidden'); nav.classList.remove('flex');
+      }
+    }
+
+    function closeMobileMenu() {
+      if (window.innerWidth < 768) {
+        const nav = document.getElementById('main-nav');
+        nav.classList.add('hidden'); nav.classList.remove('flex');
+      }
+    }
+
+    // 🍔 반 선택 메뉴 토글 로직 (새로 추가됨)
+    function toggleMobileClassMenu() {
+      const classSelector = document.getElementById('class-selector');
+      if (classSelector.classList.contains('hidden')) {
+        classSelector.classList.remove('hidden'); classSelector.classList.add('flex');
+      } else {
+        classSelector.classList.add('hidden'); classSelector.classList.remove('flex');
+      }
+    }
+
+    function closeMobileClassMenu() {
+      if (window.innerWidth < 768) {
+        const classSelector = document.getElementById('class-selector');
+        classSelector.classList.add('hidden'); classSelector.classList.remove('flex');
+      }
+    }
+
+    // 🎨 테마 설정
+    const colorThemes = [
+      { dark: '#222831', secondary: '#393E46', primary: '#00ADB5', hover: '#00939A', lightBg: '#E6F7F8', border: '#80D6DA', light: '#EEEEEE', bg: '#FAFAFA' },
+      { dark: '#1e1b4b', secondary: '#312e81', primary: '#6366f1', hover: '#4f46e5', lightBg: '#e0e7ff', border: '#a5b4fc', light: '#e5e7eb', bg: '#f8fafc' },
+      { dark: '#431407', secondary: '#7c2d12', primary: '#f97316', hover: '#ea580c', lightBg: '#ffedd5', border: '#fdba74', light: '#e5e7eb', bg: '#fff7ed' }
+    ];
+
+    function applyThemeForClass(sheetName) {
+      if (!sheetNames || sheetNames.length === 0) return;
+      const index = sheetNames.indexOf(sheetName) % colorThemes.length;
+      const t = colorThemes[index >= 0 ? index : 0];
+      const root = document.documentElement;
+      root.style.setProperty('--ch-dark', t.dark);
+      root.style.setProperty('--ch-secondary', t.secondary);
+      root.style.setProperty('--ch-primary', t.primary);
+      root.style.setProperty('--ch-primary-hover', t.hover);
+      root.style.setProperty('--ch-primary-light', t.lightBg);
+      root.style.setProperty('--ch-primary-border', t.border);
+      root.style.setProperty('--ch-light', t.light);
+      root.style.setProperty('--ch-bg', t.bg);
+    }
+
+    function escapeHtml(unsafe) {
+      if (typeof unsafe !== 'string') return unsafe;
+      return unsafe.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+    }
+
+    async function initConfig() {
+      try {
+        const res = await fetch('school_project_01_check.gas_url.v0.1.json');
+        const config = await res.json();
+        API_URL = config.webAppUrl;
+        checkLoginState();
+      } catch (e) { alert("gas_url.json 파일 로드 실패!"); }
+    }
+
+    async function checkLoginState() {
+      if (localStorage.getItem('vibe_logged_in') === 'true') {
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('main-app').classList.remove('hidden');
+        await refresh(""); 
+      }
+    }
+
+    async function attemptLogin() {
+      const pwd = document.getElementById('login-password').value;
+      if (!pwd) return alert("비밀번호를 입력해주세요.");
+      
+      const btn = document.getElementById('login-btn');
+      btn.innerText = "확인 중..."; btn.disabled = true;
+      
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'verify_password', apiKey: SECRET_API_KEY, password: pwd })
+        });
+        const result = await res.json();
+        
+        if (result.status === "성공") {
+          localStorage.setItem('vibe_logged_in', 'true');
+          document.getElementById('login-section').classList.add('hidden');
+          document.getElementById('main-app').classList.remove('hidden');
+          await refresh(""); 
+        } else {
+          alert(result.message || "비밀번호가 틀렸습니다.");
+          document.getElementById('login-password').value = '';
+          btn.innerText = "입장하기"; btn.disabled = false;
+        }
+      } catch (e) {
+        alert("서버 오류가 발생했습니다.");
+        btn.innerText = "입장하기"; btn.disabled = false;
+      }
+    }
+
+    function logout() {
+      if (Object.keys(pendingUpdates).length > 0 && !confirm("저장하지 않은 변경사항이 있습니다. 로그아웃 하시겠습니까?")) return;
+      localStorage.removeItem('vibe_logged_in'); location.reload(); 
+    }
+
+    async function refresh(targetSheet = "") {
+      document.getElementById('loader').style.display = 'flex';
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'get_data', apiKey: SECRET_API_KEY, sheetName: targetSheet || currentSheetName })
+        });
+        const responseData = await res.json();
+        
+        if(responseData.status === "성공") {
+          sheetNames = responseData.sheetNames || [];
+          currentSheetName = responseData.currentSheetName;
+          sheetData.headers = responseData.headers || [];
+          sheetData.students = responseData.students || [];
+          
+          applyThemeForClass(currentSheetName);
+
+          const tasks = sheetData.headers.filter(h => h !== '학번' && h !== '이름');
+          if (tasks.length > 0 && !tasks.includes(currentSelectedTask)) currentSelectedTask = tasks[0];
+          else if (tasks.length === 0) currentSelectedTask = "";
+
+          renderClassSelector(); renderAll();
+        } else { alert("데이터 로드 실패: " + responseData.message); }
+      } catch (e) { console.error(e); } 
+      finally { document.getElementById('loader').style.display = 'none'; }
+    }
+
+    function renderClassSelector() {
+      const container = document.getElementById('class-selector');
+      let html = '';
+      sheetNames.forEach(name => {
+        const safeName = escapeHtml(name);
+        const isActive = (name === currentSheetName);
+        const btnClass = isActive ? 'bg-ch-primary text-white shadow-md font-bold' : 'bg-ch-light text-ch-secondary hover:bg-gray-200 font-medium';
+        // 모바일 스택 형태일 때 자연스럽도록 text-left md:text-center 및 w-full md:w-auto 부여
+        html += `<button onclick="changeClass('${safeName}')" class="px-5 py-2 rounded-xl text-sm transition-all whitespace-nowrap text-left md:text-center w-full md:w-auto ${btnClass}">${safeName}</button>`;
+      });
+      container.innerHTML = html;
+      
+      const badge = document.getElementById('current-class-badge');
+      if (badge) badge.innerText = escapeHtml(currentSheetName);
+
+      // 모바일용 햄버거 내부 레이블 갱신
+      const mobileLabel = document.getElementById('current-class-mobile-label');
+      if (mobileLabel) mobileLabel.innerText = escapeHtml(currentSheetName);
+    }
+
+    async function changeClass(newSheetName) {
+      if (newSheetName === currentSheetName) { closeMobileClassMenu(); return; }
+      if (Object.keys(pendingUpdates).length > 0) {
+        if (!confirm("저장하지 않은 데이터가 있습니다. 무시하고 반을 변경하시겠습니까?")) return;
+        pendingUpdates = {}; document.getElementById('save-bar').classList.add('hidden');
+      }
+      currentSelectedTask = ""; currentTaskPage = 1; currentViewPage = 1; 
+      closeMobileClassMenu(); // 반 선택 후 드롭다운 닫기
+      await refresh(newSheetName);
+    }
+
+    function renderAll() { renderCheck(); renderView(); renderManage(); renderPrint(); }
+
+    function renderCheck() {
+      const taskSelector = document.getElementById('task-selector');
+      const actionButtons = document.getElementById('task-action-buttons');
+      const grid = document.getElementById('check-grid');
+      const taskTitle = document.getElementById('current-task-title');
+      const tasks = sheetData.headers.filter(h => h !== '학번' && h !== '이름');
+      
+      if (tasks.length === 0) {
+        taskSelector.innerHTML = '<p class="text-sm text-gray-400">등록된 과제가 없습니다.</p>';
+        taskTitle.innerText = "데이터 관리에서 과제를 먼저 추가해주세요.";
+        actionButtons.classList.add('hidden');
+        grid.innerHTML = '<div class="col-span-full p-10 text-center text-gray-400 bg-white rounded-xl">데이터 없음</div>';
+        return;
+      }
+
+      actionButtons.classList.remove('hidden');
+      let selectorHtml = '';
+      tasks.forEach(task => {
+        const safeTask = escapeHtml(task);
+        const isActive = (task === currentSelectedTask);
+        const btnClass = isActive ? 'bg-ch-primary text-white shadow-md border-transparent' : 'bg-white text-gray-600 border-gray-200 hover:bg-gray-50';
+        selectorHtml += `<button onclick="selectTask('${safeTask}')" class="px-5 py-2 rounded-full text-sm font-bold border transition-all ${btnClass}">${safeTask}</button>`;
+      });
+      taskSelector.innerHTML = selectorHtml;
+      taskTitle.innerHTML = `<span class="text-ch-primary mr-2">▶</span> ${escapeHtml(currentSelectedTask)} 제출 현황`;
+
+      let gHtml = '';
+      sheetData.students.forEach(s => {
+        const safeId = escapeHtml(String(s['학번']));
+        const safeName = escapeHtml(String(s['이름']));
+        const key = safeId + '_' + currentSelectedTask;
+        
+        let val = pendingUpdates[key] !== undefined ? pendingUpdates[key].value : (s[currentSelectedTask] || '');
+        
+        const cardBg = val === '완료' ? 'bg-ch-primary-light border-ch-primary-border' : (val === '해당없음' ? 'bg-gray-100 border-gray-200 opacity-60 grayscale' : 'bg-white border-ch-light');
+        const bandClass = val === '완료' ? 'border-l-ch-primary' : (val === '해당없음' ? 'border-l-gray-400' : 'border-l-ch-light');
+
+        const btnUnfinished = val === '' ? 'bg-gray-200 text-gray-700 shadow-inner' : 'bg-white text-gray-400 hover:bg-gray-50';
+        const btnFinished = val === '완료' ? 'bg-ch-primary text-white shadow-md' : 'bg-white text-gray-400 hover:bg-gray-50';
+        const btnNA = val === '해당없음' ? 'bg-gray-500 text-white shadow-md' : 'bg-white text-gray-400 hover:bg-gray-50';
+
+        gHtml += `
+          <div class="flex items-center justify-between py-2.5 px-4 rounded-xl border-y border-r border-l-[6px] shadow-sm hover:shadow-md transition-all ${cardBg} ${bandClass}">
+            <div><p class="text-[11px] text-ch-secondary font-bold mb-0.5">${safeId}</p><p class="text-base font-black text-ch-dark">${safeName}</p></div>
+            <div>
+              <div class="flex text-[11px] font-bold rounded-lg overflow-hidden border border-gray-200 transition-all">
+                <button class="px-2 py-1.5 ${btnUnfinished}" onclick="markChanged('${safeId}', '${escapeHtml(currentSelectedTask)}', '')">미제출</button>
+                <button class="px-2 py-1.5 border-l border-r border-gray-100 ${btnFinished}" onclick="markChanged('${safeId}', '${escapeHtml(currentSelectedTask)}', '완료')">완료</button>
+                <button class="px-2 py-1.5 ${btnNA}" onclick="markChanged('${safeId}', '${escapeHtml(currentSelectedTask)}', '해당없음')">제외</button>
+              </div>
+            </div>
+          </div>
+        `;
+      });
+      grid.innerHTML = gHtml;
+    }
+
+    function selectTask(taskName) {
+      if (Object.keys(pendingUpdates).length > 0 && !confirm("저장하지 않은 변경사항이 있습니다. 무시하시겠습니까?")) return;
+      pendingUpdates = {}; document.getElementById('save-bar').classList.add('hidden');
+      currentSelectedTask = taskName; renderCheck();
+    }
+
+    function markChanged(id, header, newValue) {
+      pendingUpdates[id + '_' + header] = { id: id, columnHeader: header, value: newValue };
+      document.getElementById('save-bar').classList.remove('hidden'); renderCheck(); 
+    }
+
+    function toggleAll(targetValue) {
+      if (!currentSelectedTask) return;
+      let changed = false;
+      sheetData.students.forEach(s => {
+        const safeId = String(s['학번']);
+        const key = safeId + '_' + currentSelectedTask;
+        let currentVal = pendingUpdates[key] !== undefined ? pendingUpdates[key].value : (s[currentSelectedTask] || '');
+        
+        if (currentVal !== targetValue) {
+          pendingUpdates[key] = { id: safeId, columnHeader: currentSelectedTask, value: targetValue };
+          changed = true;
+        }
+      });
+      if (changed) { document.getElementById('save-bar').classList.remove('hidden'); renderCheck(); }
+    }
+
+    async function saveAsImage() {
+      const targetArea = document.getElementById('capture-area');
+      if (!targetArea || !currentSelectedTask) return alert("저장할 데이터가 없습니다.");
+      document.getElementById('loader').style.display = 'flex';
+      await new Promise(resolve => setTimeout(resolve, 500)); 
+      try {
+        const canvas = await html2canvas(targetArea, { scale: 2, backgroundColor: '#FFFFFF', useCORS: true, logging: false });
+        const link = document.createElement('a'); link.href = canvas.toDataURL('image/png'); link.download = `[${currentSheetName}] ${currentSelectedTask}_제출현황.png`;
+        link.click();
+      } catch (e) { alert("이미지 변환 오류가 발생했습니다."); } 
+      finally { document.getElementById('loader').style.display = 'none'; }
+    }
+
+    async function saveCardAsImage(cardId, taskName) {
+      const originalCard = document.getElementById(cardId);
+      if (!originalCard) return;
+      
+      document.getElementById('loader').style.display = 'flex';
+      
+      const captureContainer = document.createElement('div');
+      captureContainer.style.position = 'absolute'; captureContainer.style.left = '-9999px'; captureContainer.style.top = '-9999px';
+      captureContainer.style.backgroundColor = '#FAFAFA'; captureContainer.style.padding = '40px'; 
+      
+      const bezel = document.createElement('div');
+      bezel.style.border = '3px dashed #D1D5DB'; bezel.style.borderRadius = '32px'; bezel.style.padding = '30px'; bezel.style.backgroundColor = '#FAFAFA';
+      
+      const clonedCard = originalCard.cloneNode(true);
+      clonedCard.id = ''; clonedCard.style.margin = '0'; clonedCard.style.width = originalCard.offsetWidth + 'px'; clonedCard.style.paddingTop = '45px'; 
+      
+      const saveBtn = clonedCard.querySelector('.save-btn-hidden-on-print');
+      if(saveBtn) saveBtn.style.display = 'none';
+
+      bezel.appendChild(clonedCard); captureContainer.appendChild(bezel); document.body.appendChild(captureContainer);
+      
+      await new Promise(resolve => setTimeout(resolve, 300));
+      
+      try {
+        const canvas = await html2canvas(captureContainer, { scale: 3, backgroundColor: '#FAFAFA', useCORS: true, logging: false });
+        const url = canvas.toDataURL('image/png'); 
+        const link = document.createElement('a'); link.href = url; link.download = `[${currentSheetName}] ${taskName}_진척도.png`; link.click(); 
+      } catch (e) { alert("이미지 변환 중 오류가 발생했습니다."); } 
+      finally { document.body.removeChild(captureContainer); document.getElementById('loader').style.display = 'none'; }
+    }
+
+    async function saveChanges() {
+      const updates = Object.values(pendingUpdates);
+      if (updates.length === 0) return;
+      document.getElementById('loader').style.display = 'flex';
+      await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'batch_update', apiKey: SECRET_API_KEY, sheetName: currentSheetName, updates: updates }) });
+      pendingUpdates = {}; document.getElementById('save-bar').classList.add('hidden'); await refresh(); 
+    }
+
+    function renderView() {
+      const container = document.getElementById('task-status-container');
+      const paginationContainer = document.getElementById('view-pagination');
+      const totalStudents = sheetData.students.length;
+      document.getElementById('view-total-students').innerText = `총 ${totalStudents}명`;
+      
+      const tasks = sheetData.headers.filter(h => h !== '학번' && h !== '이름');
+      if (tasks.length === 0) { container.innerHTML = '<p class="text-gray-400">등록된 과제가 없습니다.</p>'; paginationContainer.innerHTML = ''; return; }
+
+      const totalPages = Math.ceil(tasks.length / viewTasksPerPage) || 1;
+      if (currentViewPage > totalPages) currentViewPage = totalPages; 
+
+      const startIdx = (currentViewPage - 1) * viewTasksPerPage;
+      const pagedTasks = tasks.slice(startIdx, startIdx + viewTasksPerPage);
+
+      let html = '';
+      pagedTasks.forEach((task, index) => {
+        const safeTask = escapeHtml(task);
+        let doneCount = 0; let naCount = 0; let missingStudents = []; 
+
+        sheetData.students.forEach(s => { 
+          if (s[task] === '완료') doneCount++; 
+          else if (s[task] === '해당없음') naCount++;
+          else missingStudents.push(escapeHtml(String(s['이름'])));
+        });
+
+        const targetStudentsCount = totalStudents - naCount;
+        const rate = targetStudentsCount === 0 ? (doneCount > 0 ? 100 : 0) : Math.round((doneCount / targetStudentsCount) * 100);
+        
+        let missingHtml = '';
+        if (missingStudents.length > 0) {
+          missingHtml = `
+            <div class="border-[2px] border-gray-200 bg-gray-50 rounded-[16px] p-3 flex flex-col justify-center items-center text-center mt-auto">
+              <span class="text-xs font-black text-gray-400 mb-1">🚨 미제출자 (${missingStudents.length}명)</span>
+              <span class="text-sm font-bold text-gray-600 break-keep leading-relaxed">${missingStudents.join(', ')}</span>
+            </div>
+          `;
+        } else if (targetStudentsCount > 0) {
+          missingHtml = `
+            <div class="border-[2px] border-ch-primary bg-ch-primary-light rounded-[16px] py-3 px-3 flex justify-center items-center mt-auto">
+              <span class="text-lg font-black text-ch-primary flex items-center gap-2"><span class="text-xl">🥳</span> 대상자 전원 제출 완료!</span>
+            </div>
+          `;
+        } else {
+           missingHtml = `
+            <div class="border-[2px] border-gray-200 bg-gray-100 rounded-[16px] py-3 px-3 flex justify-center items-center mt-auto">
+              <span class="text-sm font-bold text-gray-500">전원 해당사항 없음</span>
+            </div>
+          `;
+        }
+
+        const realIndex = startIdx + index; const cardId = `view-card-${realIndex}`;
+
+        html += `
+          <div id="${cardId}" class="relative bg-white border-[2px] border-ch-secondary rounded-[24px] px-6 pt-7 pb-8 shadow-sm flex flex-col" style="min-height: 270px;">
+            <div class="flex justify-between items-start z-10 mb-5">
+              <h3 class="text-xl font-black text-ch-dark break-keep leading-tight">${safeTask}</h3>
+              <button onclick="saveCardAsImage('${cardId}', '${safeTask}')" class="save-btn-hidden-on-print shrink-0 px-3 py-1.5 bg-ch-secondary text-white hover:bg-ch-dark rounded-lg text-xs font-bold transition-all shadow-md">
+                📸 저장
+              </button>
+            </div>
+            <div class="flex justify-between items-baseline mb-3 z-10">
+              <div>
+                <span class="text-4xl font-black text-ch-primary leading-none tracking-tighter">${doneCount}</span>
+                <span class="text-sm font-bold text-gray-400 ml-1">/ ${targetStudentsCount}명</span>
+                ${naCount > 0 ? `<span class="block text-[11px] font-bold text-gray-400 mt-1">※ 제외 대상: ${naCount}명</span>` : ''}
+              </div>
+              <span class="text-2xl font-black text-ch-dark leading-none">${rate}%</span>
+            </div>
+            <div class="border-[2px] border-ch-secondary bg-ch-light rounded-full p-1 mb-5 z-10">
+              <div class="h-3 bg-ch-primary rounded-full transition-all duration-1000" style="width: ${rate}%"></div>
+            </div>
+            <div class="z-10 h-full flex flex-col justify-end mb-1">
+              ${missingHtml}
+            </div>
+          </div>
+        `;
+      });
+      container.innerHTML = html;
+
+      if (tasks.length > viewTasksPerPage) {
+        paginationContainer.innerHTML = `
+          <button onclick="changeViewPage(-1)" ${currentViewPage === 1 ? 'disabled' : ''} class="px-6 py-3 rounded-2xl bg-white border-2 border-gray-200 text-gray-600 disabled:opacity-40 hover:bg-gray-50 text-sm font-bold shadow-sm transition">◀ 이전</button>
+          <span class="text-sm font-black text-gray-600 px-6 bg-white py-3 rounded-2xl border-2 border-gray-100 shadow-sm">${currentViewPage} / ${totalPages} 페이지</span>
+          <button onclick="changeViewPage(1)" ${currentViewPage === totalPages ? 'disabled' : ''} class="px-6 py-3 rounded-2xl bg-white border-2 border-gray-200 text-gray-600 disabled:opacity-40 hover:bg-gray-50 text-sm font-bold shadow-sm transition">다음 ▶</button>
+        `;
+      } else { paginationContainer.innerHTML = ''; }
+    }
+
+    function changeViewPage(step) {
+      const tasks = sheetData.headers.filter(h => h !== '학번' && h !== '이름');
+      const totalPages = Math.ceil(tasks.length / viewTasksPerPage) || 1;
+      currentViewPage += step;
+      if (currentViewPage < 1) currentViewPage = 1; if (currentViewPage > totalPages) currentViewPage = totalPages;
+      renderView(); 
+    }
+
+    function renderManage() {
+      document.getElementById('manage-student-count').innerText = sheetData.students.length;
+      const sGrid = document.getElementById('manage-student-grid');
+      let sHtml = '';
+      if (sheetData.students.length === 0) { sHtml = '<div class="col-span-full p-10 text-center text-gray-400 bg-white rounded-2xl border border-gray-200">등록된 학생이 없습니다.</div>'; } 
+      else {
+        sheetData.students.forEach(s => {
+          const safeId = escapeHtml(String(s['학번'])); const safeName = escapeHtml(String(s['이름']));
+          sHtml += `
+            <div class="bg-white p-5 rounded-2xl border border-gray-200 shadow-sm flex items-center justify-between hover:shadow-md transition-all group">
+              <div class="flex items-center gap-4">
+                <div class="w-10 h-10 rounded-full bg-ch-primary-light flex items-center justify-center text-sm font-black text-ch-primary">${safeName ? safeName.substring(0, 1) : '?'}</div>
+                <div><p class="text-xs text-gray-400 font-bold">${safeId}</p><p class="text-base font-black text-ch-dark">${safeName}</p></div>
+              </div>
+              <button onclick="apiAction('delete_student', '${safeId}')" class="text-gray-400 hover:text-ch-danger hover:bg-red-50 px-3 py-2 rounded-lg text-sm font-bold transition-all">삭제</button>
+            </div>
+          `;
+        });
+      }
+      sGrid.innerHTML = sHtml;
+
+      const tTbody = document.getElementById('manage-task-tbody');
+      const tasks = sheetData.headers.filter(h => h !== '학번' && h !== '이름');
+      const startIdx = (currentTaskPage - 1) * tasksPerPage;
+      const pagedTasks = tasks.slice(startIdx, startIdx + tasksPerPage);
+
+      let tHtml = '';
+      if (tasks.length === 0) { tHtml = '<tr><td colspan="2" class="px-6 py-10 text-center text-gray-400">등록된 과제가 없습니다.</td></tr>'; } 
+      else {
+        pagedTasks.forEach(t => {
+          tHtml += `
+            <tr class="hover:bg-gray-50 transition-colors group">
+              <td class="px-6 py-4 font-bold text-ch-dark flex items-center gap-3"><div class="w-8 h-8 rounded-lg bg-ch-primary-light flex items-center justify-center text-ch-primary">📘</div>${escapeHtml(t)}</td>
+              <td class="px-6 py-4 text-right space-x-1">
+                <button onclick="apiAction('delete_topic', '${escapeHtml(t)}')" class="text-gray-400 hover:text-ch-danger hover:bg-red-50 px-3 py-1.5 rounded-lg text-sm font-bold transition-all">삭제</button>
+              </td>
+            </tr>
+          `;
+        });
+      }
+      tTbody.innerHTML = tHtml;
+      
+      if (tasks.length > 0) {
+        document.getElementById('task-pagination').innerHTML = `
+          <button onclick="changeTaskPage(-1)" ${currentTaskPage === 1 ? 'disabled' : ''} class="px-4 py-2 rounded-lg bg-white border text-gray-600 disabled:opacity-50 text-sm font-bold">이전</button>
+          <span class="text-sm font-bold text-gray-600 px-4">${currentTaskPage} / ${Math.ceil(tasks.length / tasksPerPage) || 1}</span>
+          <button onclick="changeTaskPage(1)" ${currentTaskPage === (Math.ceil(tasks.length / tasksPerPage) || 1) ? 'disabled' : ''} class="px-4 py-2 rounded-lg bg-white border text-gray-600 disabled:opacity-50 text-sm font-bold">다음</button>
+        `;
+      } else { document.getElementById('task-pagination').innerHTML = ''; }
+
+      const classListUl = document.getElementById('manage-class-list');
+      const startClassIdx = (currentClassPage - 1) * classesPerPage;
+      const pagedClasses = sheetNames.slice(startClassIdx, startClassIdx + classesPerPage);
+
+      let classHtml = '';
+      pagedClasses.forEach(name => {
+        const safeName = escapeHtml(name); const isCurrent = name === currentSheetName;
+        classHtml += `
+          <li class="px-6 py-4 flex justify-between items-center hover:bg-gray-50 transition-colors">
+            <span class="font-bold ${isCurrent ? 'text-ch-primary' : 'text-gray-700'}">${safeName} ${isCurrent ? '<span class="ml-2 text-xs bg-ch-primary-light text-ch-primary px-2 py-1 rounded-md">현재 선택됨</span>' : ''}</span>
+            <button onclick="apiAction('delete_sheet', '${safeName}')" class="text-gray-400 hover:text-ch-danger hover:bg-red-50 px-3 py-1.5 rounded-lg text-sm font-bold transition-all">삭제</button>
+          </li>
+        `;
+      });
+      classListUl.innerHTML = classHtml;
+
+      if (sheetNames.length > 0) {
+        const totalClassPages = Math.ceil(sheetNames.length / classesPerPage) || 1;
+        document.getElementById('class-pagination').innerHTML = `
+          <button onclick="changeClassPage(-1)" ${currentClassPage === 1 ? 'disabled' : ''} class="px-4 py-2 rounded-lg bg-white border text-gray-600 disabled:opacity-50 text-sm font-bold">이전</button>
+          <span class="text-sm font-bold text-gray-600 px-4">${currentClassPage} / ${totalClassPages}</span>
+          <button onclick="changeClassPage(1)" ${currentClassPage === totalPages ? 'disabled' : ''} class="px-4 py-2 rounded-lg bg-white border text-gray-600 disabled:opacity-50 text-sm font-bold">다음</button>
+        `;
+      } else { document.getElementById('class-pagination').innerHTML = ''; }
+    }
+
+    function changeTaskPage(step) {
+      const tasks = sheetData.headers.filter(h => h !== '학번' && h !== '이름');
+      const totalPages = Math.ceil(tasks.length / tasksPerPage) || 1;
+      currentTaskPage += step; if (currentTaskPage < 1) currentTaskPage = 1; if (currentTaskPage > totalPages) currentTaskPage = totalPages; renderManage(); 
+    }
+
+    function changeClassPage(step) {
+      const totalPages = Math.ceil(sheetNames.length / classesPerPage) || 1;
+      currentClassPage += step;
+      if (currentClassPage < 1) currentClassPage = 1; if (currentClassPage > totalPages) currentClassPage = totalPages;
+      renderManage();
+    }
+
+    function renderPrint() {
+      const container = document.getElementById('print-container'); container.innerHTML = '';
+      const baseHeaders = ['학번', '이름']; const tasks = sheetData.headers.filter(h => h !== '학번' && h !== '이름');
+      if (tasks.length === 0) { container.innerHTML = '<div class="bg-white p-10 text-center text-gray-500 rounded-lg shadow">출력할 과제가 없습니다.</div>'; return; }
+      
+      for (let i = 0; i < tasks.length; i += 4) {
+        const chunkTasks = tasks.slice(i, i + 4); const currentHeaders = [...baseHeaders, ...chunkTasks];
+        let html = `
+          <div class="bg-white p-8 md:p-10 shadow-lg border border-gray-100 rounded-xl mb-8 print-page">
+            <div class="text-center mb-6"><span class="bg-gray-200 px-4 py-1 rounded-full text-sm font-bold">${escapeHtml(currentSheetName)}</span></div>
+            <h2 class="text-2xl md:text-3xl font-bold text-center mb-8 decoration-gray-300 underline underline-offset-8">과제 수행 확인 명렬표</h2>
+            <table class="w-full border-collapse border-2 border-ch-dark text-sm"><thead class="bg-ch-light font-bold text-ch-dark"><tr>
+        `;
+        currentHeaders.forEach(h => { html += `<th class="border border-ch-dark p-2 bg-gray-200">${escapeHtml(h)}</th>`; });
+        html += `</tr></thead><tbody>`;
+        sheetData.students.forEach(s => {
+          html += `<tr class="hover:bg-gray-50">`;
+          currentHeaders.forEach(h => {
+            const val = s[h]; const isTask = h !== '학번' && h !== '이름';
+            const mark = isTask ? (val === '완료' ? 'O' : (val === '해당없음' ? '-' : '')) : escapeHtml(String(val || ''));
+            html += `<td class="border border-ch-dark p-2 text-center ${!isTask ? 'font-bold' : ''}">${mark}</td>`;
+          });
+          html += `</tr>`;
+        });
+        html += `</tbody></table></div>`;
+        container.innerHTML += html;
+      }
+    }
+
+    function exportToExcel() {
+      if (!sheetData || sheetData.students.length === 0) return alert("출력할 데이터가 없습니다.");
+      let excelData = [sheetData.headers];
+      sheetData.students.forEach(student => {
+        let row = [];
+        sheetData.headers.forEach(h => { 
+          row.push((h !== '학번' && h !== '이름') ? (student[h] === '완료' ? 'O' : (student[h] === '해당없음' ? '-' : '')) : student[h]); 
+        });
+        excelData.push(row);
+      });
+      const workbook = XLSX.utils.book_new(); XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(excelData), currentSheetName);
+      XLSX.writeFile(workbook, `[${currentSheetName}]과제명렬표.xlsx`);
+    }
+
+    async function apiAction(action, target = null) {
+      if (Object.keys(pendingUpdates).length > 0) return alert("저장되지 않은 체크 내역이 있습니다. 먼저 체크 내역을 [저장]해 주세요.");
+      let body = { action: action, apiKey: SECRET_API_KEY, sheetName: currentSheetName };
+      
+      if (action === 'add_student') {
+        body.studentId = document.getElementById('add-sid').value.trim(); body.name = document.getElementById('add-sname').value.trim();
+        if(!body.studentId || !body.name) return alert("입력값을 확인해주세요.");
+      } else if (action === 'add_topic') {
+        body.topicName = document.getElementById('add-topic').value.trim(); if(!body.topicName) return alert("과제명을 입력해주세요.");
+      } else if (action === 'delete_student') {
+        if (!confirm("삭제하시겠습니까?")) return; body.id = target;
+      } else if (action === 'delete_topic') {
+        if (!confirm("삭제하시겠습니까?")) return; body.topicName = target;
+      } else if (action === 'add_sheet') {
+        body.newSheetName = document.getElementById('add-class-name').value.trim(); if (!body.newSheetName) return alert("반 이름을 입력하세요.");
+      } else if (action === 'delete_sheet') {
+        if (sheetNames.length <= 1) return alert("마지막 남은 반입니다."); if (!confirm(`[${target}] 삭제하시겠습니까?`)) return; body.sheetName = target; 
+      }
+
+      document.getElementById('loader').style.display = 'flex';
+      try {
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(body) });
+        const result = await res.json();
+        if (result.status === "실패" || result.status === "거부") { alert("오류: " + result.message); return; }
+        if (action === 'add_sheet') { document.getElementById('add-class-name').value = ''; await refresh(result.newSheetName); return; }
+        if (action === 'delete_sheet') { await refresh(currentSheetName === target ? "" : currentSheetName); return; }
+      } catch (err) { console.error(err); } finally { document.getElementById('loader').style.display = 'none'; }
+      refresh();
+    }
+
+    function switchTab(name) {
+      if (Object.keys(pendingUpdates).length > 0 && name !== 'check') {
+        if (!confirm("저장하지 않은 변경사항이 있습니다. 무시하시겠습니까?")) return;
+        pendingUpdates = {}; document.getElementById('save-bar').classList.add('hidden'); renderCheck(); 
+      }
+      ['check', 'view', 'manage', 'print'].forEach(t => {
+        document.getElementById(`${t}-section`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).classList.remove('tab-active'); document.getElementById(`tab-${t}`).classList.add('text-gray-500');
+      });
+      document.getElementById(`${name}-section`).classList.remove('hidden');
+      document.getElementById(`tab-${name}`).classList.remove('text-gray-500'); document.getElementById(`tab-${name}`).classList.add('tab-active');
+    }
+
+    function switchSubTab(areaName) {
+      ['manage-student', 'manage-task', 'manage-class'].forEach(a => document.getElementById(`${a}-area`).classList.add('hidden'));
+      document.getElementById(`${areaName}-area`).classList.remove('hidden');
+      ['subtab-student', 'subtab-task', 'subtab-class'].forEach(b => {
+        document.getElementById(b).className = "px-5 py-2.5 rounded-full text-sm font-bold text-gray-500 hover:bg-gray-100 transition-all border border-transparent w-full md:w-auto";
+      });
+      document.getElementById('subtab-class').classList.add('md:ml-auto', 'border-gray-200');
+      document.getElementById(`subtab-${areaName.split('-')[1]}`).className = "px-5 py-2.5 rounded-full text-sm font-bold transition-all bg-ch-secondary text-white shadow-md border border-transparent w-full md:w-auto" + (areaName==='manage-class' ? ' md:ml-auto' : '');
+    }
+
+    switchTab('check'); initConfig();
+  </script>
+</body>
+</html>
