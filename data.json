@@ -136,14 +136,14 @@
     "visible": true,
     "links": [
       {
-        "title": "성일정보 도제(3-12)체크리스트",
-        "url": "school_project26/school_project_01_check.v0.1.html",
+        "title": "성일정보 도제(3-12)체크리스트 v0.2",
+        "url": "school_project26/school_project_01_check.v0.2.html",
         "type": "primary"
       },
       {
         "title": "School02 (준비중)",
         "url": "#",
-        "type": "primary",
+        "type": "secondary",
         "disabled": true
       },
       {
