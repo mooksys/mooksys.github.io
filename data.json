@@ -141,10 +141,9 @@
         "type": "primary"
       },
       {
-        "title": "School02 (준비중)",
-        "url": "#",
-        "type": "secondary",
-        "disabled": true
+        "title": "성일정보 3-12반 상담 기록 v0.2",
+        "url": "school_project26/school_project_02_sangdam_v0.2.html",
+        "type": "secondary"
       },
       {
         "title": "School03 (준비중)",
