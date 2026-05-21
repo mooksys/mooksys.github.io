@@ -350,7 +350,7 @@
 
     async function initConfig() {
       try {
-        const res = await fetch('school_project_01_check.gas_url.v0.1.json');
+        const res = await fetch('school_project_01_check_gas_url.json');
         const config = await res.json(); API_URL = config.webAppUrl; checkLoginState();
       } catch (e) { alert("gas_url.json 파일 로드 실패!"); }
     }
