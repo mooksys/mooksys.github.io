@@ -120,6 +120,7 @@
       <button id="login-btn" onclick="attemptLogin()" class="w-full bg-ch-primary text-white font-bold py-4 rounded-xl shadow-md hover:bg-ch-primary-hover transition-colors text-lg">
         입장하기
       </button>
+
     </div>
   </div>
 
@@ -574,34 +575,112 @@
     async function saveCardAsImage(cardId, taskName) {
       const originalCard = document.getElementById(cardId); if (!originalCard) return;
       document.getElementById('loader').style.display = 'flex';
-      
-      const currentScrollY = window.scrollY;
-      window.scrollTo(0, 0);
-      
-      const saveBtn = originalCard.querySelector('.save-btn-hidden-on-print'); 
-      if(saveBtn) saveBtn.style.visibility = 'hidden';
 
-      await new Promise(resolve => setTimeout(resolve, 250));
-      
+      // ── 캡처 전용 클론 생성 ─────────────────────────────────
+      // html2canvas의 flex justify-between 렌더링 버그 완전 우회:
+      // 저장 버튼 제거 + flex→block 변환 + 여백 최소화 클론을 화면 밖에 배치 후 캡처
+      const clone = originalCard.cloneNode(true);
+
+      // 저장 버튼 제거
+      const saveBtn = clone.querySelector('.save-btn-hidden-on-print');
+      if (saveBtn) saveBtn.remove();
+
+      // ── 클론 카드 스타일 ──────────────────────────────────────
+      const OUTER_PAD = 32;   // 카드 바깥 배경 여백 (px)
+      const CARD_WIDTH = 400; // 카드 너비
+      const WRAP_WIDTH = CARD_WIDTH + OUTER_PAD * 2;
+
+      clone.style.cssText = [
+        'display:block',
+        `width:${CARD_WIDTH}px`,
+        'background:#ffffff',
+        'border:2px solid #393E46',
+        'border-radius:24px',
+        'padding:24px',
+        'box-sizing:border-box',
+        'box-shadow:0 4px 24px rgba(0,0,0,0.10)',
+        'font-family:Inter,system-ui,sans-serif',
+        'overflow:visible',
+        'position:relative',
+      ].join(';');
+
+      // mt-auto → 위쪽 마진으로 대체
+      clone.querySelectorAll('[class*="mt-auto"]').forEach(el => {
+        el.style.marginTop = '12px';
+      });
+
+      // justify-between 행: flex 유지 (items-baseline 제거 → flex-end로 대체)
+      clone.querySelectorAll('[class*="justify-between"]').forEach(el => {
+        el.style.display = 'flex';
+        el.style.justifyContent = 'space-between';
+        el.style.alignItems = 'flex-end';
+      });
+
+      // stat-num(큰 숫자), stat-pct(퍼센트): html2canvas overflow 방지
+      // padding-top을 추가해 글자 상단이 잘리지 않도록 보정
+      clone.querySelectorAll('.stat-num, .stat-pct').forEach(el => {
+        el.style.paddingTop = '6px';
+        el.style.lineHeight = '1.1';
+        el.style.display = 'block';
+        el.style.overflow = 'visible';
+      });
+
+      // ── 텍스트 아래 쏠림 수정 ────────────────────────────────
+      clone.querySelectorAll('*').forEach(el => {
+        const cs = window.getComputedStyle(el);
+        if (['SPAN','DIV','H1','H2','H3','P','BUTTON'].includes(el.tagName)) {
+          const lh = parseFloat(cs.lineHeight);
+          const fs = parseFloat(cs.fontSize);
+          if (!isNaN(lh) && !isNaN(fs) && lh < fs * 1.15) {
+            el.style.lineHeight = '1.25';
+          }
+          el.style.verticalAlign = 'top';
+        }
+      });
+
+      // ── 바깥 배경 래퍼: 카드 주변 여백(베젤) 제공 ───────────
+      const wrapper = document.createElement('div');
+      wrapper.style.cssText = [
+        `width:${WRAP_WIDTH}px`,
+        'background:#F4F4F4',   // 연한 회색 배경
+        `padding:${OUTER_PAD}px`,
+        'box-sizing:border-box',
+        'position:fixed',
+        'top:-99999px',
+        'left:-99999px',
+        'overflow:visible',
+      ].join(';');
+      wrapper.appendChild(clone);
+      document.body.appendChild(wrapper);
+
+      // 폰트 로딩 + 레이아웃 안정화 대기
+      await document.fonts.ready;
+      await new Promise(resolve => setTimeout(resolve, 300));
+
+      const captureH = wrapper.offsetHeight;
+
       try {
-        const canvas = await html2canvas(originalCard, { 
-          scale: 2, 
-          backgroundColor: '#FFFFFF', 
-          useCORS: true, 
+        const canvas = await html2canvas(wrapper, {
+          scale: 2,
+          backgroundColor: '#F4F4F4',
+          useCORS: true,
           logging: false,
-          letterRendering: true
+          letterRendering: true,
+          width: WRAP_WIDTH,
+          height: captureH,
+          windowWidth: WRAP_WIDTH,
+          windowHeight: captureH,
         });
-        const url = canvas.toDataURL('image/png'); 
-        const link = document.createElement('a'); 
-        link.href = url; 
-        link.download = `[${currentSheetName}] ${taskName}_진척도.png`; 
-        link.click(); 
-      } catch (e) { 
-        alert("이미지 변환 중 오류가 발생했습니다."); 
-      } finally { 
-        if(saveBtn) saveBtn.style.visibility = 'visible';
-        window.scrollTo(0, currentScrollY);
-        document.getElementById('loader').style.display = 'none'; 
+        const url = canvas.toDataURL('image/png');
+        const link = document.createElement('a');
+        link.href = url;
+        link.download = `[${currentSheetName}] ${taskName}_진척도.png`;
+        link.click();
+      } catch (e) {
+        alert("이미지 변환 중 오류가 발생했습니다.");
+      } finally {
+        document.body.removeChild(wrapper);
+        document.getElementById('loader').style.display = 'none';
       }
     }
 
@@ -642,34 +721,34 @@
         // 🛠️ [현황 탭 수정] 이미지 저장 시 깨지지 않도록 하단 알림창 블록 레이아웃 단순화 공정 적용
         let missingHtml = '';
         if (missingStudents.length > 0) {
-          missingHtml = `<div class="border-[2px] border-gray-200 bg-gray-50 rounded-[16px] p-3 text-center mt-auto"><div class="text-xs font-black text-gray-400 mb-1">🚨 미제출자 (${missingStudents.length}명)</div><div class="text-sm font-bold text-gray-600 break-keep leading-normal">${missingStudents.join(', ')}</div></div>`;
+          missingHtml = `<div class="border-[2px] border-gray-200 bg-gray-50 rounded-[16px] p-3 text-center"><div class="text-xs font-black text-gray-400 mb-1">🚨 미제출자 (${missingStudents.length}명)</div><div class="text-sm font-bold text-gray-600 break-keep leading-normal">${missingStudents.join(', ')}</div></div>`;
         } else if (targetStudentsCount > 0) {
-          missingHtml = `<div class="border-[2px] border-ch-primary bg-ch-primary-light rounded-[16px] py-3.5 px-3 text-center mt-auto"><div class="text-base font-black text-ch-primary"><span class="text-lg mr-1">🥳</span> 대상자 전원 제출 완료!</div></div>`;
+          missingHtml = `<div class="border-[2px] border-ch-primary bg-ch-primary-light rounded-[16px] py-3.5 px-3 text-center"><div class="text-base font-black text-ch-primary"><span class="text-lg mr-1">🥳</span> 대상자 전원 제출 완료!</div></div>`;
         } else {
-           missingHtml = `<div class="border-[2px] border-gray-200 bg-gray-100 rounded-[16px] py-3.5 px-3 text-center mt-auto"><div class="text-sm font-bold text-gray-500">전원 해당사항 없음</div></div>`;
+           missingHtml = `<div class="border-[2px] border-gray-200 bg-gray-100 rounded-[16px] py-3.5 px-3 text-center"><div class="text-sm font-bold text-gray-500">전원 해당사항 없음</div></div>`;
         }
 
         const realIndex = startIdx + index; const cardId = `view-card-${realIndex}`;
         html += `
-          <div id="${cardId}" class="relative bg-white border-[2px] border-ch-secondary rounded-[24px] px-6 pt-7 pb-8 shadow-sm flex flex-col justify-between" style="min-height: 290px;">
-            <div>
-              <div class="flex justify-between items-start mb-4">
-                <h3 class="text-xl font-black text-ch-dark break-keep leading-tight pr-2">${safeTask}</h3>
-                <button onclick="saveCardAsImage('${cardId}', '${safeTask}')" class="save-btn-hidden-on-print shrink-0 px-3 py-1.5 bg-ch-secondary text-white hover:bg-ch-dark rounded-lg text-xs font-bold transition-all shadow-md">📸 저장</button>
-              </div>
-              <div class="flex justify-between items-baseline mb-2">
-                <div>
-                  <span class="text-4xl font-black text-ch-primary leading-none tracking-tighter">${doneCount}</span>
-                  <span class="text-sm font-bold text-gray-400 ml-1">/ ${targetStudentsCount}명</span>
-                  ${naCount > 0 ? `<span class="block text-[11px] font-bold text-gray-400 mt-1">※ 제외 대상: ${naCount}명</span>` : ''}
-                </div>
-                <span class="text-2xl font-black text-ch-dark leading-none">${rate}%</span>
-              </div>
-              <div class="border-[2px] border-ch-secondary bg-ch-light rounded-full p-1 mb-5">
-                <div class="h-3 bg-ch-primary rounded-full transition-all duration-1000" style="width: ${rate}%"></div>
-              </div>
+          <div id="${cardId}" class="relative bg-white border-[2px] border-ch-secondary rounded-[24px] p-5 shadow-sm">
+            <div class="flex justify-between items-start mb-3">
+              <h3 class="text-xl font-black text-ch-dark break-keep leading-tight pr-2">${safeTask}</h3>
+              <button onclick="saveCardAsImage('${cardId}', '${safeTask}')" class="save-btn-hidden-on-print shrink-0 px-3 py-1.5 bg-ch-secondary text-white hover:bg-ch-dark rounded-lg text-xs font-bold transition-all shadow-md">📸 저장</button>
             </div>
-            <div class="w-full mt-auto">${missingHtml}</div>
+            <div class="stat-row mb-2" style="display:flex;justify-content:space-between;align-items:flex-end;min-height:56px">
+              <div style="display:flex;flex-direction:column;justify-content:flex-end">
+                <div style="display:flex;align-items:flex-end;gap:4px">
+                  <span class="stat-num text-ch-primary font-black" style="font-size:2.5rem;line-height:1;display:block">${doneCount}</span>
+                  <span class="text-sm font-bold text-gray-400" style="margin-bottom:4px;display:block">/ ${targetStudentsCount}명</span>
+                </div>
+                ${naCount > 0 ? `<span class="text-[11px] font-bold text-gray-400" style="display:block;margin-top:2px">※ 제외 대상: ${naCount}명</span>` : ''}
+              </div>
+              <span class="stat-pct font-black text-ch-dark" style="font-size:1.5rem;line-height:1;display:block;margin-bottom:2px">${rate}%</span>
+            </div>
+            <div class="border-[2px] border-ch-secondary bg-ch-light rounded-full p-1 mb-3">
+              <div class="h-3 bg-ch-primary rounded-full transition-all duration-1000" style="width: ${rate}%"></div>
+            </div>
+            <div class="w-full">${missingHtml}</div>
           </div>
         `;
       });
