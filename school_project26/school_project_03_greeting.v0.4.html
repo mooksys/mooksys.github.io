@@ -1,0 +1,451 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>우리가 함께하는 일기 & 알림장</title>
+  
+  <link rel="stylesheet" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <style>
+    :root {
+      --bg-color: #f8fafc; --card-bg: #ffffff; --text-main: #0f172a; --text-sub: #64748b;
+      --primary-color: #2563eb; --primary-hover: #1d4ed8; --border-color: #e2e8f0;
+    }
+    [data-theme="dark"] {
+      --bg-color: #0f172a; --card-bg: #1e293b; --text-main: #f8fafc; --text-sub: #94a3b8; --border-color: #334155;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body { font-family: 'Pretendard', sans-serif; background-color: var(--bg-color); color: var(--text-main); transition: 0.3s; line-height: 1.6; }
+    
+    .login-overlay { position: fixed; inset: 0; background: var(--bg-color); display: flex; justify-content: center; align-items: center; z-index: 9999; }
+    .login-overlay.hidden { display: none; }
+    .login-card { background: var(--card-bg); padding: 40px; border-radius: 24px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); width: 100%; max-width: 400px; text-align: center; border: 1px solid var(--border-color); }
+    .login-card h2 { margin-bottom: 8px; font-weight: 800; }
+    .login-card p { color: var(--text-sub); margin-bottom: 24px; font-size: 0.95rem; }
+
+    .dashboard-container { max-width: 1100px; margin: 0 auto; padding: 40px 20px; display: none; }
+    .dashboard-container.authorized { display: block; }
+    .app-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .app-header h1 { font-size: 1.6rem; font-weight: 800; color: var(--primary-color); display: flex; align-items: center; gap: 8px; }
+    .header-btns { display: flex; gap: 10px; }
+    
+    .icon-btn { background: var(--card-bg); border: 1px solid var(--border-color); color: var(--text-main); border-radius: 12px; width: 44px; height: 44px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s; }
+    .icon-btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+
+    .tabs { display: flex; gap: 8px; margin-bottom: 24px; background: var(--card-bg); padding: 6px; border-radius: 16px; border: 1px solid var(--border-color); }
+    .tab-btn { flex: 1; background: transparent; border: none; font-size: 1rem; font-weight: 700; color: var(--text-sub); cursor: pointer; padding: 12px; border-radius: 12px; transition: 0.2s; font-family: inherit; }
+    .tab-btn.active { background: var(--primary-color); color: white; }
+
+    .section { display: none; }
+    .section.active { display: block; }
+
+    .card-style { background: var(--card-bg); border-radius: 24px; padding: 35px; box-shadow: 0 4px 16px rgba(0,0,0,0.01); border: 1px solid var(--border-color); }
+    .form-row { display: flex; gap: 30px; margin-bottom: 24px; }
+    .form-col { flex: 1; }
+    .input-group label { display: block; margin-bottom: 10px; font-weight: 700; font-size: 0.95rem; }
+    
+    textarea, input[type="password"] { width: 100%; padding: 16px; border: 1.5px solid var(--border-color); border-radius: 14px; background: var(--bg-color); color: var(--text-main); font-size: 1rem; font-family: inherit; transition: 0.2s; }
+    textarea { min-height: 180px; resize: vertical; }
+    textarea:focus { outline: none; border-color: var(--primary-color); }
+
+    .card-style-sub { background: var(--bg-color); border: 1px solid var(--border-color); border-radius: 16px; padding: 20px; min-height: 330px; display: flex; align-items: center; justify-content: center; }
+    
+    .calendar-container { width: 100%; }
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; }
+    .calendar-header span { font-weight: 800; font-size: 1.05rem; }
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; text-align: center; }
+    .calendar-day-name { font-weight: 700; font-size: 0.8rem; color: var(--text-sub); padding-bottom: 6px; }
+    .calendar-day { padding: 10px 0; border-radius: 10px; font-size: 0.9rem; cursor: pointer; transition: 0.15s; position: relative; }
+    .calendar-day:not(.empty):hover { background: var(--border-color); }
+    .calendar-day.selected { background: var(--primary-color); color: white; font-weight: 700; }
+    .calendar-day.has-post::after { content: ''; width: 4px; height: 4px; background: #3b82f6; border-radius: 50%; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); }
+    .calendar-day.selected.has-post::after { background: white; }
+
+    .theme-selector { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; width: 100%; }
+    .theme-selector input { display: none; }
+    
+    .theme-btn { 
+      padding: 12px; 
+      border-radius: 14px; 
+      font-size: 0.9rem; 
+      background: var(--card-bg); 
+      border: 1px solid var(--border-color); 
+      border-left: 6px solid var(--theme-col, var(--primary-color));
+      cursor: pointer; 
+      font-weight: 700; 
+      text-align: center; 
+      transition: 0.2s; 
+      display: block; 
+    }
+    .theme-btn:hover { transform: translateY(-1px); }
+    input[name="theme"]:checked + .theme-btn { 
+      background: var(--theme-col, var(--primary-color)); 
+      color: white; 
+      border-color: var(--theme-col, var(--primary-color)); 
+      box-shadow: 0 4px 10px rgba(0,0,0,0.1); 
+    }
+
+    .btn-submit { width: 100%; padding: 16px; border: none; border-radius: 14px; font-size: 1.05rem; font-weight: 700; cursor: pointer; background: var(--primary-color); color: white; transition: 0.2s; }
+    .btn-submit:hover { background: var(--primary-hover); }
+
+    .diary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+    .diary-card { background: var(--card-bg); border-radius: 20px; padding: 24px; border: 1px solid var(--border-color); display: flex; flex-direction: column; transition: 0.2s; border-left: 6px solid var(--primary-color); }
+    .diary-date { font-weight: 800; font-size: 1.15rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
+    .theme-badge { font-size: 0.8rem; background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 20px; font-weight: 700; }
+    .diary-content { font-size: 0.95rem; color: var(--text-main); white-space: pre-wrap; flex-grow: 1; margin-bottom: 20px; line-height: 1.8; }
+    
+    .content-badge {
+      display: inline-block;
+      background: #eff6ff;
+      color: #1d4ed8;
+      border: 1.5px solid #bfdbfe;
+      padding: 2px 10px;
+      border-radius: 12px;
+      font-size: 0.85rem;
+      font-weight: 800;
+      margin-right: 4px;
+      margin-bottom: 4px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.02);
+      vertical-align: middle;
+    }
+    
+    .card-actions { display: flex; justify-content: flex-end; gap: 8px; border-top: 1px dashed var(--border-color); padding-top: 14px; }
+
+    .toast { position: fixed; bottom: -60px; left: 50%; transform: translateX(-50%); background: #1e293b; color: white; padding: 12px 28px; border-radius: 30px; font-weight: 600; font-size: 0.9rem; transition: 0.4s; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .toast.show { bottom: 40px; }
+    
+    .loader { position: fixed; inset: 0; background: rgba(0,0,0,0.15); backdrop-filter: blur(3px); display: flex; justify-content: center; align-items: center; z-index: 100000; }
+    .loader.hidden { display: none; }
+    .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.8s infinite linear; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    
+    @media (max-width: 768px) { .form-row { flex-direction: column; gap: 20px; } .card-style-sub { min-height: auto; } .diary-grid { grid-template-columns: 1fr; } }
+  </style>
+</head>
+<body>
+
+  <div id="escape-template" style="display:none;"></div>
+
+  <div id="login-overlay" class="login-overlay">
+    <div class="login-card">
+      <div style="font-size: 40px; margin-bottom: 10px;">🔐</div>
+      <h2>보안인증 계정 관리</h2>
+      <p>학급 공지 권한 인가를 검증합니다.</p>
+      <form id="login-form">
+        <input type="password" id="login-password" placeholder="액세스 비밀번호 입력" required style="margin-bottom: 14px;">
+        <button type="submit" class="btn-submit">권한 인증 및 로그인</button>
+      </form>
+    </div>
+  </div>
+
+  <div id="main-dashboard" class="dashboard-container">
+    <header class="app-header">
+      <h1>💌 학급 알림장</h1>
+      <div class="header-btns">
+        <button id="logout-btn" class="icon-btn" title="로그아웃"><span class="material-icons">logout</span></button>
+        <button id="theme-toggle" class="icon-btn" title="다크모드전환"><span class="material-icons">dark_mode</span></button>
+      </div>
+    </header>
+
+    <nav class="tabs">
+      <button class="tab-btn active" data-target="section-write">✏️ 알림장 작성</button>
+      <button class="tab-btn" data-target="section-list" id="tab-list">📋 알림장 피드 목록</button>
+    </nav>
+
+    <section id="section-write" class="section active card-style">
+      <form id="diary-form">
+        <input type="hidden" id="edit-id" value="">
+        <div class="form-row">
+          <div class="form-col">
+            <div class="input-group">
+              <label>작성 일자 선택</label>
+              <input type="hidden" id="selectedDateInput" required>
+              <div class="card-style-sub">
+                <div id="calendar-container" class="calendar-container"></div>
+              </div>
+            </div>
+          </div>
+          <div class="form-col">
+            <div class="input-group">
+              <label>오늘의 반 테마</label>
+              <div class="card-style-sub">
+                <div class="theme-selector">
+                  <label><input type="radio" name="theme" value="☀️ 활기찬 하루" required><span class="theme-btn" style="--theme-col: #f59e0b;">☀️ 활기찬</span></label>
+                  <label><input type="radio" name="theme" value="😌 차분한 하루"><span class="theme-btn" style="--theme-col: #10b981;">😌 차분한</span></label>
+                  <label><input type="radio" name="theme" value="🌱 성장하는 하루"><span class="theme-btn" style="--theme-col: #84cc16;">🌱 성장하는</span></label>
+                  <label><input type="radio" name="theme" value="💡 집중하는 하루"><span class="theme-btn" style="--theme-col: #6366f1;">💡 집중하는</span></label>
+                  <label><input type="radio" name="theme" value="🌈 평화로운 하루"><span class="theme-btn" style="--theme-col: #0ea5e9;">🌈 평화로운</span></label>
+                  <label><input type="radio" name="theme" value="🎉 신나는 하루"><span class="theme-btn" style="--theme-col: #ef4444;">🎉 신나는</span></label>
+                  <label><input type="radio" name="theme" value="💌 따뜻한 하루"><span class="theme-btn" style="--theme-col: #ec4899;">💌 따뜻한</span></label>
+                  <label><input type="radio" name="theme" value="🔥 열정적인 하루"><span class="theme-btn" style="--theme-col: #f43f5e;">🔥 열정적인</span></label>
+                  <label><input type="radio" name="theme" value="🤝 협동하는 하루"><span class="theme-btn" style="--theme-col: #14b8a6;">🤝 협동하는</span></label>
+                  <label><input type="radio" name="theme" value="🔮 지혜로운 하루"><span class="theme-btn" style="--theme-col: #8b5cf6;">🔮 지혜로운</span></label>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="input-group" style="margin-bottom: 20px;">
+          <label for="content">공지 내용 및 알림장 본문</label>
+          <textarea id="content" placeholder="버튼으로 만들고 싶은 제목은 [이렇게] 대괄호로 감싸서 작성해보세요!" required></textarea>
+        </div>
+        <button type="submit" id="submit-btn" class="btn-submit">데이터 저장 및 등록</button>
+      </form>
+    </section>
+
+    <section id="section-list" class="section">
+      <div style="margin-bottom: 20px;">
+        <input type="text" id="search-input" placeholder="키워드 검색 (날짜, 테마, 본문 내용)..." style="width:100%; padding:14px; border-radius:12px; border:1px solid var(--border-color); background:var(--card-bg); color:var(--text-main);">
+      </div>
+      <div id="grid-container" class="diary-grid"></div>
+      <div id="pagination-controls" style="display:flex; justify-content:center; gap:16px; margin-top:35px;">
+        <button id="prev-page" class="icon-btn"><span class="material-icons">chevron_left</span></button>
+        <span id="pageInfo" style="font-weight:700; align-self:center;">1 / 1</span>
+        <button id="next-page" class="icon-btn"><span class="material-icons">chevron_right</span></button>
+      </div>
+    </section>
+  </div>
+
+  <div id="toast" class="toast"></div>
+  <div id="loader" class="loader hidden"><div class="spinner"></div></div>
+
+  <script>
+    let WEB_APP_URL = ""; 
+    let allData = [], filteredData = [], currentPage = 1;
+    const ITEMS_PER_PAGE = 6;
+    let calYear = new Date().getFullYear(), calMonth = new Date().getMonth(), selectedDateStr = "";
+    
+    // 🎨 테마 3개 컬러값 추가 
+    const themeBorders = {
+      "☀️ 활기찬 하루": "#f59e0b", "😌 차분한 하루": "#10b981", "🌱 성장하는 하루": "#84cc16",
+      "💡 집중하는 하루": "#6366f1", "🌈 평화로운 하루": "#0ea5e9", "🎉 신나는 하루": "#ef4444", "💌 따뜻한 하루": "#ec4899",
+      "🔥 열정적인 하루": "#f43f5e", "🤝 협동하는 하루": "#14b8a6", "🔮 지혜로운 하루": "#8b5cf6"
+    };
+
+    const els = {
+      loginOverlay: document.getElementById('login-overlay'), loginForm: document.getElementById('login-form'), loginPassword: document.getElementById('login-password'),
+      mainDashboard: document.getElementById('main-dashboard'), tabs: document.querySelectorAll('.tab-btn'), sections: document.querySelectorAll('.section'),
+      form: document.getElementById('diary-form'), editIdInput: document.getElementById('edit-id'), dateInput: document.getElementById('selectedDateInput'),
+      calendarContainer: document.getElementById('calendar-container'), contentInput: document.getElementById('content'), gridContainer: document.getElementById('grid-container'),
+      searchInput: document.getElementById('search-input'), toast: document.getElementById('toast'), loader: document.getElementById('loader'),
+      themeToggle: document.getElementById('theme-toggle'), logoutBtn: document.getElementById('logout-btn'), submitBtn: document.getElementById('submit-btn'),
+      prevBtn: document.getElementById('prev-page'), nextBtn: document.getElementById('next-page'), pageInfo: document.getElementById('pageInfo'),
+      escapeTemplate: document.getElementById('escape-template')
+    };
+
+    function escapeHTML(str) {
+      if (!str) return '';
+      els.escapeTemplate.innerText = str;
+      return els.escapeTemplate.innerHTML;
+    }
+
+    async function init() {
+      setTodayDate(); setupEvents();
+      const isConfigLoaded = await loadConfig();
+      if (isConfigLoaded && sessionStorage.getItem('announceAuthToken')) grantAccess();
+    }
+
+    async function loadConfig() {
+      showLoader(true);
+      try {
+        const response = await fetch(`school_project_03_gas_url.json?_=${Date.now()}`);
+        if (!response.ok) throw new Error();
+        const config = await response.json(); WEB_APP_URL = config.webAppUrl; return true;
+      } catch (e) { showToast('⚙️ 설정 제어 파일을 읽어오지 못했습니다.'); return false; } finally { showLoader(false); }
+    }
+
+    function setupEvents() {
+      els.loginForm.addEventListener('submit', handleLoginSubmit);
+      els.logoutBtn.addEventListener('click', () => { if(confirm('시스템에서 안전하게 로그아웃 하시겠습니까?')) { sessionStorage.removeItem('announceAuthToken'); location.reload(); } });
+      els.tabs.forEach(tab => tab.addEventListener('click', (e) => {
+        els.tabs.forEach(t => t.classList.remove('active')); els.sections.forEach(s => s.classList.remove('active'));
+        e.target.classList.add('active'); document.getElementById(e.target.dataset.target).classList.add('active');
+        if(e.target.id === 'tab-list' && WEB_APP_URL) loadData();
+      }));
+      els.form.addEventListener('submit', handleFormSubmit);
+      els.searchInput.addEventListener('input', applySearch);
+      els.themeToggle.addEventListener('click', () => { document.body.hasAttribute('data-theme') ? document.body.removeAttribute('data-theme') : document.body.setAttribute('data-theme', 'dark'); });
+      els.prevBtn.addEventListener('click', () => { if(currentPage > 1) { currentPage--; renderPage(); } });
+      els.nextBtn.addEventListener('click', () => { if(currentPage < Math.ceil(filteredData.length/ITEMS_PER_PAGE)) { currentPage++; renderPage(); } });
+    }
+
+    function renderCalendar() {
+      const firstDay = new Date(calYear, calMonth, 1).getDay(), daysInMonth = new Date(calYear, calMonth + 1, 0).getDate();
+      const postedDates = allData.map(item => item.날짜);
+      let html = `<div class="calendar-header"><button type="button" id="cal-prev" style="background:none;border:none;cursor:pointer;" class="material-icons">chevron_left</button><span>${calYear}년 ${calMonth + 1}월</span><button type="button" id="cal-next" style="background:none;border:none;cursor:pointer;" class="material-icons">chevron_right</button></div><div class="calendar-grid">`;
+      ['일','월','화','수','목','금','토'].forEach(d => html += `<div class="calendar-day-name">${d}</div>`);
+      for(let i=0; i<firstDay; i++) html += `<div class="calendar-day empty"></div>`;
+      for(let i=1; i<=daysInMonth; i++) {
+        const dStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(i).padStart(2,'0')}`;
+        html += `<div class="calendar-day ${postedDates.includes(dStr)?'has-post':''} ${dStr===selectedDateStr?'selected':''}" data-date="${dStr}">${i}</div>`;
+      }
+      els.calendarContainer.innerHTML = html + `</div>`;
+      document.getElementById('cal-prev').onclick = () => { calMonth--; if(calMonth<0){calMonth=11;calYear--;} renderCalendar(); };
+      document.getElementById('cal-next').onclick = () => { calMonth++; if(calMonth>11){calMonth=0;calYear++;} renderCalendar(); };
+      els.calendarContainer.querySelectorAll('.calendar-day:not(.empty)').forEach(c => c.onclick = (e) => { selectedDateStr = e.target.dataset.date; els.dateInput.value = selectedDateStr; renderCalendar(); });
+    }
+
+    function setTodayDate() { const t = new Date(); calYear = t.getFullYear(); calMonth = t.getMonth(); selectedDateStr = `${calYear}-${String(calMonth+1).padStart(2,'0')}-${String(t.getDate()).padStart(2,'0')}`; els.dateInput.value = selectedDateStr; renderCalendar(); }
+
+    async function handleLoginSubmit(e) {
+      e.preventDefault(); showLoader(true);
+      try {
+        const res = await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'checkPassword', password: els.loginPassword.value }) });
+        const result = await res.json();
+        if (result.success) { sessionStorage.setItem('announceAuthToken', els.loginPassword.value); grantAccess(); }
+        else { showToast('❌ 등록된 보안 패스워드가 아닙니다.'); els.loginPassword.value = ""; }
+      } catch (e) { showToast('클라우드 서버 연동 오류'); } finally { showLoader(false); }
+    }
+
+    function grantAccess() { els.loginOverlay.classList.add('hidden'); els.mainDashboard.classList.add('authorized'); loadData(); }
+
+    async function loadData() {
+      const token = sessionStorage.getItem('announceAuthToken'); if (!WEB_APP_URL || !token) return;
+      showLoader(true);
+      try {
+        const res = await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'read', password: token }) });
+        const result = await res.json();
+        if (result.success) { allData = result.data; applySearch(); renderCalendar(); }
+        else { showToast('인증 정보가 파기되었습니다.'); location.reload(); }
+      } catch (e) { showToast('동기화 갱신 오류'); } finally { showLoader(false); }
+    }
+
+    async function handleFormSubmit(e) {
+      e.preventDefault();
+      const theme = document.querySelector('input[name="theme"]:checked');
+      const payload = { action: els.editIdInput.value ? 'update' : 'create', password: sessionStorage.getItem('announceAuthToken'), id: els.editIdInput.value, date: els.dateInput.value, theme: theme.value, content: els.contentInput.value };
+      showLoader(true);
+      try {
+        const res = await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify(payload) });
+        const result = await res.json();
+        if (result.success) { showToast(result.message); location.reload(); } else { showToast('처리 거부: ' + result.error); }
+      } catch (e) { showToast('네트워크 처리 지연'); } finally { showLoader(false); }
+    }
+
+    window.deletePost = async function(id) {
+      if (!confirm('복구 불가능합니다. 영구 삭제하시겠습니까?')) return;
+      showLoader(true);
+      try {
+        await fetch(WEB_APP_URL, { method: 'POST', headers: { 'Content-Type': 'text/plain;charset=utf-8' }, body: JSON.stringify({ action: 'delete', password: sessionStorage.getItem('announceAuthToken'), id: id }) });
+        loadData();
+      } catch (e) {} finally { showLoader(false); }
+    }
+
+    window.editPost = function(id) {
+        const post = allData.find(item => item.ID === id); if(!post) return;
+        els.editIdInput.value = post.ID; els.contentInput.value = post.내용;
+        document.querySelectorAll('input[name="theme"]').forEach(r => { if(r.value === post.테마) r.checked = true; });
+        selectedDateStr = post.날짜; els.dateInput.value = selectedDateStr; 
+        const [y, m] = selectedDateStr.split('-'); calYear = parseInt(y); calMonth = parseInt(m) - 1; renderCalendar();
+        document.querySelector('.tab-btn[data-target="section-write"]').click();
+        els.submitBtn.textContent = "알림장 내용 수정 완료";
+    }
+
+    function applySearch() {
+      const term = els.searchInput.value.toLowerCase();
+      filteredData = allData.filter(i => (i.내용||'').toLowerCase().includes(term) || (i.테마||'').toLowerCase().includes(term) || (i.날짜||'').includes(term));
+      filteredData.sort((a, b) => b.날짜.localeCompare(a.날짜) || (b.등록시간||'').localeCompare(a.등록시간||''));
+      currentPage = 1; renderPage();
+    }
+
+    function renderPage() {
+      const total = Math.ceil(filteredData.length / ITEMS_PER_PAGE) || 1;
+      if (currentPage > total) currentPage = total;
+      renderCards(filteredData.slice((currentPage-1)*ITEMS_PER_PAGE, currentPage*ITEMS_PER_PAGE));
+      els.pageInfo.textContent = `${currentPage} / ${total}`;
+      els.prevBtn.disabled = currentPage === 1; els.nextBtn.disabled = currentPage === total;
+    }
+
+    function renderCards(data) {
+      els.gridContainer.innerHTML = data.length ? '' : '<p style="grid-column:1/-1;text-align:center;padding:80px;opacity:0.5;">매칭되는 알림장 내역이 존재하지 않습니다.</p>';
+      data.forEach(item => {
+        const card = document.createElement('div'); card.className = 'diary-card';
+        const borderCol = themeBorders[item.테마] || '#2563eb';
+        card.style.borderLeft = `6px solid ${borderCol}`;
+        
+        let safeContent = escapeHTML(item.내용);
+        safeContent = safeContent.replace(/\[(.*?)\]/g, '<span class="content-badge">$1</span>');
+        
+        card.innerHTML = `
+          <div class="diary-date">
+            <span>📅 ${item.날짜}</span>
+            <span class="theme-badge" style="background:${borderCol}22; color:${borderCol};">${item.테마}</span>
+          </div>
+          <div class="diary-content">${safeContent}</div>
+          <div class="card-actions">
+            <button class="icon-btn" title="다운로드 이미지 빌드" onclick="downloadCard(this,'${item.날짜}')"><span class="material-icons" style="font-size:1.1rem">download</span></button>
+            <button class="icon-btn" title="컨텐츠 편집" onclick="editPost('${item.ID}')"><span class="material-icons" style="font-size:1.1rem">edit</span></button>
+            <button class="icon-btn" title="기록 소멸" onclick="deletePost('${item.ID}')"><span class="material-icons" style="font-size:1.1rem">delete</span></button>
+          </div>
+        `;
+        els.gridContainer.appendChild(card);
+      });
+    }
+
+    window.downloadCard = async function(btn, date) {
+      const card = btn.closest('.diary-card'); showLoader(true);
+      const wrapper = document.createElement('div');
+      
+      Object.assign(wrapper.style, {
+        position: 'absolute',
+        left: '-9999px',
+        padding: '40px',
+        borderRadius: '24px',
+        background: document.body.hasAttribute('data-theme') ? '#0f172a' : '#f8fafc'
+      });
+      
+      const clone = card.cloneNode(true);
+      clone.querySelector('.card-actions').remove();
+      clone.style.width = '460px';
+      clone.style.boxShadow = 'none';
+
+      const teacherBadge = document.createElement('div');
+      teacherBadge.innerText = "👨‍🏫 도제3-12반 담임 이상호";
+      
+      Object.assign(teacherBadge.style, {
+        display: 'inline-flex',
+        alignItems: 'center',
+        background: '#2563eb',
+        color: '#ffffff',
+        padding: '10px 20px',
+        borderRadius: '30px',
+        fontSize: '0.85rem',
+        fontWeight: '800',
+        marginTop: '20px',
+        width: 'fit-content',
+        float: 'right',
+        boxShadow: '0 4px 10px rgba(37,99,235,0.2)'
+      });
+      
+      const clearfix = document.createElement('div');
+      clearfix.style.clear = 'both';
+
+      clone.appendChild(teacherBadge);
+      clone.appendChild(clearfix);
+      wrapper.appendChild(clone);
+      document.body.appendChild(wrapper);
+      
+      try {
+        const canvas = await html2canvas(wrapper, { scale: 2, backgroundColor: null, useCORS: true });
+        const link = document.createElement('a');
+        link.download = `알림장_${date}.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+      } catch (e) {
+        showToast('이미지 저장 가공 도중 오류 발생');
+      } finally {
+        document.body.removeChild(wrapper);
+        showLoader(false);
+      }
+    }
+
+    function showToast(msg) { els.toast.textContent = msg; els.toast.classList.add('show'); setTimeout(() => els.toast.classList.remove('show'), 2500); }
+    function showLoader(show) { els.loader.classList.toggle('hidden', !show); }
+
+    document.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
