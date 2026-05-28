@@ -146,15 +146,14 @@
         "type": "secondary"
       },
       {
-        "title": "성일정보 도제(3-12)아침인사 v0.3",
-        "url": "school_project26/school_project_03_greeting.v0.3.html",
+        "title": "성일정보 도제(3-12)아침인사 v0.4",
+        "url": "school_project26/school_project_03_greeting.v0.4.html",
         "type": "secondary"
       },
       {
         "title": "School04 (준비중)",
         "url": "#",
-        "type": "primary",
-        "disabled": true
+        "type": "primary"
       }
     ]
   }
