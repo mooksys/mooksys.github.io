@@ -60,6 +60,7 @@
     .calendar-day-name { font-weight: 700; font-size: 0.8rem; color: var(--text-sub); padding-bottom: 6px; }
     .calendar-day { padding: 10px 0; border-radius: 10px; font-size: 0.9rem; cursor: pointer; transition: 0.15s; position: relative; }
     .calendar-day:not(.empty):hover { background: var(--border-color); }
+    .calendar-day.empty { cursor: default; }
     .calendar-day.selected { background: var(--primary-color); color: white; font-weight: 700; }
     .calendar-day.has-post::after { content: ''; width: 4px; height: 4px; background: #3b82f6; border-radius: 50%; position: absolute; bottom: 3px; left: 50%; transform: translateX(-50%); }
     .calendar-day.selected.has-post::after { background: white; }
@@ -91,7 +92,7 @@
     .btn-submit { width: 100%; padding: 16px; border: none; border-radius: 14px; font-size: 1.05rem; font-weight: 700; cursor: pointer; background: var(--primary-color); color: white; transition: 0.2s; }
     .btn-submit:hover { background: var(--primary-hover); }
 
-    .diary-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 20px; }
+    .diary-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
     .diary-card { background: var(--card-bg); border-radius: 20px; padding: 24px; border: 1px solid var(--border-color); display: flex; flex-direction: column; transition: 0.2s; border-left: 6px solid var(--primary-color); }
     .diary-date { font-weight: 800; font-size: 1.15rem; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center; }
     .theme-badge { font-size: 0.8rem; background: #e0e7ff; color: #4338ca; padding: 4px 10px; border-radius: 20px; font-weight: 700; }
@@ -218,7 +219,6 @@
     const ITEMS_PER_PAGE = 6;
     let calYear = new Date().getFullYear(), calMonth = new Date().getMonth(), selectedDateStr = "";
     
-    // 🎨 테마 3개 컬러값 추가 
     const themeBorders = {
       "☀️ 활기찬 하루": "#f59e0b", "😌 차분한 하루": "#10b981", "🌱 성장하는 하루": "#84cc16",
       "💡 집중하는 하루": "#6366f1", "🌈 평화로운 하루": "#0ea5e9", "🎉 신나는 하루": "#ef4444", "💌 따뜻한 하루": "#ec4899",
@@ -376,9 +376,9 @@
           </div>
           <div class="diary-content">${safeContent}</div>
           <div class="card-actions">
-            <button class="icon-btn" title="다운로드 이미지 빌드" onclick="downloadCard(this,'${item.날짜}')"><span class="material-icons" style="font-size:1.1rem">download</span></button>
+            <button class="icon-btn download" title="알림장 이미지 다운로드" onclick="downloadCard(this,'${item.날짜}')"><span class="material-icons" style="font-size:1.1rem">download</span></button>
             <button class="icon-btn" title="컨텐츠 편집" onclick="editPost('${item.ID}')"><span class="material-icons" style="font-size:1.1rem">edit</span></button>
-            <button class="icon-btn" title="기록 소멸" onclick="deletePost('${item.ID}')"><span class="material-icons" style="font-size:1.1rem">delete</span></button>
+            <button class="icon-btn delete" title="기록 소멸" onclick="deletePost('${item.ID}')"><span class="material-icons" style="font-size:1.1rem">delete</span></button>
           </div>
         `;
         els.gridContainer.appendChild(card);
@@ -386,56 +386,85 @@
     }
 
     window.downloadCard = async function(btn, date) {
-      const card = btn.closest('.diary-card'); showLoader(true);
+      const card = btn.closest('.diary-card'); 
+      showLoader(true);
       const wrapper = document.createElement('div');
       
       Object.assign(wrapper.style, {
         position: 'absolute',
         left: '-9999px',
-        padding: '40px',
-        borderRadius: '24px',
+        width: '672px', 
+        height: '378px',
+        padding: '35px 42px', 
+        boxSizing: 'border-box',
+        display: 'flex',
+        flexDirection: 'column',
+        borderRadius: '28px', 
         background: document.body.hasAttribute('data-theme') ? '#0f172a' : '#f8fafc'
       });
       
       const clone = card.cloneNode(true);
-      clone.querySelector('.card-actions').remove();
-      clone.style.width = '460px';
-      clone.style.boxShadow = 'none';
+      const actions = clone.querySelector('.card-actions');
+      if (actions) actions.remove();
+      
+      // ✨ [수정핵심 1] 카드의 배치 기준을 상대(relative)로 설정하고 하단 여백 추가
+      Object.assign(clone.style, {
+        width: '100%',
+        flex: '1',
+        boxShadow: '0 7px 20px rgba(0,0,0,0.04)',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+        borderLeftWidth: '4px',
+        padding: '28px 32px',
+        paddingBottom: '70px', // 본문 내용이 배지를 덮지 않도록 하단 여백 추가
+        position: 'relative'   // 서명 배지가 이 카드 박스를 기준으로 위치하도록 설정
+      });
+
+      const dateEl = clone.querySelector('.diary-date');
+      const contentEl = clone.querySelector('.diary-content');
+      if (dateEl) { dateEl.style.fontSize = '1.1rem'; dateEl.style.marginBottom = '10px'; }
+      if (contentEl) { contentEl.style.fontSize = '0.9rem'; contentEl.style.lineHeight = '1.7'; }
 
       const teacherBadge = document.createElement('div');
       teacherBadge.innerText = "👨‍🏫 도제3-12반 담임 이상호";
       
+      // ✨ [수정핵심 2] 서명 배지를 절대위치(absolute)로 우측 하단에 단단히 고정
       Object.assign(teacherBadge.style, {
+        position: 'absolute', // flex 계산 오류를 막는 절대 위치
+        bottom: '24px',       // 카드 바닥에서 24px 위
+        right: '28px',        // 우측 끝에서 28px 왼쪽
         display: 'inline-flex',
         alignItems: 'center',
         background: '#2563eb',
         color: '#ffffff',
-        padding: '10px 20px',
+        padding: '8px 16px',
         borderRadius: '30px',
-        fontSize: '0.85rem',
+        fontSize: '0.8rem',
         fontWeight: '800',
-        marginTop: '20px',
-        width: 'fit-content',
-        float: 'right',
-        boxShadow: '0 4px 10px rgba(37,99,235,0.2)'
+        boxShadow: '0 3px 8px rgba(37,99,235,0.15)',
+        zIndex: '10'
       });
       
-      const clearfix = document.createElement('div');
-      clearfix.style.clear = 'both';
-
       clone.appendChild(teacherBadge);
-      clone.appendChild(clearfix);
       wrapper.appendChild(clone);
       document.body.appendChild(wrapper);
       
       try {
-        const canvas = await html2canvas(wrapper, { scale: 2, backgroundColor: null, useCORS: true });
+        const canvas = await html2canvas(wrapper, { 
+          scale: 2, 
+          backgroundColor: null, 
+          useCORS: true,
+          width: 672,
+          height: 378
+        });
         const link = document.createElement('a');
         link.download = `알림장_${date}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
       } catch (e) {
-        showToast('이미지 저장 가공 도중 오류 발생');
+        showToast('이미지 가공 중 오류가 발생했습니다.');
+        console.error(e);
       } finally {
         document.body.removeChild(wrapper);
         showLoader(false);
