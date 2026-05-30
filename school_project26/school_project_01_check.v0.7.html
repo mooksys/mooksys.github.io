@@ -1,0 +1,1072 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>성일정보고 도제(3-12)체크시스템</title>
+  
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  
+  <style>
+    :root {
+      --ch-dark: #222831;
+      --ch-secondary: #393E46;
+      --ch-primary: #00ADB5;
+      --ch-primary-hover: #00939A;
+      --ch-primary-light: #E6F7F8;
+      --ch-primary-border: #80D6DA;
+      --ch-light: #EEEEEE;
+      --ch-bg: #F0F4F8; 
+    }
+  </style>
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            'ch-dark': 'var(--ch-dark)',
+            'ch-secondary': 'var(--ch-secondary)',
+            'ch-primary': 'var(--ch-primary)',
+            'ch-primary-hover': 'var(--ch-primary-hover)',
+            'ch-primary-light': 'var(--ch-primary-light)',
+            'ch-primary-border': 'var(--ch-primary-border)',
+            'ch-light': 'var(--ch-light)',
+            'ch-bg': 'var(--ch-bg)',
+            'ch-danger': '#F05454',
+            'ch-success': '#16C79A'
+          }
+        }
+      }
+    }
+  </script>
+
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;800&display=swap');
+    body { font-family: 'Inter', system-ui, -apple-system, sans-serif; background-color: var(--ch-bg); transition: background-color 0.3s ease; }
+    
+    .tab-active { 
+      border-bottom: 3px solid var(--ch-primary); 
+      color: var(--ch-primary); 
+      font-weight: 800; 
+      background-color: #ffffff; 
+      transition: all 0.3s ease;
+    }
+    
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+    @media print {
+      @page { margin: 1cm; size: A4 portrait; }
+      body { background-color: #fff !important; color: #000 !important; }
+      .no-print { display: none !important; }
+      
+      #main-app { padding: 0 !important; margin: 0 !important; max-width: 100% !important; }
+      #print-section { display: block !important; width: 100% !important; }
+      
+      .print-page { 
+        page-break-after: always !important; 
+        break-after: page !important;
+        padding: 0 !important; 
+        margin: 0 0 2cm 0 !important; 
+        border: none !important; 
+        box-shadow: none !important; 
+      }
+      .print-page:last-child { page-break-after: auto !important; break-after: auto !important; margin-bottom: 0 !important; }
+      
+      table { 
+        width: 100% !important; 
+        border-collapse: collapse !important; 
+        table-layout: fixed !important;
+      }
+      thead { display: table-header-group !important; }
+      tr { page-break-inside: avoid !important; break-inside: avoid !important; }
+      
+      th, td { 
+        border: 1px solid #333 !important; 
+        padding: 6px 4px !important; 
+        text-align: center !important; 
+        color: #000 !important; 
+        font-size: 10pt !important; 
+      }
+      th { 
+        background-color: #f3f4f6 !important; 
+        -webkit-print-color-adjust: exact; 
+        print-color-adjust: exact; 
+        font-weight: bold !important; 
+      }
+    }
+  </style>
+</head>
+<body class="text-ch-dark">
+
+  <div id="login-section" class="flex items-center justify-center min-h-screen">
+    <div class="bg-white p-10 rounded-3xl shadow-xl w-full max-w-md text-center border border-gray-100">
+      <div class="w-16 h-16 bg-ch-light rounded-full flex items-center justify-center text-3xl mx-auto mb-6">🏫</div>
+      <h1 class="text-2xl font-extrabold text-ch-dark mb-2">성일정보고 도제(3-12)체크시스템</h1>
+      <p class="text-gray-500 text-sm mb-8">데이터 보호를 위해 비밀번호를 입력해주세요.</p>
+      
+      <div class="mb-6">
+        <input type="password" id="login-password" placeholder="비밀번호 입력" 
+               class="w-full border-2 border-gray-200 rounded-xl px-5 py-4 text-center text-lg focus:border-ch-primary focus:ring-4 focus:ring-ch-primary-light outline-none transition-all"
+               onkeypress="if(event.key === 'Enter') attemptLogin()">
+      </div>
+      
+      <button id="login-btn" onclick="attemptLogin()" class="w-full bg-ch-primary text-white font-bold py-4 rounded-xl shadow-md hover:bg-ch-primary-hover transition-colors text-lg">
+        입장하기
+      </button>
+    </div>
+  </div>
+
+  <div id="main-app" class="hidden max-w-6xl mx-auto p-4 md:p-6 relative min-h-screen flex flex-col">
+    
+    <header class="no-print mb-6">
+      <div class="flex justify-between items-center mb-6 gap-2">
+        <h1 class="text-xl md:text-3xl font-extrabold tracking-tight text-ch-dark flex items-center gap-2 transition-colors truncate">
+          🏫 성일정보고 도제(3-12)체크시스템
+        </h1>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button onclick="logout()" class="text-xs md:text-sm font-bold text-gray-400 hover:text-ch-danger transition px-3 py-1.5 md:py-2 bg-white rounded-lg border shadow-sm">🔒 로그아웃</button>
+          <button onclick="toggleMobileMenu()" class="md:hidden p-2 bg-white border border-gray-200 rounded-lg shadow-sm text-gray-600 hover:text-ch-primary transition">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+          </button>
+        </div>
+      </div>
+
+      <div class="mb-4 bg-white p-2 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center">
+        <div class="flex justify-between items-center w-full md:w-auto">
+          <span class="text-xs md:text-sm font-black text-ch-secondary px-3 whitespace-nowrap">Select Tab ▶</span>
+          <button onclick="toggleMobileClassMenu()" class="md:hidden px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-600 hover:text-ch-primary transition flex items-center gap-1">
+            <span id="current-class-mobile-label" class="text-xs font-black">Tab 로딩중</span>
+          </button>
+        </div>
+        <div id="class-selector" class="hidden md:flex flex-col md:flex-row flex-1 gap-1.5 no-scrollbar px-2 py-1 mt-2 md:mt-0 w-full md:w-auto"></div>
+      </div>
+      
+      <nav id="main-nav" class="hidden md:flex flex-col md:flex-row overflow-hidden md:overflow-x-auto bg-white rounded-xl shadow-sm border border-gray-100 transition-all duration-300">
+        <button onclick="switchTab('check'); closeMobileMenu()" id="tab-check" class="flex-1 py-3 px-4 text-sm font-semibold transition-all tab-active whitespace-nowrap text-left md:text-center">📝 체크 관리</button>
+        <button onclick="switchTab('view'); closeMobileMenu()" id="tab-view" class="flex-1 py-3 px-4 text-sm font-semibold text-gray-500 hover:text-ch-primary transition-all border-t md:border-t-0 md:border-l border-gray-100 whitespace-nowrap text-left md:text-center">📊 과제별 현황</button>
+        <button onclick="switchTab('manage'); closeMobileMenu()" id="tab-manage" class="flex-1 py-3 px-4 text-sm font-semibold text-gray-500 hover:text-ch-primary transition-all border-t md:border-t-0 md:border-l border-gray-100 whitespace-nowrap text-left md:text-center">⚙️ 데이터 관리</button>
+        <button onclick="switchTab('print'); closeMobileMenu()" id="tab-print" class="flex-1 py-3 px-4 text-sm font-semibold text-gray-500 hover:text-ch-primary transition-all border-t md:border-t-0 md:border-l border-gray-100 whitespace-nowrap text-left md:text-center">🖨️ 인쇄 출력</button>
+      </nav>
+    </header>
+
+    <div id="loader" class="hidden fixed top-0 left-0 w-full h-full bg-black bg-opacity-50 z-[150] flex-col items-center justify-center">
+      <div class="w-12 h-12 border-4 border-white border-t-transparent rounded-full animate-spin"></div>
+      <p class="mt-4 text-white font-bold">작업 처리 중...</p>
+    </div>
+
+    <main id="check-section" class="block no-print relative flex-grow">
+      <div id="save-bar" class="hidden sticky top-4 z-50 bg-[#FFF9D7] border-2 border-[#FFE45E] p-4 rounded-2xl shadow-xl flex flex-col sm:flex-row justify-between items-center mb-6 gap-4">
+        <span class="text-[#9C7A00] font-bold text-sm">⚠️ 저장되지 않은 체크 데이터가 있습니다.</span>
+        <button onclick="saveChanges()" class="bg-ch-primary text-white px-8 py-2 rounded-xl font-black shadow-md hover:bg-ch-primary-hover transition w-full sm:w-auto">💾 구글 시트에 즉시 저장하기</button>
+      </div>
+
+      <div class="mb-6 flex flex-col gap-4">
+        <div class="w-full bg-white p-3 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row md:items-center">
+          <div class="flex justify-between items-center w-full md:w-auto gap-2">
+            <span class="text-xs md:text-sm font-black text-ch-secondary px-2 flex items-center gap-1 whitespace-nowrap flex-shrink-0">📌 과제 선택</span>
+            <button onclick="toggleMobileTaskMenu()" class="md:hidden px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl text-gray-600 hover:text-ch-primary transition flex items-center gap-1 truncate">
+              <span id="current-task-mobile-label" class="text-xs font-black truncate max-w-[150px]">과제 로딩중</span>
+            </button>
+          </div>
+          <div id="task-selector" class="hidden md:flex flex-col md:flex-row flex-wrap flex-1 gap-1.5 px-2 py-1 mt-3 md:mt-0 w-full md:w-auto"></div>
+        </div>
+        
+        <div id="task-action-buttons" class="hidden flex flex-wrap items-center justify-between gap-3 w-full p-3 bg-white rounded-2xl border border-gray-100 shadow-sm">
+          <div class="flex flex-wrap gap-1.5">
+            <button onclick="toggleAll('완료')" class="px-3 md:px-4 py-2 bg-ch-primary-light text-ch-primary border border-ch-primary-border rounded-lg text-xs md:text-sm font-bold hover:bg-ch-light transition active:scale-95">✅ 전체 완료</button>
+            <button onclick="toggleAll('')" class="px-3 md:px-4 py-2 bg-gray-100 text-gray-600 rounded-lg text-xs md:text-sm font-bold hover:bg-gray-200 transition active:scale-95">❌ 전체 미완료</button>
+            <button onclick="toggleAll('해당없음')" class="px-3 md:px-4 py-2 bg-gray-500 text-white rounded-lg text-xs md:text-sm font-bold hover:bg-gray-600 transition active:scale-95">➖ 전체 해당없음</button>
+          </div>
+          <button onclick="saveChecklistAs169Image()" class="px-4 py-2 bg-ch-secondary text-white rounded-lg text-xs md:text-sm font-bold hover:bg-ch-dark shadow-md transition w-full sm:w-auto active:scale-95 flex items-center justify-center gap-1.5">📸 16:9 이미지 캡처</button>
+        </div>
+      </div>
+
+      <div id="capture-area" class="bg-white p-5 md:p-6 rounded-3xl border border-gray-100 shadow-sm">
+        <div class="mb-5 px-2 flex items-center justify-between gap-3">
+          <div class="flex items-center gap-2 truncate">
+            <span id="current-class-badge" class="bg-ch-secondary text-white text-xs font-bold px-3 py-1 rounded-lg flex-shrink-0"></span>
+            <h3 id="current-task-title" class="font-bold text-ch-dark text-lg md:text-xl truncate">과제를 선택해주세요</h3>
+          </div>
+          <div class="bg-ch-bg text-gray-500 text-[11px] font-bold px-3 py-1.5 rounded-full border border-gray-100 flex-shrink-0">성일정보고 도제(3-12)</div>
+        </div>
+        <div id="check-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-3 md:gap-4"></div>
+      </div>
+    </main>
+
+    <main id="view-section" class="hidden no-print flex-grow">
+      <div class="mb-4 flex justify-between items-end gap-2">
+        <h2 class="text-xl font-bold text-ch-dark truncate">과제 제출 진척도</h2>
+        <span class="text-sm font-semibold text-gray-600 bg-gray-100 px-3 py-1.5 rounded-full flex-shrink-0" id="view-total-students">총 0명</span>
+      </div>
+      <div id="task-status-container" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
+    </main>
+
+    <main id="manage-section" class="hidden no-print flex-grow">
+      <div class="flex flex-wrap gap-2.5 mb-8 border-b border-gray-100 pb-4">
+        <button onclick="switchSubTab('manage-student')" id="subtab-student" class="px-5 py-2.5 rounded-full text-sm font-bold transition-all bg-ch-secondary text-white shadow-md">👨‍🎓 학생 관리</button>
+        <button onclick="switchSubTab('manage-task')" id="subtab-task" class="px-5 py-2.5 rounded-full text-sm font-bold text-gray-500 hover:bg-gray-100 transition-all">📘 과제 관리</button>
+        <button onclick="switchSubTab('manage-class')" id="subtab-class" class="px-5 py-2.5 rounded-full text-sm font-bold text-gray-500 hover:bg-gray-100 transition-all md:ml-auto border border-gray-100 w-full md:w-auto">🏫 반 추가/삭제</button>
+      </div>
+
+      <div id="manage-student-area" class="space-y-6">
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+          <h3 class="text-lg font-bold text-ch-dark mb-5 flex items-center gap-2">➕ 새로운 학생 등록</h3>
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1"><label class="block text-xs font-bold text-ch-secondary mb-1.5 ml-1">학번</label><input type="text" id="add-sid" placeholder="예: 10101" class="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-ch-primary focus:border-ch-primary outline-none bg-gray-50 focus:bg-white transition-all"></div>
+            <div class="flex-1"><label class="block text-xs font-bold text-ch-secondary mb-1.5 ml-1">이름</label><input type="text" id="add-sname" placeholder="예: 홍길동" class="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-ch-primary focus:border-ch-primary outline-none bg-gray-50 focus:bg-white transition-all"></div>
+            <div class="flex items-end"><button onclick="apiAction('add_student')" class="w-full md:w-auto bg-ch-dark text-white px-8 py-3.5 rounded-xl text-sm font-bold hover:bg-black shadow-md transition-all active:scale-95">등록하기</button></div>
+          </div>
+        </div>
+        <div class="flex justify-between items-center mb-2 px-2 gap-2"><h3 class="font-bold text-ch-secondary text-sm truncate">📋 등록된 학생 목록 (<span id="manage-student-count">0</span>명)</h3></div>
+        <div id="manage-student-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5"></div>
+      </div>
+
+      <div id="manage-task-area" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+          <h3 class="text-lg font-bold text-ch-dark mb-5 flex items-center gap-2">📘 새로운 과제 생성</h3>
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1"><label class="block text-xs font-bold text-ch-secondary mb-1.5 ml-1">과제 명칭</label><input type="text" id="add-topic" placeholder="예: 정보처리 필기 취득" class="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-ch-primary focus:border-ch-primary outline-none bg-gray-50 focus:bg-white transition-all"></div>
+            <div class="flex items-end"><button onclick="apiAction('add_topic')" class="w-full md:w-auto bg-ch-primary text-white px-8 py-3.5 rounded-xl text-sm font-bold hover:bg-ch-primary-hover shadow-md transition-all active:scale-95">과제 추가</button></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+          <table class="w-full text-left border-collapse"><thead class="bg-white border-b border-gray-100 text-xs text-gray-400 uppercase"><tr><th class="px-6 py-4">과제명</th><th class="px-6 py-4 text-right">관리</th></tr></thead><tbody id="manage-task-tbody" class="divide-y divide-gray-50 text-sm tracking-tight"></tbody></table>
+        </div>
+      </div>
+
+      <div id="manage-class-area" class="hidden space-y-6">
+        <div class="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+          <h3 class="text-lg font-bold text-ch-dark mb-5 flex items-center gap-2">🏢 새로운 반(시트) 만들기</h3>
+          <div class="flex flex-col md:flex-row gap-4">
+            <div class="flex-1"><label class="block text-xs font-bold text-ch-secondary mb-1.5 ml-1">반 이름</label><input type="text" id="add-class-name" placeholder="예: 1학년 1반" class="w-full border border-gray-200 rounded-xl px-4 py-3.5 text-sm focus:ring-2 focus:ring-ch-primary focus:border-ch-primary outline-none bg-gray-50 focus:bg-white transition-all"></div>
+            <div class="flex items-end"><button onclick="apiAction('add_sheet')" class="w-full md:w-auto bg-ch-dark text-white px-8 py-3.5 rounded-xl text-sm font-bold hover:bg-black shadow-md transition-all active:scale-95">반 생성하기</button></div>
+          </div>
+        </div>
+        <div class="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
+          <ul id="manage-class-list" class="divide-y divide-gray-50 text-sm"></ul>
+        </div>
+      </div>
+    </main>
+
+    <main id="print-section" class="hidden flex-grow">
+      <div class="no-print flex justify-end gap-3 mb-6">
+        <button onclick="exportToExcel()" class="bg-ch-success text-white px-6 py-2 rounded-xl font-bold hover:bg-[#12A882] shadow-md transition flex items-center gap-1.5 text-sm">📗 엑셀 저장</button>
+        <button onclick="window.print()" class="bg-ch-dark text-white px-6 py-2 rounded-xl font-bold hover:bg-black shadow-md transition flex items-center gap-1.5 text-sm">인쇄하기 / PDF</button>
+      </div>
+      <div id="print-container" class="bg-white p-2 md:p-8 rounded-2xl no-print-bg"></div>
+    </main>
+
+  </div>
+
+  <script>
+    let API_URL = "";
+    
+    function showToast(message, type = 'info') {
+      const existingToast = document.getElementById('ch-toast');
+      if (existingToast) existingToast.remove();
+
+      let bgClass = 'bg-ch-secondary';
+      if (type === 'error') bgClass = 'bg-red-500';
+      if (type === 'success') bgClass = 'bg-ch-success';
+
+      const toast = document.createElement('div');
+      toast.id = 'ch-toast';
+      toast.className = `fixed bottom-8 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full text-white text-xs md:text-sm font-bold shadow-xl transition-all duration-300 translate-y-10 opacity-0 z-[200] ${bgClass}`;
+      toast.innerText = message;
+      
+      document.body.appendChild(toast);
+      
+      setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
+      setTimeout(() => {
+        toast.classList.add('translate-y-10', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    async function sha256(message) {
+      const msgBuffer = new TextEncoder().encode(message);
+      const hashBuffer = await crypto.subtle.digest('SHA-256', msgBuffer);
+      return Array.from(new Uint8Array(hashBuffer))
+        .map(b => ('0' + b.toString(16)).slice(-2)).join('');
+    }
+
+    function saveSession(token, expireAt) {
+      localStorage.setItem('vibe_session_token', token);
+      localStorage.setItem('vibe_session_expire', String(expireAt));
+    }
+    function loadSession() {
+      const token = localStorage.getItem('vibe_session_token');
+      const expireAt = Number(localStorage.getItem('vibe_session_expire') || '0');
+      if (!token || Date.now() > expireAt) { clearSession(); return null; }
+      return token;
+    }
+    function clearSession() {
+      localStorage.removeItem('vibe_session_token');
+      localStorage.removeItem('vibe_session_expire');
+    }
+    function buildBody(action, extra = {}) {
+      return { action, sessionToken: loadSession(), ...extra };
+    }
+
+    let sheetNames = [];
+    let currentSheetName = "";
+    let sheetData = { headers: [], students: [] };
+    let currentSelectedTask = "";
+    let pendingUpdates = {};
+
+    const colorThemes = [
+      { dark: '#222831', secondary: '#393E46', primary: '#00ADB5', hover: '#00939A', lightBg: '#E6F7F8', border: '#80D6DA', light: '#EEEEEE', bg: '#F0F4F8' },
+      { dark: '#111827', secondary: '#1f2937', primary: '#f97316', hover: '#ea580c', lightBg: '#ffedd5', border: '#fed7aa', light: '#f3f4f6', bg: '#f9fafb' },
+      { dark: '#0a3d3c', secondary: '#065f46', primary: '#10b981', hover: '#059669', lightBg: '#ecfdf5', border: '#a7f3d0', light: '#f0fdf4', bg: '#f1fdf9' }
+    ];
+
+    function applyThemeForClass(sheetName) {
+      if (!sheetNames || sheetNames.length === 0) return;
+      const index = sheetNames.indexOf(sheetName) % colorThemes.length;
+      const t = colorThemes[index >= 0 ? index : 0];
+      const root = document.documentElement;
+      root.style.setProperty('--ch-dark', t.dark); root.style.setProperty('--ch-secondary', t.secondary); root.style.setProperty('--ch-primary', t.primary);
+      root.style.setProperty('--ch-primary-hover', t.hover); root.style.setProperty('--ch-primary-light', t.lightBg); root.style.setProperty('--ch-primary-border', t.border); root.style.setProperty('--ch-light', t.light); root.style.setProperty('--ch-bg', t.bg);
+    }
+
+    function escapeHtml(unsafe) {
+      if (unsafe === null || unsafe === undefined) return "";
+      return String(unsafe).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    function toggleMobileMenu() {
+      const nav = document.getElementById('main-nav');
+      nav.classList.toggle('hidden'); nav.classList.toggle('flex');
+    }
+    function closeMobileMenu() {
+      if (window.innerWidth < 768) { document.getElementById('main-nav').classList.add('hidden'); document.getElementById('main-nav').classList.remove('flex'); }
+    }
+    function toggleMobileClassMenu() {
+      const el = document.getElementById('class-selector');
+      el.classList.toggle('hidden'); el.classList.toggle('flex');
+    }
+    function closeMobileClassMenu() {
+      if (window.innerWidth < 768) { document.getElementById('class-selector').classList.add('hidden'); document.getElementById('class-selector').classList.remove('flex'); }
+    }
+    function toggleMobileTaskMenu() {
+      const el = document.getElementById('task-selector');
+      el.classList.toggle('hidden'); el.classList.toggle('flex');
+    }
+    function closeMobileTaskMenu() {
+      if (window.innerWidth < 768) { document.getElementById('task-selector').classList.add('hidden'); document.getElementById('task-selector').classList.remove('flex'); }
+    }
+
+    async function initConfig() {
+      try {
+        const res = await fetch('school_project_01_check_gas_url.json');
+        const config = await res.json();
+        API_URL = config.webAppUrl;
+        checkLoginState();
+      } catch (e) {
+        showToast("gas_url.json 파일 로드 실패!", "error");
+      }
+    }
+
+    async function checkLoginState() {
+      if (loadSession()) {
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('main-app').classList.remove('hidden');
+        await refresh("");
+      }
+    }
+
+    async function attemptLogin() {
+      const pwd = document.getElementById('login-password').value;
+      if (!pwd) return showToast("비밀번호를 입력해주세요.", "error");
+
+      const btn = document.getElementById('login-btn');
+      btn.innerText = "확인 중..."; btn.disabled = true;
+
+      try {
+        const passwordHash = await sha256(pwd);
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'verify_password', passwordHash }) });
+        const result = await res.json();
+
+        if (result.status === "성공") {
+          saveSession(result.sessionToken, result.expireAt);
+          document.getElementById('login-section').classList.add('hidden');
+          document.getElementById('main-app').classList.remove('hidden');
+          showToast("로그인 성공!", "success");
+          await refresh("");
+        } else {
+          showToast(result.message || "비밀번호가 틀렸습니다.", "error");
+          document.getElementById('login-password').value = '';
+          btn.innerText = "입장하기"; btn.disabled = false;
+        }
+      } catch (e) {
+        showToast("서버 오류가 발생했습니다.", "error");
+        btn.innerText = "입장하기"; btn.disabled = false;
+      }
+    }
+
+    function logout() {
+      if (Object.keys(pendingUpdates).length > 0 && !confirm("저장하지 않은 변경사항이 있습니다. 로그아웃 하시겠습니까?")) return;
+      clearSession();
+      location.reload();
+    }
+
+    async function refresh(targetSheet = "") {
+      document.getElementById('loader').style.display = 'flex';
+      try {
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(buildBody('get_data', { sheetName: targetSheet || currentSheetName })) });
+        const data = await res.json();
+        if (data.status === "거부") {
+          clearSession();
+          showToast("세션이 만료되었습니다. 다시 로그인해주세요.", "error");
+          setTimeout(()=> location.reload(), 1500);
+          return;
+        }
+        if (data.status === "성공") {
+          sheetNames = data.sheetNames || [];
+          currentSheetName = data.currentSheetName;
+          sheetData.headers = data.headers || [];
+          sheetData.students = data.students || [];
+          applyThemeForClass(currentSheetName);
+          
+          const tasks = sheetData.headers.slice(2);
+          if (tasks.length > 0 && !tasks.includes(currentSelectedTask)) currentSelectedTask = tasks[0];
+          else if (tasks.length === 0) currentSelectedTask = "";
+          
+          renderAll();
+        } else {
+          showToast("데이터 로드 실패: " + data.message, "error");
+        }
+      } catch (e) {
+        showToast("서버와 통신 중 오류가 발생했습니다.", "error");
+      } finally {
+        document.getElementById('loader').style.display = 'none';
+      }
+    }
+
+    function renderAll() {
+      if(sheetData.headers.length < 2) return;
+      document.getElementById('current-class-badge').innerText = currentSheetName;
+      document.getElementById('current-class-mobile-label').innerText = currentSheetName;
+      renderClassSelector();
+      renderTaskSelector();
+      renderCheckGrid();
+      renderViewGrid();
+      renderManageGrid();
+      renderPrintView();
+    }
+
+    function renderClassSelector() {
+      const container = document.getElementById('class-selector');
+      container.innerHTML = sheetNames.map(name => {
+        const safeName = escapeHtml(name);
+        const isActive = (name === currentSheetName);
+        const btnClass = isActive ? 'bg-ch-primary text-white shadow-md font-bold' : 'bg-ch-light text-ch-secondary hover:bg-gray-200 font-medium';
+        return `<button onclick="changeClass('${safeName}')" class="px-5 py-2.5 rounded-xl text-sm transition-all whitespace-nowrap text-left md:text-center w-full md:w-auto ${btnClass}">${safeName}</button>`;
+      }).join('');
+    }
+
+    async function changeClass(newSheetName) {
+      if (newSheetName === currentSheetName) { closeMobileClassMenu(); return; }
+      if (Object.keys(pendingUpdates).length > 0) {
+        if (!confirm("저장하지 않은 데이터가 있습니다. 무시하고 반을 변경하시겠습니까?")) return;
+        pendingUpdates = {}; document.getElementById('save-bar').classList.add('hidden');
+      }
+      currentSelectedTask = ""; closeMobileClassMenu();
+      await refresh(newSheetName);
+    }
+
+    function renderTaskSelector() {
+      const tasks = sheetData.headers.slice(2);
+      const container = document.getElementById('task-selector');
+      const btnArea = document.getElementById('task-action-buttons');
+      
+      if(tasks.length === 0) {
+        container.innerHTML = '<span class="text-sm text-gray-400">등록된 과제가 없습니다.</span>';
+        document.getElementById('current-task-title').innerText = "과제를 등록해주세요.";
+        document.getElementById('current-task-mobile-label').innerText = "과제 없음";
+        btnArea.classList.add('hidden');
+        return;
+      }
+      btnArea.classList.remove('hidden');
+      document.getElementById('current-task-mobile-label').innerText = currentSelectedTask;
+      document.getElementById('current-task-title').innerText = currentSelectedTask;
+      
+      container.innerHTML = tasks.map(t => {
+        const safe = escapeHtml(t);
+        const isActive = (t === currentSelectedTask);
+        const btnClass = isActive ? 'bg-ch-secondary text-white font-bold' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50';
+        return `<button onclick="changeTask('${safe}')" class="px-4 py-2 rounded-xl text-sm transition-all whitespace-nowrap ${btnClass}">${safe}</button>`;
+      }).join('');
+    }
+
+    function changeTask(taskName) {
+      if(taskName === currentSelectedTask) return;
+      if (Object.keys(pendingUpdates).length > 0) {
+        if (!confirm("저장하지 않은 데이터가 있습니다. 무시하고 과제를 변경하시겠습니까?")) return;
+        pendingUpdates = {}; document.getElementById('save-bar').classList.add('hidden');
+      }
+      currentSelectedTask = taskName;
+      renderTaskSelector();
+      renderCheckGrid();
+      closeMobileTaskMenu();
+    }
+
+    /* 🛠️ [2/3 높이 다이어트 완료] h-[5rem] -> h-14(3.5rem)로 줄이고, 내부 요소를 가로 배치(flex-row)로 변경 */
+    function renderCheckGrid() {
+      const grid = document.getElementById('check-grid');
+      if(!currentSelectedTask) { grid.innerHTML = ''; return; }
+      
+      const idCol = sheetData.headers[0];
+      const nameCol = sheetData.headers[1];
+
+      grid.innerHTML = sheetData.students.map(std => {
+        const sid = escapeHtml(std[idCol]); 
+        const name = escapeHtml(std[nameCol]);
+        const val = pendingUpdates[sid] !== undefined ? pendingUpdates[sid] : (std[currentSelectedTask] || '');
+        
+        let cardStyle = "";
+        let badgeHtml = "";
+        let nameColor = "";
+        let numColor = "";
+
+        if (val === '완료') {
+          cardStyle = "bg-gradient-to-br from-ch-primary to-[#00939A] border-transparent shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:scale-95";
+          badgeHtml = `<div class="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full font-black backdrop-blur-sm border border-white/30 whitespace-nowrap">완료 ✔</div>`;
+          nameColor = "text-white";
+          numColor = "text-ch-primary-light opacity-90";
+        } else if (val === '해당없음') {
+          cardStyle = "bg-gray-100 border-gray-200 shadow-inner opacity-75 hover:opacity-100 active:scale-95";
+          badgeHtml = `<div class="bg-gray-200 text-gray-500 text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap">제외</div>`;
+          nameColor = "text-gray-500 line-through decoration-gray-400 decoration-2";
+          numColor = "text-gray-400";
+        } else {
+          cardStyle = "bg-white border-gray-200 hover:border-ch-primary hover:bg-ch-primary-light/30 shadow-sm hover:shadow active:scale-95";
+          badgeHtml = `<div class="bg-gray-50 text-gray-400 text-[10px] px-2 py-0.5 rounded-full font-medium border border-gray-100 whitespace-nowrap">미완료</div>`;
+          nameColor = "text-ch-dark";
+          numColor = "text-gray-400";
+        }
+        
+        return `
+          <button onclick="toggleStatus('${sid}', '${val}')" 
+                  class="w-full text-left relative overflow-hidden rounded-2xl border-2 transition-all duration-200 flex flex-row items-center justify-between p-3 h-14 group ${cardStyle}">
+            <div class="flex flex-col truncate mr-2">
+              <span class="text-[10px] font-bold tracking-tight ${numColor} mb-0.5">${sid}</span>
+              <span class="text-sm md:text-base font-extrabold tracking-tight truncate ${nameColor}" style="white-space: nowrap; word-break: keep-all;">${name}</span>
+            </div>
+            <div class="flex-shrink-0">${badgeHtml}</div>
+          </button>
+        `;
+      }).join('');
+    }
+
+    function toggleStatus(sid, currentVal) {
+      let newVal = '';
+      if(currentVal === '') newVal = '완료';
+      else if(currentVal === '완료') newVal = '해당없음';
+      
+      pendingUpdates[sid] = newVal;
+      document.getElementById('save-bar').classList.remove('hidden');
+      renderCheckGrid();
+    }
+
+    function toggleAll(status) {
+      const idCol = sheetData.headers[0];
+      sheetData.students.forEach(std => pendingUpdates[std[idCol]] = status);
+      document.getElementById('save-bar').classList.remove('hidden');
+      renderCheckGrid();
+      showToast(`전체 상태가 '${status || '미완료'}'(으)로 변경되었습니다. (저장 필요)`, "info");
+    }
+
+    async function saveChanges() {
+      if(Object.keys(pendingUpdates).length === 0) return;
+      document.getElementById('loader').style.display = 'flex';
+      try {
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(buildBody('batch_update', { sheetName: currentSheetName, taskTitle: currentSelectedTask, updates: pendingUpdates }))});
+        const data = await res.json();
+        if(data.status === '성공') {
+          showToast("성공적으로 저장되었습니다.", "success");
+          pendingUpdates = {}; document.getElementById('save-bar').classList.add('hidden');
+          await refresh();
+        } else showToast("저장 실패: " + data.message, "error");
+      } catch(e) {
+        showToast("저장 중 오류 발생", "error");
+      } finally { document.getElementById('loader').style.display = 'none'; }
+    }
+
+    function renderViewGrid() {
+      const container = document.getElementById('task-status-container');
+      const tasks = sheetData.headers.slice(2);
+      const nameCol = sheetData.headers[1];
+
+      document.getElementById('view-total-students').innerText = `총 ${sheetData.students.length}명`;
+      
+      container.innerHTML = tasks.map((t, index) => {
+        const completed = sheetData.students.filter(s => s[t] === '완료').length;
+        const exemptCount = sheetData.students.filter(s => s[t] === '해당없음').length;
+        
+        const targetStudents = sheetData.students.length - exemptCount;
+        const pct = targetStudents === 0 ? 0 : Math.round((completed / targetStudents) * 100);
+        
+        const missingStudents = sheetData.students.filter(s => s[t] !== '완료' && s[t] !== '해당없음');
+        const missingNames = missingStudents.map(s => escapeHtml(s[nameCol])).join(', ') || '전원 제출 완료🎉';
+        
+        const cardId = `progress-card-${index}`;
+        const safeTitle = escapeHtml(t);
+
+        return `
+          <div id="${cardId}" class="bg-white rounded-3xl border-2 border-gray-100 shadow-lg flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+            <div class="p-6 flex-1 flex flex-col">
+              <div class="flex justify-between items-start gap-3 mb-5 min-h-[3.5rem]">
+                <h4 class="font-bold text-ch-dark text-lg leading-snug break-all flex-1">${safeTitle}</h4>
+                <button onclick="saveCardAsImage('${cardId}', '${safeTitle}')" class="text-xs font-bold bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-600 px-3 py-1.5 rounded-xl transition-all no-print whitespace-nowrap flex items-center gap-1 shadow-sm h-fit">📸 캡처</button>
+              </div>
+              
+              <div class="flex justify-between items-end mb-2 gap-2">
+                <span class="text-sm font-bold text-gray-400 tracking-tight flex-shrink-0">달성률</span>
+                <span class="text-3xl font-black text-ch-primary tracking-tighter truncate">${pct}%</span>
+              </div>
+
+              <div class="w-full bg-gray-100 rounded-full h-4 mb-4 shadow-inner overflow-hidden border border-gray-200">
+                <div class="bg-gradient-to-r from-ch-primary to-[#20c9d3] h-full rounded-full transition-all duration-700 ease-out relative" style="width: ${pct}%"></div>
+              </div>
+              
+              <div class="flex justify-between items-center mt-3 bg-ch-bg p-3 rounded-xl border border-gray-100 shadow-sm w-full">
+                <div class="text-left">
+                  ${exemptCount > 0 ? `<span class="text-[11px] text-gray-500 font-bold bg-white px-2 py-1 rounded-md border border-gray-200 whitespace-nowrap">제외: ${exemptCount}명</span>` : '<span class="text-[11px] text-gray-400 font-medium whitespace-nowrap">제외 없음</span>'}
+                </div>
+                <div class="text-right text-sm font-bold text-ch-dark whitespace-nowrap">
+                  제출: <span class="font-black text-ch-primary text-base">${completed}</span> / ${targetStudents}명
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-gray-50 border-t-2 border-dashed border-gray-100 px-6 py-5">
+              <span class="text-[12px] font-black text-ch-danger flex items-center gap-1.5 mb-2.5 whitespace-nowrap">
+                🚨 미제출 명단 (${missingStudents.length}명)
+              </span>
+              <p class="text-[14px] font-medium text-gray-600 leading-relaxed break-words bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm" style="word-break: keep-all;">${missingNames}</p>
+            </div>
+
+            <div class="h-2.5 w-full bg-ch-primary opacity-90"></div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function renderManageGrid() {
+      const sGrid = document.getElementById('manage-student-grid');
+      document.getElementById('manage-student-count').innerText = sheetData.students.length;
+      
+      const idCol = sheetData.headers[0];
+      const nameCol = sheetData.headers[1];
+
+      sGrid.innerHTML = sheetData.students.map(s => `
+        <div class="flex justify-between items-center p-4 border-2 border-gray-100 rounded-2xl bg-white shadow-sm hover:shadow-md hover:border-ch-primary/30 transition-all duration-200">
+          <div class="flex flex-col truncate">
+            <span class="text-[11px] font-bold text-gray-400 tracking-tight truncate">${escapeHtml(s[idCol])}</span>
+            <span class="text-base font-extrabold text-ch-dark truncate">${escapeHtml(s[nameCol])}</span>
+          </div>
+          <div class="flex gap-2 flex-shrink-0">
+            <button onclick="promptEditStudent('${escapeHtml(s[idCol])}', '${escapeHtml(s[nameCol])}')" class="text-ch-primary hover:text-white hover:bg-ch-primary text-xs font-bold bg-ch-primary-light px-3.5 py-2 rounded-xl transition-colors active:scale-95">수정</button>
+            <button onclick="apiAction('delete_student', {id: '${escapeHtml(s[idCol])}'})" class="text-red-500 hover:text-white hover:bg-red-500 text-xs font-bold bg-red-50 px-3.5 py-2 rounded-xl transition-colors active:scale-95">삭제</button>
+          </div>
+        </div>
+      `).join('');
+
+      const tasks = sheetData.headers.slice(2);
+      document.getElementById('manage-task-tbody').innerHTML = tasks.map(t => `
+        <tr><td class="px-6 py-4 font-semibold text-ch-dark break-all">${escapeHtml(t)}</td><td class="px-6 py-4 text-right">
+          <button onclick="apiAction('delete_topic', {topicName: '${escapeHtml(t)}'})" class="text-red-400 hover:text-red-600 text-sm font-bold bg-white px-3 py-1.5 border rounded-lg shadow-sm active:scale-95">삭제</button>
+        </td></tr>
+      `).join('');
+
+      document.getElementById('manage-class-list').innerHTML = sheetNames.map(c => `
+        <li class="flex justify-between items-center px-6 py-4">
+          <span class="font-bold text-ch-dark truncate">${escapeHtml(c)}</span>
+          ${sheetNames.length > 1 ? `<button onclick="apiAction('delete_sheet', {sheetToDelete: '${escapeHtml(c)}'})" class="text-red-400 hover:text-red-600 text-sm font-bold bg-white px-3 py-1.5 border rounded-lg shadow-sm active:scale-95 flex-shrink-0">삭제</button>` : ''}
+        </li>
+      `).join('');
+    }
+
+    function promptEditStudent(oldId, oldName) {
+      const newId = prompt("수정할 학번을 입력하세요:", oldId);
+      if (newId === null) return; 
+      
+      const newName = prompt("수정할 이름을 입력하세요:", oldName);
+      if (newName === null) return; 
+      
+      if (!newId.trim() || !newName.trim()) {
+        return showToast("학번과 이름을 모두 입력해야 합니다.", "error");
+      }
+      if (newId === oldId && newName === oldName) return; 
+      
+      apiAction('edit_student', { oldId: oldId, newId: newId.trim(), newName: newName.trim() });
+    }
+
+    function renderPrintView() {
+      const container = document.getElementById('print-container');
+      const idCol = sheetData.headers[0];
+      const nameCol = sheetData.headers[1];
+      const allTasks = sheetData.headers.slice(2);
+      
+      const chunkSize = 4;
+      const taskChunks = [];
+      for (let i = 0; i < allTasks.length; i += chunkSize) {
+        taskChunks.push(allTasks.slice(i, i + chunkSize));
+      }
+
+      if (taskChunks.length === 0) taskChunks.push([]);
+
+      let html = '';
+
+      taskChunks.forEach((tasks, chunkIndex) => {
+        const pageNumStr = chunkIndex === 0 ? '' : ` (${chunkIndex + 1}페이지)`;
+        const pageTitle = `${currentSheetName} 과제 체크표${pageNumStr}`;
+
+        html += `
+          <div class="bg-white p-4 print-page mb-10 shadow-sm border border-gray-100 md:border-none md:shadow-none overflow-x-auto">
+            <h2 class="text-center font-bold text-2xl mb-6 text-ch-dark">${escapeHtml(pageTitle)}</h2>
+            
+            <table class="w-full text-sm border-collapse table-fixed min-w-[600px]">
+              <thead>
+                <tr>
+                  <th class="border border-gray-300 p-2 w-[16%] bg-gray-50 text-center font-bold">${escapeHtml(idCol)}</th>
+                  <th class="border border-gray-300 p-2 w-[20%] bg-gray-50 text-center font-bold">${escapeHtml(nameCol)}</th>
+        `;
+
+        tasks.forEach(t => {
+          html += `<th class="border border-gray-300 p-2 w-[16%] truncate px-1 bg-gray-50 text-center font-bold">${escapeHtml(t)}</th>`;
+        });
+
+        const emptyCols = chunkSize - tasks.length;
+        for (let i = 0; i < emptyCols; i++) {
+          html += `<th class="border border-gray-300 p-2 w-[16%] bg-gray-50"></th>`;
+        }
+
+        html += `</tr></thead><tbody>`;
+
+        sheetData.students.forEach(s => {
+          html += `
+            <tr>
+              <td class="border border-gray-300 p-2 text-center whitespace-nowrap text-gray-500">${escapeHtml(s[idCol])}</td>
+              <td class="border border-gray-300 p-2 text-center font-bold whitespace-nowrap text-ch-dark">${escapeHtml(s[nameCol])}</td>
+          `;
+          
+          tasks.forEach(t => {
+            const val = s[t];
+            let icon = "";
+            let textClass = "";
+            if (val === '완료') {
+              icon = "O";
+              textClass = "text-blue-600 font-extrabold";
+            } else if (val === '해당없음') {
+              icon = "-";
+              textClass = "text-gray-300 font-medium";
+            }
+            html += `<td class="border border-gray-300 p-2 text-center ${textClass}">${icon}</td>`;
+          });
+
+          for (let i = 0; i < emptyCols; i++) {
+            html += `<td class="border border-gray-300 p-2"></td>`;
+          }
+
+          html += `</tr>`;
+        });
+        
+        html += `</tbody></table></div>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    async function apiAction(action, extraParams = {}) {
+      let bodyData = { sheetName: currentSheetName, ...extraParams };
+      
+      if (action === 'add_student') {
+        bodyData.id = document.getElementById('add-sid').value;
+        bodyData.name = document.getElementById('add-sname').value;
+        if(!bodyData.id || !bodyData.name) return showToast("학번 and 이름을 모두 입력하세요.", "error");
+      } else if (action === 'add_topic') {
+        bodyData.topicName = document.getElementById('add-topic').value;
+        if(!bodyData.topicName) return showToast("과제 명칭을 입력하세요.", "error");
+      } else if (action === 'add_sheet') {
+        bodyData.newSheetName = document.getElementById('add-class-name').value;
+        if(!bodyData.newSheetName) return showToast("생성할 반 이름을 입력하세요.", "error");
+      } else if (action === 'delete_student' || action === 'delete_topic' || action === 'delete_sheet') {
+        if(!confirm("정말 삭제하시겠습니까? (이 작업은 되돌릴 수 없습니다.)")) return;
+      }
+
+      document.getElementById('loader').style.display = 'flex';
+      try {
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(buildBody(action, bodyData)) });
+        const data = await res.json();
+        if(data.status === '성공') {
+          showToast("성공적으로 처리되었습니다.", "success");
+          if(document.getElementById('add-sid')) document.getElementById('add-sid').value = '';
+          if(document.getElementById('add-sname')) document.getElementById('add-sname').value = '';
+          if(document.getElementById('add-topic')) document.getElementById('add-topic').value = '';
+          if(document.getElementById('add-class-name')) document.getElementById('add-class-name').value = '';
+          await refresh();
+        } else {
+          showToast("처리 실패: " + data.message, "error");
+        }
+      } catch (e) {
+        showToast("네트워크 통신 오류가 발생했습니다.", "error");
+      } finally {
+        document.getElementById('loader').style.display = 'none';
+      }
+    }
+
+    function switchTab(name) {
+      ['check', 'view', 'manage', 'print'].forEach(t => {
+        document.getElementById(`${t}-section`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).classList.remove('tab-active', 'text-gray-500');
+        if(t !== name) document.getElementById(`tab-${t}`).classList.add('text-gray-500');
+      });
+      document.getElementById(`${name}-section`).classList.remove('hidden');
+      document.getElementById(`tab-${name}`).classList.add('tab-active');
+    }
+
+    function switchSubTab(areaName) {
+      ['manage-student', 'manage-task', 'manage-class'].forEach(a => document.getElementById(`${a}-area`).classList.add('hidden'));
+      document.getElementById(`${areaName}-area`).classList.remove('hidden');
+      ['subtab-student', 'subtab-task', 'subtab-class'].forEach(b => {
+        document.getElementById(b).className = "px-5 py-2.5 rounded-full text-sm font-bold text-gray-500 hover:bg-gray-100 transition-all border border-transparent w-full md:w-auto";
+      });
+      document.getElementById('subtab-class').classList.add('md:ml-auto', 'border-gray-200');
+      const targetBtn = areaName.split('-')[1];
+      document.getElementById(`subtab-${targetBtn}`).className = "px-5 py-2.5 rounded-full text-sm font-bold transition-all bg-ch-secondary text-white shadow-md w-full md:w-auto" + (targetBtn==='class' ? ' md:ml-auto' : '');
+    }
+
+    /* 📸 [16:9 캡처] 축소된 카드 비율에 맞추어 높이를 h-[64px] 가로형 배치로 통일 */
+    function saveChecklistAs169Image() {
+      if(!currentSelectedTask) return showToast("선택된 과제가 없습니다.", "error");
+      
+      document.getElementById('loader').style.display = 'flex';
+      showToast("고화질 16:9 와이드 이미지를 생성하고 있습니다...", "info");
+
+      const studio = document.createElement('div');
+      studio.style.position = 'fixed';
+      studio.style.top = '0';
+      studio.style.left = '0';
+      studio.style.width = '1920px';
+      studio.style.height = '1080px';
+      studio.style.zIndex = '-9999';
+      studio.style.backgroundColor = '#F0F4F8'; 
+      studio.style.display = 'flex';
+      studio.style.flexDirection = 'column';
+      studio.style.justifyContent = 'space-between';
+      studio.style.padding = '50px';
+      studio.style.boxSizing = 'border-box';
+      
+      const headerHtml = `
+        <div class="flex justify-between items-center w-full border-b-2 border-gray-200 pb-5 mb-5">
+          <div class="flex items-center gap-4">
+            <span class="bg-[#393E46] text-white text-sm font-black px-4 py-1.5 rounded-xl shadow-sm whitespace-nowrap">${currentSheetName}</span>
+            <h3 class="font-extrabold text-[#222831] text-3xl select-none truncate">${currentSelectedTask} 과제 체크표</h3>
+          </div>
+          <div class="text-gray-400 font-bold text-sm tracking-wider whitespace-nowrap">성일정보고 도제(3-12)</div>
+        </div>
+      `;
+      
+      const idCol = sheetData.headers[0];
+      const nameCol = sheetData.headers[1];
+      
+      const cardsHtml = sheetData.students.map(std => {
+        const sid = std[idCol];
+        const name = std[nameCol];
+        const val = pendingUpdates[sid] !== undefined ? pendingUpdates[sid] : (std[currentSelectedTask] || '');
+        
+        let cardBg = "bg-white border-gray-200";
+        let badge = `<div class="bg-gray-50 text-gray-400 text-[11px] px-2.5 py-1 rounded-full font-medium border border-gray-100 whitespace-nowrap">미완료</div>`;
+        let nameStyle = "text-[#222831]";
+        let numStyle = "text-gray-400";
+        
+        if (val === '완료') {
+          cardBg = "bg-gradient-to-br from-[#00ADB5] to-[#00939A] border-transparent shadow-md";
+          badge = `<div class="bg-white/20 text-white text-[11px] px-2.5 py-1 rounded-full font-black border border-white/30 whitespace-nowrap">완료 ✔</div>`;
+          nameStyle = "text-white";
+          numStyle = "text-cyan-100 opacity-90";
+        } else if (val === '해당없음') {
+          cardBg = "bg-gray-100 border-gray-200 opacity-70 shadow-inner";
+          badge = `<div class="bg-gray-200 text-gray-500 text-[11px] px-2.5 py-1 rounded-full font-bold whitespace-nowrap">제외</div>`;
+          nameStyle = "text-gray-500 line-through decoration-gray-400 decoration-2";
+          numStyle = "text-gray-400";
+        }
+        
+        return `
+          <div class="rounded-2xl border-2 px-4 py-3 h-[64px] flex flex-row items-center justify-between shadow-sm ${cardBg}">
+            <div class="flex flex-col truncate mr-2">
+              <span class="text-[11px] font-bold tracking-tight ${numStyle} mb-0.5">${sid}</span>
+              <div class="text-lg font-extrabold truncate ${nameStyle}" style="white-space: nowrap; word-break: keep-all;">${name}</div>
+            </div>
+            <div class="flex-shrink-0">${badge}</div>
+          </div>
+        `;
+      }).join('');
+      
+      const gridHtml = `
+        <div class="grid grid-cols-5 gap-x-5 gap-y-4 w-full flex-1 overflow-hidden align-content-start">
+          ${cardsHtml}
+        </div>
+      `;
+      
+      const footerHtml = `
+        <div class="flex justify-center w-full pt-4 mt-2">
+          <div class="bg-white border-2 border-gray-300 rounded-full shadow-xl px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">👨‍🏫</span>
+            <div class="flex flex-col text-left">
+              <span class="text-xs font-bold text-gray-500 tracking-tight whitespace-nowrap">도제3-12 담임</span>
+              <span class="text-lg font-black text-gray-800 leading-none mt-1 whitespace-nowrap">이상호</span>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      studio.innerHTML = `
+        <div class="w-full h-full bg-white rounded-[32px] p-8 shadow-2xl flex flex-col justify-between border border-gray-100">
+          ${headerHtml}
+          ${gridHtml}
+          ${footerHtml}
+        </div>
+      `;
+      
+      document.body.appendChild(studio);
+      
+      setTimeout(() => {
+        htmlToImage.toPng(studio, {
+          width: 1920,
+          height: 1080,
+          pixelRatio: 2, 
+          style: { transform: 'none', left: '0', top: '0', position: 'static' }
+        })
+        .then(function (dataUrl) {
+          const link = document.createElement('a');
+          link.download = `${currentSheetName}_${currentSelectedTask}_체크표_169.png`;
+          link.href = dataUrl;
+          link.click();
+          showToast("완벽한 16:9 비율 이미지로 저장되었습니다.", "success");
+        })
+        .catch(function (error) {
+          console.error('16:9 캡처 에러:', error);
+          showToast("캡처 처리 도중 렌더링 결함이 발생했습니다.", "error");
+        })
+        .finally(() => {
+          document.body.removeChild(studio);
+          document.getElementById('loader').style.display = 'none';
+        });
+      }, 300);
+    }
+
+    function saveCardAsImage(cardId, title) {
+      document.getElementById('loader').style.display = 'flex';
+      showToast("베젤 프레임을 포함한 고해상도 이미지를 생성 중입니다...", "info");
+
+      const originalCard = document.getElementById(cardId);
+      const clonedCard = originalCard.cloneNode(true);
+      
+      const btnInClone = clonedCard.querySelector('button');
+      if(btnInClone) btnInClone.remove();
+
+      const frameContainer = document.createElement('div');
+      frameContainer.style.position = 'fixed';
+      frameContainer.style.top = '0';
+      frameContainer.style.left = '0';
+      frameContainer.style.width = '480px'; 
+      frameContainer.style.zIndex = '-9999';
+      frameContainer.style.backgroundColor = '#0f172a'; 
+      frameContainer.style.padding = '35px 28px 28px 28px'; 
+      frameContainer.style.borderRadius = '32px'; 
+      frameContainer.style.boxShadow = '0 30px 60px rgba(0, 0, 0, 0.5)';
+      frameContainer.style.boxSizing = 'border-box';
+      frameContainer.style.display = 'flex';
+      frameContainer.style.flexDirection = 'column';
+      frameContainer.style.gap = '20px';
+
+      const frameHeader = document.createElement('div');
+      frameHeader.className = "flex justify-between items-center w-full pb-1 border-b border-slate-700/50";
+      frameHeader.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="bg-[#00ADB5] text-white text-[10px] font-black px-2.5 py-0.5 rounded-md shadow-sm">${currentSheetName}</span>
+          <span class="text-slate-400 font-bold text-xs">{현황 브리핑}</span>
+        </div>
+        <div class="text-slate-500 font-bold text-[10px] tracking-wider">성일정보고 도제(3-12)</div>
+      `;
+
+      clonedCard.style.width = '100%';
+      clonedCard.style.boxShadow = 'none';
+      clonedCard.style.border = '1px solid rgba(226, 232, 240, 0.8)';
+      clonedCard.classList.remove('hover:-translate-y-1', 'hover:shadow-2xl');
+      
+      const missingNameBlock = clonedCard.querySelector('p');
+      if (missingNameBlock) {
+        missingNameBlock.style.whiteSpace = 'normal';
+        missingNameBlock.style.wordBreak = 'keep-all';
+      }
+
+      frameContainer.appendChild(frameHeader);
+      frameContainer.appendChild(clonedCard);
+      document.body.appendChild(frameContainer);
+
+      setTimeout(() => {
+        htmlToImage.toPng(frameContainer, { 
+          backgroundColor: '#0f172a', 
+          pixelRatio: 3 
+        })
+        .then(function (dataUrl) {
+          const link = document.createElement('a');
+          link.download = `${currentSheetName}_${title}_현황.png`;
+          link.href = dataUrl;
+          link.click();
+          showToast("멋진 베젤이 포함된 고화질 카드가 다운로드되었습니다.", "success");
+        })
+        .catch(function (error) {
+          console.error('카드 베젤 캡처 에러:', error);
+          showToast("카드 현황 캡처 중 기술적 오류가 발생했습니다.", "error");
+        })
+        .finally(() => {
+          document.body.removeChild(frameContainer);
+          document.getElementById('loader').style.display = 'none';
+        });
+      }, 250);
+    }
+
+    function exportToExcel() {
+      const ws_data = [sheetData.headers];
+      sheetData.students.forEach(s => ws_data.push(sheetData.headers.map(h => s[h] || '')));
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, currentSheetName);
+      XLSX.writeFile(wb, `${currentSheetName}_명렬표.xlsx`);
+      showToast("엑셀 파일로 다운로드되었습니다.", "success");
+    }
+
+    window.attemptLogin = attemptLogin;
+    window.logout = logout;
+    window.changeClass = changeClass;
+    window.changeTask = changeTask;
+    window.toggleStatus = toggleStatus;
+    window.toggleAll = toggleAll;
+    window.saveChanges = saveChanges;
+    window.promptEditStudent = promptEditStudent;
+    window.apiAction = apiAction;
+    window.switchTab = switchTab;
+    window.switchSubTab = switchSubTab;
+    window.saveChecklistAs169Image = saveChecklistAs169Image;
+    window.saveCardAsImage = saveCardAsImage;
+    window.exportToExcel = exportToExcel;
+    window.toggleMobileMenu = toggleMobileMenu;
+    window.closeMobileMenu = closeMobileMenu;
+    window.toggleMobileClassMenu = toggleMobileClassMenu;
+    window.closeMobileClassMenu = closeMobileClassMenu;
+    window.toggleMobileTaskMenu = toggleMobileTaskMenu;
+    window.closeMobileTaskMenu = closeMobileTaskMenu;
+
+    window.onload = initConfig;
+  </script>
+</body>
+</html>
