@@ -1,0 +1,684 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>광교1동성당 오늘의 성경말씀</title>
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.13/html-to-image.min.js"></script>
+
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/l10n/ko.js"></script>
+
+    <style>
+      :root {
+        --primary-color: #4f46e5;
+        --primary-hover: #4338ca;
+        --text-main: #1e293b;
+        --text-sub: #475569;
+        --glass-bg: rgba(255, 255, 255, 0.65);
+        --glass-border: rgba(255, 255, 255, 0.8);
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+        font-family:
+          "Pretendard",
+          -apple-system,
+          BlinkMacSystemFont,
+          system-ui,
+          Roboto,
+          "Helvetica Neue",
+          "Segoe UI",
+          "Apple SD Gothic Neo",
+          "Noto Sans KR",
+          "Malgun Gothic",
+          sans-serif;
+      }
+
+      body {
+        min-height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 20px;
+        background-color: #f8fafc;
+      }
+
+      .container {
+        width: 100%;
+        max-width: 550px;
+        position: relative;
+        z-index: 1;
+        padding: 30px 20px;
+        border-radius: 16px;
+        background-color: #f5f5f7;
+        background-image:
+          radial-gradient(
+            at 0% 0%,
+            hsla(228, 100%, 74%, 0.15) 0px,
+            transparent 50%
+          ),
+          radial-gradient(
+            at 100% 0%,
+            hsla(189, 100%, 56%, 0.15) 0px,
+            transparent 50%
+          ),
+          radial-gradient(
+            at 100% 100%,
+            hsla(355, 100%, 93%, 0.5) 0px,
+            transparent 50%
+          ),
+          radial-gradient(
+            at 0% 100%,
+            hsla(340, 100%, 76%, 0.15) 0px,
+            transparent 50%
+          );
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05);
+      }
+
+      .header {
+        text-align: center;
+        margin-bottom: 24px;
+      }
+
+      .header h1 {
+        font-size: 28px;
+        font-weight: 800;
+        color: var(--text-main);
+        letter-spacing: -0.5px;
+      }
+
+      .glass-card {
+        background: var(--glass-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--glass-border);
+        border-radius: 20px;
+        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.04);
+        padding: 28px;
+        margin-bottom: 20px;
+        transition:
+          transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
+          box-shadow 0.3s ease;
+      }
+
+      .glass-card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 12px 40px rgba(31, 38, 135, 0.08);
+      }
+
+      .date-card {
+        text-align: center;
+        padding: 24px;
+        overflow: hidden;
+        position: relative;
+      }
+
+      .date-card.weekday .date-display {
+        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .date-card.saturday .date-display {
+        background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+      .date-card.sunday .date-display {
+        background: linear-gradient(135deg, #e11d48 0%, #f59e0b 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+      }
+
+      .date-display {
+        font-size: 24px;
+        font-weight: 800;
+        letter-spacing: -0.5px;
+      }
+
+      .card-header-container {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 16px;
+      }
+
+      .card-header {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--text-sub);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+      }
+
+      .bible-reference {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--primary-color);
+        background: rgba(79, 70, 229, 0.1);
+        padding: 6px 14px;
+        border-radius: 20px;
+      }
+
+      .psalm-card .bible-reference {
+        color: #059669;
+        background: rgba(5, 150, 105, 0.1);
+      }
+
+      .verse-content {
+        font-size: 19px;
+        line-height: 1.7;
+        color: var(--text-main);
+        font-weight: 500;
+        word-break: keep-all;
+      }
+
+      .verse-content::before {
+        content: "1절";
+        display: inline-block;
+        background: var(--text-main);
+        color: white;
+        font-size: 12px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: 6px;
+        margin-right: 10px;
+        vertical-align: middle;
+        position: relative;
+        top: -2px;
+      }
+
+      /* ✅ 개선점 4: 데이터를 불러오는 중일 때의 부드러운 스켈레톤 애니메이션 */
+      .verse-content.loading {
+        animation: pulseLoading 1.5s infinite ease-in-out;
+        color: var(--text-sub);
+      }
+      @keyframes pulseLoading {
+        0%, 100% { opacity: 0.5; }
+        50% { opacity: 1; }
+      }
+
+      .info-card {
+        background: rgba(245, 158, 11, 0.05);
+        border: 1px solid rgba(245, 158, 11, 0.2);
+        padding: 20px 24px;
+      }
+
+      .info-card-content {
+        font-size: 15px;
+        line-height: 1.6;
+        color: #b45309;
+        font-weight: 600;
+        text-align: center;
+      }
+
+      .action-section {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        margin-top: 24px;
+      }
+
+      .navigation {
+        display: flex;
+        gap: 12px;
+      }
+
+      button,
+      .btn-style {
+        border: none;
+        outline: none;
+        cursor: pointer;
+        font-family: inherit;
+        border-radius: 12px;
+        font-weight: 600;
+        font-size: 15px;
+        transition: all 0.2s ease;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 52px;
+      }
+
+      .nav-button {
+        flex: 1;
+        background: white;
+        color: var(--text-sub);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+      }
+
+      .nav-button:hover {
+        background: #f1f5f9;
+        color: var(--text-main);
+      }
+
+      .save-image-button {
+        flex: 1.5;
+        background: var(--text-main);
+        color: white;
+        box-shadow: 0 4px 15px rgba(30, 41, 59, 0.2);
+      }
+
+      .save-image-button:hover {
+        background: black;
+        transform: translateY(-2px);
+      }
+
+      .utils-container {
+        display: flex;
+        gap: 12px;
+      }
+
+      .date-picker-btn,
+      .upload-button {
+        flex: 1;
+        background: rgba(255, 255, 255, 0.5);
+        color: var(--text-sub);
+        border: 1px dashed #cbd5e1;
+      }
+
+      .date-picker-btn:hover,
+      .upload-button:hover {
+        background: white;
+        border-color: #94a3b8;
+      }
+
+      /* ✅ 개선점 4: 웹 접근성 지침을 준수한 파일 인풋 숨김 방식 적용 */
+      #fileInput {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        border: 0;
+      }
+
+      .upload-status {
+        text-align: center;
+        margin-top: 8px;
+        color: #059669;
+        font-size: 13px;
+        font-weight: 600;
+        height: 18px;
+      }
+
+      .flatpickr-calendar {
+        font-family: "Pretendard", sans-serif !important;
+        border-radius: 16px !important;
+        box-shadow: 0 15px 40px rgba(0, 0, 0, 0.12) !important;
+        border: none !important;
+        padding: 10px !important;
+      }
+      .flatpickr-day.selected {
+        background: var(--primary-color) !important;
+        border-color: var(--primary-color) !important;
+        font-weight: bold;
+      }
+      .flatpickr-months .flatpickr-month {
+        color: var(--text-main) !important;
+        fill: var(--text-main) !important;
+      }
+
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(15px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .fade-in {
+        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      }
+
+      @media (max-width: 480px) {
+        .container {
+          padding: 24px 16px;
+          border-radius: 16px;
+        }
+        .glass-card {
+          padding: 20px;
+          border-radius: 16px;
+        }
+        .header h1 {
+          font-size: 24px;
+        }
+        .date-display {
+          font-size: 20px;
+        }
+        .verse-content {
+          font-size: 17px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container" id="mainContainer">
+      <div class="header" id="headerSection">
+        <h1>📖 광교1동성당 오늘의 성경말씀</h1>
+      </div>
+
+      <div class="glass-card date-card fade-in weekday" id="dateCard">
+        <div class="date-display" id="dateDisplay">2026년 1월 2일 목요일</div>
+      </div>
+
+      <div class="cards-container fade-in" id="cardsContainer">
+        <div class="glass-card bible-card">
+          <div class="card-header-container">
+            <div class="card-header">📜 성경 말씀</div>
+            <div class="bible-reference" id="bibleRef">요한 1서 1장</div>
+          </div>
+          <div class="verse-content loading" id="bibleVerse">말씀을 불러오는 중...</div>
+        </div>
+
+        <div class="glass-card psalm-card">
+          <div class="card-header-container">
+            <div class="card-header">✨ 시편 말씀</div>
+            <div class="bible-reference" id="psalmRef">시편 1편</div>
+          </div>
+          <div class="verse-content loading" id="psalmVerse">말씀을 불러오는 중...</div>
+        </div>
+
+        <div class="glass-card info-card">
+          <div class="info-card-content">
+            💬 해당하는 성경을 읽고 마음에 와 닿는 문장을 짧게 카톡방에 올려주세요.
+          </div>
+        </div>
+      </div>
+
+      <div class="action-section" id="actionSection">
+        <div class="navigation">
+          <button class="nav-button" id="prevBtn">← 이전</button>
+          <button class="save-image-button" id="saveImageBtn">📷 고화질 저장</button>
+          <button class="nav-button" id="nextBtn">다음 →</button>
+        </div>
+
+        <div class="utils-container">
+          <button class="btn-style date-picker-btn" id="customDatePickerBtn">📅 날짜 변경</button>
+          <button class="btn-style upload-button" onclick="document.getElementById('fileInput').click()">📁 파일 적용</button>
+          <input type="file" id="fileInput" accept=".json" />
+        </div>
+        <div class="upload-status" id="uploadStatus"></div>
+      </div>
+    </div>
+
+    <script>
+      const verses = {
+        "01-01": {
+          bible: "요한 1서 1장",
+          bible_verse_1: "생명의 말씀에 관하여 우리는 들었고 눈으로 보았습니다.",
+          psalm: "시편 1편",
+          psalm_verse_1: "행복하여라! 악인들의 뜻에 따라 걷지 않는 사람!",
+        },
+        "01-02": {
+          bible: "요한 1서 2장",
+          bible_verse_1: "나의 자녀들이여, 내가 이것을 여러분에게 쓰는 것은 여러분이 죄를 짓지 않게 하려는 것입니다.",
+          psalm: "시편 2편",
+          psalm_verse_1: "어찌하여 민족들이 소란을 피우며 나라들이 헛된 일을 꾸미는가?",
+        },
+        "01-03": {
+          bible: "요한 1서 3장",
+          bible_verse_1: "보십시오, 하느님 아버지께서 우리에게 얼마나 큰 사랑을 베푸셨는지!",
+          psalm: "시편 3편",
+          psalm_verse_1: "주님, 저를 괴롭히는 자들이 어찌 이리 많습니까?",
+        },
+      };
+
+      let currentDate = new Date();
+      let dateKeys = [];
+      let currentIndex = 0;
+      let fpInstance = null;
+
+      function formatDateToKey(date) {
+        return `${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
+      }
+
+      function formatDateDisplay(date) {
+        const days = ["일요일", "월요일", "화요일", "수요일", "목요일", "금요일", "토요일"];
+        return `${date.getFullYear()}년 ${date.getMonth() + 1}월 ${date.getDate()}일 ${days[date.getDay()]}`;
+      }
+
+      function findDateIndex(dateKey) {
+        return dateKeys.indexOf(dateKey) !== -1 ? dateKeys.indexOf(dateKey) : 0;
+      }
+
+      function updateDateCardColor(date) {
+        const dateCard = document.getElementById("dateCard");
+        dateCard.classList.remove("weekday", "saturday", "sunday");
+        const d = date.getDay();
+        if (d === 0) dateCard.classList.add("sunday");
+        else if (d === 6) dateCard.classList.add("saturday");
+        else dateCard.classList.add("weekday");
+      }
+
+      function processNewVersesData(jsonData) {
+        if (Array.isArray(jsonData)) {
+          jsonData.forEach((item) => {
+            if (item.date) {
+              let cleanDate = item.date;
+              if (cleanDate.includes("월")) {
+                const parts = cleanDate.replace("일", "").split("월");
+                cleanDate = `${String(parts[0].trim()).padStart(2, "0")}-${String(parts[1].trim()).padStart(2, "0")}`;
+              }
+              verses[cleanDate] = {
+                bible: item.bible || "",
+                bible_verse_1: item.bible_verse_1 || "",
+                psalm: item.psalm || "",
+                psalm_verse_1: item.psalm_verse_1 || "",
+              };
+            }
+          });
+        } else if (typeof jsonData === "object") {
+          for (const key in jsonData) {
+            let cleanDate = key;
+            if (cleanDate.includes("월")) {
+              const parts = cleanDate.replace("일", "").split("월");
+              cleanDate = `${String(parts[0].trim()).padStart(2, "0")}-${String(parts[1].trim()).padStart(2, "0")}`;
+            }
+            verses[cleanDate] = jsonData[key];
+          }
+        }
+        dateKeys = Object.keys(verses).sort();
+        currentDate = new Date();
+        currentIndex = findDateIndex(formatDateToKey(currentDate));
+        loadVerse(currentIndex);
+      }
+
+      function loadVerse(index) {
+        if (dateKeys.length === 0) return;
+        const container = document.getElementById("cardsContainer");
+        const bibleVerseEl = document.getElementById("bibleVerse");
+        const psalmVerseEl = document.getElementById("psalmVerse");
+
+        // 애니메이션 초기화 및 로딩 클래스 추가
+        container.style.animation = "none";
+        container.offsetHeight;
+        container.style.animation = null;
+        bibleVerseEl.classList.add("loading");
+        psalmVerseEl.classList.add("loading");
+
+        setTimeout(() => {
+          const key = dateKeys[index];
+          const data = verses[key] || {};
+          document.getElementById("dateDisplay").textContent = formatDateDisplay(currentDate);
+          updateDateCardColor(currentDate);
+          document.getElementById("bibleRef").textContent = data.bible || "";
+          
+          bibleVerseEl.textContent = data.bible_verse_1 || "말씀이 없습니다.";
+          bibleVerseEl.classList.remove("loading");
+          
+          document.getElementById("psalmRef").textContent = data.psalm || "";
+          psalmVerseEl.textContent = data.psalm_verse_1 || "말씀이 없습니다.";
+          psalmVerseEl.classList.remove("loading");
+
+          if (fpInstance) {
+            fpInstance.setDate(currentDate);
+          }
+        }, 50);
+      }
+
+      // ✅ 개선점 1: '이전' 버튼 클릭 시 안전한 Date 인스턴스 재생성 구조로 수정하여 월말 오버플로우 차단
+      document.getElementById("prevBtn").addEventListener("click", () => {
+        if (currentIndex > 0) {
+          currentIndex--;
+          const parts = dateKeys[currentIndex].split("-");
+          const targetYear = currentDate.getFullYear();
+          currentDate = new Date(targetYear, parseInt(parts[0]) - 1, parseInt(parts[1]));
+          loadVerse(currentIndex);
+        } else showToast("첫 번째 말씀입니다.");
+      });
+
+      // ✅ 개선점 1: '다음' 버튼 클릭 시에도 마찬가지로 오버플로우 방지 로직 적용
+      document.getElementById("nextBtn").addEventListener("click", () => {
+        if (currentIndex < dateKeys.length - 1) {
+          currentIndex++;
+          const parts = dateKeys[currentIndex].split("-");
+          const targetYear = currentDate.getFullYear();
+          currentDate = new Date(targetYear, parseInt(parts[0]) - 1, parseInt(parts[1]));
+          loadVerse(currentIndex);
+        } else showToast("마지막 말씀입니다.");
+      });
+
+      document.addEventListener("DOMContentLoaded", () => {
+        fpInstance = flatpickr("#customDatePickerBtn", {
+          locale: "ko",
+          defaultDate: currentDate,
+          disableMobile: true,
+          onChange: function (selectedDates) {
+            if (selectedDates.length > 0) {
+              const selectedDate = selectedDates[0];
+              const dateKey = formatDateToKey(selectedDate);
+              if (verses[dateKey]) {
+                currentDate = selectedDate;
+                currentIndex = findDateIndex(dateKey);
+                loadVerse(currentIndex);
+              } else {
+                showToast(`${selectedDate.getMonth() + 1}월 ${selectedDate.getDate()}일의 말씀이 준비되지 않았습니다.`, true);
+                fpInstance.setDate(currentDate);
+              }
+            }
+          },
+        });
+      });
+
+      document.getElementById("fileInput").addEventListener("change", function (e) {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = function (event) {
+          try {
+            processNewVersesData(JSON.parse(event.target.result));
+            document.getElementById("uploadStatus").textContent = `✅ ${dateKeys.length}일의 말씀 로드 완료!`;
+            setTimeout(() => (document.getElementById("uploadStatus").textContent = ""), 3000);
+          } catch (error) {
+            showToast("❌ JSON 형식을 확인해주세요.", true);
+          }
+        };
+        reader.readAsText(file);
+      });
+
+      async function loadVersesFromFile() {
+        try {
+          const response = await fetch("index_bible.json");
+          if (!response.ok) throw new Error("No file");
+          processNewVersesData(await response.json());
+        } catch (e) {
+          processNewVersesData(verses);
+        }
+      }
+
+      document.getElementById("saveImageBtn").addEventListener("click", async function () {
+        const btn = this;
+        const originalText = btn.innerHTML;
+        btn.disabled = true;
+        btn.innerHTML = "⏳ 저장 중...";
+
+        const actionSection = document.getElementById("actionSection");
+        const prevDisplay = actionSection.style.display;
+        actionSection.style.display = "none";
+
+        // ✅ 개선점 3: iOS Safari 등 웹킷 환경에서 웹폰트 렌더링 누락을 막기 위한 강제 대기 추가
+        if (document.fonts && document.fonts.ready) {
+          await document.fonts.ready;
+        }
+
+        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+
+        const captureTarget = document.getElementById("mainContainer");
+        const targetWidth = captureTarget.offsetWidth;
+        const targetHeight = captureTarget.offsetHeight;
+
+        try {
+          const dataUrl = await htmlToImage.toPng(captureTarget, {
+            pixelRatio: 4,
+            quality: 1.0,
+            cacheBust: true,
+            width: targetWidth + 40,
+            height: targetHeight + 40,
+            style: {
+              width: targetWidth + "px",
+              height: targetHeight + "px",
+              maxWidth: "none",
+              margin: "0",
+              transform: "translate(20px, 20px)",
+            },
+            backgroundColor: "#f8fafc",
+          });
+
+          const link = document.createElement("a");
+          link.download = `오늘의_말씀_${formatDateToKey(currentDate)}.png`;
+          link.href = dataUrl;
+          link.click();
+          showToast("✅ 고화질 이미지가 저장되었습니다!");
+        } catch (err) {
+          console.error("이미지 저장 실패:", err);
+          showToast("❌ 저장 실패. 환경을 다시 확인해주세요.", true);
+        } finally {
+          actionSection.style.display = prevDisplay;
+          btn.disabled = false;
+          btn.innerHTML = originalText;
+        }
+      });
+
+      function showToast(message, isError = false) {
+        const toast = document.createElement("div");
+        toast.textContent = message;
+        toast.style.cssText = `
+          position: fixed; bottom: 40px; left: 50%; transform: translateX(-50%);
+          background: ${isError ? "#ef4444" : "#1e293b"};
+          color: white; padding: 14px 24px; border-radius: 100px;
+          font-weight: 600; font-size: 14px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+          z-index: 10000; opacity: 0; transition: opacity 0.3s ease;
+          white-space: nowrap;
+        `;
+        document.body.appendChild(toast);
+        setTimeout(() => (toast.style.opacity = "1"), 10);
+        setTimeout(() => {
+          toast.style.opacity = "0";
+          setTimeout(() => toast.remove(), 300);
+        }, 2500);
+      }
+
+      loadVersesFromFile();
+    </script>
+  </body>
+</html>
