@@ -50,12 +50,12 @@
     "visible": true,
     "links": [
       {
-        "title": "성경통독 프로젝트",
-        "url": "gwanggyo_cathedral/index_bible.html",
+        "title": "성경통독 프로젝트 v0.2",
+        "url": "gwanggyo_cathedral/index_bible.v0.2.html",
         "type": "primary"
       },
       {
-        "title": "성경통독 말씀 기록장",
+        "title": "성경통독 말씀 기록장 v2.0",
         "url": "gwanggyo_cathedral/index_bible_write_v2.html",
         "type": "secondary"
       }
