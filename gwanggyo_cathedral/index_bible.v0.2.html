@@ -25,7 +25,7 @@
         --primary-hover: #4338ca;
         --text-main: #1e293b;
         --text-sub: #475569;
-        --glass-bg: rgba(255, 255, 255, 0.65);
+        --glass-bg: rgba(255, 255, 255, 0.92);
         --glass-border: rgba(255, 255, 255, 0.8);
       }
 
@@ -61,36 +61,33 @@
         max-width: 550px;
         position: relative;
         z-index: 1;
-        padding: 30px 20px;
+      }
+
+      /* 📸 이미지로 저장될 순수 타겟 영역 */
+      #captureArea {
+        background-color: #f8fafc; /* 베젤 배경색 */
+        width: 100%;
+        padding: 20px; /* 상하좌우 20px 베젤 설정 */
+      }
+
+      .design-wrapper {
+        width: 100%;
+        padding: 30px 20px 0 20px; 
         border-radius: 16px;
         background-color: #f5f5f7;
         background-image:
-          radial-gradient(
-            at 0% 0%,
-            hsla(228, 100%, 74%, 0.15) 0px,
-            transparent 50%
-          ),
-          radial-gradient(
-            at 100% 0%,
-            hsla(189, 100%, 56%, 0.15) 0px,
-            transparent 50%
-          ),
-          radial-gradient(
-            at 100% 100%,
-            hsla(355, 100%, 93%, 0.5) 0px,
-            transparent 50%
-          ),
-          radial-gradient(
-            at 0% 100%,
-            hsla(340, 100%, 76%, 0.15) 0px,
-            transparent 50%
-          );
+          radial-gradient(at 0% 0%, hsla(228, 100%, 74%, 0.15) 0px, transparent 50%),
+          radial-gradient(at 100% 0%, hsla(189, 100%, 56%, 0.15) 0px, transparent 50%),
+          radial-gradient(at 100% 100%, hsla(355, 100%, 93%, 0.5) 0px, transparent 50%),
+          radial-gradient(at 0% 100%, hsla(340, 100%, 76%, 0.15) 0px, transparent 50%);
         box-shadow: 0 20px 60px rgba(0, 0, 0, 0.05);
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
       }
 
       .header {
         text-align: center;
-        margin-bottom: 24px;
       }
 
       .header h1 {
@@ -102,21 +99,10 @@
 
       .glass-card {
         background: var(--glass-bg);
-        backdrop-filter: blur(16px);
-        -webkit-backdrop-filter: blur(16px);
         border: 1px solid var(--glass-border);
         border-radius: 20px;
         box-shadow: 0 8px 32px rgba(31, 38, 135, 0.04);
         padding: 28px;
-        margin-bottom: 20px;
-        transition:
-          transform 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-          box-shadow 0.3s ease;
-      }
-
-      .glass-card:hover {
-        transform: translateY(-4px);
-        box-shadow: 0 12px 40px rgba(31, 38, 135, 0.08);
       }
 
       .date-card {
@@ -127,25 +113,25 @@
       }
 
       .date-card.weekday .date-display {
-        background: linear-gradient(135deg, #4f46e5 0%, #7c3aed 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #4f46e5;
       }
       .date-card.saturday .date-display {
-        background: linear-gradient(135deg, #2563eb 0%, #06b6d4 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #2563eb;
       }
       .date-card.sunday .date-display {
-        background: linear-gradient(135deg, #e11d48 0%, #f59e0b 100%);
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
+        color: #e11d48;
       }
 
       .date-display {
         font-size: 24px;
         font-weight: 800;
         letter-spacing: -0.5px;
+      }
+
+      .cards-container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
       }
 
       .card-header-container {
@@ -199,16 +185,6 @@
         vertical-align: middle;
         position: relative;
         top: -2px;
-      }
-
-      /* ✅ 개선점 4: 데이터를 불러오는 중일 때의 부드러운 스켈레톤 애니메이션 */
-      .verse-content.loading {
-        animation: pulseLoading 1.5s infinite ease-in-out;
-        color: var(--text-sub);
-      }
-      @keyframes pulseLoading {
-        0%, 100% { opacity: 0.5; }
-        50% { opacity: 1; }
       }
 
       .info-card {
@@ -296,16 +272,8 @@
         border-color: #94a3b8;
       }
 
-      /* ✅ 개선점 4: 웹 접근성 지침을 준수한 파일 인풋 숨김 방식 적용 */
       #fileInput {
-        position: absolute;
-        width: 1px;
-        height: 1px;
-        padding: 0;
-        margin: -1px;
-        overflow: hidden;
-        clip: rect(0, 0, 0, 0);
-        border: 0;
+        display: none;
       }
 
       .upload-status {
@@ -324,39 +292,13 @@
         border: none !important;
         padding: 10px !important;
       }
-      .flatpickr-day.selected {
-        background: var(--primary-color) !important;
-        border-color: var(--primary-color) !important;
-        font-weight: bold;
-      }
-      .flatpickr-months .flatpickr-month {
-        color: var(--text-main) !important;
-        fill: var(--text-main) !important;
-      }
-
-      @keyframes fadeUp {
-        from {
-          opacity: 0;
-          transform: translateY(15px);
-        }
-        to {
-          opacity: 1;
-          transform: translateY(0);
-        }
-      }
-
-      .fade-in {
-        animation: fadeUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-      }
 
       @media (max-width: 480px) {
-        .container {
-          padding: 24px 16px;
-          border-radius: 16px;
+        .design-wrapper {
+          padding: 24px 16px 0 16px;
         }
         .glass-card {
           padding: 20px;
-          border-radius: 16px;
         }
         .header h1 {
           font-size: 24px;
@@ -372,35 +314,42 @@
   </head>
   <body>
     <div class="container" id="mainContainer">
-      <div class="header" id="headerSection">
-        <h1>📖 광교1동성당 오늘의 성경말씀</h1>
-      </div>
-
-      <div class="glass-card date-card fade-in weekday" id="dateCard">
-        <div class="date-display" id="dateDisplay">2026년 1월 2일 목요일</div>
-      </div>
-
-      <div class="cards-container fade-in" id="cardsContainer">
-        <div class="glass-card bible-card">
-          <div class="card-header-container">
-            <div class="card-header">📜 성경 말씀</div>
-            <div class="bible-reference" id="bibleRef">요한 1서 1장</div>
+      
+      <div id="captureArea">
+        <div class="design-wrapper" id="designWrapper">
+          <div class="header" id="headerSection">
+            <h1>📖 광교1동성당 오늘의 성경말씀</h1>
           </div>
-          <div class="verse-content loading" id="bibleVerse">말씀을 불러오는 중...</div>
-        </div>
 
-        <div class="glass-card psalm-card">
-          <div class="card-header-container">
-            <div class="card-header">✨ 시편 말씀</div>
-            <div class="bible-reference" id="psalmRef">시편 1편</div>
+          <div class="glass-card date-card weekday" id="dateCard">
+            <div class="date-display" id="dateDisplay">2026년 1월 2일 목요일</div>
           </div>
-          <div class="verse-content loading" id="psalmVerse">말씀을 불러오는 중...</div>
-        </div>
 
-        <div class="glass-card info-card">
-          <div class="info-card-content">
-            💬 해당하는 성경을 읽고 마음에 와 닿는 문장을 짧게 카톡방에 올려주세요.
+          <div class="cards-container" id="cardsContainer">
+            <div class="glass-card bible-card">
+              <div class="card-header-container">
+                <div class="card-header">📜 성경 말씀</div>
+                <div class="bible-reference" id="bibleRef">요한 1서 1장</div>
+              </div>
+              <div class="verse-content" id="bibleVerse">말씀을 불러오는 중...</div>
+            </div>
+
+            <div class="glass-card psalm-card">
+              <div class="card-header-container">
+                <div class="card-header">✨ 시편 말씀</div>
+                <div class="bible-reference" id="psalmRef">시편 1편</div>
+              </div>
+              <div class="verse-content" id="psalmVerse">말씀을 불러오는 중...</div>
+            </div>
+
+            <div class="glass-card info-card">
+              <div class="info-card-content">
+                💬 해당하는 성경을 읽고 마음에 와 닿는 문장을 짧게 카톡방에 올려주세요.
+              </div>
+            </div>
           </div>
+          
+          <div style="height: 45px; width: 100%; display: block; flex-shrink: 0;"></div>
         </div>
       </div>
 
@@ -427,19 +376,7 @@
           bible_verse_1: "생명의 말씀에 관하여 우리는 들었고 눈으로 보았습니다.",
           psalm: "시편 1편",
           psalm_verse_1: "행복하여라! 악인들의 뜻에 따라 걷지 않는 사람!",
-        },
-        "01-02": {
-          bible: "요한 1서 2장",
-          bible_verse_1: "나의 자녀들이여, 내가 이것을 여러분에게 쓰는 것은 여러분이 죄를 짓지 않게 하려는 것입니다.",
-          psalm: "시편 2편",
-          psalm_verse_1: "어찌하여 민족들이 소란을 피우며 나라들이 헛된 일을 꾸미는가?",
-        },
-        "01-03": {
-          bible: "요한 1서 3장",
-          bible_verse_1: "보십시오, 하느님 아버지께서 우리에게 얼마나 큰 사랑을 베푸셨는지!",
-          psalm: "시편 3편",
-          psalm_verse_1: "주님, 저를 괴롭히는 자들이 어찌 이리 많습니까?",
-        },
+        }
       };
 
       let currentDate = new Date();
@@ -504,30 +441,18 @@
 
       function loadVerse(index) {
         if (dateKeys.length === 0) return;
-        const container = document.getElementById("cardsContainer");
-        const bibleVerseEl = document.getElementById("bibleVerse");
-        const psalmVerseEl = document.getElementById("psalmVerse");
-
-        // 애니메이션 초기화 및 로딩 클래스 추가
-        container.style.animation = "none";
-        container.offsetHeight;
-        container.style.animation = null;
-        bibleVerseEl.classList.add("loading");
-        psalmVerseEl.classList.add("loading");
-
+        
         setTimeout(() => {
           const key = dateKeys[index];
           const data = verses[key] || {};
           document.getElementById("dateDisplay").textContent = formatDateDisplay(currentDate);
           updateDateCardColor(currentDate);
-          document.getElementById("bibleRef").textContent = data.bible || "";
           
-          bibleVerseEl.textContent = data.bible_verse_1 || "말씀이 없습니다.";
-          bibleVerseEl.classList.remove("loading");
+          document.getElementById("bibleRef").textContent = data.bible || "";
+          document.getElementById("bibleVerse").textContent = data.bible_verse_1 || "말씀이 없습니다.";
           
           document.getElementById("psalmRef").textContent = data.psalm || "";
-          psalmVerseEl.textContent = data.psalm_verse_1 || "말씀이 없습니다.";
-          psalmVerseEl.classList.remove("loading");
+          document.getElementById("psalmVerse").textContent = data.psalm_verse_1 || "말씀이 없습니다.";
 
           if (fpInstance) {
             fpInstance.setDate(currentDate);
@@ -535,24 +460,20 @@
         }, 50);
       }
 
-      // ✅ 개선점 1: '이전' 버튼 클릭 시 안전한 Date 인스턴스 재생성 구조로 수정하여 월말 오버플로우 차단
       document.getElementById("prevBtn").addEventListener("click", () => {
         if (currentIndex > 0) {
           currentIndex--;
           const parts = dateKeys[currentIndex].split("-");
-          const targetYear = currentDate.getFullYear();
-          currentDate = new Date(targetYear, parseInt(parts[0]) - 1, parseInt(parts[1]));
+          currentDate = new Date(currentDate.getFullYear(), parseInt(parts[0]) - 1, parseInt(parts[1]));
           loadVerse(currentIndex);
         } else showToast("첫 번째 말씀입니다.");
       });
 
-      // ✅ 개선점 1: '다음' 버튼 클릭 시에도 마찬가지로 오버플로우 방지 로직 적용
       document.getElementById("nextBtn").addEventListener("click", () => {
         if (currentIndex < dateKeys.length - 1) {
           currentIndex++;
           const parts = dateKeys[currentIndex].split("-");
-          const targetYear = currentDate.getFullYear();
-          currentDate = new Date(targetYear, parseInt(parts[0]) - 1, parseInt(parts[1]));
+          currentDate = new Date(currentDate.getFullYear(), parseInt(parts[0]) - 1, parseInt(parts[1]));
           loadVerse(currentIndex);
         } else showToast("마지막 말씀입니다.");
       });
@@ -609,50 +530,49 @@
         const btn = this;
         const originalText = btn.innerHTML;
         btn.disabled = true;
-        btn.innerHTML = "⏳ 저장 중...";
+        btn.innerHTML = "⏳ 처리 중...";
 
-        const actionSection = document.getElementById("actionSection");
-        const prevDisplay = actionSection.style.display;
-        actionSection.style.display = "none";
+        // 1. 디바이스 스크롤 상단 고정
+        window.scrollTo(0, 0);
 
-        // ✅ 개선점 3: iOS Safari 등 웹킷 환경에서 웹폰트 렌더링 누락을 막기 위한 강제 대기 추가
+        // 2. 웹 폰트 컴파일 대기
         if (document.fonts && document.fonts.ready) {
           await document.fonts.ready;
         }
+        
+        // 3. 브라우저 레이아웃 리플로우 대기 보장
+        await new Promise((r) => setTimeout(r, 500)); 
 
-        await new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r)));
+        const captureTarget = document.getElementById("captureArea");
 
-        const captureTarget = document.getElementById("mainContainer");
-        const targetWidth = captureTarget.offsetWidth;
-        const targetHeight = captureTarget.offsetHeight;
+        const options = {
+          pixelRatio: 2, 
+          quality: 1.0,
+          backgroundColor: "#f8fafc", 
+          width: captureTarget.offsetWidth,
+          height: captureTarget.offsetHeight,
+          style: {
+            transform: 'scale(1)',
+            transformOrigin: 'top left'
+            // 💡 해결: 기존에 위쪽/왼쪽 여백을 없애버리던 padding: '0', margin: '0' 옵션을 완전히 제거했습니다.
+          }
+        };
 
         try {
-          const dataUrl = await htmlToImage.toPng(captureTarget, {
-            pixelRatio: 4,
-            quality: 1.0,
-            cacheBust: true,
-            width: targetWidth + 40,
-            height: targetHeight + 40,
-            style: {
-              width: targetWidth + "px",
-              height: targetHeight + "px",
-              maxWidth: "none",
-              margin: "0",
-              transform: "translate(20px, 20px)",
-            },
-            backgroundColor: "#f8fafc",
-          });
+          // 모바일 브라우저 버그 방지용 프리-렌더링
+          await htmlToImage.toPng(captureTarget, options);
+          await new Promise((r) => setTimeout(r, 100));
+          const dataUrl = await htmlToImage.toPng(captureTarget, options);
 
           const link = document.createElement("a");
           link.download = `오늘의_말씀_${formatDateToKey(currentDate)}.png`;
           link.href = dataUrl;
           link.click();
-          showToast("✅ 고화질 이미지가 저장되었습니다!");
+          showToast("✅ 위쪽과 왼쪽 베젤까지 균등하게 저장되었습니다!");
         } catch (err) {
-          console.error("이미지 저장 실패:", err);
-          showToast("❌ 저장 실패. 환경을 다시 확인해주세요.", true);
+          console.error("이미지 빌드 에러:", err);
+          showToast("❌ 저장 실패. 잠시 후 다시 시도해 주세요.", true);
         } finally {
-          actionSection.style.display = prevDisplay;
           btn.disabled = false;
           btn.innerHTML = originalText;
         }
