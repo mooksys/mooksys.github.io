@@ -607,7 +607,7 @@
 
       async function loadVersesFromFile() {
         try {
-          const response = await fetch("verses.json");
+          const response = await fetch("index_bible.json");
           if (!response.ok) throw new Error("No file");
           processNewVersesData(await response.json());
         } catch (e) {
