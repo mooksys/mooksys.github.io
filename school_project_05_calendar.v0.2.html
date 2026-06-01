@@ -1,0 +1,533 @@
+<!DOCTYPE html>
+<!-- 
+  [성일정보고등학교 스마트 통합 일정표 - 시스템 고도화 안내]
+  1. 기능 추가: 타이틀 카드 바로 아래에 실시간 D-Day 카운터 및 흐르는 주간 공지사항 롤링 배너를 통합했습니다.
+  2. 동적 연동: 자바스크립트가 오늘 날짜(2026년 6월 기준)를 계산하여 다가오는 주요 학사 일정을 자동으로 추적합니다.
+  3. UI 유지: 메인 타이틀 카드의 월별 좌측 밴드띠 디자인 및 3배수 초고해상도 캡처 엔진이 완벽하게 유지됩니다.
+-->
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>성일정보고등학교 도제(3-12)일정표</title>
+  
+  <!-- 크롬북, 웨일북 등 저사양 교실 기기에서도 깔끔한 캡처 기능을 지원하는 라이브러리 -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  
+  <style>
+    /* 학교 현장 맞춤형 UI/UX 디자인 시스템 테마 정의 */
+    :root {
+      --navy-main: #1A365D;       /* 메인 컬러: 신뢰감을 주는 딥 네이비 */
+      --mint-point: #4FD1C5;      /* 포인트 컬러: 몰입감을 주는 민트 */
+      --blue-offjt: #3182CE;      /* 일정 컬러: off-JT 블루 */
+      --red-ojt: #E53E3E;         /* 일정 컬러: OJT 레드 */
+      --bg-color: #F7FAFC;        /* 배경 컬러: 시력 보호용 소프트 그레이 */
+      --card-bg: #FFFFFF;         /* 카드 배경: 화이트 */
+      --text-main: #2D3748;       /* 기본 텍스트: 다크 차콜 */
+      --shadow-soft: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.05); 
+      --radius-round: 16px;       /* 둥근 모서리 반지름 */
+    }
+
+    body {
+      margin: 0; padding: 20px;
+      background-color: var(--bg-color);
+      font-family: 'Pretendard', 'Malgun Gothic', sans-serif;
+      color: var(--text-main); font-size: 18px; 
+      display: flex; flex-direction: column; align-items: center;
+    }
+
+    /* 대시보드 전체 레이아웃 컨테이너 */
+    .dashboard-container {
+      width: 100%; max-width: 1200px; 
+      background: var(--card-bg); border-radius: var(--radius-round);
+      box-shadow: var(--shadow-soft); padding: 30px; box-sizing: border-box;
+    }
+
+    /* 메인 타이틀 슬림 카드 및 좌측 동적 밴드띠 */
+    .title-card {
+      background: #FFFFFF; border-radius: 12px;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.03);
+      padding: 15px 25px; text-align: center; margin-bottom: 15px; 
+      border: 1px solid #E2E8F0; border-left: 12px solid var(--navy-main); 
+      box-sizing: border-box; transition: border-left-color 0.4s ease;
+    }
+
+    .main-title {
+      font-size: 2.1em; font-weight: 800; color: var(--navy-main); margin: 0; letter-spacing: -1.2px;
+    }
+
+    /* [신규 디자인] D-Day 및 공지사항 통합 배너 컨테이너 */
+    .info-notice-banner {
+      display: flex; align-items: center; background: #EDF2F7;
+      border-radius: 10px; padding: 10px 20px; margin-bottom: 25px;
+      gap: 15px; overflow: hidden; box-sizing: border-box;
+    }
+
+    /* D-Day 독려용 타원형 뱃지 스타일 */
+    .dday-badge {
+      background: var(--red-ojt); color: white; font-weight: bold;
+      padding: 6px 14px; border-radius: 20px; font-size: 0.85em;
+      white-space: nowrap; box-shadow: 0 2px 4px rgba(229, 62, 62, 0.3);
+    }
+
+    /* 공지사항 텍스트가 왼쪽으로 부드럽게 흐르는 롤링 트랙 영역 */
+    .ticker-wrapper {
+      overflow: hidden; width: 100%; display: flex; align-items: center;
+    }
+
+    .ticker-text {
+      display: inline-block; white-space: nowrap; font-size: 0.9em;
+      font-weight: 600; color: var(--navy-main); padding-left: 100%;
+      animation: ticker-move 25s linear infinite; /* 25초 간격으로 끊임없이 흐르는 애니메이션 */
+    }
+
+    /* 전광판 효과를 내는 CSS 애니메이션 정의 */
+    @keyframes ticker-move {
+      0% { transform: translate3d(0, 0, 0); }
+      100% { transform: translate3d(-100%, 0, 0); }
+    }
+
+    /* 캘린더 상단 제어 헤더 구역 */
+    .header {
+      display: flex; flex-direction: column; align-items: center;
+      margin-bottom: 30px; border-bottom: 3px solid var(--mint-point);
+      padding-bottom: 20px; gap: 15px; 
+    }
+
+    .nav-box { display: flex; gap: 20px; align-items: center; position: relative; width: 100%; justify-content: center; }
+    
+    .nav-btn {
+      background-color: transparent; border: 2px solid var(--navy-main); color: var(--navy-main);
+      font-size: 1.2em; font-weight: bold; width: 40px; height: 40px; border-radius: 50%;
+      cursor: pointer; transition: all 0.2s; display: flex; justify-content: center; align-items: center;
+    }
+    .nav-btn:hover { background-color: var(--navy-main); color: white; }
+    
+    .header h1 { color: var(--navy-main); font-size: 1.6em; margin: 0; min-width: 160px; text-align: center; }
+
+    /* 고해상도 이미지 스크린샷 다운로드 버튼 */
+    .save-btn {
+      position: absolute; right: 0; top: 0;
+      display: flex; align-items: center; gap: 6px; font-size: 0.8em; padding: 10px 18px;
+      border: none; border-radius: 8px; background-color: var(--navy-main); color: white;
+      font-weight: bold; cursor: pointer; transition: all 0.2s; box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+    }
+    .save-btn:hover { background-color: #2A4365; transform: translateY(-1px); }
+
+    .filter-container { display: flex; justify-content: center; gap: 10px; flex-wrap: wrap; }
+    
+    .filter-btn {
+      display: flex; align-items: center; gap: 6px; font-size: 0.85em; padding: 8px 16px;
+      border: 1px solid #CBD5E0; border-radius: 20px; background-color: white; color: var(--text-main);
+      cursor: pointer; transition: all 0.2s; font-family: inherit;
+    }
+    .filter-btn:hover { background-color: #EDF2F7; }
+    .filter-btn.active { border-color: var(--navy-main); box-shadow: 0 0 0 2px rgba(26, 54, 93, 0.1); font-weight: bold; }
+    .filter-color { width: 10px; height: 10px; border-radius: 50%; }
+
+    .sub-legend { display: flex; gap: 15px; font-size: 0.75em; color: #718096; margin-top: 5px; flex-wrap: wrap; justify-content: center; }
+    .legend-item { display: flex; align-items: center; gap: 4px; }
+
+    /* 7열 달력 그리드 */
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; margin-bottom: 30px; }
+    
+    .weekday { text-align: center; font-weight: bold; padding: 12px 0; background-color: #EDF2F7; border-radius: 8px; }
+    .weekday:nth-child(1) { color: #E53E3E; background-color: #FFF5F5; } 
+    .weekday:nth-child(7) { color: #3182CE; background-color: #EBF8FF; } 
+
+    .day-cell {
+      min-height: 120px; background: #F7FAFC; border-radius: 8px; padding: 10px;
+      position: relative; display: flex; flex-direction: column; gap: 5px; 
+      border: 2px solid transparent; box-sizing: border-box; overflow: hidden;
+    }
+    
+    .day-number { font-weight: bold; margin-bottom: 4px; display: block; }
+    .day-cell:nth-child(7n+1) .day-number { color: #E53E3E; } 
+    .day-cell:nth-child(7n) .day-number { color: #3182CE; } 
+
+    .day-cell.today { background-color: #FAFAMF; border-color: #4FD1C5; }
+    .day-cell.today::after {
+      content: 'TODAY'; position: absolute; top: 10px; right: 10px; font-size: 9px;
+      font-weight: bold; color: #4FD1C5; background-color: rgba(79, 209, 197, 0.1);
+      padding: 2px 6px; border-radius: 10px;
+    }
+
+    .event-badge {
+      font-size: 12px; padding: 6px 8px; border-radius: 6px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      line-height: 1.4; z-index: 2; display: block;
+      white-space: pre-line; word-break: keep-all; font-weight: bold; color: #FFFFFF;
+    }
+
+    .status-message { text-align: center; color: #718096; font-size: 0.9em; margin-top: 10px; font-weight: bold; }
+    .footer { margin-top: 40px; text-align: center; font-size: 0.8em; color: #718096; }
+
+    /* 모바일 분할 화면 크롬북 반응형 레이아웃 규칙 */
+    @media (max-width: 768px) {
+      body { padding: 10px; } 
+      .dashboard-container { padding: 15px; border-radius: 12px; }
+      .title-card { padding: 10px 15px; margin-bottom: 10px; border-left-width: 8px; }
+      .main-title { font-size: 1.3em; } 
+      .info-notice-banner { padding: 8px 12px; margin-bottom: 15px; gap: 10px; }
+      .dday-badge { font-size: 0.7em; padding: 4px 10px; }
+      .ticker-text { font-size: 0.75em; }
+      .header h1 { font-size: 1.2em; min-width: 110px; }
+      .nav-btn { width: 34px; height: 34px; font-size: 0.9em; } 
+      .nav-box { flex-direction: column; gap: 10px; }
+      .save-btn { position: static; width: 100%; justify-content: center; font-size: 0.75em; padding: 8px; }
+      .filter-btn { font-size: 0.72em; padding: 6px 12px; }
+      .sub-legend { font-size: 0.65em; gap: 8px; }
+      .calendar-grid { gap: 4px; }
+      .weekday { font-size: 0.8em; padding: 8px 0; }
+      .day-cell { min-height: 85px; padding: 4px; gap: 2px; }
+      .day-number { font-size: 0.75em; margin-bottom: 2px; }
+      .day-cell.today::after { display: none; } 
+      .event-badge { font-size: 10px; padding: 4px 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- 전체 달력 캡처 영역 (타이틀, 배너, 달력 전체가 포함되어 아름답게 저장됩니다) -->
+  <div class="dashboard-container" id="capture-area">
+    
+    <!-- 실시간 월별 연동 동적 밴드띠 카드 -->
+    <div class="title-card" id="title-card">
+      <h1 class="main-title">성일정보고등학교 도제(3-12)일정표</h1>
+    </div>
+
+    <!-- [신규 기능 추가] D-Day 보드 및 주간 주요 전달사항 롤링 알림판 배너 -->
+    <div class="info-notice-banner">
+      <!-- 실시간 남은 일수가 자바스크립트로 자동 계산되어 들어가는 스팟 영역 -->
+      <div class="dday-badge" id="dday-display">D-Day 계산 중...</div>
+      
+      <!-- 부드러운 애니메이션 트랙 구조 -->
+      <div class="ticker-wrapper">
+        <div class="ticker-text" id="notice-display">
+          [안내] 웹디자인개발 실기검정, 정보처리산업기사 필기, 정보처리산업기사 실기 준비 철저
+        </div>
+      </div>
+    </div>
+
+    <header class="header">
+      <div class="nav-box">
+        <button id="prev-btn" class="nav-btn" onclick="changeMonth(-1)" disabled>◀</button>
+        <h1 id="month-title">일정 불러오는 중...</h1>
+        <button id="next-btn" class="nav-btn" onclick="changeMonth(1)" disabled>▶</button>
+        
+        <!-- 3배수 초고해상도 이미지 저장 액션 컨트롤러 -->
+        <button id="save-img-btn" class="save-btn" onclick="saveCalendarAsImage()">
+          <span>🖼️ 달력 이미지 저장</span>
+        </button>
+      </div>
+      
+      <!-- 구글 데이터 기반 동적 버튼 필터 삽입 컨테이너 -->
+      <div class="filter-container" id="filter-container">
+        <button class="filter-btn active" id="btn-all" onclick="setFilter('all')">
+          <span>전체보기</span>
+        </button>
+      </div>
+      
+      <!-- 시력 보호용 인덱스 맵 범례 양식 -->
+      <div class="sub-legend">
+        <span>※ 키워드 자동 색상:</span>
+        <div class="legend-item">
+          <div class="filter-color" style="background-color: #3182CE;"></div><span>off-JT (블루)</span>
+        </div>
+        <div class="legend-item">
+          <div class="filter-color" style="background-color: #E53E3E;"></div><span>OJT (레드)</span>
+        </div>
+        <div class="legend-item">
+          <div style="width: 12px; height: 12px; border: 2px dashed #E53E3E; border-radius: 4px;"></div>
+          <span>공휴일 / 휴업일 / 휴일 (빨간 점선 테두리)</span>
+        </div>
+      </div>
+    </header>
+
+    <main>
+      <div class="calendar-grid" id="calendar"></div>
+      <div id="status-info" class="status-message">구글 시트에서 데이터를 가져오는 중입니다...</div>
+    </main>
+  </div>
+
+  <!-- 교육부 훈령 지침 기준 수정 가능 푸터 (2026 연도 반영) -->
+  <footer class="footer">
+    &copy; 2026 [성일정보고등학교]. All Rights Reserved.
+  </footer>
+
+  <script>
+    const systemToday = new Date(); // 시스템 기준 오늘 일자 로드
+    let currentYear = systemToday.getFullYear(); 
+    let currentMonth = systemToday.getMonth() + 1; 
+    let allCalendarData = {}; 
+    let dynamicTypes = []; 
+    let currentViewFilter = 'all'; 
+
+    // 사계절 학사 흐름을 반영한 1월~12월 타이틀 포인트 밴드 색상 맵
+    const monthColors = [
+      '#3182CE', '#4FD1C5', '#48BB78', '#38B2AC', '#ECC94B', '#ED8936',
+      '#E53E3E', '#9F7AEA', '#ED64A6', '#B7791F', '#5A67D8', '#2D3748'
+    ];
+
+    const colorPalette = [
+      '#1A365D', '#4FD1C5', '#ED8936', '#9F7AEA', '#F56565', '#38B2AC', '#ECC94B'  
+    ];
+    let typeColorMap = {}; 
+
+    // [기능 정의] 오늘 날짜를 기준으로 시트에서 가장 중요한 마일스톤을 찾아 D-Day를 갱신하는 연산 엔진
+    function calculateDDay() {
+      const ddayBadge = document.getElementById('dday-display');
+      
+      // 실제 시트가 로드되기 전이나 데이터가 없을 때 학생들에게 보여줄 교육부 성취 맥락의 기본 핵심 타겟 세팅
+      // 추후 구글 시트에 'D-Day 설정' 컬럼을 연동하여 확장할 수도 있습니다.
+      const targetMilestones = [
+        { name: "웹디자인개발 기능사 실기", date: new Date(currentYear, 5, 19) },  // 6월 12일 예시
+        { name: "정보처리산업기사 필기", date: new Date(currentYear, 5, 22) },     // 7월 3일 예시
+        { name: "정보처리산업기사 실기", date: new Date(currentYear, 5, 23) }        // 7월 17일 예시
+      ];
+
+      // 오늘 날짜 자정 기준으로 시간 정규화 처리 (오차 방지)
+      const todayZero = new Date(systemToday.getFullYear(), systemToday.getMonth(), systemToday.getDate());
+      let finalMilestone = null;
+
+      // 오늘보다 미래에 있는 가장 가까운 핵심 학사 일정을 자동 스캔
+      for (let milestone of targetMilestones) {
+        if (milestone.date >= todayZero) {
+          finalMilestone = milestone;
+          break;
+        }
+      }
+
+      if (finalMilestone) {
+        const timeDiff = finalMilestone.date.getTime() - todayZero.getTime();
+        const daysLeft = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)); // 밀리초 단위를 일수로 환산
+        
+        if (daysLeft === 0) {
+          ddayBadge.innerText = `🔥 오늘: ${finalMilestone.name}!`;
+          ddayBadge.style.backgroundColor = '#E53E3E';
+        } else {
+          ddayBadge.innerText = `📅 ${finalMilestone.name} D-${daysLeft}`;
+          ddayBadge.style.backgroundColor = '#1A365D'; // 네이비 메인 색상으로 변환
+        }
+      } else {
+        ddayBadge.innerText = `🌱 성일정보고 파이팅!`;
+        ddayBadge.style.backgroundColor = '#48BB78';
+      }
+    }
+
+    // 3배수 업스케일링 스크린샷 엔진
+    function saveCalendarAsImage() {
+      const target = document.getElementById('capture-area');
+      const saveBtn = document.getElementById('save-img-btn');
+      const prevBtn = document.getElementById('prev-btn');
+      const nextBtn = document.getElementById('next-btn');
+
+      saveBtn.style.visibility = 'hidden';
+      prevBtn.style.visibility = 'hidden';
+      nextBtn.style.visibility = 'hidden';
+
+      html2canvas(target, {
+        scale: 3,                  
+        useCORS: true,             
+        backgroundColor: '#FFFFFF', 
+        logging: false,
+        scrollX: 0, scrollY: 0
+      }).then(canvas => {
+        const link = document.createElement('a');
+        link.download = `성일정보고_통합일정표_${currentYear}년_${currentMonth}월.png`;
+        link.href = canvas.toDataURL('image/png');
+        link.click();
+
+        saveBtn.style.visibility = 'visible';
+        prevBtn.style.visibility = 'visible';
+        nextBtn.style.visibility = 'visible';
+      }).catch(err => {
+        console.error(err);
+        saveBtn.style.visibility = 'visible';
+        prevBtn.style.visibility = 'visible';
+        nextBtn.style.visibility = 'visible';
+      });
+    }
+
+    function renderCalendar(year, month) {
+      const calendarEl = document.getElementById('calendar');
+      
+      const titleCard = document.getElementById('title-card');
+      if (titleCard) {
+        titleCard.style.borderLeftColor = monthColors[month - 1];
+      }
+
+      const weekdaysHTML = `
+        <div class="weekday">일</div><div class="weekday">월</div><div class="weekday">화</div>
+        <div class="weekday">수</div><div class="weekday">목</div><div class="weekday">금</div><div class="weekday">토</div>
+      `;
+      calendarEl.innerHTML = weekdaysHTML;
+      document.getElementById('month-title').innerText = `${year}년 ${month}월`;
+
+      const firstDay = new Date(year, month - 1, 1).getDay(); 
+      const daysInMonth = new Date(year, month, 0).getDate(); 
+
+      for (let i = 0; i < firstDay; i++) {
+        const emptyCell = document.createElement('div');
+        emptyCell.className = 'day-cell'; emptyCell.style.background = 'transparent'; 
+        calendarEl.appendChild(emptyCell);
+      }
+
+      for (let day = 1; day <= daysInMonth; day++) {
+        const dayCell = document.createElement('div');
+        dayCell.className = 'day-cell';
+        const dateSpan = document.createElement('span');
+        dateSpan.className = 'day-number';
+        dateSpan.innerText = day;
+        dayCell.appendChild(dateSpan);
+
+        if (year === systemToday.getFullYear() && month === systemToday.getMonth() + 1 && day === systemToday.getDate()) {
+          dayCell.classList.add('today');
+        }
+
+        dayCell.id = `day-${day}`;
+        calendarEl.appendChild(dayCell);
+      }
+    }
+
+    function renderEvents(year, month) {
+      const sheetKey = `${year}.${month}`;
+      const eventsData = allCalendarData[sheetKey];
+      if (!eventsData) return; 
+
+      eventsData.forEach(event => {
+        if (currentViewFilter !== 'all' && event.type !== currentViewFilter) return; 
+
+        const targetCell = document.getElementById(`day-${event.day}`);
+        if (targetCell) {
+          const eventBadge = document.createElement('div');
+          eventBadge.className = 'event-badge';
+          
+          let bgColor = typeColorMap[event.type] || '#718096';
+          let textColor = '#FFFFFF';
+          
+          if (bgColor === '#4FD1C5' || bgColor === '#ECC94B') {
+            textColor = '#1A365D'; 
+          }
+          
+          eventBadge.style.backgroundColor = bgColor;
+          eventBadge.style.color = textColor;
+
+          const titleUpper = event.title.toUpperCase();
+          if (titleUpper.includes('OFF-JT')) {
+            eventBadge.style.backgroundColor = '#3182CE'; 
+            eventBadge.style.color = '#FFFFFF';
+          } else if (titleUpper.includes('OJT')) {
+            eventBadge.style.backgroundColor = '#E53E3E'; 
+            eventBadge.style.color = '#FFFFFF';
+          }
+
+          eventBadge.innerText = event.title;
+          eventBadge.title = event.title; 
+          targetCell.appendChild(eventBadge);
+
+          const checkTitle = event.title.replace(/\s/g, ''); 
+          if (
+            checkTitle.includes('공휴일') || checkTitle.includes('휴업일') || 
+            checkTitle.includes('방학') || checkTitle.includes('휴일') || 
+            checkTitle.includes('개교기념일') || checkTitle.includes('삼일절') || 
+            checkTitle.includes('어린이날') || checkTitle.includes('현충일') || 
+            checkTitle.includes('광복절') || checkTitle.includes('개천절') || 
+            checkTitle.includes('한글날') || checkTitle.includes('크리스마스') || 
+            checkTitle.includes('석가탄신일')
+          ) {
+            const dateSpan = targetCell.querySelector('.day-number');
+            if (dateSpan) dateSpan.style.color = '#E53E3E'; 
+            targetCell.style.border = '2px dashed #E53E3E'; 
+            targetCell.style.backgroundColor = '#FFF5F5'; 
+          }
+        }
+      });
+    }
+
+    function createDynamicFilters() {
+      const filterContainer = document.getElementById('filter-container');
+      
+      dynamicTypes.forEach((type, index) => {
+        const assignedColor = colorPalette[index % colorPalette.length];
+        typeColorMap[type] = assignedColor; 
+
+        const btn = document.createElement('button');
+        btn.className = 'filter-btn';
+        btn.id = `btn-${type}`;
+        btn.onclick = () => setFilter(type);
+        
+        btn.innerHTML = `
+          <div class="filter-color" style="background-color: ${assignedColor};"></div>
+          <span>${type}</span>
+        `;
+        filterContainer.appendChild(btn);
+      });
+    }
+
+    function setFilter(filterType) {
+      currentViewFilter = filterType;
+      document.getElementById('btn-all').classList.remove('active');
+      dynamicTypes.forEach(type => {
+        const btn = document.getElementById(`btn-${type}`);
+        if(btn) btn.classList.remove('active');
+      });
+      
+      const targetBtn = document.getElementById(filterType === 'all' ? 'btn-all' : `btn-${filterType}`);
+      if(targetBtn) targetBtn.classList.add('active');
+      
+      updateDashboard();
+    }
+
+    function updateDashboard() {
+      renderCalendar(currentYear, currentMonth);
+      renderEvents(currentYear, currentMonth);
+    }
+
+    function changeMonth(step) {
+      currentMonth += step;
+      if (currentMonth > 12) { currentMonth = 1; currentYear += 1; } 
+      else if (currentMonth < 1) { currentMonth = 12; currentYear -= 1; }
+      updateDashboard();
+    }
+
+    async function fetchCalendarData() {
+      const statusEl = document.getElementById('status-info');
+      try {
+        const configResponse = await fetch('school_project_05_gas.json');
+        if (!configResponse.ok) throw new Error('설정 파일을 찾을 수 없습니다.');
+        const configData = await configResponse.json();
+        
+        const dataResponse = await fetch(configData.gas_url);
+        if (!dataResponse.ok) throw new Error('구글 서버와 통신할 수 없습니다.');
+        
+        const jsonData = await dataResponse.json();
+        allCalendarData = jsonData.data;
+        dynamicTypes = jsonData.types;
+
+        // [확장 포인트] 구글 시트에 별도의 공지용 셀(예: jsonData.notice)을 만들어 연결하면 공지 텍스트도 완전히 동적 제어가 가능해집니다.
+        if (jsonData.notice) {
+          document.getElementById('notice-display').innerText = jsonData.notice;
+        }
+
+        createDynamicFilters(); 
+
+        statusEl.style.display = 'none'; 
+        document.getElementById('prev-btn').disabled = false;
+        document.getElementById('next-btn').disabled = false;
+        
+        calculateDDay(); // 데이터 로드 및 초기화 완료 후 D-Day 계산 기동
+        updateDashboard();
+      } catch (error) {
+        console.error("데이터 통신 장애:", error);
+        statusEl.innerText = `데이터 연동 실패. 설정 파일(JSON) 경로 및 구글 배포 상태를 검토하세요.`;
+        statusEl.style.color = '#E53E3E'; 
+        calculateDDay(); // 로컬 연산 기반 D-Day는 서버 실패와 상관없이 기동
+      }
+    }
+
+    window.onload = function() {
+      fetchCalendarData();
+    };
+  </script>
+</body>
+</html>
