@@ -110,7 +110,7 @@
         "type": "primary"
       },
       {
-        "title": "도제반 내부평가 과목정리",
+        "title": "도제반 내부평가 과목정리 v4",
         "url": "project26/project26_03_innertest_v4.html",
         "type": "secondary"
       },
@@ -120,10 +120,9 @@
         "type": "secondary"
       },
       {
-        "title": "Doje04 (준비중)",
-        "url": "#",
-        "type": "secondary",
-        "disabled": true
+        "title": "도제 일학습병행 내부평가시스템 v0.4",
+        "url": "project26/doje_project05_innertest_v0.4.html",
+        "type": "secondary"
       }
     ]
   },
