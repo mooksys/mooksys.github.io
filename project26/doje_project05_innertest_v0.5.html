@@ -126,6 +126,13 @@
     
     /* ★ 인쇄 레이아웃 깨짐 해결 특화 미디어 쿼리 */
     @media print {
+      /* ★ 인쇄 시 배경색(컬러) 강제 유지 */
+      * {
+        -webkit-print-color-adjust: exact !important;
+        print-color-adjust: exact !important;
+        color-adjust: exact !important;
+      }
+
       /* 브라우저 인쇄 설정을 가로 방향(Landscape) 문서로 자동 강제 */
       @page { 
         size: A4 landscape; 
@@ -620,7 +627,6 @@
       });
     }
 
-    /* 3번 탭 가로 찢어짐 및 undefined 배지 표기 오류 완전 수정본 */
     function renderProcessTable() {
       const tbody = document.getElementById('processTableBody'); tbody.innerHTML = '';
       
@@ -659,11 +665,8 @@
           methodBtnHTML = `<span class="badge bg-secondary p-2" style="font-size:9.5pt;">${m}</span>`;
         }
 
-        // 'undefined' 또는 공백 값이 배지 텍스트로 박히는 버그 방지용 클리닝 필터
         const cleanStepValue = function(val) {
-          if (!val || String(val).trim() === 'undefined' || String(val).trim() === '') {
-            return "대기";
-          }
+          if (!val || String(val).trim() === 'undefined' || String(val).trim() === '') return "대기";
           return String(val).trim();
         };
 
@@ -678,7 +681,6 @@
         const bgColor = getCompanyColor(p.CompanyName);
         const semesterText = p.Semester || '2026학년도 1학기';
 
-        // 9개 컬럼 완벽 일치 구조 설계 및 no-print 속성 제어
         tbody.insertAdjacentHTML('beforeend', `
           <tr>
             <td class="text-center px-2">
