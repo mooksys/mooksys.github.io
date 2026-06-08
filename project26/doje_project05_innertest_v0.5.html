@@ -4,24 +4,28 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>일학습병행 내부평가 과목관리 시스템</title>
+  
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
   
   <style>
     :root { 
-      --main-navy: #1E3A8A;   
-      --point-mint: #10B981;  
-      --bg-light: #F8FAFC;    
-      --text-dark: #1E293B;   
+      var(--main-navy): #1e293b;   
+      var(--point-mint): #10B981;  
+      --bg-light: #f1f5f9;    
+      --text-dark: #334155;   
     }
     
     body { 
       background-color: var(--bg-light); 
       color: var(--text-dark); 
-      font-family: 'Malgun Gothic', sans-serif; 
-      font-size: 12pt; 
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+      font-size: 11pt; 
       margin: 0; 
       padding: 0; 
+      word-break: keep-all;
+      letter-spacing: -0.02em;
     }
 
     .container-1200 {
@@ -31,156 +35,120 @@
       padding-right: 15px;
     }
     
+    /* 네비게이션 바 */
     .navbar-custom { 
-      background-color: var(--main-navy); 
-      border-bottom: 4px solid var(--point-mint); 
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05); 
+      background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
+      border-bottom: 4px solid #10B981; 
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); 
     }
-    .navbar-title { color: #FFFFFF !important; font-weight: bold; font-size: 16pt; }
+    .navbar-title { color: #FFFFFF !important; font-weight: 700; font-size: 16pt; letter-spacing: -0.03em; }
     @media (max-width: 768px) {
       .navbar-title { font-size: 13pt; }
     }
     
+    /* 카드 디자인 */
     .card-custom { 
       background: #FFFFFF; 
-      border: none; 
-      border-radius: 12px; 
-      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03); 
-      margin-bottom: 25px; 
-      padding: 25px; 
+      border: 1px solid #e2e8f0; 
+      border-radius: 20px; 
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      margin-bottom: 30px; 
+      padding: 30px; 
+      transition: all 0.3s ease;
     }
     @media (max-width: 768px) {
-      .card-custom { padding: 15px; }
+      .card-custom { padding: 15px; border-radius: 12px; }
     }
     
-    .nav-tabs { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; white-space: nowrap; border-bottom: 2px solid #dee2e6; }
-    .nav-tabs .nav-link { color: var(--text-dark); font-weight: 600; border-radius: 8px 8px 0 0; margin-right: 4px; }
-    .nav-tabs .nav-link.active { background-color: var(--main-navy) !important; color: #FFFFFF !important; border-color: var(--main-navy) !important; }
+    /* 메인 탭 */
+    .nav-tabs { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; white-space: nowrap; border-bottom: 2px solid #e2e8f0; gap: 10px; padding-bottom: 2px;}
+    .nav-tabs .nav-link { color: #64748b; font-weight: 600; border: none; padding: 12px 20px; border-radius: 8px; transition: all 0.2s ease; }
+    .nav-tabs .nav-link:hover { color: #1e293b; background-color: #f8fafc; }
+    .nav-tabs .nav-link.active { background-color: transparent !important; color: #10B981 !important; border-bottom: 3px solid #10B981 !important; font-weight: 800; border-radius: 0; }
     
-    #subjectSubTabs { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; padding-bottom: 5px; }
-    #subjectSubTabs .nav-link { background-color: #E2E8F0; color: #475569; margin-right: 6px; font-weight: bold; border-radius: 20px; padding: 6px 16px; font-size: 11pt; }
-    #subjectSubTabs .nav-link.active { background-color: var(--point-mint) !important; color: white !important; }
+    /* 서브 탭 */
+    #subjectSubTabs { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; padding-bottom: 15px; gap: 8px;}
+    #subjectSubTabs .nav-link { background-color: #f1f5f9; color: #475569; font-weight: 700; border-radius: 30px; padding: 8px 20px; font-size: 10.5pt; transition: all 0.2s; box-shadow: inset 0 0 0 1px #e2e8f0; }
+    #subjectSubTabs .nav-link:hover { background-color: #e2e8f0; }
+    #subjectSubTabs .nav-link.active { background-color: #10B981 !important; color: white !important; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
 
-    /* 테이블 스타일 최적화 */
+    /* 테이블 스타일 */
+    .table-bordered th, .table-bordered td { border: 1px solid #cbd5e1 !important; }
     .table-custom {
       font-size: 10.5pt !important; 
       width: 100% !important;
       margin-bottom: 0;
+      table-layout: fixed; 
+      border-collapse: collapse !important; 
     }
-    .table-custom th, .table-custom td {
-      padding: 10px 6px !important; 
-      vertical-align: middle !important;
-      text-align: center;
-    }
-    .table-custom th { 
-      background-color: #F1F5F9; 
-      color: var(--main-navy); 
-      font-weight: bold; 
-      white-space: nowrap; 
-    }
-    
-    .student-btn-badge {
-      font-size: 9.5pt !important;
-      padding: 4px 8px !important;
-      margin: 2px !important;
-      display: inline-block;
-    }
-    
-    .company-badge {
-      color: white;
-      font-size: 10.5pt;
-      padding: 6px 12px;
-      border-radius: 8px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-      display: inline-block;
-      font-weight: bold;
-    }
-    
-    #loadingOverlay { 
-      position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
-      background: rgba(255, 255, 255, 0.85); z-index: 9999; 
-      display: flex; justify-content: center; align-items: center; flex-direction: column; 
-    }
-    .spinner-border-custom { color: var(--point-mint); width: 3rem; height: 3rem; }
-    
-    .badge-ready { background-color: #64748B; color: #ffffff; } 
-    .badge-success { background-color: var(--point-mint); color: #ffffff; } 
-    
-    .subject-badge { 
-      background-color: #475569; 
-      color: white; 
-      border-radius: 6px; 
-      padding: 5px 10px; 
-      font-size: 10pt; 
-      font-weight: 500; 
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1); 
-      white-space: normal !important; 
-      word-break: break-all;
-      display: inline-block;
-    }
-    
-    footer { background-color: #E2E8F0; color: #475569; padding: 15px 0; font-size: 10pt; margin-top: 40px; border-top: 1px solid #CBD5E1; }
-    
-    #reportContainer { background: white; padding: 35px; border: 1px solid #CBD5E1; border-radius: 8px; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
-    .report-title { font-size: 20pt; font-weight: bold; color: var(--main-navy); text-align: center; margin-bottom: 25px; text-decoration: underline; text-underline-offset: 10px; }
-    
-    /* ★ 인쇄 레이아웃 깨짐 해결 특화 미디어 쿼리 */
-    @media print {
-      /* ★ 인쇄 시 배경색(컬러) 강제 유지 */
-      * {
-        -webkit-print-color-adjust: exact !important;
-        print-color-adjust: exact !important;
-        color-adjust: exact !important;
-      }
+    .table-custom th, .table-custom td { padding: 16px 12px !important; vertical-align: middle !important; text-align: center; word-wrap: break-word; word-break: keep-all; }
+    .table-custom th { background-color: #f8fafc; color: #334155; font-weight: 700; font-size: 9.5pt !important; letter-spacing: 0.05em; border-bottom: 2px solid #94a3b8 !important; }
+    .table-custom tbody tr { transition: background-color 0.2s ease; }
+    .table-custom tbody tr:hover { background-color: #f8fafc !important; }
 
-      /* 브라우저 인쇄 설정을 가로 방향(Landscape) 문서로 자동 강제 */
-      @page { 
-        size: A4 landscape; 
-        margin: 10mm 8mm; 
-      }
-      
+    /* 각종 뱃지 */
+    .student-btn-badge { font-size: 9.5pt !important; padding: 6px 10px !important; margin: 3px !important; border-radius: 8px; display: inline-block; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: transform 0.2s; }
+    .student-btn-badge:hover { transform: scale(1.02); }
+    .company-badge { color: white; font-size: 10.5pt; padding: 8px 14px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: inline-block; font-weight: 700; letter-spacing: 0.02em; }
+    .badge { border-radius: 8px; padding: 8px 12px; font-weight: 700; letter-spacing: 0.03em; }
+    .badge-ready { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; } 
+    .badge-success { background-color: #10B981; color: #ffffff; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3); border: none; } 
+    .subject-badge { background-color: #334155; color: white; border-radius: 8px; padding: 6px 12px; font-size: 9.5pt; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-block; line-height: 1.4; border: 1px solid rgba(255,255,255,0.1); }
+    
+    #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(4px); }
+    .spinner-border-custom { color: #10B981; width: 3.5rem; height: 3.5rem; border-width: 4px; }
+    
+    footer { background-color: transparent; color: #94a3b8; padding: 20px 0; font-size: 9.5pt; margin-top: 40px; font-weight: 500; }
+    
+    /* 리포트 디자인 - 학기별 페이지 분할을 위한 구조 변경 */
+    #reportContainer { background: transparent; padding: 0; border: none; box-shadow: none; }
+    .report-page-block { background: white; padding: 40px; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; }
+    .report-title { font-size: 22pt; font-weight: 800; color: #1e293b; text-align: center; margin-bottom: 15px; position: relative; display: inline-block; left: 50%; transform: translateX(-50%); }
+    .report-title::after { content: ''; position: absolute; width: 100%; height: 12px; background-color: rgba(16, 185, 129, 0.2); bottom: 2px; left: 0; z-index: 0; border-radius: 4px;}
+    .report-title span { position: relative; z-index: 1; }
+    
+    /* 버튼 공통 스타일 */
+    .btn { font-weight: 600; border-radius: 8px; padding: 8px 16px; transition: all 0.2s; }
+    .btn-outline-primary { border-color: #3b82f6; color: #3b82f6; }
+    .btn-outline-primary:hover { background-color: #3b82f6; color: white; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); }
+
+    /* 인쇄 레이아웃 */
+    @media print {
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+      @page { size: A4 landscape; margin: 10mm 8mm; }
       body.print-mode-report *, body.print-mode-process * { visibility: hidden; }
-      
-      /* 4번 탭 (보고서) 인쇄 설정 */
       body.print-mode-report #reportContainer, body.print-mode-report #reportContainer * { visibility: visible; }
       body.print-mode-report #reportContainer { position: absolute; left: 0; top: 0; width: 100%; border: none; padding: 0; box-shadow: none; }
       
-      /* 3번 탭 (평가 공정 현황) 인쇄 설정 */
-      body.print-mode-process { background-color: white; }
-      body.print-mode-process #dashboardSection,
-      body.print-mode-process .container-1200,
-      body.print-mode-process .tab-content,
-      body.print-mode-process #processPanel, 
-      body.print-mode-process #processPanel * { visibility: visible; }
-      
-      /* 화면 전용 UI 요소 완전 제거 */
-      body.print-mode-process nav,
-      body.print-mode-process #manageTabs,
-      body.print-mode-process #subjectSubTabs,
-      body.print-mode-process footer,
-      body.print-mode-process [id$="Panel"]:not(#processPanel) { display: none !important; }
-      
-      /* 종이에 출력할 필요가 없는 제어 액션 컬럼 제거 */
-      .no-print { display: none !important; }
-      
-      /* 표 압축 방지 및 가로 너비 확장 안정화 */
-      body.print-mode-process #processPanel { 
-        position: relative !important; 
-        left: 0; top: 0; width: 100% !important; padding: 0; margin: 0;
+      /* 학기별 페이지 나누기 강제 적용 */
+      body.print-mode-report .report-page-block {
+        page-break-after: always;
+        break-after: page;
+        box-shadow: none !important;
+        border: none !important;
+        padding: 0 !important;
+        margin-bottom: 0 !important;
       }
+      body.print-mode-report .report-page-block:last-child {
+        page-break-after: auto;
+        break-after: auto;
+      }
+
+      body.print-mode-process { background-color: white; }
+      body.print-mode-process #dashboardSection, body.print-mode-process .container-1200, body.print-mode-process .tab-content, body.print-mode-process #processPanel, body.print-mode-process #processPanel * { visibility: visible; }
+      body.print-mode-process nav, body.print-mode-process #manageTabs, body.print-mode-process #subjectSubTabs, body.print-mode-process footer, body.print-mode-process [id$="Panel"]:not(#processPanel) { display: none !important; }
+      .no-print { display: none !important; }
+      body.print-mode-process #processPanel { position: relative !important; left: 0; top: 0; width: 100% !important; padding: 0; margin: 0; }
       body.print-mode-process .card-custom { box-shadow: none; padding: 0; margin: 0; border: none; }
       body.print-mode-process .table-responsive { overflow: visible !important; width: 100% !important; }
-      
-      /* 폰트 크기 및 텍스트 줄바꿈 구조 최적화 (찢어짐 방지) */
-      body.print-mode-process table { width: 100% !important; table-layout: auto !important; font-size: 9.5pt !important; border-collapse: collapse !important; }
-      body.print-mode-process th, body.print-mode-process td { padding: 8px 4px !important; white-space: nowrap !important; }
-      body.print-mode-process td div, body.print-mode-process td span { white-space: nowrap !important; }
+      body.print-mode-process table { width: 100% !important; table-layout: fixed !important; font-size: 9pt !important; border-collapse: collapse !important; }
+      body.print-mode-process th, body.print-mode-process td { padding: 8px 4px !important; word-break: keep-all !important; border: 1px solid #cbd5e1 !important;}
+      body.print-mode-process td div, body.print-mode-process td span { white-space: normal !important; word-break: keep-all !important; }
       body.print-mode-process tr { page-break-inside: avoid !important; page-break-after: auto; }
-      
-      /* 배지 폰트 배율 축소 조정 */
-      body.print-mode-process .company-badge { font-size: 9.5pt !important; padding: 4px 8px !important; width: auto !important; }
-      body.print-mode-process .subject-badge { font-size: 9.5pt !important; padding: 4px 8px !important; }
-      body.print-mode-process .student-btn-badge { font-size: 8.5pt !important; padding: 2px 4px !important; margin: 1px !important; }
+      body.print-mode-process .company-badge { font-size: 9pt !important; padding: 4px 6px !important; width: 100% !important; box-shadow: none !important;}
+      body.print-mode-process .subject-badge { font-size: 9.5pt !important; padding: 4px 6px !important; border: none !important;}
+      body.print-mode-process .student-btn-badge { font-size: 8pt !important; padding: 2px 4px !important; margin: 1px !important; white-space: nowrap !important; border: 1px solid #ccc !important;}
+      body.print-mode-process .badge-success { border: 1px solid #10b981 !important; }
     }
   </style>
 </head>
@@ -188,24 +156,25 @@
 
   <div id="loadingOverlay">
     <div class="spinner-border spinner-border-custom" role="status"></div>
-    <div class="mt-3 fw-bold" id="loadingText" style="color: var(--main-navy);">환경 동기화 중...</div>
+    <div class="mt-4 fw-bold fs-5" id="loadingText" style="color: #1e293b; letter-spacing: -0.05em;">환경 동기화 중...</div>
   </div>
 
-  <div id="loginSection" class="container-1200" style="display: flex; height: 90vh; align-items: center; justify-content: center;">
-    <div class="card-custom text-center" style="max-width: 440px; width: 100%;">
-      <h3 class="mb-3" style="color: var(--main-navy); font-weight: bold;">내부평가 시스템</h3>
-      <p class="text-muted small mb-4">학사 정보 보안을 위해 지정된<br>관리자 전용 패스워드를 입력해 주세요.</p>
-      <div class="mb-3"><input type="password" id="adminPassword" class="form-control form-control-lg text-center" placeholder="패스워드 입력"></div>
-      <button class="btn btn-lg w-100" style="background-color: var(--main-navy); color: white;" onclick="attemptLogin()">대시보드 안전 접속</button>
+  <div id="loginSection" class="container-1200" style="display: flex; height: 100vh; align-items: center; justify-content: center;">
+    <div class="card-custom text-center" style="max-width: 440px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.08);">
+      <div style="font-size: 3rem; margin-bottom: 10px;">🛡️</div>
+      <h3 class="mb-2" style="color: #1e293b; font-weight: 800; letter-spacing: -0.05em;">내부평가 시스템</h3>
+      <p class="text-muted small mb-4" style="line-height: 1.5;">학사 정보 보안을 위해 지정된<br>관리자 전용 패스워드를 입력해 주세요.</p>
+      <div class="mb-4"><input type="password" id="adminPassword" class="form-control form-control-lg text-center" placeholder="패스워드 입력" style="background-color: #f8fafc; border-radius: 12px; border: 2px solid #e2e8f0;"></div>
+      <button class="btn btn-lg w-100" style="background-color: #1e293b; color: white; border-radius: 12px; font-weight: 700; box-shadow: 0 8px 15px rgba(30, 41, 59, 0.2);" onclick="attemptLogin()">대시보드 안전 접속</button>
       <div id="loginError" class="text-danger mt-3 small" style="display: none; font-weight: bold;">⚠️ 패스워드가 올바르지 않습니다.</div>
     </div>
   </div>
 
   <div id="dashboardSection" style="display: none;">
-    <nav class="navbar navbar-custom mb-4">
+    <nav class="navbar navbar-custom mb-4 py-3">
       <div class="container-1200 d-flex justify-content-between align-items-center w-100">
-        <span class="navbar-title">일학습병행 과목관리 시스템 💻</span>
-        <button class="btn btn-sm btn-outline-light" onclick="logout()">시스템 로그아웃</button>
+        <span class="navbar-title">💻 일학습병행 과목관리 시스템</span>
+        <button class="btn btn-sm" style="background-color: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 20px; padding: 6px 16px;" onclick="logout()">로그아웃</button>
       </div>
     </nav>
 
@@ -214,19 +183,26 @@
         <li class="nav-item"><button class="nav-link active" id="company-tab" data-bs-toggle="tab" data-bs-target="#companyPanel" type="button" role="tab">① 학습기업 정보</button></li>
         <li class="nav-item"><button class="nav-link" id="student-tab" data-bs-toggle="tab" data-bs-target="#studentPanel" type="button" role="tab">② 도제 학생 배정</button></li>
         <li class="nav-item"><button class="nav-link" id="process-tab" data-bs-toggle="tab" data-bs-target="#processPanel" type="button" role="tab">③ 3단계 평가 제어</button></li>
-        <li class="nav-item"><button class="nav-link" id="report-tab" data-bs-toggle="tab" data-bs-target="#reportPanel" type="button" role="tab">④ 현황 출력</button></li>
+        <li class="nav-item"><button class="nav-link" id="report-tab" data-bs-toggle="tab" data-bs-target="#reportPanel" type="button" role="tab">④ 현황 리포트 출력</button></li>
       </ul>
 
       <div class="tab-content" id="manageTabsContent">
         <div class="tab-pane fade show active" id="companyPanel" role="tabpanel">
           <div class="card-custom">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-              <h5 class="fw-bold mb-2 mb-md-0" style="color: var(--main-navy);">협약 기업 및 6대 필수 이수과목</h5>
-              <button class="btn btn-sm" style="background-color: var(--point-mint); color: white;" onclick="openCompanyModal(false)">+ 신규 기업 등록</button>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+              <h5 class="fw-bold mb-2 mb-md-0" style="color: #1e293b;"><span style="font-size: 1.2rem;">🏢</span> 협약 기업 및 6대 필수 이수과목</h5>
+              <button class="btn" style="background-color: #10B981; color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);" onclick="openCompanyModal(false)">+ 신규 기업 등록</button>
             </div>
             <div class="table-responsive">
-              <table class="table table-bordered table-hover table-custom">
-                <thead><tr><th style="width:18%;">학습기업명</th><th style="width:23%;">기업 현장교사 정보</th><th>지정 이수과목 목록 (최대 6과목)</th><th style="width:7%;">수정</th></tr></thead>
+              <table class="table table-bordered table-custom">
+                <thead>
+                  <tr>
+                    <th style="width:16%;">학습기업명</th>
+                    <th style="width:20%;">기업 현장교사 정보</th>
+                    <th style="width:56%;">지정 이수과목 목록 (최대 6과목)</th>
+                    <th style="width:8%;">수정</th>
+                  </tr>
+                </thead>
                 <tbody id="companyTableBody"></tbody>
               </table>
             </div>
@@ -235,13 +211,20 @@
 
         <div class="tab-pane fade" id="studentPanel" role="tabpanel">
           <div class="card-custom">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-              <h5 class="fw-bold mb-2 mb-md-0" style="color: var(--main-navy);">참여 도제학급 명단 및 기업 매칭</h5>
-              <button class="btn btn-sm" style="background-color: var(--point-mint); color: white;" onclick="openStudentModal()">+ 신규 학생 등록</button>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+              <h5 class="fw-bold mb-2 mb-md-0" style="color: #1e293b;"><span style="font-size: 1.2rem;">🎓</span> 참여 도제학급 명단 및 기업 매칭</h5>
+              <button class="btn" style="background-color: #10B981; color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);" onclick="openStudentModal()">+ 신규 학생 등록</button>
             </div>
             <div class="table-responsive">
-              <table class="table table-bordered table-hover table-custom">
-                <thead><tr><th>배정 학번</th><th>학생 성명</th><th>소속 매칭 기업명</th><th>수정</th></tr></thead>
+              <table class="table table-bordered table-custom">
+                <thead>
+                  <tr>
+                    <th style="width:20%;">배정 학번</th>
+                    <th style="width:30%;">학생 성명</th>
+                    <th style="width:40%;">소속 매칭 기업명</th>
+                    <th style="width:10%;">수정</th>
+                  </tr>
+                </thead>
                 <tbody id="studentTableBody"></tbody>
               </table>
             </div>
@@ -250,15 +233,15 @@
 
         <div class="tab-pane fade" id="processPanel" role="tabpanel">
           <div class="card-custom">
-            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-3">
-              <h5 class="fw-bold mb-2 mb-md-0" style="color: var(--main-navy);">내부평가 진행도 및 행정 제어</h5>
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+              <h5 class="fw-bold mb-2 mb-md-0" style="color: #1e293b;"><span style="font-size: 1.2rem;">⚙️</span> 내부평가 진행도 및 행정 제어</h5>
               <div>
-                <button class="btn btn-sm btn-secondary me-2" onclick="printProcess()">🖨️ 인쇄</button>
-                <button class="btn btn-sm" style="background-color: var(--point-mint); color: white;" onclick="openProcessModal()">+ 평가 과목 배정</button>
+                <button class="btn btn-outline-secondary me-2" style="background-color: white;" onclick="printProcess()">🖨️ 인쇄</button>
+                <button class="btn" style="background-color: #10B981; color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);" onclick="openProcessModal()">+ 평가 과목 배정</button>
               </div>
             </div>
             
-            <ul class="nav nav-pills mb-3" id="subjectSubTabs" role="tablist">
+            <ul class="nav nav-pills mb-4" id="subjectSubTabs" role="tablist">
               <li class="nav-item"><button class="nav-link active" onclick="changeSubjectTab(1)">제1과목</button></li>
               <li class="nav-item"><button class="nav-link" onclick="changeSubjectTab(2)">제2과목</button></li>
               <li class="nav-item"><button class="nav-link" onclick="changeSubjectTab(3)">제3과목</button></li>
@@ -268,17 +251,17 @@
             </ul>
 
             <div class="table-responsive">
-              <table class="table table-bordered table-hover table-custom">
+              <table class="table table-bordered table-custom">
                 <thead>
                   <tr>
-                    <th style="width: 12%;">학습기업명</th>
-                    <th style="width: 18%;">대상 학생 (학번 이름)</th>
+                    <th style="width: 14%;">학습기업명</th>
+                    <th style="width: 16%;">대상 학생</th>
                     <th style="width: 12%;">운영 학기</th>
-                    <th>평가 대상 과목명</th>
+                    <th style="width: 18%;">평가 대상 과목명</th>
                     <th style="width: 10%;">평가유형</th>
-                    <th style="width: 8%;">1단계 [출제]</th>
-                    <th style="width: 8%;">2단계 [전송]</th>
-                    <th style="width: 8%;">3단계 [스캔]</th>
+                    <th style="width: 8%;">1단계<br><small>[출제]</small></th>
+                    <th style="width: 8%;">2단계<br><small>[전송]</small></th>
+                    <th style="width: 8%;">3단계<br><small>[스캔]</small></th>
                     <th class="no-print" style="width: 6%;">제어</th>
                   </tr>
                 </thead>
@@ -290,63 +273,25 @@
 
         <div class="tab-pane fade" id="reportPanel" role="tabpanel">
           <div class="card-custom">
-            <div class="row align-items-end mb-4">
+            <div class="row align-items-end mb-5 bg-light p-4 rounded-4 border">
               <div class="col-md-6 mb-3 mb-md-0">
-                <label class="form-label fw-bold" style="color: var(--main-navy);">조회 대상 도제 학생 선별</label>
-                <select id="reportStudentSelect" class="form-select border-primary" onchange="generateReport()">
+                <label class="form-label fw-bold" style="color: #1e293b;"><span style="font-size: 1.1rem;">🔍</span> 조회 대상 도제 학생 선별</label>
+                <select id="reportStudentSelect" class="form-select form-select-lg border-primary shadow-sm" style="border-radius: 10px;" onchange="generateReport()">
                   <option value="">-- 학생을 선택하세요 --</option>
                 </select>
               </div>
               <div class="col-md-6 text-md-end" id="reportActionButtons" style="display: none;">
-                <button class="btn btn-sm btn-secondary me-2 mb-2 mb-md-0" onclick="printReport()">🖨️ 종이 인쇄</button>
-                <button class="btn btn-sm btn-success mb-2 mb-md-0" onclick="downloadReportImage()">🖼️ 이미지 파일(PNG) 저장</button>
+                <button class="btn btn-outline-secondary me-2 bg-white mb-2 mb-md-0" onclick="printReport()">🖨️ 종이 인쇄</button>
+                <button class="btn mb-2 mb-md-0" style="background-color: #1e293b; color: white;" onclick="downloadReportImage()">🖼️ 이미지 파일(PNG) 저장</button>
               </div>
             </div>
 
-            <div id="reportContainer" style="display: none;">
-              <div class="report-title" style="font-size: 16pt;">내부평가 및 훈련 진행 현황</div>
-              <div class="row mb-3 g-2">
-                <div class="col-12 col-md-6">
-                  <table class="table table-sm table-bordered mb-0 align-middle">
-                    <tbody>
-                      <tr><th class="bg-light" style="width: 100px;">소속 학번</th><td id="rpt_studId"></td></tr>
-                      <tr><th class="bg-light">학생 성명</th><td id="rpt_studName" class="fw-bold"></td></tr>
-                    </tbody>
-                  </table>
-                </div>
-                <div class="col-12 col-md-6">
-                  <table class="table table-sm table-bordered mb-0 align-middle">
-                    <tbody>
-                      <tr><th class="bg-light" style="width: 100px;">실습 기업명</th><td id="rpt_compName" class="text-center"></td></tr>
-                      <tr><th class="bg-light">현장 교사</th><td id="rpt_teacher"></td></tr>
-                    </tbody>
-                  </table>
-                </div>
-              </div>
-
-              <h6 class="fw-bold mt-4 mb-2" style="color: var(--main-navy);">⏳ Off-JT / OJT 훈련시간 현황</h6>
-              <div class="table-responsive">
-                <table class="table table-sm table-bordered text-center align-middle mb-4">
-                  <thead class="table-light">
-                    <tr><th style="white-space: nowrap;">훈련 구분</th><th>총 배정 시간</th><th>월 평균(6개월)</th><th>주 평균(24주)</th></tr>
-                  </thead>
-                  <tbody id="rpt_hoursBody"></tbody>
-                </table>
-              </div>
-              
-              <h6 class="fw-bold mt-4 mb-2" style="color: var(--main-navy);">📋 3단계 내부평가 진행도</h6>
-              <div class="table-responsive">
-                <table class="table table-bordered text-center align-middle">
-                  <thead class="table-light">
-                    <tr><th>운영 학기</th><th>이수 과목명</th><th>평가 유형</th><th>1단계 [출제]</th><th>2단계 [전송]</th><th>3단계 [스캔]</th></tr>
-                  </thead>
-                  <tbody id="reportTableBody"></tbody>
-                </table>
-              </div>
-              <div class="text-end mt-4 text-muted small">출력증빙일시: <span id="rpt_date"></span> / 성일정보고등학교 일학습병행부</div>
-            </div>
+            <div id="reportContainer" style="display: none;"></div>
             
-            <div id="reportPlaceholder" class="text-center p-5 text-muted">상단 드롭다운 메뉴에서 도제 학생을 지정하면 해당 데이터가 통합 로드됩니다.</div>
+            <div id="reportPlaceholder" class="text-center p-5 text-muted" style="background-color: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+              <div style="font-size: 3rem; margin-bottom: 10px; opacity: 0.5;">👆</div>
+              상단 드롭다운 메뉴에서 도제 학생을 지정하면 학기별 리포트가 생성됩니다.
+            </div>
           </div>
         </div>
 
@@ -355,37 +300,41 @@
   </div>
 
   <div class="modal fade" id="companyModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog modal-lg">
-      <div class="modal-content" style="border-radius: 12px;">
-        <div class="modal-header" style="background-color: var(--main-navy); color: white;">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+        <div class="modal-header border-0" style="background-color: #1e293b; color: white; padding: 20px 25px;">
           <h5 class="modal-title fw-bold" id="companyModalTitle">학습기업 등록 및 편집</h5>
           <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
-        <div class="modal-body">
+        <div class="modal-body p-4 bg-light">
           <form id="companyForm">
             <input type="hidden" id="comp_id">
-            <div class="row mb-3 g-2">
-              <div class="col-12 col-md-6"><label class="form-label fw-bold">학습기업명</label><input type="text" id="comp_name" class="form-control" required></div>
-              <div class="col-12 col-md-6"><label class="form-label fw-bold">현장교사 성명</label><input type="text" id="comp_tname" class="form-control" required></div>
+            <div class="card p-3 mb-3 border-0 shadow-sm" style="border-radius: 12px;">
+              <div class="row mb-3 g-3">
+                <div class="col-12 col-md-6"><label class="form-label fw-bold text-muted small">학습기업명</label><input type="text" id="comp_name" class="form-control form-control-lg" required></div>
+                <div class="col-12 col-md-6"><label class="form-label fw-bold text-muted small">현장교사 성명</label><input type="text" id="comp_tname" class="form-control form-control-lg" required></div>
+              </div>
+              <div class="row g-3">
+                <div class="col-12 col-md-4"><label class="form-label fw-bold text-muted small">직책</label><input type="text" id="comp_pos" class="form-control"></div>
+                <div class="col-12 col-md-4"><label class="form-label fw-bold text-muted small">핸드폰 번호</label><input type="text" id="comp_phone" class="form-control"></div>
+                <div class="col-12 col-md-4"><label class="form-label fw-bold text-muted small">이메일 주소</label><input type="email" id="comp_email" class="form-control"></div>
+              </div>
             </div>
-            <div class="row mb-3 g-2">
-              <div class="col-12 col-md-4"><label class="form-label fw-bold">직책</label><input type="text" id="comp_pos" class="form-control"></div>
-              <div class="col-12 col-md-4"><label class="form-label fw-bold">핸드폰 번호</label><input type="text" id="comp_phone" class="form-control"></div>
-              <div class="col-12 col-md-4"><label class="form-label fw-bold">이메일 주소</label><input type="email" id="comp_email" class="form-control"></div>
-            </div>
-            <hr>
-            <p class="fw-bold" style="color: var(--main-navy);">기업별 이수과목 지정 (과목당 75시간 의무 고정)</p>
-            <div class="row g-2">
-              <div class="col-6 col-md-4"><input type="text" id="comp_sub1" class="form-control" placeholder="과목 1" required></div>
-              <div class="col-6 col-md-4"><input type="text" id="comp_sub2" class="form-control" placeholder="과목 2" required></div>
-              <div class="col-6 col-md-4"><input type="text" id="comp_sub3" class="form-control" placeholder="과목 3" required></div>
-              <div class="col-6 col-md-4"><input type="text" id="comp_sub4" class="form-control" placeholder="과목 4" required></div>
-              <div class="col-6 col-md-4"><input type="text" id="comp_sub5" class="form-control" placeholder="과목 5" required></div>
-              <div class="col-6 col-md-4"><input type="text" id="comp_sub6" class="form-control" placeholder="과목 6" required></div>
+            
+            <div class="card p-3 border-0 shadow-sm" style="border-radius: 12px;">
+              <p class="fw-bold mb-3" style="color: #1e293b;">기업별 이수과목 지정 <span class="badge bg-secondary ms-2 fw-normal">과목당 75시간 의무</span></p>
+              <div class="row g-3">
+                <div class="col-6 col-md-4"><input type="text" id="comp_sub1" class="form-control" placeholder="과목 1" required></div>
+                <div class="col-6 col-md-4"><input type="text" id="comp_sub2" class="form-control" placeholder="과목 2" required></div>
+                <div class="col-6 col-md-4"><input type="text" id="comp_sub3" class="form-control" placeholder="과목 3" required></div>
+                <div class="col-6 col-md-4"><input type="text" id="comp_sub4" class="form-control" placeholder="과목 4" required></div>
+                <div class="col-6 col-md-4"><input type="text" id="comp_sub5" class="form-control" placeholder="과목 5" required></div>
+                <div class="col-6 col-md-4"><input type="text" id="comp_sub6" class="form-control" placeholder="과목 6" required></div>
+              </div>
             </div>
             <div class="text-end mt-4">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">닫기</button>
-              <button type="submit" class="btn" style="background-color: var(--main-navy); color: white;">저장하기</button>
+              <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">닫기</button>
+              <button type="submit" class="btn px-4 ms-2" style="background-color: #1e293b; color: white;">저장하기</button>
             </div>
           </form>
         </div>
@@ -394,15 +343,17 @@
   </div>
 
   <div class="modal fade" id="studentModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content" style="border-radius: 12px;">
-        <div class="modal-header" style="background-color: var(--main-navy); color: white;"><h5 class="modal-title fw-bold">학생 매칭 정보</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+        <div class="modal-header border-0" style="background-color: #1e293b; color: white; padding: 20px 25px;"><h5 class="modal-title fw-bold">학생 매칭 정보</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body p-4 bg-light">
           <form id="studentForm">
-            <div class="mb-3"><label class="form-label fw-bold">학번</label><input type="text" id="stud_id" class="form-control" required></div>
-            <div class="mb-3"><label class="form-label fw-bold">학생 이름</label><input type="text" id="stud_name" class="form-control" required></div>
-            <div class="mb-3"><label class="form-label fw-bold">매칭 기업</label><select id="stud_comp" class="form-select" required></select></div>
-            <div class="text-end mt-4"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button><button type="submit" class="btn" style="background-color: var(--main-navy); color: white;">저장</button></div>
+            <div class="card p-3 border-0 shadow-sm" style="border-radius: 12px;">
+              <div class="mb-3"><label class="form-label fw-bold text-muted small">학번</label><input type="text" id="stud_id" class="form-control" required></div>
+              <div class="mb-3"><label class="form-label fw-bold text-muted small">학생 이름</label><input type="text" id="stud_name" class="form-control" required></div>
+              <div class="mb-1"><label class="form-label fw-bold text-muted small">매칭 기업</label><select id="stud_comp" class="form-select" required></select></div>
+            </div>
+            <div class="text-end mt-4"><button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">취소</button><button type="submit" class="btn px-4 ms-2" style="background-color: #1e293b; color: white;">저장</button></div>
           </form>
         </div>
       </div>
@@ -410,38 +361,40 @@
   </div>
 
   <div class="modal fade" id="processModal" tabindex="-1" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content" style="border-radius: 12px;">
-        <div class="modal-header" style="background-color: var(--main-navy); color: white;"><h5 class="modal-title fw-bold">공정 상태 제어</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
-        <div class="modal-body">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+        <div class="modal-header border-0" style="background-color: #1e293b; color: white; padding: 20px 25px;"><h5 class="modal-title fw-bold">공정 상태 제어</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body p-4 bg-light">
           <form id="processForm">
             <input type="hidden" id="proc_id">
-            <div class="mb-3"><label class="form-label fw-bold">실습 기업 대상</label><select id="proc_comp" class="form-select" onchange="onProcessCompanyChange()" required></select></div>
-            <div class="mb-3">
-              <label class="form-label fw-bold">운영 학기</label>
-              <select id="proc_semester" class="form-select" required>
-                <option value="2026학년도 1학기">2026학년도 1학기</option>
-                <option value="2026학년도 2학기">2026학년도 2학기</option>
-              </select>
-            </div>
-            <div class="mb-3"><label class="form-label fw-bold">평가 과목</label><select id="proc_subject" class="form-select" required></select></div>
-            <div class="mb-3">
-              <label class="form-label fw-bold">내부평가 유형</label>
-              <select id="proc_method" class="form-select" required>
-                <option value="서술형">서술형</option>
-                <option value="면접형">면접형</option>
-                <option value="발표형">발표형</option>
-              </select>
-            </div>
-            <div class="p-3 bg-light rounded border">
-              <p class="fw-bold text-center mb-2" style="color: var(--main-navy); font-size:10pt;">진행 절차 3단계 제어</p>
-              <div class="d-flex justify-content-between">
-                <div style="width:31%;"><label class="form-label text-center d-block small fw-bold">1단계 [출제]</label><select id="proc_step1" class="form-select form-select-sm"><option value="대기">대기</option><option value="완료">완료</option></select></div>
-                <div style="width:31%;"><label class="form-label text-center d-block small fw-bold">2단계 [전송]</label><select id="proc_step2" class="form-select form-select-sm"><option value="대기">대기</option><option value="완료">완료</option></select></div>
-                <div style="width:31%;"><label class="form-label text-center d-block small fw-bold">3단계 [스캔]</label><select id="proc_step3" class="form-select form-select-sm"><option value="대기">대기</option><option value="완료">완료</option></select></div>
+            <div class="card p-3 mb-3 border-0 shadow-sm" style="border-radius: 12px;">
+              <div class="mb-3"><label class="form-label fw-bold text-muted small">실습 기업 대상</label><select id="proc_comp" class="form-select" onchange="onProcessCompanyChange()" required></select></div>
+              <div class="mb-3">
+                <label class="form-label fw-bold text-muted small">운영 학기</label>
+                <select id="proc_semester" class="form-select" required>
+                  <option value="2026학년도 1학기">2026학년도 1학기</option>
+                  <option value="2026학년도 2학기">2026학년도 2학기</option>
+                </select>
+              </div>
+              <div class="mb-3"><label class="form-label fw-bold text-muted small">평가 과목</label><select id="proc_subject" class="form-select" required></select></div>
+              <div class="mb-1">
+                <label class="form-label fw-bold text-muted small">내부평가 유형</label>
+                <select id="proc_method" class="form-select" required>
+                  <option value="서술형">서술형</option>
+                  <option value="면접형">면접형</option>
+                  <option value="발표형">발표형</option>
+                </select>
               </div>
             </div>
-            <div class="text-end mt-4"><button type="button" class="btn btn-secondary" data-bs-dismiss="modal">취소</button><button type="submit" class="btn" style="background-color: var(--main-navy); color: white;">상태 저장</button></div>
+            <div class="card p-3 border-0 shadow-sm" style="border-radius: 12px;">
+              <p class="fw-bold text-center mb-3" style="color: #1e293b; font-size:11pt;">진행 절차 3단계 제어</p>
+              <div class="d-flex justify-content-between gap-2">
+                <div style="width:32%;"><label class="form-label text-center d-block small fw-bold text-muted">1단계 [출제]</label><select id="proc_step1" class="form-select form-select-sm text-center py-2"><option value="대기">대기</option><option value="완료">완료</option></select></div>
+                <div style="width:32%;"><label class="form-label text-center d-block small fw-bold text-muted">2단계 [전송]</label><select id="proc_step2" class="form-select form-select-sm text-center py-2"><option value="대기">대기</option><option value="완료">완료</option></select></div>
+                <div style="width:32%;"><label class="form-label text-center d-block small fw-bold text-muted">3단계 [스캔]</label><select id="proc_step3" class="form-select form-select-sm text-center py-2"><option value="대기">대기</option><option value="완료">완료</option></select></div>
+              </div>
+            </div>
+            <div class="text-end mt-4"><button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">취소</button><button type="submit" class="btn px-4 ms-2" style="background-color: #1e293b; color: white;">상태 저장</button></div>
           </form>
         </div>
       </div>
@@ -560,50 +513,38 @@
     }
 
     function getCompanyColor(companyName) {
-      const palette = [
-        '#1E3A8A', '#10B981', '#F59E0B', '#8B5CF6', '#EC4899', 
-        '#0EA5E9', '#EF4444', '#14B8A6', '#F97316', '#6366F1'
-      ];
+      const palette = ['#1e293b', '#10B981', '#f59e0b', '#8b5cf6', '#ec4899', '#0ea5e9', '#ef4444', '#14b8a6', '#f97316', '#6366f1'];
       const index = systemData.companies.findIndex(c => c.CompanyName === companyName);
-      return index !== -1 ? palette[index % palette.length] : '#64748B'; 
+      return index !== -1 ? palette[index % palette.length] : '#64748b'; 
     }
 
     function renderCompanyTable() {
       const tbody = document.getElementById('companyTableBody'); tbody.innerHTML = '';
-      if(systemData.companies.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-muted p-3">데이터 없음</td></tr>`; return; }
+      if(systemData.companies.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-muted p-4 text-center">등록된 데이터가 없습니다.</td></tr>`; return; }
       
       systemData.companies.forEach(function(c) {
         let rawSubs = [c.Sub1, c.Sub2, c.Sub3, c.Sub4, c.Sub5, c.Sub6].filter(Boolean);
         let parsedSubs = [];
         rawSubs.forEach(s => {
-          if (s.includes(',')) {
-            parsedSubs = parsedSubs.concat(s.split(',').map(item => item.trim()));
-          } else {
-            parsedSubs.push(s.trim());
-          }
+          if (s.includes(',')) parsedSubs = parsedSubs.concat(s.split(',').map(item => item.trim()));
+          else parsedSubs.push(s.trim());
         });
 
-        let subsHTML = parsedSubs
-                        .filter(Boolean)
-                        .map(sub => `<span class="subject-badge me-1 mb-1">${sub}</span>`)
-                        .join('');
-        
+        let subsHTML = parsedSubs.filter(Boolean).map(sub => `<span class="subject-badge me-1 mb-1">${sub}</span>`).join('');
         const bgColor = getCompanyColor(c.CompanyName);
 
         tbody.insertAdjacentHTML('beforeend', `
           <tr>
-            <td class="text-center px-2">
-              <span class="company-badge" style="background-color: ${bgColor}; width: 100%;">${c.CompanyName}</span>
-            </td>
+            <td class="text-center px-2"><span class="company-badge" style="background-color: ${bgColor}; width: 100%;">${c.CompanyName}</span></td>
             <td>
-              <div class="text-start small" style="font-size: 9.5pt; line-height: 1.4;">
-                <strong>교사:</strong> ${c.TeacherName} ${c.Position ? '('+c.Position+')' : ''}<br>
-                <strong>연락처:</strong> ${c.Phone || '미기입'}<br>
-                <strong>이메일:</strong> ${c.Email || '미기입'}
+              <div class="text-start" style="font-size: 10pt; line-height: 1.6; color: #475569;">
+                <span style="color:#1e293b; font-weight:700;">교사:</span> ${c.TeacherName} ${c.Position ? '<span class="text-muted">('+c.Position+')</span>' : ''}<br>
+                <span style="color:#1e293b; font-weight:700;">연락처:</span> ${c.Phone || '미기입'}<br>
+                <span style="color:#1e293b; font-weight:700;">이메일:</span> ${c.Email || '미기입'}
               </div>
             </td>
-            <td class="text-start"><div class="d-flex flex-wrap align-items-center" style="gap: 4px;">${subsHTML}</div></td>
-            <td><button class="btn btn-sm btn-outline-primary px-2 py-1" onclick="editCompany('${c.ID}')">수정</button></td>
+            <td class="text-start"><div class="d-flex flex-wrap align-items-center" style="gap: 5px;">${subsHTML}</div></td>
+            <td><button class="btn btn-sm btn-outline-primary px-3 py-1" style="border-radius:20px;" onclick="editCompany('${c.ID}')">수정</button></td>
           </tr>
         `);
       });
@@ -611,17 +552,15 @@
 
     function renderStudentTable() {
       const tbody = document.getElementById('studentTableBody'); tbody.innerHTML = '';
-      if(systemData.students.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-muted p-3">데이터 없음</td></tr>`; return; }
+      if(systemData.students.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-muted p-4 text-center">등록된 데이터가 없습니다.</td></tr>`; return; }
       systemData.students.forEach(function(s) {
         const bgColor = getCompanyColor(s.CompanyName);
         tbody.insertAdjacentHTML('beforeend', `
           <tr>
-            <td>${s.StudentID}</td>
-            <td class="fw-bold">${s.StudentName}</td>
-            <td>
-              <span class="company-badge" style="background-color: ${bgColor}; font-size: 11pt;">${s.CompanyName}</span>
-            </td>
-            <td><button class="btn btn-sm btn-outline-primary fw-bold" onclick="editStudent('${s.StudentID}','${s.StudentName}','${s.CompanyName}')">변경</button></td>
+            <td class="fw-bold" style="color:#64748b;">${s.StudentID}</td>
+            <td class="fw-bold" style="font-size: 11.5pt;">${s.StudentName}</td>
+            <td><span class="company-badge" style="background-color: ${bgColor}; font-size: 10pt;">${s.CompanyName}</span></td>
+            <td><button class="btn btn-sm btn-outline-primary fw-bold px-3 py-1" style="border-radius:20px;" onclick="editStudent('${s.StudentID}','${s.StudentName}','${s.CompanyName}')">변경</button></td>
           </tr>
         `);
       });
@@ -638,42 +577,24 @@
       });
 
       if(filteredProcess.length === 0) { 
-        tbody.innerHTML = `<tr><td colspan="9" class="text-muted p-4">제${currentSubjectTab}과목에 등록 배정된 내부평가 공정이 없습니다.</td></tr>`; 
+        tbody.innerHTML = `<tr><td colspan="9" class="text-muted p-5 text-center bg-light rounded" style="border: 1px dashed #cbd5e1;">제${currentSubjectTab}과목에 배정된 내부평가 공정이 없습니다.</td></tr>`; 
         return; 
       }
 
       filteredProcess.forEach(function(p) {
         const matchingStudents = systemData.students.filter(s => s.CompanyName === p.CompanyName);
-        let studentButtonsHTML = '';
-        if (matchingStudents.length === 0) {
-          studentButtonsHTML = '<span class="text-muted small">배정 학생 없음</span>';
-        } else {
-          studentButtonsHTML = matchingStudents.map(s => 
-            `<span class="badge bg-light text-dark border border-secondary fw-bold student-btn-badge text-nowrap">🎓 ${s.StudentID} ${s.StudentName}</span>`
-          ).join('');
-        }
+        let studentButtonsHTML = matchingStudents.length === 0 ? '<span class="text-muted small">배정 없음</span>' : matchingStudents.map(s => `<span class="bg-white text-dark border fw-bold student-btn-badge">🎓 ${s.StudentID} ${s.StudentName}</span>`).join('');
 
         let methodBtnHTML = '';
         const m = p.Method || '서술형';
-        if (m.includes('서술')) {
-          methodBtnHTML = `<span class="badge fw-bold text-white p-2" style="background-color: #3B82F6; font-size:9.5pt;">📝 서술형</span>`;
-        } else if (m.includes('면접')) {
-          methodBtnHTML = `<span class="badge fw-bold text-white p-2" style="background-color: #F59E0B; font-size:9.5pt;">🗣️ 면접형</span>`;
-        } else if (m.includes('발표')) {
-          methodBtnHTML = `<span class="badge fw-bold text-white p-2" style="background-color: #EC4899; font-size:9.5pt;">📢 발표형</span>`;
-        } else {
-          methodBtnHTML = `<span class="badge bg-secondary p-2" style="font-size:9.5pt;">${m}</span>`;
-        }
+        if (m.includes('서술')) methodBtnHTML = `<span class="badge text-white p-2 w-100 shadow-sm" style="background-color: #3b82f6;">📝 서술형</span>`;
+        else if (m.includes('면접')) methodBtnHTML = `<span class="badge text-white p-2 w-100 shadow-sm" style="background-color: #f59e0b;">🗣️ 면접형</span>`;
+        else if (m.includes('발표')) methodBtnHTML = `<span class="badge text-white p-2 w-100 shadow-sm" style="background-color: #ec4899;">📢 발표형</span>`;
+        else methodBtnHTML = `<span class="badge bg-secondary p-2 w-100 shadow-sm">${m}</span>`;
 
-        const cleanStepValue = function(val) {
-          if (!val || String(val).trim() === 'undefined' || String(val).trim() === '') return "대기";
-          return String(val).trim();
-        };
+        const cleanStepValue = function(val) { return (!val || String(val).trim() === 'undefined' || String(val).trim() === '') ? "대기" : String(val).trim(); };
 
-        const s1 = cleanStepValue(p.Step1_Created);
-        const s2 = cleanStepValue(p.Step2_Sent);
-        const s3 = cleanStepValue(p.Step3_Scanned);
-        
+        const s1 = cleanStepValue(p.Step1_Created), s2 = cleanStepValue(p.Step2_Sent), s3 = cleanStepValue(p.Step3_Scanned);
         const b1 = s1 === '완료' ? 'badge-success' : 'badge-ready';
         const b2 = s2 === '완료' ? 'badge-success' : 'badge-ready';
         const b3 = s3 === '완료' ? 'badge-success' : 'badge-ready';
@@ -683,21 +604,15 @@
 
         tbody.insertAdjacentHTML('beforeend', `
           <tr>
-            <td class="text-center px-2">
-              <span class="company-badge" style="background-color: ${bgColor}; width: 100%;">${p.CompanyName}</span>
-            </td>
-            <td><div class="d-flex flex-wrap justify-content-center" style="max-width: 240px; margin: 0 auto;">${studentButtonsHTML}</div></td>
-            <td class="text-center">${semesterText}</td>
-            <td>
-              <span class="subject-badge" style="font-size: 10.5pt; padding: 6px 12px; background-color: var(--main-navy); box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-block;">
-                ${p.SubjectName}
-              </span>
-            </td>
-            <td>${methodBtnHTML}</td>
-            <td><span class="badge ${b1} d-block p-2">${s1}</span></td>
-            <td><span class="badge ${b2} d-block p-2">${s2}</span></td>
-            <td><span class="badge ${b3} d-block p-2">${s3}</span></td>
-            <td class="no-print"><button class="btn btn-sm btn-dark px-2 py-1" onclick="editProcess('${p.ID}')">제어</button></td>
+            <td class="text-center px-1"><span class="company-badge" style="background-color: ${bgColor}; width: 100%; margin: 0 auto;">${p.CompanyName}</span></td>
+            <td><div class="d-flex flex-column align-items-center justify-content-center" style="gap: 4px;">${studentButtonsHTML}</div></td>
+            <td class="text-center text-muted fw-bold" style="font-size:9.5pt;">${semesterText}</td>
+            <td><span class="subject-badge w-100 text-center shadow-sm" style="background-color: #334155;">${p.SubjectName}</span></td>
+            <td class="px-2">${methodBtnHTML}</td>
+            <td class="px-1"><span class="badge ${b1} d-block p-2 w-100">${s1}</span></td>
+            <td class="px-1"><span class="badge ${b2} d-block p-2 w-100">${s2}</span></td>
+            <td class="px-1"><span class="badge ${b3} d-block p-2 w-100">${s3}</span></td>
+            <td class="no-print"><button class="btn btn-sm px-2 py-1 w-100" style="background-color:#1e293b; color:white;" onclick="editProcess('${p.ID}')">제어</button></td>
           </tr>
         `);
       });
@@ -711,6 +626,7 @@
       });
     }
 
+    // 리포트 생성 로직 변경: 학기별로 페이지를 분할하여 생성
     function generateReport() {
       const studentId = document.getElementById('reportStudentSelect').value;
       const placeholder = document.getElementById('reportPlaceholder');
@@ -729,46 +645,111 @@
 
       const company = systemData.companies.find(c => c && c.CompanyName === student.CompanyName);
       const bgColor = getCompanyColor(student.CompanyName);
-      
-      document.getElementById('rpt_studId').innerText = student.StudentID;
-      document.getElementById('rpt_studName').innerText = student.StudentName;
-      document.getElementById('rpt_compName').innerHTML = `<span class="company-badge" style="background-color: ${bgColor}; font-size: 11pt; padding: 4px 12px; margin: 0;">${student.CompanyName}</span>`;
-      document.getElementById('rpt_teacher').innerText = company ? `${company.TeacherName} (${company.Phone || '연락처 없음'})` : '상세정보 없음';
-      
-      document.getElementById('rpt_date').innerText = new Date().toLocaleString();
-
       const compProcesses = systemData.process.filter(p => p && p.CompanyName === student.CompanyName);
-      const subjectCount = compProcesses.length; 
-      const ojtTotal = subjectCount * 75; 
-      const offjtTotal = subjectCount * 75; 
-      
-      document.getElementById('rpt_hoursBody').innerHTML = `
-        <tr><td class="fw-bold bg-light text-nowrap">Off-JT</td><td>${offjtTotal} 시간</td><td>${(offjtTotal/6).toFixed(1)} 시간</td><td>${(offjtTotal/24).toFixed(1)} 시간</td></tr>
-        <tr><td class="fw-bold bg-light text-nowrap">OJT</td><td class="text-primary fw-bold">${ojtTotal} 시간</td><td class="text-primary">${(ojtTotal/6).toFixed(1)} 시간</td><td class="text-primary">${(ojtTotal/24).toFixed(1)} 시간</td></tr>
-      `;
 
-      const tbody = document.getElementById('reportTableBody');
-      tbody.innerHTML = '';
-      
+      // 학기별로 데이터 그룹화
+      const processesBySemester = {};
       if (compProcesses.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" class="text-muted p-4">등록된 평가 계획이 없습니다.</td></tr>`;
+        processesBySemester['학기 정보 없음'] = [];
       } else {
         compProcesses.forEach(p => {
-          const s1 = (!p.Step1_Created || String(p.Step1_Created).trim() === 'undefined') ? "대기" : p.Step1_Created;
-          const s2 = (!p.Step2_Sent || String(p.Step2_Sent).trim() === 'undefined') ? "대기" : p.Step2_Sent;
-          const s3 = (!p.Step3_Scanned || String(p.Step3_Scanned).trim() === 'undefined') ? "대기" : p.Step3_Scanned;
-          tbody.insertAdjacentHTML('beforeend', `
-            <tr>
-              <td class="text-nowrap">${p.Semester}</td>
-              <td class="fw-bold text-nowrap">${p.SubjectName}</td>
-              <td class="text-nowrap">${p.Method}</td>
-              <td class="${s1==='완료'?'text-success fw-bold':'text-muted'} text-nowrap">${s1}</td>
-              <td class="${s2==='완료'?'text-success fw-bold':'text-muted'} text-nowrap">${s2}</td>
-              <td class="${s3==='완료'?'text-success fw-bold':'text-muted'} text-nowrap">${s3}</td>
-            </tr>
-          `);
+          const sem = p.Semester || '운영 학기 미지정';
+          if (!processesBySemester[sem]) processesBySemester[sem] = [];
+          processesBySemester[sem].push(p);
         });
       }
+
+      container.innerHTML = ''; // 컨테이너 초기화
+      const printDate = new Date().toLocaleString();
+      const semesters = Object.keys(processesBySemester).sort(); // 오름차순 정렬
+
+      semesters.forEach((sem) => {
+        const procs = processesBySemester[sem];
+        // 한 학기당 의무 시간 (과목당이 아닌 학기당 총 기준값)
+        const offjtTotal = procs.length > 0 ? 75 : 0; 
+        const ojtTotal = procs.length > 0 ? 225 : 0; 
+
+        let tbodyHTML = '';
+        if (procs.length === 0) {
+          tbodyHTML = `<tr><td colspan="6" class="text-muted p-5 bg-light" style="border: 1px dashed #cbd5e1;">등록된 평가 계획이 없습니다.</td></tr>`;
+        } else {
+          procs.forEach(p => {
+            const s1 = (!p.Step1_Created || String(p.Step1_Created).trim() === 'undefined') ? "대기" : p.Step1_Created;
+            const s2 = (!p.Step2_Sent || String(p.Step2_Sent).trim() === 'undefined') ? "대기" : p.Step2_Sent;
+            const s3 = (!p.Step3_Scanned || String(p.Step3_Scanned).trim() === 'undefined') ? "대기" : p.Step3_Scanned;
+            tbodyHTML += `
+              <tr>
+                <td class="text-muted fw-bold small">${p.Semester}</td>
+                <td class="fw-bold" style="color: #1e293b;">${p.SubjectName}</td>
+                <td><span class="badge bg-light text-secondary border px-2 py-1">${p.Method}</span></td>
+                <td class="${s1==='완료'?'text-success fw-bold':'text-muted'}">${s1}</td>
+                <td class="${s2==='완료'?'text-success fw-bold':'text-muted'}">${s2}</td>
+                <td class="${s3==='완료'?'text-success fw-bold':'text-muted'}">${s3}</td>
+              </tr>
+            `;
+          });
+        }
+
+        // 학기별 개별 페이지(report-page-block) 생성
+        const pageHTML = `
+          <div class="report-page-block">
+            <div class="report-title"><span>내부평가 및 훈련 진행 현황</span></div>
+            <div class="text-center mb-4"><span class="badge bg-primary fs-6 py-2 px-4 shadow-sm rounded-pill" style="letter-spacing:0.02em;">${sem} 기준</span></div>
+            
+            <div class="row mb-4 g-3">
+              <div class="col-12 col-md-6">
+                <table class="table table-bordered mb-0 align-middle">
+                  <tbody>
+                    <tr><th class="bg-light" style="width: 120px;">소속 학번</th><td>${student.StudentID}</td></tr>
+                    <tr><th class="bg-light">학생 성명</th><td class="fw-bold fs-6 text-primary">${student.StudentName}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="col-12 col-md-6">
+                <table class="table table-bordered mb-0 align-middle">
+                  <tbody>
+                    <tr><th class="bg-light" style="width: 120px;">실습 기업명</th><td class="text-center"><span class="company-badge shadow-none" style="background-color: ${bgColor}; font-size: 11pt; padding: 6px 14px; margin: 0;">${student.CompanyName}</span></td></tr>
+                    <tr><th class="bg-light">현장 교사</th><td>${company ? `<span class="fw-bold text-dark">${company.TeacherName}</span> <span class="text-muted small">(${company.Phone || '연락처 없음'})</span>` : '상세정보 없음'}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="d-flex align-items-center mb-3 mt-5">
+              <span class="fs-4 me-2">⏳</span>
+              <h5 class="fw-bold mb-0" style="color: #1e293b;">학기별 Off-JT / OJT 훈련시간 배정 현황</h5>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-bordered text-center align-middle mb-4" style="table-layout: fixed;">
+                <thead style="background-color: #f8fafc;">
+                  <tr><th class="py-3 text-muted">훈련 구분</th><th class="py-3 text-muted">학기 총 배정 시간</th><th class="py-3 text-muted">월 평균(6개월)</th><th class="py-3 text-muted">주 평균(24주)</th></tr>
+                </thead>
+                <tbody>
+                  <tr><td class="fw-bold bg-light">Off-JT</td><td class="fw-bold">${offjtTotal} 시간</td><td>${(offjtTotal/6).toFixed(1)} 시간</td><td>${(offjtTotal/24).toFixed(1)} 시간</td></tr>
+                  <tr><td class="fw-bold bg-light">OJT</td><td class="fw-bold" style="color: #3b82f6;">${ojtTotal} 시간</td><td style="color: #3b82f6;">${(ojtTotal/6).toFixed(1)} 시간</td><td style="color: #3b82f6;">${(ojtTotal/24).toFixed(1)} 시간</td></tr>
+                </tbody>
+              </table>
+            </div>
+            
+            <div class="d-flex align-items-center mb-3 mt-5">
+              <span class="fs-4 me-2">📋</span>
+              <h5 class="fw-bold mb-0" style="color: #1e293b;">해당 학기 3단계 내부평가 진행도</h5>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-bordered text-center align-middle" style="table-layout: fixed;">
+                <thead style="background-color: #f8fafc;">
+                  <tr><th class="py-3 text-muted" style="width:15%;">운영 학기</th><th class="py-3 text-muted" style="width:25%;">이수 과목명</th><th class="py-3 text-muted" style="width:15%;">평가 유형</th><th class="py-3 text-muted" style="width:15%;">1단계 [출제]</th><th class="py-3 text-muted" style="width:15%;">2단계 [전송]</th><th class="py-3 text-muted" style="width:15%;">3단계 [스캔]</th></tr>
+                </thead>
+                <tbody>
+                  ${tbodyHTML}
+                </tbody>
+              </table>
+            </div>
+            <div class="text-end mt-5 text-muted small" style="border-top: 1px dashed #cbd5e1; padding-top: 15px;">출력증빙일시: <span>${printDate}</span> / 성일정보고등학교 일학습병행부</div>
+          </div>
+        `;
+        container.insertAdjacentHTML('beforeend', pageHTML);
+      });
 
       placeholder.style.display = 'none';
       container.style.display = 'block';
@@ -787,9 +768,11 @@
 
     function downloadReportImage() {
       showLoading(true, "인쇄용 고해상도 이미지 스캔 중...");
+      const selBox = document.getElementById('reportStudentSelect');
+      const studentName = selBox.options[selBox.selectedIndex].text.split(' ').pop();
       html2canvas(document.getElementById('reportContainer'), { scale: 2, useCORS: true }).then(canvas => {
         const link = document.createElement("a");
-        link.download = `내부평가진도현황_${document.getElementById('rpt_studName').innerText}_2026.png`;
+        link.download = `내부평가진도현황_${studentName}_2026.png`;
         link.href = canvas.toDataURL("image/png");
         link.click();
         showLoading(false);
@@ -835,9 +818,7 @@
     
     document.querySelectorAll('.modal').forEach(function(modalElement) {
       modalElement.addEventListener('hide.bs.modal', function() {
-        if (document.activeElement) {
-          document.activeElement.blur(); 
-        }
+        if (document.activeElement) document.activeElement.blur(); 
       });
     });
   </script>
