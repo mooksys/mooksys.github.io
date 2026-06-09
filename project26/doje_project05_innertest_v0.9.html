@@ -55,7 +55,6 @@
     .table-custom tbody tr { transition: background-color 0.2s ease; }
     .table-custom tbody tr:hover { background-color: #f8fafc !important; }
 
-    /* 체크박스 커스텀 디자인 추가 */
     .form-check-input-custom { width: 18px; height: 18px; cursor: pointer; border: 2px solid #cbd5e1; }
     .form-check-input-custom:checked { background-color: var(--point-mint); border-color: var(--point-mint); }
 
@@ -90,7 +89,7 @@
     .teacher-cell .t-phone { font-size: 10.5pt !important; font-weight: 700 !important; color: #1d4ed8 !important; }
     .teacher-cell .t-email { font-size: 9pt !important; color: #475569 !important; opacity: 0.9; }
 
-/* 인쇄 레이아웃 최적화 (상단 공백 제거 완결판) */
+    /* 인쇄 레이아웃 (상단 공백 및 하단 여백 제거 완결판) */
     @media print {
       html, body, .bg-light, .container-fluid, .tab-content { background-color: #ffffff !important; background-image: none !important; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
@@ -122,7 +121,7 @@
       body.print-mode-process .tab-content > div:not(#processPanel), body.print-mode-company .tab-content > div:not(#companyPanel) { display: none !important; }
       body.print-mode-process #dashboardSection > .card-custom, body.print-mode-company #dashboardSection > .card-custom { display: none !important; }
       
-      /* 🚨 이 부분이 핵심 수정 사항입니다! (relative -> absolute) */
+      /* 🚨 인쇄 상단 공백 완벽 제거 (position: absolute 강제 적용) */
       body.print-mode-process #processPanel, body.print-mode-company #companyPanel { position: absolute !important; left: 0; top: 0; width: 100% !important; padding: 0; margin: 0; }
       
       body.print-mode-process #subjectSubTabs { display: flex !important; flex-wrap: wrap !important; margin-bottom: 15px !important; }
@@ -469,7 +468,7 @@
     let bootstrapCompanyModal, bootstrapStudentModal, bootstrapProcessModal;
     let currentSubjectTab = 1; 
     let currentGlobalYear = ""; 
-    let doughnutChartInstance = null; // [옵션3 마법] 글로벌 차트 객체 메모리 관리 변수
+    let doughnutChartInstance = null; 
 
     const _escapeHTML = function(val) {
       if (val === null || val === undefined) return '';
@@ -595,7 +594,6 @@
 
     function refreshAllSystemData() {
       showLoading(true, "데이터 원격 동기화 중...");
-      // 일괄 제어 체크박스 마스터 바 초기화
       document.getElementById('batchActionWrapper').style.display = 'none';
       document.getElementById('checkAllProcess').checked = false;
 
@@ -604,7 +602,10 @@
         updateDashboard();
         renderCompanyTable();
         renderStudentTable();
-        renderProcessTable();
+        
+        // 💡 1과목 전체 완료 시 다음 과목으로 자동 스위칭(Auto-Advance)
+        autoSelectSubjectTab();
+        
         populateDropdowns();
         populateReportSelect(); 
         showLoading(false);
@@ -616,7 +617,42 @@
       refreshAllSystemData();
     }
 
-    // [옵션3 마법] 실시간 차트 렌더링 로직 추가 및 현황 동기화
+    // [신규 로직] 해당 과목(1~6)의 프로세스가 100% 완료되었는지 확인하고, 완료되었다면 다음 탭을 자동으로 선택합니다.
+    function autoSelectSubjectTab() {
+      let targetTab = 1;
+      
+      for (let tab = 1; tab <= 6; tab++) {
+        const processesForTab = systemData.process.filter(p => {
+          if (currentGlobalYear !== '' && (!p.Semester || !p.Semester.includes(currentGlobalYear))) return false;
+          const comp = systemData.companies.find(c => c.CompanyName === p.CompanyName);
+          if (!comp) return false;
+          return p.SubjectName && comp['Sub' + tab] && p.SubjectName === comp['Sub' + tab];
+        });
+
+        if (processesForTab.length > 0) {
+          // 해당 과목 탭의 모든 데이터가 1단계, 2단계, 3단계 모두 '완료' 상태인지 확인
+          const allCompleted = processesForTab.every(p => {
+            const s1 = (p.Step1_Created || '').trim();
+            const s2 = (p.Step2_Sent || '').trim();
+            const s3 = (p.Step3_Scanned || '').trim();
+            return s1 === '완료' && s2 === '완료' && s3 === '완료';
+          });
+
+          if (!allCompleted) {
+            targetTab = tab; // 아직 미완료된 항목이 있는 과목 탭에 멈춤
+            break;
+          } else {
+            targetTab = tab < 6 ? tab + 1 : 6; // 전체 완료 시 다음 과목 탭으로 전진
+          }
+        } else {
+          // 만약 등록된 데이터가 없는 빈 탭을 만나면 거기서 대기
+          targetTab = tab;
+          break;
+        }
+      }
+      changeSubjectTab(targetTab);
+    }
+
     function updateDashboard() {
       let activeProcs = systemData.process;
       if (currentGlobalYear !== '') {
@@ -640,35 +676,17 @@
       const yearLabel = currentGlobalYear === '' ? "전체 누적 공정" : currentGlobalYear + "학년도 기준";
       document.getElementById('dash_year_label').innerText = yearLabel;
 
-      // Chart.js 인스턴스 초기화 및 동적 갱신
       if(doughnutChartInstance) { doughnutChartInstance.destroy(); }
-      
       const ctx = document.getElementById('dashboardDoughnutChart').getContext('2d');
       doughnutChartInstance = new Chart(ctx, {
         type: 'doughnut',
         data: {
           labels: ['평가 완료', '진행 대기'],
-          datasets: [{
-            data: [completedSubj, waitingSubj],
-            backgroundColor: ['#10B981', '#f59e0b'],
-            borderWidth: 2,
-            borderColor: '#ffffff'
-          }]
+          datasets: [{ data: [completedSubj, waitingSubj], backgroundColor: ['#10B981', '#f59e0b'], borderWidth: 2, borderColor: '#ffffff' }]
         },
         options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          cutout: '70%',
-          plugins: {
-            legend: {
-              position: 'right',
-              labels: {
-                boxWidth: 12,
-                font: { family: 'Pretendard', size: 11, weight: 'bold' },
-                color: '#475569'
-              }
-            }
-          }
+          responsive: true, maintainAspectRatio: false, cutout: '70%',
+          plugins: { legend: { position: 'right', labels: { boxWidth: 12, font: { family: 'Pretendard', size: 11, weight: 'bold' }, color: '#475569' } } }
         }
       });
     }
@@ -680,7 +698,6 @@
         if (idx === tabNum - 1) btn.classList.add('active');
         else btn.classList.remove('active');
       });
-      // 탭 변경 시 일괄 변경 제어 바 상태 해제
       document.getElementById('batchActionWrapper').style.display = 'none';
       document.getElementById('checkAllProcess').checked = false;
       renderProcessTable();
@@ -707,10 +724,7 @@
       const comp = systemData.companies.find(function(c) { return c.CompanyName === selected; });
       if(comp) {
         [comp.Sub1, comp.Sub2, comp.Sub3, comp.Sub4, comp.Sub5, comp.Sub6].forEach(function(s) {
-          if(s) {
-            const safeSub = _escapeHTML(s);
-            subSelect.insertAdjacentHTML('beforeend', `<option value="${safeSub}">${safeSub}</option>`);
-          }
+          if(s) { const safeSub = _escapeHTML(s); subSelect.insertAdjacentHTML('beforeend', `<option value="${safeSub}">${safeSub}</option>`); }
         });
       }
     }
@@ -771,7 +785,6 @@
       });
     }
 
-    // [옵션4 마법] 다중 제어 체크박스 기반 프로세스 테이블 설계
     function renderProcessTable() {
       const tbody = document.getElementById('processTableBody'); tbody.innerHTML = '';
       const filteredProcess = systemData.process.filter(function(p) {
@@ -823,32 +836,22 @@
       });
     }
 
-    // [옵션4 마법] 체크박스 전체 제어 핸들러
     function toggleAllProcessCheckboxes(master) {
       const checkboxes = document.querySelectorAll('.proc-row-checkbox');
       checkboxes.forEach(cb => cb.checked = master.checked);
       onRowCheckboxChecked();
     }
 
-    // [옵션4 마법] 체크 상태 실시간 연동 및 상단 액션바 토글 처리
     function onRowCheckboxChecked() {
       const totalChecked = document.querySelectorAll('.proc-row-checkbox:checked').length;
       const batchBar = document.getElementById('batchActionWrapper');
-      
-      if (totalChecked > 0) {
-        document.getElementById('selectedCount').innerText = totalChecked;
-        batchBar.style.display = 'block';
-      } else {
-        batchBar.style.display = 'none';
-        document.getElementById('checkAllProcess').checked = false;
-      }
+      if (totalChecked > 0) { document.getElementById('selectedCount').innerText = totalChecked; batchBar.style.display = 'block'; } 
+      else { batchBar.style.display = 'none'; document.getElementById('checkAllProcess').checked = false; }
     }
 
-    // [옵션4 마법] 비동기 루프 기반 일괄 서버 동기화 엔진 (구글 시트 데이터 안전 저장용)
     async function executeBatchUpdate() {
       const checkedBoxes = document.querySelectorAll('.proc-row-checkbox:checked');
       if (checkedBoxes.length === 0) return;
-      
       if (!confirm(`선택한 ${checkedBoxes.length}개 공정의 상태를 일괄 변경하시겠습니까?\n안전한 동기화를 위해 수 초간 시간이 소요됩니다.`)) return;
 
       const targetStep = document.getElementById('batchTargetStep').value;
@@ -856,12 +859,10 @@
       const idsToUpdate = Array.from(checkedBoxes).map(cb => cb.value);
 
       showLoading(true, "행정 명령 일괄 동기화 시작...");
-
       try {
         for (let i = 0; i < idsToUpdate.length; i++) {
           const currentId = idsToUpdate[i];
           showLoading(true, `구글 서버 반영 중... (${i + 1}/${idsToUpdate.length})`);
-          
           const orig = systemData.process.find(item => item.ID === currentId);
           if (orig) {
             const payload = {
@@ -869,20 +870,14 @@
               SubjectName: orig.SubjectName, Method: orig.Method || '서술형',
               Step1_Created: orig.Step1_Created, Step2_Sent: orig.Step2_Sent, Step3_Scanned: orig.Step3_Scanned
             };
-            // 선택 타겟 필드 조작
             payload[targetStep] = targetValue;
-
-            // 단일 업데이트가 마쳐질 때까지 대기 동기화 처리(레이스 컨디션 방지)
-            await new Promise((resolve) => {
-              callGasApi("saveProcess", payload, function() { resolve(); });
-            });
+            await new Promise((resolve) => { callGasApi("saveProcess", payload, function() { resolve(); }); });
           }
         }
         showToast(`${idsToUpdate.length}개 항목의 내부평가 공정이 일괄 성공 업데이트 되었습니다.`);
         refreshAllSystemData();
       } catch (err) {
-        showLoading(false);
-        showToast("일괄 변경 도중 실패: " + err, true);
+        showLoading(false); showToast("일괄 변경 도중 실패: " + err, true);
       }
     }
 
