@@ -89,7 +89,7 @@
     .teacher-cell .t-phone { font-size: 10.5pt !important; font-weight: 700 !important; color: #1d4ed8 !important; }
     .teacher-cell .t-email { font-size: 9pt !important; color: #475569 !important; opacity: 0.9; }
 
-    /* 인쇄 레이아웃 (상단 공백 및 하단 여백 제거 완결판) */
+    /* 인쇄 레이아웃 */
     @media print {
       html, body, .bg-light, .container-fluid, .tab-content { background-color: #ffffff !important; background-image: none !important; }
       * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
@@ -121,7 +121,6 @@
       body.print-mode-process .tab-content > div:not(#processPanel), body.print-mode-company .tab-content > div:not(#companyPanel) { display: none !important; }
       body.print-mode-process #dashboardSection > .card-custom, body.print-mode-company #dashboardSection > .card-custom { display: none !important; }
       
-      /* 🚨 인쇄 상단 공백 완벽 제거 (position: absolute 강제 적용) */
       body.print-mode-process #processPanel, body.print-mode-company #companyPanel { position: absolute !important; left: 0; top: 0; width: 100% !important; padding: 0; margin: 0; }
       
       body.print-mode-process #subjectSubTabs { display: flex !important; flex-wrap: wrap !important; margin-bottom: 15px !important; }
@@ -603,7 +602,6 @@
         renderCompanyTable();
         renderStudentTable();
         
-        // 💡 1과목 전체 완료 시 다음 과목으로 자동 스위칭(Auto-Advance)
         autoSelectSubjectTab();
         
         populateDropdowns();
@@ -617,7 +615,6 @@
       refreshAllSystemData();
     }
 
-    // [신규 로직] 해당 과목(1~6)의 프로세스가 100% 완료되었는지 확인하고, 완료되었다면 다음 탭을 자동으로 선택합니다.
     function autoSelectSubjectTab() {
       let targetTab = 1;
       
@@ -630,7 +627,6 @@
         });
 
         if (processesForTab.length > 0) {
-          // 해당 과목 탭의 모든 데이터가 1단계, 2단계, 3단계 모두 '완료' 상태인지 확인
           const allCompleted = processesForTab.every(p => {
             const s1 = (p.Step1_Created || '').trim();
             const s2 = (p.Step2_Sent || '').trim();
@@ -639,13 +635,12 @@
           });
 
           if (!allCompleted) {
-            targetTab = tab; // 아직 미완료된 항목이 있는 과목 탭에 멈춤
+            targetTab = tab; 
             break;
           } else {
-            targetTab = tab < 6 ? tab + 1 : 6; // 전체 완료 시 다음 과목 탭으로 전진
+            targetTab = tab < 6 ? tab + 1 : 6; 
           }
         } else {
-          // 만약 등록된 데이터가 없는 빈 탭을 만나면 거기서 대기
           targetTab = tab;
           break;
         }
@@ -807,11 +802,14 @@
         const matchingStudents = systemData.students.filter(s => s.CompanyName === p.CompanyName);
         let studentButtonsHTML = matchingStudents.length === 0 ? '<span class="text-muted small">배정 없음</span>' : matchingStudents.map(s => `<span class="bg-white text-dark border fw-bold student-btn-badge">🎓 ${_escapeHTML(s.StudentID)} ${_escapeHTML(s.StudentName)}</span>`).join('');
 
-        let methodBtnHTML = ''; const m = _escapeHTML(p.Method || '서술형');
+        // 💡 내부평가 유형(Method) 데이터 공백 및 null 안전 처리
+        let methodBtnHTML = ''; 
+        const m = p.Method ? String(p.Method).trim() : '서술형'; 
+        
         if (m.includes('서술')) methodBtnHTML = `<span class="badge text-white p-2 w-100 shadow-sm" style="background-color: #3b82f6;">📝 서술형</span>`;
         else if (m.includes('면접')) methodBtnHTML = `<span class="badge text-white p-2 w-100 shadow-sm" style="background-color: #f59e0b;">🗣️ 면접형</span>`;
         else if (m.includes('발표')) methodBtnHTML = `<span class="badge text-white p-2 w-100 shadow-sm" style="background-color: #ec4899;">📢 발표형</span>`;
-        else methodBtnHTML = `<span class="badge bg-secondary p-2 w-100 shadow-sm">${m}</span>`;
+        else methodBtnHTML = `<span class="badge bg-secondary p-2 w-100 shadow-sm">${_escapeHTML(m)}</span>`;
 
         const s1 = cleanStepValue(p.Step1_Created); const s2 = cleanStepValue(p.Step2_Sent); const s3 = cleanStepValue(p.Step3_Scanned);
         const b1 = s1 === '완료' ? 'badge-success' : 'badge-ready';
@@ -867,7 +865,7 @@
           if (orig) {
             const payload = {
               ID: orig.ID, CompanyName: orig.CompanyName, Semester: orig.Semester,
-              SubjectName: orig.SubjectName, Method: orig.Method || '서술형',
+              SubjectName: orig.SubjectName, Method: orig.Method ? String(orig.Method).trim() : '서술형',
               Step1_Created: orig.Step1_Created, Step2_Sent: orig.Step2_Sent, Step3_Scanned: orig.Step3_Scanned
             };
             payload[targetStep] = targetValue;
@@ -933,11 +931,13 @@
                 return (strVal === "undefined" || strVal === "null" || strVal === "") ? "대기" : _escapeHTML(strVal);
             };
             const s1 = cleanVal(p.Step1_Created); const s2 = cleanVal(p.Step2_Sent); const s3 = cleanVal(p.Step3_Scanned);
+            const methodDisplay = p.Method ? String(p.Method).trim() : '서술형'; // 💡 리포트 출력 시에도 안전 처리
+            
             tbodyHTML += `
               <tr>
                 <td class="text-muted fw-bold small">${_escapeHTML(p.Semester)}</td>
                 <td class="fw-bold" style="color: var(--main-navy);">${_escapeHTML(p.SubjectName)}</td>
-                <td><span class="badge bg-light text-secondary border px-2 py-1">${_escapeHTML(p.Method)}</span></td>
+                <td><span class="badge bg-light text-secondary border px-2 py-1">${_escapeHTML(methodDisplay)}</span></td>
                 <td class="${s1==='완료'?'text-success fw-bold':'text-muted'}">${s1}</td>
                 <td class="${s2==='완료'?'text-success fw-bold':'text-muted'}">${s2}</td>
                 <td class="${s3==='완료'?'text-success fw-bold':'text-muted'}">${s3}</td>
@@ -1055,12 +1055,27 @@
     
     function editProcess(id) {
       const p = systemData.process.find(item => item.ID === id); if(!p) return;
-      document.getElementById('proc_id').value = p.ID; document.getElementById('proc_comp').value = p.CompanyName; onProcessCompanyChange();
+      document.getElementById('proc_id').value = p.ID; 
+      document.getElementById('proc_comp').value = p.CompanyName; 
+      onProcessCompanyChange();
+      
       const semSelect = document.getElementById('proc_semester');
       if (p.Semester && !Array.from(semSelect.options).some(opt => opt.value === p.Semester)) {
         semSelect.insertAdjacentHTML('beforeend', `<option value="${_escapeHTML(p.Semester)}">${_escapeHTML(p.Semester)}</option>`);
       }
-      document.getElementById('proc_semester').value = p.Semester; document.getElementById('proc_subject').value = p.SubjectName; document.getElementById('proc_method').value = p.Method;
+      document.getElementById('proc_semester').value = p.Semester; 
+      document.getElementById('proc_subject').value = p.SubjectName; 
+
+      // 💡 [핵심 수정] 내부평가 유형(Method) 데이터 안전 바인딩
+      const methodSelect = document.getElementById('proc_method');
+      let methodVal = p.Method ? String(p.Method).trim() : '서술형'; // 공백 제거 및 기본값 할당
+      
+      // 만약 가져온 값이 select 옵션에 없다면 강제로 동적 추가 (데이터 보존)
+      if (!Array.from(methodSelect.options).some(opt => opt.value === methodVal)) {
+        methodSelect.insertAdjacentHTML('beforeend', `<option value="${_escapeHTML(methodVal)}">${_escapeHTML(methodVal)}</option>`);
+      }
+      methodSelect.value = methodVal;
+
       const cleanStepValue = function(val) {
         if (val === null || val === undefined) return "대기";
         const strVal = String(val).trim();
