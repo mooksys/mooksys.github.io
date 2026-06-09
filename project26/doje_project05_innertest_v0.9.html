@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>일학습병행 내부평가 과목관리 시스템</title>
+  
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  
+  <style>
+    :root { 
+      --main-navy: #1e293b;   
+      --point-mint: #10B981;  
+      --bg-light: #f1f5f9;    
+      --text-dark: #334155;   
+    }
+    
+    body { 
+      background-color: var(--bg-light); 
+      color: var(--text-dark); 
+      font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 'Apple SD Gothic Neo', 'Noto Sans KR', 'Malgun Gothic', sans-serif;
+      font-size: 11pt; 
+      margin: 0; 
+      padding: 0; 
+      word-break: keep-all;
+      letter-spacing: -0.02em;
+    }
+
+    .container-1200 { max-width: 1200px !important; margin: 0 auto; padding-left: 15px; padding-right: 15px; }
+    
+    .navbar-custom { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-bottom: 4px solid var(--point-mint); box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1); }
+    .navbar-title { color: #FFFFFF !important; font-weight: 700; font-size: 16pt; letter-spacing: -0.03em; }
+    @media (max-width: 768px) { .navbar-title { font-size: 13pt; } }
+    
+    .card-custom { background: #FFFFFF; border: 1px solid #e2e8f0; border-radius: 20px; box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01); margin-bottom: 30px; padding: 30px; transition: all 0.3s ease; }
+    @media (max-width: 768px) { .card-custom { padding: 15px; border-radius: 12px; } }
+    
+    .nav-tabs { flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; white-space: nowrap; border-bottom: 2px solid #e2e8f0; gap: 10px; padding-bottom: 2px;}
+    .nav-tabs .nav-link { color: #64748b; font-weight: 600; border: none; padding: 12px 20px; border-radius: 8px; transition: all 0.2s ease; }
+    .nav-tabs .nav-link:hover { color: var(--main-navy); background-color: #f8fafc; }
+    .nav-tabs .nav-link.active { background-color: transparent !important; color: var(--point-mint) !important; border-bottom: 3px solid var(--point-mint) !important; font-weight: 800; border-radius: 0; }
+    
+    #subjectSubTabs { flex-wrap: nowrap; overflow-x: auto; white-space: nowrap; padding-bottom: 15px; gap: 8px;}
+    #subjectSubTabs .nav-link { background-color: #f1f5f9; color: #475569; font-weight: 700; border-radius: 30px; padding: 8px 20px; font-size: 10.5pt; transition: all 0.2s; box-shadow: inset 0 0 0 1px #e2e8f0; }
+    #subjectSubTabs .nav-link:hover { background-color: #e2e8f0; }
+    #subjectSubTabs .nav-link.active { background-color: var(--point-mint) !important; color: white !important; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.3); }
+
+    .table-bordered th, .table-bordered td { border: 1px solid #cbd5e1 !important; }
+    .table-custom { font-size: 10.5pt !important; width: 100% !important; margin-bottom: 0; table-layout: fixed; border-collapse: collapse !important; }
+    .table-custom th, .table-custom td { padding: 12px 4px !important; vertical-align: middle !important; text-align: center; word-wrap: break-word; word-break: keep-all; }
+    .table-custom th { background-color: #f8fafc; color: #334155; font-weight: 700; font-size: 9.5pt !important; letter-spacing: 0.05em; border-bottom: 2px solid #94a3b8 !important; }
+    .table-custom tbody tr { transition: background-color 0.2s ease; }
+    .table-custom tbody tr:hover { background-color: #f8fafc !important; }
+
+    /* 체크박스 커스텀 디자인 추가 */
+    .form-check-input-custom { width: 18px; height: 18px; cursor: pointer; border: 2px solid #cbd5e1; }
+    .form-check-input-custom:checked { background-color: var(--point-mint); border-color: var(--point-mint); }
+
+    .student-btn-badge { font-size: 9.5pt !important; padding: 6px 10px !important; margin: 3px !important; border-radius: 8px; display: inline-block; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.02); transition: transform 0.2s; }
+    .student-btn-badge:hover { transform: scale(1.02); }
+    .company-badge { color: white; font-size: 10.5pt; padding: 8px 14px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); display: inline-block; font-weight: 700; letter-spacing: 0.02em; }
+    .badge { border-radius: 8px; padding: 8px 12px; font-weight: 700; letter-spacing: 0.03em; }
+    .badge-ready { background-color: #f1f5f9; color: #64748b; border: 1px solid #cbd5e1; } 
+    .badge-success { background-color: var(--point-mint); color: #ffffff; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3); border: none; } 
+    .subject-badge { background-color: #334155; color: white; border-radius: 8px; padding: 6px 12px; font-size: 9.5pt; font-weight: 600; box-shadow: 0 2px 4px rgba(0,0,0,0.1); display: inline-block; line-height: 1.4; border: 1px solid rgba(255,255,255,0.1); }
+    
+    #loadingOverlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255, 255, 255, 0.9); z-index: 9999; display: flex; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(4px); }
+    .spinner-border-custom { color: var(--point-mint); width: 3.5rem; height: 3.5rem; border-width: 4px; }
+    
+    footer { background-color: transparent; color: #94a3b8; padding: 20px 0; font-size: 9.5pt; margin-top: 40px; font-weight: 500; }
+    
+    #reportContainer { background: transparent; padding: 0; border: none; box-shadow: none; }
+    .report-page-block { background: white; padding: 40px; border: 1px solid #e2e8f0; border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.03); margin-bottom: 30px; }
+    .report-title { font-size: 22pt; font-weight: 800; color: var(--main-navy); text-align: center; margin-bottom: 15px; position: relative; display: inline-block; left: 50%; transform: translateX(-50%); }
+    .report-title::after { content: ''; position: absolute; width: 100%; height: 12px; background-color: rgba(16, 185, 129, 0.2); bottom: 2px; left: 0; z-index: 0; border-radius: 4px;}
+    .report-title span { position: relative; z-index: 1; }
+    
+    .btn { font-weight: 600; border-radius: 8px; padding: 8px 16px; transition: all 0.2s; }
+    .btn-outline-primary { border-color: #3b82f6; color: #3b82f6; }
+    .btn-outline-primary:hover { background-color: #3b82f6; color: white; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3); }
+
+    .teacher-cell { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important; text-align: left !important; vertical-align: middle !important; line-height: 1.6 !important; padding: 8px 12px !important; }
+    .teacher-item { display: flex; align-items: center; gap: 6px; margin-bottom: 3px; }
+    .teacher-item:last-child { margin-bottom: 0; }
+    .teacher-cell .t-name { font-size: 11pt !important; font-weight: 800 !important; color: #0f172a !important; }
+    .teacher-cell .t-pos { font-size: 9.5pt !important; font-weight: 500 !important; color: #64748b !important; }
+    .teacher-cell .t-phone { font-size: 10.5pt !important; font-weight: 700 !important; color: #1d4ed8 !important; }
+    .teacher-cell .t-email { font-size: 9pt !important; color: #475569 !important; opacity: 0.9; }
+
+/* 인쇄 레이아웃 최적화 (상단 공백 제거 완결판) */
+    @media print {
+      html, body, .bg-light, .container-fluid, .tab-content { background-color: #ffffff !important; background-image: none !important; }
+      * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; color-adjust: exact !important; }
+      @page { size: A4 landscape; margin: 10mm 15mm; }
+      body.print-mode-report *, body.print-mode-process *, body.print-mode-company * { visibility: hidden; }
+      
+      nav, #manageTabs, footer, .no-print, #batchActionWrapper { display: none !important; }
+      .card-custom { box-shadow: none !important; padding: 0 !important; margin: 0 !important; border: none !important; }
+
+      body.print-mode-report #reportContainer, body.print-mode-report #reportContainer * { visibility: visible; }
+      body.print-mode-report #reportContainer { position: absolute; left: 0; top: 0; width: 100%; border: none; padding: 0; margin: 0; box-shadow: none; }
+      body.print-mode-report .tab-content > div:not(#reportPanel) { display: none !important; }
+      body.print-mode-report #reportPanel > .card-custom > .row { display: none !important; } 
+      body.print-mode-report #reportPlaceholder { display: none !important; }
+      body.print-mode-report #dashboardSection > .card-custom { display: none !important; } 
+      body.print-mode-report .report-page-block { page-break-after: always; break-after: page; box-shadow: none !important; border: none !important; padding: 0 !important; margin-bottom: 0 !important; }
+      body.print-mode-report .report-page-block:last-child { page-break-after: auto; break-after: auto; }
+      body.print-mode-report .report-title { font-size: 18pt !important; margin-bottom: 10px !important; }
+      body.print-mode-report .report-page-block h5 { font-size: 11pt !important; margin-bottom: 5px !important; }
+      body.print-mode-report .report-page-block .mt-5, body.print-mode-report .report-page-block .mt-4, body.print-mode-report .report-page-block .mt-3 { margin-top: 12px !important; }
+      body.print-mode-report .report-page-block .mb-4, body.print-mode-report .report-page-block .mb-3, body.print-mode-report .report-page-block .mb-2 { margin-bottom: 8px !important; }
+      body.print-mode-report .report-page-block table { font-size: 9.5pt !important; margin-bottom: 10px !important; }
+      body.print-mode-report .report-page-block th, body.print-mode-report .report-page-block td { padding: 5px 8px !important; }
+      body.print-mode-report .text-end.mt-3 { margin-top: 10px !important; padding-top: 5px !important; }
+
+      body.print-mode-process, body.print-mode-company { background-color: white; }
+      body.print-mode-process #dashboardSection, body.print-mode-process .container-1200, body.print-mode-process .tab-content, body.print-mode-process #processPanel, body.print-mode-process #processPanel *,
+      body.print-mode-company #dashboardSection, body.print-mode-company .container-1200, body.print-mode-company .tab-content, body.print-mode-company #companyPanel, body.print-mode-company #companyPanel * { visibility: visible; }
+      body.print-mode-process .tab-content > div:not(#processPanel), body.print-mode-company .tab-content > div:not(#companyPanel) { display: none !important; }
+      body.print-mode-process #dashboardSection > .card-custom, body.print-mode-company #dashboardSection > .card-custom { display: none !important; }
+      
+      /* 🚨 이 부분이 핵심 수정 사항입니다! (relative -> absolute) */
+      body.print-mode-process #processPanel, body.print-mode-company #companyPanel { position: absolute !important; left: 0; top: 0; width: 100% !important; padding: 0; margin: 0; }
+      
+      body.print-mode-process #subjectSubTabs { display: flex !important; flex-wrap: wrap !important; margin-bottom: 15px !important; }
+      body.print-mode-process #subjectSubTabs .nav-link { border: 1px solid #cbd5e1 !important; color: #334155 !important; background-color: #f8fafc !important; }
+      body.print-mode-process #subjectSubTabs .nav-link.active { border-color: #10B981 !important; color: white !important; background-color: #10B981 !important; }
+
+      body.print-mode-process .table-responsive, body.print-mode-company .table-responsive { overflow: visible !important; width: 100% !important; }
+      body.print-mode-process table, body.print-mode-company table { width: 100% !important; table-layout: fixed !important; font-size: 9pt !important; border-collapse: collapse !important; }
+      body.print-mode-process th, body.print-mode-process td, body.print-mode-company th, body.print-mode-company td { padding: 8px 4px !important; word-break: keep-all !important; border: 1px solid #cbd5e1 !important;}
+      body.print-mode-process td div, body.print-mode-process td span, body.print-mode-company td div, body.print-mode-company td span { white-space: normal !important; word-break: keep-all !important; }
+      body.print-mode-process tr, body.print-mode-company tr { page-break-inside: avoid !important; page-break-after: auto; }
+      body.print-mode-process .company-badge, body.print-mode-company .company-badge { font-size: 9pt !important; padding: 4px 6px !important; width: 100% !important; box-shadow: none !important;}
+      body.print-mode-process .subject-badge, body.print-mode-company .subject-badge { font-size: 9.5pt !important; padding: 4px 6px !important; border: none !important;}
+      body.print-mode-process .student-btn-badge { font-size: 8pt !important; padding: 2px 4px !important; margin: 1px !important; white-space: nowrap !important; border: 1px solid #ccc !important;}
+      body.print-mode-process .badge-success { border: 1px solid #10b981 !important; }
+      body.print-mode-process th:first-child, body.print-mode-process td:first-child { display: none !important; } 
+
+      .teacher-cell .t-name { color: #000000 !important; }
+      .teacher-cell .t-phone { color: #000000 !important; font-weight: 800 !important; }
+    }
+  </style>
+</head>
+<body>
+
+  <div id="loadingOverlay" style="display: none;">
+    <div class="spinner-border spinner-border-custom" role="status"></div>
+    <div class="mt-4 fw-bold fs-5" id="loadingText" style="color: var(--main-navy); letter-spacing: -0.05em;">환경 동기화 중...</div>
+  </div>
+
+  <div class="toast-container position-fixed bottom-0 end-0 p-4" style="z-index: 1100">
+    <div id="systemToast" class="toast align-items-center text-white bg-success border-0 shadow-lg" role="alert" aria-live="assertive" aria-atomic="true">
+      <div class="d-flex">
+        <div class="toast-body fw-bold fs-6" id="toastMessage">데이터가 성공적으로 반영되었습니다.</div>
+        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+      </div>
+    </div>
+  </div>
+
+  <div id="loginSection" class="container-1200" style="display: flex; height: 100vh; align-items: center; justify-content: center;">
+    <div class="card-custom text-center" style="max-width: 440px; width: 100%; box-shadow: 0 20px 40px rgba(0,0,0,0.08);">
+      <div style="font-size: 3rem; margin-bottom: 10px;">🛡️</div>
+      <h3 class="mb-2" style="color: var(--main-navy); font-weight: 800; letter-spacing: -0.05em;">내부평가 시스템</h3>
+      <p class="text-muted small mb-4" style="line-height: 1.5;">학사 정보 보안을 위해 지정된<br>관리자 전용 패스워드를 입력해 주세요.</p>
+      <div class="mb-4"><input type="password" id="adminPassword" class="form-control form-control-lg text-center" placeholder="패스워드 입력" style="background-color: #f8fafc; border-radius: 12px; border: 2px solid #e2e8f0;"></div>
+      <button class="btn btn-lg w-100" style="background-color: var(--main-navy); color: white; border-radius: 12px; font-weight: 700; box-shadow: 0 8px 15px rgba(30, 41, 59, 0.2);" onclick="attemptLogin()">대시보드 안전 접속</button>
+      <div id="loginError" class="text-danger mt-3 small" style="display: none; font-weight: bold;">⚠️ 패스워드가 올바르지 않습니다.</div>
+    </div>
+  </div>
+
+  <div id="dashboardSection" style="display: none;">
+    <nav class="navbar navbar-custom mb-4 py-3">
+      <div class="container-1200 d-flex justify-content-between align-items-center w-100">
+        <span class="navbar-title">💻 일학습병행 과목관리 시스템</span>
+        
+        <div class="d-flex align-items-center gap-2">
+          <select id="globalYearSelect" class="form-select form-select-sm fw-bold shadow-sm" style="background-color: rgba(255,255,255,0.9); color: var(--main-navy); border: none; border-radius: 8px; width: 135px; cursor: pointer;" onchange="changeGlobalYear()"></select>
+          <button class="btn btn-sm" style="background-color: rgba(255,255,255,0.1); color: white; border: 1px solid rgba(255,255,255,0.2); border-radius: 8px; padding: 5px 12px;" onclick="logout()">로그아웃</button>
+        </div>
+      </div>
+    </nav>
+
+    <div class="container-1200">
+      <div class="card-custom mb-4 bg-white" style="padding: 25px 30px;">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold m-0" style="color: var(--main-navy);">📊 운영 현황 및 종합 달성도</h5>
+          <span id="dash_year_label" class="badge bg-light text-secondary border"></span>
+        </div>
+        <div class="row align-items-center g-4">
+          <div class="col-12 col-md-7">
+            <div class="row g-3 text-center">
+              <div class="col-4">
+                <div class="p-3 rounded" style="background-color: #f8fafc; border: 1px solid #e2e8f0; height: 100%;">
+                  <div class="small text-muted fw-bold mb-1">참여 도제학생</div>
+                  <div id="dash_total_students" class="fs-4 'Pretendard' fw-bold" style="color: var(--main-navy);">0 명</div>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="p-3 rounded" style="background-color: rgba(16, 185, 129, 0.05); border: 1px solid rgba(16, 185, 129, 0.2); height: 100%;">
+                  <div class="small fw-bold mb-1" style="color: #059669;">평가 완료 공정</div>
+                  <div id="dash_completed_subj" class="fs-4 fw-bold" style="color: #10B981;">0 개</div>
+                </div>
+              </div>
+              <div class="col-4">
+                <div class="p-3 rounded" style="background-color: rgba(245, 158, 11, 0.05); border: 1px solid rgba(245, 158, 11, 0.2); height: 100%;">
+                  <div class="small fw-bold mb-1" style="color: #d97706;">진행 대기 공정</div>
+                  <div id="dash_waiting_subj" class="fs-4 fw-bold" style="color: #f59e0b;">0 개</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-12 col-md-5 text-center d-flex justify-content-center align-items-center">
+            <div style="position: relative; width: 100%; max-width: 240px; height: 110px;">
+              <canvas id="dashboardDoughnutChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <ul class="nav nav-tabs mb-4" id="manageTabs" role="tablist">
+        <li class="nav-item"><button class="nav-link active" id="company-tab" data-bs-toggle="tab" data-bs-target="#companyPanel" type="button" role="tab">① 학습기업 정보</button></li>
+        <li class="nav-item"><button class="nav-link" id="student-tab" data-bs-toggle="tab" data-bs-target="#studentPanel" type="button" role="tab">② 도제 학생 배정</button></li>
+        <li class="nav-item"><button class="nav-link" id="process-tab" data-bs-toggle="tab" data-bs-target="#processPanel" type="button" role="tab">③ 3단계 평가 제어</button></li>
+        <li class="nav-item"><button class="nav-link" id="report-tab" data-bs-toggle="tab" data-bs-target="#reportPanel" type="button" role="tab">④ 현황 리포트 출력</button></li>
+      </ul>
+
+      <div class="tab-content" id="manageTabsContent">
+        <div class="tab-pane fade show active" id="companyPanel" role="tabpanel">
+          <div class="card-custom">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+              <h5 class="fw-bold mb-2 mb-md-0" style="color: var(--main-navy);"><span style="font-size: 1.2rem;">🏢</span> 협약 기업 및 6대 필수 이수과목</h5>
+              <div>
+                <button class="btn btn-outline-secondary me-2 no-print" style="background-color: white;" onclick="printCompany()">🖨️ 인쇄</button>
+                <button class="btn" style="background-color: var(--point-mint); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);" onclick="openCompanyModal(false)">+ 신규 기업 등록</button>
+              </div>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-bordered table-custom">
+                <thead>
+                  <tr>
+                    <th style="width:16%;">학습기업명</th>
+                    <th style="width:20%;">기업 현장교사 정보</th>
+                    <th style="width:56%;">지정 이수과목 목록 (최대 6과목)</th>
+                    <th class="no-print" style="width:8%;">수정</th>
+                  </tr>
+                </thead>
+                <tbody id="companyTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="studentPanel" role="tabpanel">
+          <div class="card-custom">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+              <h5 class="fw-bold mb-2 mb-md-0" style="color: var(--main-navy);"><span style="font-size: 1.2rem;">🎓</span> 참여 도제학급 명단 및 기업 매칭</h5>
+              <button class="btn" style="background-color: var(--point-mint); color: white; box-shadow: 0 4px 10px rgba(16, 185, 129, 0.2);" onclick="openStudentModal()">+ 신규 학생 등록</button>
+            </div>
+            <div class="table-responsive">
+              <table class="table table-bordered table-custom">
+                <thead>
+                  <tr>
+                    <th style="width:20%;">배정 학번</th>
+                    <th style="width:30%;">학생 성명</th>
+                    <th style="width:40%;">소속 매칭 기업명</th>
+                    <th style="width:10%;">수정</th>
+                  </tr>
+                </thead>
+                <tbody id="studentTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="processPanel" role="tabpanel">
+          <div class="card-custom">
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+              <h5 class="fw-bold mb-2 mb-md-0" style="color: var(--main-navy);"><span style="font-size: 1.2rem;">⚙️</span> 내부평가 진행도 및 행정 제어</h5>
+              <div>
+                <button class="btn btn-outline-secondary me-2 no-print" style="background-color: white;" onclick="printProcess()">🖨️ 인쇄</button>
+                <button class="btn" style="background-color: var(--main-navy); color: white; box-shadow: 0 4px 10px rgba(30, 41, 59, 0.2);" onclick="openProcessModal()">+ 평가 과목 배정</button>
+              </div>
+            </div>
+            
+            <ul class="nav nav-pills mb-3" id="subjectSubTabs" role="tablist">
+              <li class="nav-item"><button class="nav-link active" onclick="changeSubjectTab(1)">제1과목</button></li>
+              <li class="nav-item"><button class="nav-link" onclick="changeSubjectTab(2)">제2과목</button></li>
+              <li class="nav-item"><button class="nav-link" onclick="changeSubjectTab(3)">제3과목</button></li>
+              <li class="nav-item"><button class="nav-link" onclick="changeSubjectTab(4)">제4과목</button></li>
+              <li class="nav-item"><button class="nav-link" onclick="changeSubjectTab(5)">제5과목</button></li>
+              <li class="nav-item"><button class="nav-link" onclick="changeSubjectTab(6)">제6과목</button></li>
+            </ul>
+
+            <div id="batchActionWrapper" class="p-3 mb-3 rounded-3 border no-print shadow-sm" style="display: none; background-color: #f8fafc; border-left: 5px solid var(--point-mint) !important; transition: all 0.3s ease;">
+              <div class="d-flex flex-column flex-md-row align-items-md-center justify-content-between gap-3">
+                <div class="fw-bold text-dark fs-6">
+                  🔒 행정 마스터 제어: <span id="selectedCount" class="text-success fs-5 mx-1">0</span>개 공정 선택됨
+                </div>
+                <div class="d-flex flex-wrap align-items-center gap-2">
+                  <select id="batchTargetStep" class="form-select form-select-sm shadow-sm" style="width: 140px; font-weight: 600;">
+                    <option value="Step1_Created">1단계 [출제]</option>
+                    <option value="Step2_Sent">2단계 [전송]</option>
+                    <option value="Step3_Scanned">3단계 [스캔]</option>
+                  </select>
+                  <select id="batchTargetValue" class="form-select form-select-sm shadow-sm" style="width: 95px; font-weight: 600;">
+                    <option value="완료">완료</option>
+                    <option value="대기">대기</option>
+                  </select>
+                  <button class="btn btn-sm text-white px-3 shadow-sm" style="background-color: var(--point-mint);" onclick="executeBatchUpdate()">서버 일괄 반영</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="table-responsive">
+              <table class="table table-bordered table-custom">
+                <thead>
+                  <tr>
+                    <th class="no-print" style="width: 4%;"><input type="checkbox" id="checkAllProcess" class="form-check-input form-check-input-custom" onclick="toggleAllProcessCheckboxes(this)"></th>
+                    <th style="width: 12%;">학습기업명</th>
+                    <th style="width: 15%;">대상 학생</th>
+                    <th style="width: 11%;">운영 학기</th>
+                    <th style="width: 17%;">평가 대상 과목명</th>
+                    <th style="width: 10%;">평가유형</th>
+                    <th style="width: 8%;">1단계<br><small>[출제]</small></th>
+                    <th style="width: 8%;">2단계<br><small>[전송]</small></th>
+                    <th style="width: 8%;">3단계<br><small>[스캔]</small></th>
+                    <th class="no-print" style="width: 7%;">제어</th>
+                  </tr>
+                </thead>
+                <tbody id="processTableBody"></tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <div class="tab-pane fade" id="reportPanel" role="tabpanel">
+          <div class="card-custom">
+            <div class="row align-items-end mb-5 bg-light p-4 rounded-4 border">
+              <div class="col-md-6 mb-3 mb-md-0">
+                <label class="form-label fw-bold" style="color: var(--main-navy);"><span style="font-size: 1.1rem;">🔍</span> 조회 대상 도제 학생 선별</label>
+                <select id="reportStudentSelect" class="form-select form-select-lg border-primary shadow-sm" style="border-radius: 10px;" onchange="generateReport()">
+                  <option value="">-- 학생을 선택하세요 --</option>
+                </select>
+              </div>
+              <div class="col-md-6 text-md-end" id="reportActionButtons" style="display: none;">
+                <button class="btn btn-outline-secondary me-2 bg-white mb-2 mb-md-0 no-print" onclick="printReport()">🖨️ 종이 인쇄</button>
+                <button class="btn mb-2 mb-md-0 no-print" style="background-color: var(--main-navy); color: white;" onclick="downloadReportImage()">🖼️ 이미지 파일(PNG) 저장</button>
+              </div>
+            </div>
+            <div id="reportContainer" style="display: none;"></div>
+            <div id="reportPlaceholder" class="text-center p-5 text-muted" style="background-color: #f8fafc; border-radius: 12px; border: 1px dashed #cbd5e1;">
+              <div style="font-size: 3rem; margin-bottom: 10px; opacity: 0.5;">👆</div>
+              상단 드롭다운 메뉴에서 도제 학생을 지정하면 학기별 리포트가 생성됩니다.
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="companyModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+        <div class="modal-header border-0" style="background-color: var(--main-navy); color: white; padding: 20px 25px;">
+          <h5 class="modal-title fw-bold" id="companyModalTitle">학습기업 등록 및 편집</h5>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body p-4 bg-light">
+          <form id="companyForm">
+            <input type="hidden" id="comp_id">
+            <div class="card p-3 mb-3 border-0 shadow-sm" style="border-radius: 12px;">
+              <div class="row mb-3 g-3">
+                <div class="col-12 col-md-4"><label class="form-label fw-bold text-muted small">운영 연도</label><select id="comp_year" class="form-select form-select-lg" required></select></div>
+                <div class="col-12 col-md-4"><label class="form-label fw-bold text-muted small">학습기업명</label><input type="text" id="comp_name" class="form-control form-control-lg" required></div>
+                <div class="col-12 col-md-4"><label class="form-label fw-bold text-muted small">현장교사 성명</label><input type="text" id="comp_tname" class="form-control form-control-lg" required></div>
+              </div>
+              <div class="row g-3">
+                <div class="col-12 col-md-4"><label class="form-label fw-bold text-muted small">직책</label><input type="text" id="comp_pos" class="form-control"></div>
+                <div class="col-12 col-md-4"><label class="form-label fw-bold text-muted small">핸드폰 번호</label><input type="text" id="comp_phone" class="form-control"></div>
+                <div class="col-12 col-md-4"><label class="form-label fw-bold text-muted small">이메일 주소</label><input type="email" id="comp_email" class="form-control"></div>
+              </div>
+            </div>
+            
+            <div class="card p-3 border-0 shadow-sm" style="border-radius: 12px;">
+              <p class="fw-bold mb-3" style="color: var(--main-navy);">기업별 이수과목 지정 <span class="badge bg-secondary ms-2 fw-normal">과목당 75시간 의무</span></p>
+              <div class="row g-3">
+                <div class="col-6 col-md-4"><input type="text" id="comp_sub1" class="form-control" placeholder="과목 1" required></div>
+                <div class="col-6 col-md-4"><input type="text" id="comp_sub2" class="form-control" placeholder="과목 2" required></div>
+                <div class="col-6 col-md-4"><input type="text" id="comp_sub3" class="form-control" placeholder="과목 3" required></div>
+                <div class="col-6 col-md-4"><input type="text" id="comp_sub4" class="form-control" placeholder="과목 4" required></div>
+                <div class="col-6 col-md-4"><input type="text" id="comp_sub5" class="form-control" placeholder="과목 5" required></div>
+                <div class="col-6 col-md-4"><input type="text" id="comp_sub6" class="form-control" placeholder="과목 6" required></div>
+              </div>
+            </div>
+            <div class="text-end mt-4">
+              <button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">닫기</button>
+              <button type="submit" class="btn px-4 ms-2" style="background-color: var(--main-navy); color: white;">저장하기</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="studentModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+        <div class="modal-header border-0" style="background-color: var(--main-navy); color: white; padding: 20px 25px;"><h5 class="modal-title fw-bold">학생 매칭 정보</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body p-4 bg-light">
+          <form id="studentForm">
+            <div class="card p-3 border-0 shadow-sm" style="border-radius: 12px;">
+              <div class="mb-3"><label class="form-label fw-bold text-muted small">운영 연도</label><select id="stud_year" class="form-select" required></select></div>
+              <div class="mb-3"><label class="form-label fw-bold text-muted small">학번</label><input type="text" id="stud_id" class="form-control" required></div>
+              <div class="mb-3"><label class="form-label fw-bold text-muted small">학생 이름</label><input type="text" id="stud_name" class="form-control" required></div>
+              <div class="mb-1"><label class="form-label fw-bold text-muted small">매칭 기업</label><select id="stud_comp" class="form-select" required></select></div>
+            </div>
+            <div class="text-end mt-4"><button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">취소</button><button type="submit" class="btn px-4 ms-2" style="background-color: var(--main-navy); color: white;">저장</button></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal fade" id="processModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+      <div class="modal-content border-0 shadow-lg" style="border-radius: 20px; overflow: hidden;">
+        <div class="modal-header border-0" style="background-color: var(--main-navy); color: white; padding: 20px 25px;"><h5 class="modal-title fw-bold">공정 상태 제어</h5><button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button></div>
+        <div class="modal-body p-4 bg-light">
+          <form id="processForm">
+            <input type="hidden" id="proc_id">
+            <div class="card p-3 mb-3 border-0 shadow-sm" style="border-radius: 12px;">
+              <div class="mb-3"><label class="form-label fw-bold text-muted small">실습 기업 대상</label><select id="proc_comp" class="form-select" onchange="onProcessCompanyChange()" required></select></div>
+              <div class="mb-3"><label class="form-label fw-bold text-muted small">운영 학기</label><select id="proc_semester" class="form-select" required></select></div>
+              <div class="mb-3"><label class="form-label fw-bold text-muted small">평가 과목</label><select id="proc_subject" class="form-select" required></select></div>
+              <div class="mb-1">
+                <label class="form-label fw-bold text-muted small">내부평가 유형</label>
+                <select id="proc_method" class="form-select" required>
+                  <option value="서술형">서술형</option>
+                  <option value="면접형">면접형</option>
+                  <option value="발표형">발표형</option>
+                </select>
+              </div>
+            </div>
+            <div class="card p-3 border-0 shadow-sm" style="border-radius: 12px;">
+              <p class="fw-bold text-center mb-3" style="color: var(--main-navy); font-size:11pt;">진행 절차 3단계 제어</p>
+              <div class="d-flex justify-content-between gap-2">
+                <div style="width:32%;"><label class="form-label text-center d-block small fw-bold text-muted">1단계 [출제]</label><select id="proc_step1" class="form-select form-select-sm text-center py-2"><option value="대기">대기</option><option value="완료">완료</option></select></div>
+                <div style="width:32%;"><label class="form-label text-center d-block small fw-bold text-muted">2단계 [전송]</label><select id="proc_step2" class="form-select form-select-sm text-center py-2"><option value="대기">대기</option><option value="완료">완료</option></select></div>
+                <div style="width:32%;"><label class="form-label text-center d-block small fw-bold text-muted">3단계 [스캔]</label><select id="proc_step3" class="form-select form-select-sm text-center py-2"><option value="대기">대기</option><option value="완료">완료</option></select></div>
+              </div>
+            </div>
+            <div class="text-end mt-4"><button type="button" class="btn btn-light border px-4" data-bs-dismiss="modal">취소</button><button type="submit" class="btn px-4 ms-2" style="background-color: var(--main-navy); color: white;">상태 저장</button></div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <footer class="text-center"><p class="mb-0">© <span id="footerYear">2026</span> [성일정보고등학교]. All Rights Reserved. | 일학습병행제 학사 행정 지원 솔루션</p></footer>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script>
+    let systemData = { companies: [], students: [], process: [] };
+    let configData = null; 
+    let bootstrapCompanyModal, bootstrapStudentModal, bootstrapProcessModal;
+    let currentSubjectTab = 1; 
+    let currentGlobalYear = ""; 
+    let doughnutChartInstance = null; // [옵션3 마법] 글로벌 차트 객체 메모리 관리 변수
+
+    const _escapeHTML = function(val) {
+      if (val === null || val === undefined) return '';
+      return String(val)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    };
+
+    window.addEventListener('afterprint', function() {
+      document.body.classList.remove('print-mode-report', 'print-mode-process', 'print-mode-company');
+    });
+
+    window.addEventListener('DOMContentLoaded', function() {
+      bootstrapCompanyModal = new bootstrap.Modal(document.getElementById('companyModal'));
+      bootstrapStudentModal = new bootstrap.Modal(document.getElementById('studentModal'));
+      bootstrapProcessModal = new bootstrap.Modal(document.getElementById('processModal'));
+      
+      buildDynamicYears();
+      loadLocalConfiguration();
+    });
+
+    function showToast(message, isError = false) {
+      const toastEl = document.getElementById('systemToast');
+      const toastMsg = document.getElementById('toastMessage');
+      toastEl.classList.remove('bg-success', 'bg-danger');
+      toastEl.classList.add(isError ? 'bg-danger' : 'bg-success');
+      toastMsg.innerText = message;
+      const toast = new bootstrap.Toast(toastEl);
+      toast.show();
+    }
+
+    function showLoading(isVisible, text = "처리 중...") {
+      document.getElementById('loadingOverlay').style.display = isVisible ? 'flex' : 'none';
+      if(text) document.getElementById('loadingText').innerText = text;
+    }
+
+    function buildDynamicYears() {
+      const currentYear = new Date().getFullYear();
+      document.getElementById('footerYear').innerText = currentYear;
+      currentGlobalYear = currentYear.toString();
+
+      let globalHTML = ''; let standardHTML = '';
+      for (let i = currentYear - 2; i <= currentYear + 2; i++) {
+        const selected = (i === currentYear) ? 'selected' : '';
+        globalHTML += `<option value="${i}" ${selected}>${i}학년도</option>`;
+        standardHTML += `<option value="${i}" ${selected}>${i}학년도</option>`;
+      }
+      globalHTML += `<option value="">전체 누적 보기</option>`;
+      document.getElementById('globalYearSelect').innerHTML = globalHTML;
+      document.getElementById('comp_year').innerHTML = standardHTML;
+      document.getElementById('stud_year').innerHTML = standardHTML;
+    }
+
+    function loadLocalConfiguration() {
+      showLoading(true, "시스템 초기화 중...");
+      fetch('doje_project05_gas.json', { cache: 'no-store' })
+        .then(function(res) { if (!res.ok) throw new Error("설정 파일 로딩 실패"); return res.json(); })
+        .then(function(json) { 
+          configData = json; 
+          showLoading(false);
+          if (sessionStorage.getItem('doje_token')) {
+            document.getElementById('loginSection').style.display = 'none';
+            document.getElementById('dashboardSection').style.display = 'block';
+            refreshAllSystemData();
+          }
+        })
+        .catch(function(err) { showLoading(false); console.error("초기화 오류:", err); });
+    }
+
+    function attemptLogin() {
+      const pwd = document.getElementById('adminPassword').value;
+      if (!pwd) {
+        document.getElementById('loginError').innerText = "⚠️ 패스워드를 입력해 주세요.";
+        document.getElementById('loginError').style.display = 'block';
+        return;
+      }
+      showLoading(true, "보안 인증 확인 중...");
+      callGasApi("verifyLogin", { password: pwd }, function(res) {
+        showLoading(false);
+        if (res && res.isValid) {
+          const secureToken = res.token || 'sec_' + Math.random().toString(36).substring(2);
+          sessionStorage.setItem('doje_token', secureToken);
+          document.getElementById('loginSection').style.display = 'none';
+          document.getElementById('dashboardSection').style.display = 'block';
+          document.getElementById('adminPassword').value = ''; 
+          document.getElementById('loginError').style.display = 'none';
+          refreshAllSystemData();
+          showToast("시스템에 안전하게 접속되었습니다.");
+        } else {
+          document.getElementById('loginError').innerText = "⚠️ 패스워드가 올바르지 않습니다.";
+          document.getElementById('loginError').style.display = 'block';
+        }
+      });
+    }
+
+    function logout() {
+      sessionStorage.removeItem('doje_token');
+      document.getElementById('adminPassword').value = '';
+      document.getElementById('loginSection').style.display = 'flex';
+      document.getElementById('dashboardSection').style.display = 'none';
+      showToast("안전하게 로그아웃 되었습니다.");
+    }
+
+    function callGasApi(actionName, payloadData, successCallback, customMessage = null) {
+      if (!configData || !configData.gasUrl) {
+        showLoading(false); alert("통신 오류: GAS URL이 설정되지 않았습니다."); return;
+      }
+      const sessionToken = sessionStorage.getItem('doje_token') || '';
+      fetch(configData.gasUrl, { 
+        method: 'POST', mode: 'cors', 
+        body: JSON.stringify({ action: actionName, token: sessionToken, data: payloadData }) 
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if(customMessage) showToast(customMessage);
+        successCallback(data);
+      })
+      .catch(function(err) { showLoading(false); showToast("통신 장애 발생: " + err, true); });
+    }
+
+    function refreshAllSystemData() {
+      showLoading(true, "데이터 원격 동기화 중...");
+      // 일괄 제어 체크박스 마스터 바 초기화
+      document.getElementById('batchActionWrapper').style.display = 'none';
+      document.getElementById('checkAllProcess').checked = false;
+
+      callGasApi("getAllData", {}, function(fetchedData) {
+        systemData = fetchedData;
+        updateDashboard();
+        renderCompanyTable();
+        renderStudentTable();
+        renderProcessTable();
+        populateDropdowns();
+        populateReportSelect(); 
+        showLoading(false);
+      });
+    }
+
+    function changeGlobalYear() {
+      currentGlobalYear = document.getElementById('globalYearSelect').value;
+      refreshAllSystemData();
+    }
+
+    // [옵션3 마법] 실시간 차트 렌더링 로직 추가 및 현황 동기화
+    function updateDashboard() {
+      let activeProcs = systemData.process;
+      if (currentGlobalYear !== '') {
+        activeProcs = activeProcs.filter(p => p.Semester && p.Semester.includes(currentGlobalYear));
+      }
+      
+      const totalSubj = activeProcs.length;
+      const completedSubj = activeProcs.filter(p => p.Step3_Scanned === '완료').length;
+      const waitingSubj = totalSubj - completedSubj;
+
+      const activeStudents = new Set();
+      activeProcs.forEach(p => {
+        const students = systemData.students.filter(s => s.CompanyName === p.CompanyName);
+        students.forEach(s => activeStudents.add(s.StudentID));
+      });
+
+      document.getElementById('dash_total_students').innerText = activeStudents.size + " 명";
+      document.getElementById('dash_completed_subj').innerText = completedSubj + " 개";
+      document.getElementById('dash_waiting_subj').innerText = waitingSubj + " 개";
+      
+      const yearLabel = currentGlobalYear === '' ? "전체 누적 공정" : currentGlobalYear + "학년도 기준";
+      document.getElementById('dash_year_label').innerText = yearLabel;
+
+      // Chart.js 인스턴스 초기화 및 동적 갱신
+      if(doughnutChartInstance) { doughnutChartInstance.destroy(); }
+      
+      const ctx = document.getElementById('dashboardDoughnutChart').getContext('2d');
+      doughnutChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['평가 완료', '진행 대기'],
+          datasets: [{
+            data: [completedSubj, waitingSubj],
+            backgroundColor: ['#10B981', '#f59e0b'],
+            borderWidth: 2,
+            borderColor: '#ffffff'
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          cutout: '70%',
+          plugins: {
+            legend: {
+              position: 'right',
+              labels: {
+                boxWidth: 12,
+                font: { family: 'Pretendard', size: 11, weight: 'bold' },
+                color: '#475569'
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function changeSubjectTab(tabNum) {
+      currentSubjectTab = tabNum;
+      const buttons = document.querySelectorAll('#subjectSubTabs .nav-link');
+      buttons.forEach((btn, idx) => {
+        if (idx === tabNum - 1) btn.classList.add('active');
+        else btn.classList.remove('active');
+      });
+      // 탭 변경 시 일괄 변경 제어 바 상태 해제
+      document.getElementById('batchActionWrapper').style.display = 'none';
+      document.getElementById('checkAllProcess').checked = false;
+      renderProcessTable();
+    }
+
+    function populateDropdowns() {
+      const sSelect = document.getElementById('stud_comp');
+      const pSelect = document.getElementById('proc_comp');
+      sSelect.innerHTML = ''; pSelect.innerHTML = '';
+      
+      const filteredCompanies = systemData.companies.filter(c => currentGlobalYear === '' || c.Year == currentGlobalYear);
+      filteredCompanies.forEach(function(c) {
+        const safeName = _escapeHTML(c.CompanyName);
+        const opt = `<option value="${safeName}">${safeName}</option>`;
+        sSelect.insertAdjacentHTML('beforeend', opt); pSelect.insertAdjacentHTML('beforeend', opt);
+      });
+      if(filteredCompanies.length > 0) onProcessCompanyChange();
+    }
+
+    function onProcessCompanyChange() {
+      const selected = document.getElementById('proc_comp').value;
+      const subSelect = document.getElementById('proc_subject');
+      subSelect.innerHTML = '';
+      const comp = systemData.companies.find(function(c) { return c.CompanyName === selected; });
+      if(comp) {
+        [comp.Sub1, comp.Sub2, comp.Sub3, comp.Sub4, comp.Sub5, comp.Sub6].forEach(function(s) {
+          if(s) {
+            const safeSub = _escapeHTML(s);
+            subSelect.insertAdjacentHTML('beforeend', `<option value="${safeSub}">${safeSub}</option>`);
+          }
+        });
+      }
+    }
+
+    function getCompanyColor(companyName) {
+      const palette = ['#1e293b', '#10B981', '#f59e0b', '#8b5cf6', '#ec4899', '#0ea5e9', '#ef4444', '#14b8a6', '#f97316', '#6366f1'];
+      const index = systemData.companies.findIndex(c => c.CompanyName === companyName);
+      return index !== -1 ? palette[index % palette.length] : '#64748b'; 
+    }
+
+    function renderCompanyTable() {
+      const tbody = document.getElementById('companyTableBody'); tbody.innerHTML = '';
+      const filteredCompanies = systemData.companies.filter(c => currentGlobalYear === '' || c.Year == currentGlobalYear);
+      if(filteredCompanies.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-muted p-4 text-center">선택된 연도에 등록된 데이터가 없습니다.</td></tr>`; return; }
+      
+      filteredCompanies.forEach(function(c) {
+        let rawSubs = [c.Sub1, c.Sub2, c.Sub3, c.Sub4, c.Sub5, c.Sub6].filter(Boolean);
+        let parsedSubs = [];
+        rawSubs.forEach(s => {
+          if (s.includes(',')) parsedSubs = parsedSubs.concat(s.split(',').map(item => item.trim()));
+          else parsedSubs.push(s.trim());
+        });
+        let subsHTML = parsedSubs.filter(Boolean).map(sub => `<span class="subject-badge me-1 mb-1">${_escapeHTML(sub)}</span>`).join('');
+        const bgColor = getCompanyColor(c.CompanyName);
+        const yearBadge = currentGlobalYear === '' ? `<span class="badge bg-secondary mb-1" style="font-size:8pt;">${_escapeHTML(c.Year) || '연도미상'}</span><br>` : '';
+
+        tbody.insertAdjacentHTML('beforeend', `
+          <tr>
+            <td class="text-center px-2 align-middle">${yearBadge}<span class="company-badge" style="background-color: ${bgColor}; width: 100%;">${_escapeHTML(c.CompanyName)}</span></td>
+            <td class="teacher-cell">
+              <div class="teacher-item t-name"><span>👤</span> <span>교사: ${_escapeHTML(c.TeacherName) || '-'}</span><span class="t-pos">(${_escapeHTML(c.Position) || '직책없음'})</span></div>
+              <div class="teacher-item t-phone"><span>📞</span> <span>연락처: ${_escapeHTML(c.Phone) || '-'}</span></div>
+              <div class="teacher-item t-email"><span>✉️</span> <span>이메일: ${_escapeHTML(c.Email) || '-'}</span></div>
+            </td>
+            <td class="text-start align-middle"><div class="d-flex flex-wrap align-items-center" style="gap: 5px;">${subsHTML}</div></td>
+            <td class="align-middle text-center no-print"><button class="btn btn-sm btn-outline-primary px-3 py-1 shadow-sm" style="border-radius:6px; font-size: 9.5pt; white-space: nowrap;" onclick="editCompany('${c.ID}')">수정</button></td>
+          </tr>
+        `);
+      });
+    }
+
+    function renderStudentTable() {
+      const tbody = document.getElementById('studentTableBody'); tbody.innerHTML = '';
+      const filteredStudents = systemData.students.filter(s => currentGlobalYear === '' || s.Year == currentGlobalYear);
+      if(filteredStudents.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-muted p-4 text-center">선택된 연도에 등록된 데이터가 없습니다.</td></tr>`; return; }
+      
+      filteredStudents.forEach(function(s) {
+        const bgColor = getCompanyColor(s.CompanyName);
+        const yearBadge = currentGlobalYear === '' ? `<span class="badge bg-secondary me-2">${_escapeHTML(s.Year) || '연도미상'}</span>` : '';
+        tbody.insertAdjacentHTML('beforeend', `
+          <tr>
+            <td class="fw-bold align-middle" style="color:#64748b;">${yearBadge}${_escapeHTML(s.StudentID)}</td>
+            <td class="fw-bold align-middle" style="font-size: 11.5pt;">${_escapeHTML(s.StudentName)}</td>
+            <td class="align-middle"><span class="company-badge" style="background-color: ${bgColor}; font-size: 10pt;">${_escapeHTML(s.CompanyName)}</span></td>
+            <td class="align-middle text-center"><button class="btn btn-sm btn-outline-primary px-3 py-1 shadow-sm fw-bold" style="border-radius:6px; font-size: 9.5pt; white-space: nowrap;" onclick="editStudent('${s.StudentID}')">변경</button></td>
+          </tr>
+        `);
+      });
+    }
+
+    // [옵션4 마법] 다중 제어 체크박스 기반 프로세스 테이블 설계
+    function renderProcessTable() {
+      const tbody = document.getElementById('processTableBody'); tbody.innerHTML = '';
+      const filteredProcess = systemData.process.filter(function(p) {
+        if (currentGlobalYear !== '' && (!p.Semester || !p.Semester.includes(currentGlobalYear))) return false;
+        const comp = systemData.companies.find(c => c.CompanyName === p.CompanyName); if (!comp) return false;
+        return p.SubjectName === comp['Sub' + currentSubjectTab];
+      });
+
+      if(filteredProcess.length === 0) { 
+        tbody.innerHTML = `<tr><td colspan="10" class="text-muted p-5 text-center bg-light rounded" style="border: 1px dashed #cbd5e1;">선택된 연도 및 제${currentSubjectTab}과목에 배정된 평가 공정이 없습니다.</td></tr>`; return; 
+      }
+
+      const cleanStepValue = function(val) {
+        if (val === null || val === undefined) return "대기";
+        const strVal = String(val).trim();
+        return (strVal === "undefined" || strVal === "null" || strVal === "") ? "대기" : _escapeHTML(strVal);
+      };
+
+      filteredProcess.forEach(function(p) {
+        const matchingStudents = systemData.students.filter(s => s.CompanyName === p.CompanyName);
+        let studentButtonsHTML = matchingStudents.length === 0 ? '<span class="text-muted small">배정 없음</span>' : matchingStudents.map(s => `<span class="bg-white text-dark border fw-bold student-btn-badge">🎓 ${_escapeHTML(s.StudentID)} ${_escapeHTML(s.StudentName)}</span>`).join('');
+
+        let methodBtnHTML = ''; const m = _escapeHTML(p.Method || '서술형');
+        if (m.includes('서술')) methodBtnHTML = `<span class="badge text-white p-2 w-100 shadow-sm" style="background-color: #3b82f6;">📝 서술형</span>`;
+        else if (m.includes('면접')) methodBtnHTML = `<span class="badge text-white p-2 w-100 shadow-sm" style="background-color: #f59e0b;">🗣️ 면접형</span>`;
+        else if (m.includes('발표')) methodBtnHTML = `<span class="badge text-white p-2 w-100 shadow-sm" style="background-color: #ec4899;">📢 발표형</span>`;
+        else methodBtnHTML = `<span class="badge bg-secondary p-2 w-100 shadow-sm">${m}</span>`;
+
+        const s1 = cleanStepValue(p.Step1_Created); const s2 = cleanStepValue(p.Step2_Sent); const s3 = cleanStepValue(p.Step3_Scanned);
+        const b1 = s1 === '완료' ? 'badge-success' : 'badge-ready';
+        const b2 = s2 === '완료' ? 'badge-success' : 'badge-ready';
+        const b3 = s3 === '완료' ? 'badge-success' : 'badge-ready';
+        const bgColor = getCompanyColor(p.CompanyName);
+
+        tbody.insertAdjacentHTML('beforeend', `
+          <tr>
+            <td class="no-print text-center align-middle"><input type="checkbox" class="form-check-input form-check-input-custom proc-row-checkbox" value="${p.ID}" onclick="onRowCheckboxChecked()"></td>
+            <td class="text-center px-1"><span class="company-badge" style="background-color: ${bgColor}; width: 100%; margin: 0 auto;">${_escapeHTML(p.CompanyName)}</span></td>
+            <td><div class="d-flex flex-column align-items-center justify-content-center" style="gap: 4px;">${studentButtonsHTML}</div></td>
+            <td class="text-center text-muted fw-bold" style="font-size:9.5pt;">${_escapeHTML(p.Semester || '미지정')}</td>
+            <td><span class="subject-badge w-100 text-center shadow-sm" style="background-color: #334155;">${_escapeHTML(p.SubjectName)}</span></td>
+            <td class="px-2">${methodBtnHTML}</td>
+            <td class="px-1"><span class="badge ${b1} d-block p-2 w-100">${s1}</span></td>
+            <td class="px-1"><span class="badge ${b2} d-block p-2 w-100">${s2}</span></td>
+            <td class="px-1"><span class="badge ${b3} d-block p-2 w-100">${s3}</span></td>
+            <td class="no-print text-center align-middle"><button class="btn btn-sm px-3 py-1 shadow-sm" style="background-color:var(--main-navy); color:white; border-radius: 6px; font-size: 9.5pt; white-space: nowrap;" onclick="editProcess('${p.ID}')">제어</button></td>
+          </tr>
+        `);
+      });
+    }
+
+    // [옵션4 마법] 체크박스 전체 제어 핸들러
+    function toggleAllProcessCheckboxes(master) {
+      const checkboxes = document.querySelectorAll('.proc-row-checkbox');
+      checkboxes.forEach(cb => cb.checked = master.checked);
+      onRowCheckboxChecked();
+    }
+
+    // [옵션4 마법] 체크 상태 실시간 연동 및 상단 액션바 토글 처리
+    function onRowCheckboxChecked() {
+      const totalChecked = document.querySelectorAll('.proc-row-checkbox:checked').length;
+      const batchBar = document.getElementById('batchActionWrapper');
+      
+      if (totalChecked > 0) {
+        document.getElementById('selectedCount').innerText = totalChecked;
+        batchBar.style.display = 'block';
+      } else {
+        batchBar.style.display = 'none';
+        document.getElementById('checkAllProcess').checked = false;
+      }
+    }
+
+    // [옵션4 마법] 비동기 루프 기반 일괄 서버 동기화 엔진 (구글 시트 데이터 안전 저장용)
+    async function executeBatchUpdate() {
+      const checkedBoxes = document.querySelectorAll('.proc-row-checkbox:checked');
+      if (checkedBoxes.length === 0) return;
+      
+      if (!confirm(`선택한 ${checkedBoxes.length}개 공정의 상태를 일괄 변경하시겠습니까?\n안전한 동기화를 위해 수 초간 시간이 소요됩니다.`)) return;
+
+      const targetStep = document.getElementById('batchTargetStep').value;
+      const targetValue = document.getElementById('batchTargetValue').value;
+      const idsToUpdate = Array.from(checkedBoxes).map(cb => cb.value);
+
+      showLoading(true, "행정 명령 일괄 동기화 시작...");
+
+      try {
+        for (let i = 0; i < idsToUpdate.length; i++) {
+          const currentId = idsToUpdate[i];
+          showLoading(true, `구글 서버 반영 중... (${i + 1}/${idsToUpdate.length})`);
+          
+          const orig = systemData.process.find(item => item.ID === currentId);
+          if (orig) {
+            const payload = {
+              ID: orig.ID, CompanyName: orig.CompanyName, Semester: orig.Semester,
+              SubjectName: orig.SubjectName, Method: orig.Method || '서술형',
+              Step1_Created: orig.Step1_Created, Step2_Sent: orig.Step2_Sent, Step3_Scanned: orig.Step3_Scanned
+            };
+            // 선택 타겟 필드 조작
+            payload[targetStep] = targetValue;
+
+            // 단일 업데이트가 마쳐질 때까지 대기 동기화 처리(레이스 컨디션 방지)
+            await new Promise((resolve) => {
+              callGasApi("saveProcess", payload, function() { resolve(); });
+            });
+          }
+        }
+        showToast(`${idsToUpdate.length}개 항목의 내부평가 공정이 일괄 성공 업데이트 되었습니다.`);
+        refreshAllSystemData();
+      } catch (err) {
+        showLoading(false);
+        showToast("일괄 변경 도중 실패: " + err, true);
+      }
+    }
+
+    function populateReportSelect() {
+      const select = document.getElementById('reportStudentSelect');
+      select.innerHTML = '<option value="">-- 조회할 학생을 선택하세요 --</option>';
+      const filteredStudents = systemData.students.filter(s => currentGlobalYear === '' || s.Year == currentGlobalYear);
+      filteredStudents.forEach(function(s) {
+        const yearPrefix = currentGlobalYear === '' ? `[${_escapeHTML(s.Year)||'연도미상'}] ` : '';
+        select.insertAdjacentHTML('beforeend', `<option value="${_escapeHTML(s.StudentID)}">${yearPrefix}[${_escapeHTML(s.CompanyName)}] ${_escapeHTML(s.StudentID)} ${_escapeHTML(s.StudentName)}</option>`);
+      });
+    }
+
+    function generateReport() {
+      const studentId = document.getElementById('reportStudentSelect').value;
+      const placeholder = document.getElementById('reportPlaceholder');
+      const container = document.getElementById('reportContainer');
+      const actionBtns = document.getElementById('reportActionButtons');
+      if (!studentId) { placeholder.style.display = 'block'; container.style.display = 'none'; actionBtns.style.display = 'none'; return; }
+
+      const student = systemData.students.find(s => String(s.StudentID) === String(studentId)); if (!student) return;
+      const company = systemData.companies.find(c => c && c.CompanyName === student.CompanyName);
+      const bgColor = getCompanyColor(student.CompanyName);
+      
+      let compProcesses = systemData.process.filter(p => p && p.CompanyName === student.CompanyName);
+      if (currentGlobalYear !== '') { compProcesses = compProcesses.filter(p => p.Semester && p.Semester.includes(currentGlobalYear)); }
+
+      const processesBySemester = {};
+      if (compProcesses.length === 0) { processesBySemester['학기 정보 없음'] = []; } 
+      else {
+        compProcesses.forEach(p => {
+          const sem = p.Semester || '운영 학기 미지정';
+          if (!processesBySemester[sem]) processesBySemester[sem] = [];
+          processesBySemester[sem].push(p);
+        });
+      }
+
+      container.innerHTML = ''; const printDate = new Date().toLocaleString();
+      const semesters = Object.keys(processesBySemester).sort(); 
+
+      semesters.forEach((sem) => {
+        const procs = processesBySemester[sem];
+        const offjtTotal = procs.length > 0 ? 75 : 0; const ojtTotal = procs.length > 0 ? 225 : 0; 
+        let tbodyHTML = '';
+
+        if (procs.length === 0) {
+          tbodyHTML = `<tr><td colspan="6" class="text-muted p-5 bg-light" style="border: 1px dashed #cbd5e1;">등록된 평가 계획이 없습니다.</td></tr>`;
+        } else {
+          procs.forEach(p => {
+            const cleanVal = (val) => {
+                if(val === null || val === undefined) return "대기";
+                const strVal = String(val).trim();
+                return (strVal === "undefined" || strVal === "null" || strVal === "") ? "대기" : _escapeHTML(strVal);
+            };
+            const s1 = cleanVal(p.Step1_Created); const s2 = cleanVal(p.Step2_Sent); const s3 = cleanVal(p.Step3_Scanned);
+            tbodyHTML += `
+              <tr>
+                <td class="text-muted fw-bold small">${_escapeHTML(p.Semester)}</td>
+                <td class="fw-bold" style="color: var(--main-navy);">${_escapeHTML(p.SubjectName)}</td>
+                <td><span class="badge bg-light text-secondary border px-2 py-1">${_escapeHTML(p.Method)}</span></td>
+                <td class="${s1==='완료'?'text-success fw-bold':'text-muted'}">${s1}</td>
+                <td class="${s2==='완료'?'text-success fw-bold':'text-muted'}">${s2}</td>
+                <td class="${s3==='완료'?'text-success fw-bold':'text-muted'}">${s3}</td>
+              </tr>
+            `;
+          });
+        }
+
+        container.insertAdjacentHTML('beforeend', `
+          <div class="report-page-block">
+            <div class="report-title"><span>내부평가 및 훈련 진행 현황</span></div>
+            <div class="text-center mb-4"><span class="badge bg-primary fs-6 py-2 px-4 shadow-sm rounded-pill">${_escapeHTML(sem)} 기준</span></div>
+            <div class="row mb-4 g-3">
+              <div class="col-12 col-md-6">
+                <table class="table table-bordered mb-0 align-middle">
+                  <tbody>
+                    <tr><th class="bg-light" style="width: 120px;">소속 학번</th><td>${_escapeHTML(student.StudentID)}</td></tr>
+                    <tr><th class="bg-light">학생 성명</th><td class="fw-bold fs-6 text-primary">${_escapeHTML(student.StudentName)}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+              <div class="col-12 col-md-6">
+                <table class="table table-bordered mb-0 align-middle">
+                  <tbody>
+                    <tr><th class="bg-light" style="width: 120px;">실습 기업명</th><td class="text-center"><span class="company-badge shadow-none" style="background-color: ${bgColor}; font-size: 11pt; padding: 6px 14px; margin: 0;">${_escapeHTML(student.CompanyName)}</span></td></tr>
+                    <tr><th class="bg-light">현장 교사</th><td>${company ? `<span class="fw-bold text-dark">${_escapeHTML(company.TeacherName)}</span> <span class="text-muted small">(${_escapeHTML(company.Phone) || '연락처 없음'})</span>` : '상세정보 없음'}</td></tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+            <div class="d-flex align-items-center mb-3 mt-5"><span>⏳</span><h5 class="fw-bold mb-0 ms-2" style="color: var(--main-navy);">학기별 Off-JT / OJT 훈련시간 배정 현황</h5></div>
+            <div class="table-responsive">
+              <table class="table table-bordered text-center align-middle mb-4">
+                <thead style="background-color: #f8fafc;"><tr><th>훈련 구분</th><th>학기 총 배정 시간</th><th>월 평균(6개월)</th><th>주 평균(24주)</th></tr></thead>
+                <tbody>
+                  <tr><td class="fw-bold bg-light">Off-JT</td><td class="fw-bold">${offjtTotal} 시간</td><td>${(offjtTotal/6).toFixed(1)} 시간</td><td>${(offjtTotal/24).toFixed(1)} 시간</td></tr>
+                  <tr><td class="fw-bold bg-light">OJT</td><td class="fw-bold" style="color: #3b82f6;">${ojtTotal} 시간</td><td style="color: #3b82f6;">${(ojtTotal/6).toFixed(1)} 시간</td><td style="color: #3b82f6;">${(ojtTotal/24).toFixed(1)} 시간</td></tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="d-flex align-items-center mb-3 mt-5"><span>📋</span><h5 class="fw-bold mb-0 ms-2" style="color: var(--main-navy);">해당 학기 3단계 내부평가 진행도</h5></div>
+            <div class="table-responsive">
+              <table class="table table-bordered text-center align-middle">
+                <thead style="background-color: #f8fafc;"><tr><th style="width:15%;">운영 학기</th><th style="width:25%;">이수 과목명</th><th style="width:15%;">평가 유형</th><th style="width:15%;">1단계 [출제]</th><th style="width:15%;">2단계 [전송]</th><th style="width:15%;">3단계 [스캔]</th></tr></thead>
+                <tbody>${tbodyHTML}</tbody>
+              </table>
+            </div>
+            <div class="text-end mt-5 text-muted small" style="border-top: 1px dashed #cbd5e1; padding-top: 15px;">출력증빙일시: <span>${printDate}</span> / 성일정보고등학교 일학습병행부</div>
+          </div>
+        `);
+      });
+
+      placeholder.style.display = 'none'; container.style.display = 'block'; actionBtns.style.display = 'block';
+    }
+
+    function printReport() { document.body.classList.add('print-mode-report'); window.print(); }
+    function printProcess() { document.body.classList.add('print-mode-process'); window.print(); }
+    function printCompany() { document.body.classList.add('print-mode-company'); window.print(); }
+
+    function downloadReportImage() {
+      showLoading(true, "인쇄용 고해상도 이미지 스캔 중...");
+      const selBox = document.getElementById('reportStudentSelect');
+      const studentName = selBox.options[selBox.selectedIndex].text.split(' ').pop();
+      html2canvas(document.getElementById('reportContainer'), { scale: 2, useCORS: true }).then(canvas => {
+        const link = document.createElement("a");
+        link.download = `내부평가진도현황_${studentName}_${currentGlobalYear || '전체'}.png`;
+        link.href = canvas.toDataURL("image/png"); link.click(); showLoading(false);
+      });
+    }
+
+    function openCompanyModal(isEdit) { 
+      if(!isEdit){ 
+        document.getElementById('companyForm').reset(); document.getElementById('comp_id').value=''; 
+        let targetYear = currentGlobalYear === '' ? new Date().getFullYear().toString() : currentGlobalYear;
+        document.getElementById('comp_year').value = targetYear;
+        document.getElementById('companyModalTitle').innerText="신규 학습기업 등록"; 
+      } 
+      bootstrapCompanyModal.show(); 
+    }
+    
+    function editCompany(id) {
+      const c = systemData.companies.find(item => item.ID === id); if(!c) return;
+      document.getElementById('comp_year').value = c.Year || new Date().getFullYear().toString();
+      const fieldMap = {
+        'comp_id': 'ID', 'comp_name': 'CompanyName', 'comp_tname': 'TeacherName', 'comp_pos': 'Position',
+        'comp_phone': 'Phone', 'comp_email': 'Email', 'comp_sub1': 'Sub1', 'comp_sub2': 'Sub2',
+        'comp_sub3': 'Sub3', 'comp_sub4': 'Sub4', 'comp_sub5': 'Sub5', 'comp_sub6': 'Sub6'
+      };
+      for (const [elementId, dataKey] of Object.entries(fieldMap)) { document.getElementById(elementId).value = c[dataKey] || ''; }
+      document.getElementById('companyModalTitle').innerText = "학습기업 정보 수정"; openCompanyModal(true);
+    }
+    
+    function openStudentModal() { 
+      document.getElementById('studentForm').reset(); document.getElementById('stud_id').disabled = false; 
+      let targetYear = currentGlobalYear === '' ? new Date().getFullYear().toString() : currentGlobalYear;
+      document.getElementById('stud_year').value = targetYear; bootstrapStudentModal.show(); 
+    }
+    
+    function editStudent(id) { 
+      const s = systemData.students.find(item => item.StudentID === id); if(!s) return;
+      document.getElementById('stud_year').value = s.Year || currentGlobalYear || new Date().getFullYear().toString();
+      document.getElementById('stud_id').value = s.StudentID; document.getElementById('stud_id').disabled = true; 
+      document.getElementById('stud_name').value = s.StudentName; document.getElementById('stud_comp').value = s.CompanyName; 
+      bootstrapStudentModal.show(); 
+    }
+    
+    function openProcessModal() { 
+      document.getElementById('processForm').reset(); document.getElementById('proc_id').value = ''; 
+      if(systemData.companies.length > 0) onProcessCompanyChange(); 
+      const semSelect = document.getElementById('proc_semester');
+      let targetYear = currentGlobalYear === '' ? new Date().getFullYear().toString() : currentGlobalYear;
+      semSelect.innerHTML = `<option value="${targetYear}학년도 1학기">${targetYear}학년도 1학기</option><option value="${targetYear}학년도 2학기">${targetYear}학년도 2학기</option>`;
+      bootstrapProcessModal.show(); 
+    }
+    
+    function editProcess(id) {
+      const p = systemData.process.find(item => item.ID === id); if(!p) return;
+      document.getElementById('proc_id').value = p.ID; document.getElementById('proc_comp').value = p.CompanyName; onProcessCompanyChange();
+      const semSelect = document.getElementById('proc_semester');
+      if (p.Semester && !Array.from(semSelect.options).some(opt => opt.value === p.Semester)) {
+        semSelect.insertAdjacentHTML('beforeend', `<option value="${_escapeHTML(p.Semester)}">${_escapeHTML(p.Semester)}</option>`);
+      }
+      document.getElementById('proc_semester').value = p.Semester; document.getElementById('proc_subject').value = p.SubjectName; document.getElementById('proc_method').value = p.Method;
+      const cleanStepValue = function(val) {
+        if (val === null || val === undefined) return "대기";
+        const strVal = String(val).trim();
+        return (strVal === "undefined" || strVal === "null" || strVal === "") ? "대기" : strVal;
+      };
+      document.getElementById('proc_step1').value = cleanStepValue(p.Step1_Created); 
+      document.getElementById('proc_step2').value = cleanStepValue(p.Step2_Sent); 
+      document.getElementById('proc_step3').value = cleanStepValue(p.Step3_Scanned);
+      bootstrapProcessModal.show();
+    }
+
+    document.getElementById('companyForm').addEventListener('submit', function(e) {
+      e.preventDefault(); if (document.activeElement) document.activeElement.blur();
+      const payload = { 
+        ID: document.getElementById('comp_id').value, Year: document.getElementById('comp_year').value,
+        CompanyName: document.getElementById('comp_name').value, TeacherName: document.getElementById('comp_tname').value, 
+        Position: document.getElementById('comp_pos').value, Phone: document.getElementById('comp_phone').value, 
+        Email: document.getElementById('comp_email').value, Sub1: document.getElementById('comp_sub1').value, 
+        Sub2: document.getElementById('comp_sub2').value, Sub3: document.getElementById('comp_sub3').value, 
+        Sub4: document.getElementById('comp_sub4').value, Sub5: document.getElementById('comp_sub5').value, 
+        Sub6: document.getElementById('comp_sub6').value 
+      };
+      bootstrapCompanyModal.hide(); showLoading(true, "데이터 동기화 중..."); 
+      callGasApi("saveCompany", payload, refreshAllSystemData, "학습기업 정보가 안전하게 저장되었습니다.");
+    });
+
+    document.getElementById('studentForm').addEventListener('submit', function(e) {
+      e.preventDefault(); if (document.activeElement) document.activeElement.blur();
+      const payload = { 
+        Year: document.getElementById('stud_year').value, StudentID: document.getElementById('stud_id').value, 
+        StudentName: document.getElementById('stud_name').value, CompanyName: document.getElementById('stud_comp').value 
+      };
+      bootstrapStudentModal.hide(); showLoading(true, "데이터 동기화 중..."); 
+      callGasApi("saveStudent", payload, refreshAllSystemData, "도제 학생 배정 정보가 저장되었습니다.");
+    });
+
+    document.getElementById('processForm').addEventListener('submit', function(e) {
+      e.preventDefault(); if (document.activeElement) document.activeElement.blur();
+      const payload = { 
+        ID: document.getElementById('proc_id').value, CompanyName: document.getElementById('proc_comp').value, 
+        Semester: document.getElementById('proc_semester').value, SubjectName: document.getElementById('proc_subject').value, 
+        Method: document.getElementById('proc_method').value, Step1_Created: document.getElementById('proc_step1').value, 
+        Step2_Sent: document.getElementById('proc_step2').value, Step3_Scanned: document.getElementById('proc_step3').value 
+      };
+      bootstrapProcessModal.hide(); showLoading(true, "데이터 동기화 중..."); 
+      callGasApi("saveProcess", payload, refreshAllSystemData, "공정 제어 상태가 업데이트되었습니다.");
+    });
+    
+    document.querySelectorAll('.modal').forEach(function(modalElement) {
+      modalElement.addEventListener('hide.bs.modal', function() { if (document.activeElement) document.activeElement.blur(); });
+    });
+  </script>
+</body>
+</html>
