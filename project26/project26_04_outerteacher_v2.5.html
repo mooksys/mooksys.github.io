@@ -4,56 +4,51 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>2026 Doje Company List</title>
+    <!-- 구글 웹폰트 로드: 학교 현장에서 가독성이 좋은 IBM Plex Sans KR 적용 -->
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
       href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans+KR:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@400;600&display=swap"
       rel="stylesheet"
     />
+    <!-- 화면을 이미지로 저장하기 위한 오픈소스 라이브러리 -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
-      /* [GEMS 테마 가이드 적용] 신뢰감을 주는 네이비(딥블루)를 메인으로, 몰입감을 주는 민트를 포인트로 설정했습니다. */
+      /* 디자인 시스템 정의 (색상, 모서리 둥글기, 그림자 등 일괄 관리) */
       :root {
         --bg: #f0f2f5;
         --surface: #ffffff;
         --surface2: #f8f9fb;
         --border: #e2e6ea;
-        --text-primary: #1a1d23;
+        --text-primary: #1a1d23;      /* 신뢰감을 주는 딥블루/네이비 계열 블랙 */
         --text-secondary: #5a6270;
         --text-muted: #9aa0ab;
-        
-        /* 교육적 신뢰감의 네이비/딥블루 메인 컬러 */
-        --accent: #1e3a8a; 
-        --accent-light: #dbeafe;
-        
-        /* 안정감과 몰입감을 주는 민트/그린 포인트 컬러 */
-        --point: #20c997; 
-        
+        --accent: #1a73e8;            /* 메인 브랜드 컬러 */
+        --accent-light: #e8f0fe;
         --danger: #d93025;
         --danger-light: #fce8e6;
         --success: #1e7e34;
         --success-light: #e6f4ea;
         --warn: #f59e0b;
-        
-        /* 둥근 모서리로 부드럽고 포용적인 UI 제공 */
         --radius-sm: 6px;
         --radius-md: 10px;
-        --radius-lg: 16px;
+        --radius-lg: 16px;            /* 학생 및 교사 친화적인 둥근 모서리 */
         --shadow-sm: 0 1px 4px rgba(0, 0, 0, 0.07);
         --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.09);
         --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.12);
-        --transition: 0.18s ease;
+        --transition: 0.18s ease;     /* 부드러운 애니메이션 속도 */
       }
 
+      /* 기본 여백 초기화 및 박스 모델 설정 */
       *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
       body { font-family: "IBM Plex Sans KR", sans-serif; background-color: var(--bg); color: var(--text-primary); min-height: 100vh; padding: 24px 20px; }
 
-      /* ── SCREENS (화면 전환용) ── */
+      /* ── 화면 전환용 클래스 ── */
       .screen { display: none; }
       .screen.active { display: block; }
 
-      /* ── AUTH BOX (로그인 화면) ── */
+      /* ── 로그인 및 비밀번호 변경 상자 ── */
       .auth-wrap { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 48px); }
       .auth-box { background: var(--surface); padding: 40px 36px 36px; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); width: 100%; max-width: 380px; border-top: 4px solid var(--accent); animation: slideUp 0.3s ease; }
       .auth-logo { text-align: center; margin-bottom: 28px; }
@@ -63,16 +58,16 @@
       .auth-notice { font-size: 0.8rem; color: var(--danger); background: var(--danger-light); padding: 10px 14px; border-radius: var(--radius-sm); margin-bottom: 18px; text-align: center; }
       .input-group { position: relative; margin-bottom: 14px; }
       .input-group input { width: 100%; padding: 13px 14px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.93rem; font-family: inherit; color: var(--text-primary); background: var(--surface2); transition: border-color var(--transition), box-shadow var(--transition); outline: none; }
-      .input-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.12); background: var(--surface); }
+      .input-group input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.12); background: var(--surface); }
       .input-group input.error { border-color: var(--danger); box-shadow: 0 0 0 3px rgba(217, 48, 37, 0.1); }
       .btn-auth { width: 100%; background: var(--accent); color: white; border: none; padding: 13px; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.95rem; font-family: inherit; cursor: pointer; transition: background var(--transition), transform var(--transition), opacity var(--transition); letter-spacing: 0.3px; margin-top: 4px; }
-      .btn-auth:hover:not(:disabled) { background: #172554; transform: translateY(-1px); } /* 호버 시 더 짙은 네이비 */
+      .btn-auth:hover:not(:disabled) { background: #1557b0; transform: translateY(-1px); }
       .btn-auth:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 
-      /* ── MAIN SCREEN (메인 화면) ── */
+      /* ── 메인 컨테이너 및 헤더 고정 영역 ── */
       .container { max-width: 1080px; margin: 0 auto; animation: fadeIn 0.3s ease; }
       
-      /* ✅ [요청하신 기능 반영] 헤더 영역 고정 (Sticky Header) */
+      /* 스크롤 시 상단에 고정되는 헤더 영역 */
       .header-area { 
         display: flex; 
         justify-content: space-between; 
@@ -80,34 +75,33 @@
         margin-bottom: 24px; 
         flex-wrap: wrap; 
         gap: 14px; 
-        background: rgba(255, 255, 255, 0.95); /* 살짝 투명도를 주어 스크롤 시 예쁘게 보이도록 처리 */
-        backdrop-filter: blur(8px); /* 배경 블러 효과로 가독성 확보 */
+        background: var(--surface); 
         padding: 18px 24px; 
         border-radius: var(--radius-lg); 
         box-shadow: var(--shadow-sm); 
-        
-        /* 스크롤 시 화면 상단에 고정되도록 설정합니다. */
-        position: sticky; 
-        top: 20px; 
-        z-index: 100; /* 다른 카드들 위로 올라오도록 레이어 순위 상향 */
+        position: sticky;             /* 스크롤 고정 핵심 속성 */
+        top: 0;                       /* 최상단에 밀착 */
+        z-index: 100;                 /* 다른 카드 요소 위에 놓이도록 우선순위 지정 */
       }
       
       .header-title { display: flex; align-items: center; gap: 10px; }
       .header-title h1 { font-size: 1.25rem; font-weight: 700; color: var(--text-primary); letter-spacing: -0.5px; }
       .header-title .count-badge { background: var(--accent-light); color: var(--accent); font-size: 0.75rem; font-weight: 700; padding: 3px 10px; border-radius: 999px; font-family: "IBM Plex Mono", monospace; }
 
+      /* 기능 버튼 그룹 (PC에서는 가로 배열, 모바일에서는 토글 처리) */
       .btn-group { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
       .btn-main { border: none; padding: 9px 16px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; color: white; transition: opacity var(--transition), transform var(--transition); font-size: 0.85rem; font-family: inherit; white-space: nowrap; }
       .btn-main:hover:not(:disabled) { opacity: 0.85; transform: translateY(-1px); }
       .btn-main:disabled { opacity: 0.6; cursor: not-allowed; }
       
+      /* 버튼 색상군 정의 (네이비/블루 메인 및 몰입감 주는 포인트 컬러 배합) */
       .btn-blue { background: var(--accent); } 
       .btn-green { background: #34a853; } 
       .btn-gray { background: #4b5563; } 
       .btn-light { background: #9ca3af; } 
       .btn-red { background: var(--danger); }
       .btn-purple { background: #8b5cf6; } 
-      .btn-teal { background: var(--point); } /* 포인트 컬러인 민트색 적용 */
+      .btn-teal { background: #0d9488; }
       
       .btn-user {
         background: var(--surface2);
@@ -124,19 +118,36 @@
         gap: 6px;
       }
 
-      /* ── SEARCH BAR (검색 영역) ── */
+      /* 복원된 모바일 전용 햄버거 버튼 스타일 (PC에서는 숨김) */
+      .hamburger-btn {
+        display: none;
+        background: none;
+        border: 1.5px solid var(--border);
+        border-radius: var(--radius-sm);
+        font-size: 1.3rem;
+        padding: 6px 12px;
+        cursor: pointer;
+        color: var(--text-primary);
+        transition: all var(--transition);
+      }
+      .hamburger-btn:hover {
+        background-color: var(--surface2);
+        border-color: var(--text-secondary);
+      }
+
+      /* ── 검색 바 ── */
       .search-bar { display: flex; gap: 10px; margin-bottom: 20px; align-items: center; }
       .search-wrap { position: relative; flex: 1; }
       .search-wrap .search-icon { position: absolute; left: 13px; top: 50%; transform: translateY(-50%); color: var(--text-muted); font-size: 1rem; pointer-events: none; }
       .search-wrap input { width: 100%; padding: 11px 14px 11px 38px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.9rem; font-family: inherit; background: var(--surface); color: var(--text-primary); transition: border-color var(--transition), box-shadow var(--transition); outline: none; }
-      .search-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); }
+      .search-wrap input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1); }
       .search-clear { background: none; border: 1.5px solid var(--border); border-radius: var(--radius-sm); padding: 10px 14px; font-size: 0.85rem; font-family: inherit; color: var(--text-secondary); cursor: pointer; transition: all var(--transition); white-space: nowrap; font-weight: 600; }
       .search-clear:hover { border-color: var(--accent); color: var(--accent); }
 
       .search-stats { font-size: 0.8rem; color: var(--text-muted); margin-bottom: 16px; font-family: "IBM Plex Mono", monospace; }
       .search-stats strong { color: var(--accent); }
 
-      /* ── CARD GRID (목록 카드 UI) ── */
+      /* ── 그리드 및 기업 명함 카드 ── */
       .card-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(310px, 1fr)); gap: 16px; }
       
       .card {
@@ -151,7 +162,7 @@
         animation: cardIn 0.25s ease both;
       }
       .card:hover { transform: translateY(-3px); box-shadow: var(--shadow-md); }
-      .card.selected { border-color: var(--accent); background: #f8fafc; }
+      .card.selected { border-color: var(--accent); background: #fafcff; }
       
       .card-band { width: 8px; flex-shrink: 0; }
       .card-body { padding: 20px; flex: 1; position: relative; }
@@ -167,13 +178,13 @@
       .value { word-break: break-all; color: var(--text-secondary); }
       .value.address { font-size: 0.8rem; color: var(--text-muted); margin-top: 8px; }
 
-      /* ── EMPTY / LOADING / ERROR ── */
+      /* ── 상태 안내 메시지 상자 ── */
       .status-box { text-align: center; padding: 60px 20px; color: var(--text-muted); background: var(--surface); border-radius: var(--radius-lg); border: 1.5px dashed var(--border); }
       .status-box .status-icon { font-size: 2.5rem; margin-bottom: 12px; }
       .status-box p { font-size: 0.92rem; margin-bottom: 16px; }
       .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin 0.7s linear infinite; margin: 0 auto 14px; }
 
-      /* ── MODAL (이메일 모달창) ── */
+      /* ── 이메일 발송 모달 창 ── */
       .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0, 0, 0, 0.45); z-index: 1000; justify-content: center; align-items: center; backdrop-filter: blur(2px); padding: 20px; }
       .modal-overlay.open { display: flex; animation: fadeIn 0.2s ease; }
       .modal-content { background: var(--surface); padding: 28px; border-radius: var(--radius-lg); width: 100%; max-width: 480px; box-shadow: var(--shadow-lg); animation: slideUp 0.25s ease; }
@@ -181,7 +192,7 @@
       .form-group { margin-bottom: 14px; }
       .form-group label { display: block; font-size: 0.8rem; font-weight: 600; margin-bottom: 6px; color: var(--text-secondary); font-family: "IBM Plex Mono", monospace; }
       .form-group input, .form-group textarea { width: 100%; padding: 10px 12px; border: 1.5px solid var(--border); border-radius: var(--radius-sm); font-size: 0.9rem; font-family: inherit; color: var(--text-primary); background: var(--surface2); outline: none; transition: border-color var(--transition), box-shadow var(--transition); }
-      .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(30, 58, 138, 0.1); background: var(--surface); }
+      .form-group input:focus, .form-group textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(26, 115, 232, 0.1); background: var(--surface); }
       .form-group input[readonly] { background: var(--bg); color: var(--text-muted); cursor: default; font-size: 0.82rem; }
       .form-group textarea { height: 120px; resize: vertical; }
 
@@ -192,42 +203,69 @@
       .btn-cancel { flex: 1; background: var(--surface2); color: var(--text-secondary); border: 1.5px solid var(--border); padding: 11px; border-radius: var(--radius-sm); font-weight: 600; font-size: 0.9rem; cursor: pointer; transition: all var(--transition); }
       .btn-cancel:hover { border-color: var(--text-secondary); }
       .btn-send { flex: 2; background: var(--accent); color: white; border: none; padding: 11px; border-radius: var(--radius-sm); font-weight: 700; font-size: 0.9rem; cursor: pointer; transition: all var(--transition); }
-      .btn-send:hover:not(:disabled) { background: #172554; }
+      .btn-send:hover:not(:disabled) { background: #1557b0; }
       .btn-send:disabled { opacity: 0.6; cursor: not-allowed; }
 
-      /* ── TOAST (알림 메시지) ── */
+      /* ── 토스트 알림 메시지 ── */
       .toast { position: fixed; bottom: 28px; left: 50%; transform: translateX(-50%) translateY(20px); background: #1a1d23; color: white; padding: 12px 22px; border-radius: 999px; font-size: 0.88rem; font-weight: 600; z-index: 9999; opacity: 0; transition: all 0.3s ease; pointer-events: none; white-space: nowrap; box-shadow: var(--shadow-lg); }
       .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
       .toast.success { background: #1e7e34; } .toast.error { background: var(--danger); } .toast.info { background: var(--accent); }
 
-      /* ── HIGHLIGHT & ANIMATIONS ── */
+      /* ── 하이라이트 및 키프레임 애니메이션 ── */
       .highlight { background: #fff3cd; border-radius: 2px; padding: 0 1px; color: var(--text-primary); font-weight: inherit; }
       @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
       @keyframes slideUp { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
       @keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
       @keyframes spin { to { transform: rotate(360deg); } }
 
-      /* ── FOOTER (하단 정보) ── */
+      /* ── 푸터 디자인 시스템 반영 ── */
       .site-footer { margin-top: 48px; padding-bottom: 32px; }
-      .footer-card { background: linear-gradient(135deg, #1e3a8a 0%, #0f172a 100%); border-radius: var(--radius-lg); padding: 26px 30px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; box-shadow: var(--shadow-md); position: relative; overflow: hidden; }
-      .footer-card::before { content: ""; position: absolute; top: -50px; right: -50px; width: 180px; height: 180px; background: rgba(255, 255, 255, 0.05); border-radius: 50%; pointer-events: none; }
-      .footer-card::after { content: ""; position: absolute; bottom: -35px; left: 80px; width: 110px; height: 110px; background: rgba(32, 201, 151, 0.1); border-radius: 50%; pointer-events: none; }
+      .footer-card { background: linear-gradient(135deg, #1a1d23 0%, #2d3340 100%); border-radius: var(--radius-lg); padding: 26px 30px; display: flex; align-items: center; justify-content: space-between; gap: 20px; flex-wrap: wrap; box-shadow: var(--shadow-md); position: relative; overflow: hidden; }
+      .footer-card::before { content: ""; position: absolute; top: -50px; right: -50px; width: 180px; height: 180px; background: rgba(26, 115, 232, 0.1); border-radius: 50%; pointer-events: none; }
+      .footer-card::after { content: ""; position: absolute; bottom: -35px; left: 80px; width: 110px; height: 110px; background: rgba(52, 168, 83, 0.07); border-radius: 50%; pointer-events: none; }
       .footer-left { display: flex; align-items: center; gap: 16px; position: relative; z-index: 1; }
-      .footer-emblem { width: 50px; height: 50px; background: linear-gradient(135deg, #1e3a8a, #20c997); border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; box-shadow: 0 4px 14px rgba(30, 58, 138, 0.4); }
-      .footer-school { font-size: 0.72rem; color: rgba(255, 255, 255, 0.6); font-family: "IBM Plex Mono", monospace; letter-spacing: 0.5px; margin-bottom: 3px; text-transform: uppercase; }
+      .footer-emblem { width: 50px; height: 50px; background: linear-gradient(135deg, #1a73e8, #34a853); border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; box-shadow: 0 4px 14px rgba(26, 115, 232, 0.4); }
+      .footer-school { font-size: 0.72rem; color: rgba(255, 255, 255, 0.45); font-family: "IBM Plex Mono", monospace; letter-spacing: 0.5px; margin-bottom: 3px; text-transform: uppercase; }
       .footer-title { font-size: 1rem; font-weight: 700; color: #ffffff; letter-spacing: -0.3px; }
-      /* [GEMS 교육적 디자인 목적] 다른 학교/선생님들도 쉽게 수정하여 활용할 수 있도록 저작권 표기를 템플릿화 하였습니다. */
-      .footer-sub { font-size: 0.75rem; color: rgba(255, 255, 255, 0.45); margin-top: 3px; }
+      .footer-sub { font-size: 0.75rem; color: rgba(255, 255, 255, 0.35); margin-top: 3px; }
       .footer-right { display: flex; gap: 8px; align-items: center; position: relative; z-index: 1; flex-wrap: wrap; }
-      .footer-badge { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.11); color: rgba(255, 255, 255, 0.7); font-size: 0.72rem; font-weight: 600; padding: 5px 11px; border-radius: 999px; font-family: "IBM Plex Mono", monospace; }
-      .footer-badge.accent { background: rgba(30, 58, 138, 0.4); border-color: rgba(32, 201, 151, 0.4); color: #20c997; }
+      .footer-badge { background: rgba(255, 255, 255, 0.07); border: 1px solid rgba(255, 255, 255, 0.11); color: rgba(255, 255, 255, 0.55); font-size: 0.72rem; font-weight: 600; padding: 5px 11px; border-radius: 999px; font-family: "IBM Plex Mono", monospace; }
+      .footer-badge.accent { background: rgba(26, 115, 232, 0.22); border-color: rgba(26, 115, 232, 0.38); color: #7cb8ff; }
+
+      /* ── 핵심: 모바일(태블릿 이하) 반응형 미디어 쿼리 세밀 조정 ── */
+      @media (max-width: 768px) {
+        body { padding: 14px 12px; } 
+        
+        /* 헤더 내부 레이아웃 변경 */
+        .header-area { padding: 14px 16px; position: sticky; top: 0; justify-content: space-between; }
+        
+        /* 모바일에서 햄버거 버튼 보이도록 설정 */
+        .hamburger-btn { display: block; }
+        
+        /* 기본 상태에서는 상단 기능 버튼 그룹을 숨김 처리 */
+        .btn-group { 
+          display: none; 
+          width: 100%; 
+          flex-direction: column; 
+          gap: 8px; 
+          margin-top: 12px; 
+          padding-top: 12px; 
+          border-top: 1px solid var(--border); 
+        }
+        
+        /* 햄버거 메뉴를 누르면 활성화되는 클래스 (.active) */
+        .btn-group.active { display: flex; }
+        .btn-main { width: 100%; text-align: center; justify-content: center; padding: 11px; }
+        .btn-user { width: 100%; justify-content: center; }
+      }
 
       @media (max-width: 600px) {
-        body { padding: 14px 12px; } .header-area { padding: 14px 16px; top: 10px; } .card-grid { grid-template-columns: 1fr; }
+        .card-grid { grid-template-columns: 1fr; }
       }
     </style>
   </head>
   <body>
+    <!-- 로그인 스크린 -->
     <div id="loginScreen" class="screen">
       <div class="auth-wrap">
         <div class="auth-box">
@@ -247,6 +285,7 @@
       </div>
     </div>
 
+    <!-- 초기 비밀번호 변경 스크린 -->
     <div id="pwChangeScreen" class="screen">
       <div class="auth-wrap">
         <div class="auth-box">
@@ -268,13 +307,20 @@
       </div>
     </div>
 
+    <!-- 메인 대시보드 스크린 -->
     <div id="mainScreen" class="screen container">
+      <!-- 고정식 상단 바 및 반응형 메뉴 영역 -->
       <div class="header-area">
         <div class="header-title">
           <h1>🏢 2026 Doje Company List</h1>
           <span class="count-badge" id="totalCount">0건</span>
         </div>
-        <div class="btn-group">
+        
+        <!-- 복원 및 배치된 모바일 전용 햄버거 토글 버튼 -->
+        <button class="hamburger-btn" id="hamburgerBtn" aria-label="메뉴 열기">☰</button>
+        
+        <!-- 상단 기능 제어 버튼 모음 -->
+        <div class="btn-group" id="btnGroup">
           <div class="btn-user" id="userBadge" title="현재 로그인된 계정">
             <span>👤</span> <span id="displayUserId">User</span>
           </div>
@@ -289,6 +335,7 @@
         </div>
       </div>
 
+      <!-- 실시간 다중 검색 바 영역 -->
       <div class="search-bar">
         <div class="search-wrap">
           <span class="search-icon">🔍</span>
@@ -298,12 +345,16 @@
       </div>
       <div class="search-stats" id="searchStats" style="display: none"></div>
 
+      <!-- 데이터 처리 상태 창 -->
       <div id="statusBox" class="status-box">
         <div class="spinner"></div>
         <p>데이터를 불러오는 중입니다...</p>
       </div>
+      
+      <!-- 주소록 카드 그리드 출력 위치 -->
       <div id="cardGrid" class="card-grid"></div>
 
+      <!-- 성일정보고등학교 교육 목적 커스텀 푸터 -->
       <footer class="site-footer">
         <div class="footer-card">
           <div class="footer-left">
@@ -311,7 +362,7 @@
             <div>
               <div class="footer-school">Sungil Information High School</div>
               <div class="footer-title">성일정보고등학교 도제</div>
-              <div class="footer-sub">© 2026 [성일정보고등학교]. All Rights Reserved.</div>
+              <div class="footer-sub">산학일체형 도제학교 · 현장 파트너 관리 시스템 · © 2026 All Rights Reserved.</div>
             </div>
           </div>
           <div class="footer-right">
@@ -323,6 +374,7 @@
       </footer>
     </div>
 
+    <!-- 다중 이메일 작성 및 전송 팝업 모달 -->
     <div id="emailModal" class="modal-overlay">
       <div class="modal-content">
         <h3>✉️ 이메일 작성</h3>
@@ -353,12 +405,12 @@
       </div>
     </div>
 
+    <!-- 알림용 스낵바 토스트 -->
     <div id="toast" class="toast"></div>
 
     <script>
-      // [GEMS 행정/보안 목적] 메일 첨부파일의 용량 한도를 20MB로 제한하여 Google Apps Script 실행 시간 초과를 방지합니다.
-      const MAX_FILE_SIZE = 20 * 1024 * 1024; // 20MB
-      const SESSION_KEY = "doje_session";
+      const MAX_FILE_SIZE = 20 * 1024 * 1024; // 파일 한도 20MB 설정
+      const SESSION_KEY = "doje_session";     // 보안 세션 토큰 키
 
       let GAS_URL = "";
       let allData = [];
@@ -369,11 +421,12 @@
       let _tempSenderName = "";
       let _tempReplyEmail = "";
 
-      // [GEMS UI 목적] 구글 시트에서 가져온 기업명에 따라 시각적으로 쉽게 구분할 수 있도록 컬러 팔레트를 매핑합니다.
-      const palette = ["#1e3a8a", "#20c997", "#ea4335", "#fbbc04", "#9334e6", "#00bcd4", "#ff9800", "#009688", "#673ab7", "#795548"];
+      /* 카드 구분 밴드용 소프트 파스텔/브랜드 색상 조합 */
+      const palette = ["#1a73e8", "#34a853", "#ea4335", "#fbbc04", "#9334e6", "#00bcd4", "#ff9800", "#009688", "#673ab7", "#795548"];
       const companyColorMap = {};
       let colorIndex = 0;
 
+      /* 기업마다 시각적 구분이 용이하도록 랜덤/고정 색상을 할당하는 함수 */
       function getCompanyColor(name) {
         if (!companyColorMap[name]) {
           companyColorMap[name] = palette[colorIndex % palette.length];
@@ -382,7 +435,7 @@
         return companyColorMap[name];
       }
 
-      // [GEMS 로직 설명] 페이지가 처음 로드될 때 설정 파일(json)을 읽어오고, 로그인된 세션이 있다면 메인 화면을 바로 보여줍니다.
+      /* 이벤트 리스너 등록 및 로컬 JSON 연동 시작 */
       window.addEventListener("DOMContentLoaded", async () => {
         document.getElementById("btnLogin").addEventListener("click", attemptLogin);
         document.getElementById("loginPw").addEventListener("keyup", (e) => { if (e.key === "Enter") attemptLogin(); });
@@ -401,10 +454,36 @@
         document.getElementById("btnClearSearch").addEventListener("click", clearSearch);
         document.getElementById("fileInput").addEventListener("change", validateFiles);
 
+        /* ── 복원 핵심: 햄버거 메뉴 토글 동작 구현 ── */
+        const hamburgerBtn = document.getElementById("hamburgerBtn");
+        const btnGroup = document.getElementById("btnGroup");
+
+        hamburgerBtn.addEventListener("click", (e) => {
+          e.stopPropagation(); // 이벤트 버블링 방지
+          btnGroup.classList.toggle("active");
+          // 활성화 여부에 따라 아이콘을 직관적으로 스위칭
+          if (btnGroup.classList.contains("active")) {
+            hamburgerBtn.textContent = "✖";
+          } else {
+            hamburgerBtn.textContent = "☰";
+          }
+        });
+
+        /* 모바일 화면에서 메뉴가 열렸을 때, 메뉴창 외부 영역을 터치/클릭하면 자동으로 닫히는 UX 편의기능 */
+        document.addEventListener("click", (e) => {
+          if (window.innerWidth <= 768 && btnGroup.classList.contains("active")) {
+            if (!btnGroup.contains(e.target) && e.target !== hamburgerBtn) {
+              btnGroup.classList.remove("active");
+              hamburgerBtn.textContent = "☰";
+            }
+          }
+        });
+
         document.getElementById("emailModal").addEventListener("click", (e) => {
           if (e.target === document.getElementById("emailModal")) closeModal();
         });
 
+        /* 외부 엔드포인트 연동 API 주소 파싱 */
         try {
           const response = await fetch("project26_04_gas_url.json");
           if (!response.ok) throw new Error("JSON 파일을 찾을 수 없습니다.");
@@ -427,13 +506,13 @@
         }
       });
 
-      // [GEMS UI 목적] 화면 간 전환을 담당하는 함수입니다. (예: 로그인 화면 -> 메인 데이터 화면)
+      /* 단일 페이지 내 레이어 화면 전환 함수 */
       function switchScreen(id) {
         document.querySelectorAll(".screen").forEach((s) => s.classList.remove("active"));
         document.getElementById(id).classList.add("active");
       }
 
-      // [GEMS 로직 설명] GAS 서버로 아이디/비밀번호를 보내어 로그인을 시도합니다.
+      /* 보안 서버 인증 및 로그인 수행 */
       async function attemptLogin() {
         const id = document.getElementById("loginId").value.trim();
         const pw = document.getElementById("loginPw").value.trim();
@@ -476,11 +555,11 @@
             showToast(res.error || "비밀번호가 올바르지 않습니다.", "error");
             pwInput.classList.add("error");
           }
-        } catch (err) { showToast("학교 망 통신 지연 혹은 서버 오류가 발생했습니다.", "error"); } 
+        } catch (err) { showToast("서버 오류가 발생했습니다.", "error"); } 
         finally { btn.textContent = "로그인"; btn.disabled = false; }
       }
 
-      // [GEMS 보안/행정 목적] 발급된 초기 비밀번호를 선생님 본인만의 비밀번호로 변경합니다.
+      /* 패스워드 변경 절차 제어 */
       async function attemptPwChange() {
         const newPw = document.getElementById("newPw").value.trim();
         const newPwConfirm = document.getElementById("newPwConfirm").value.trim();
@@ -509,10 +588,11 @@
             switchScreen("mainScreen");
             fetchData();
           } else { showToast(res.error || "변경에 실패했습니다.", "error"); }
-        } catch (err) { showToast("학교 망 통신 지연 혹은 서버 오류가 발생했습니다.", "error"); } 
+        } catch (err) { showToast("서버 오류가 발생했습니다.", "error"); } 
         finally { btn.textContent = "변경 완료"; btn.disabled = false; }
       }
 
+      /* 로그아웃 처리 및 데이터 초기화 */
       function logout() {
         sessionStorage.removeItem(SESSION_KEY);
         sessionUser = ""; allData = []; filtered = [];
@@ -520,11 +600,16 @@
         document.getElementById("cardGrid").innerHTML = ""; document.getElementById("searchInput").value = "";
         document.getElementById("displayUserId").textContent = "User";
         document.getElementById("searchStats").style.display = "none";
+        
+        // 모바일 메뉴 상태 초기화
+        document.getElementById("btnGroup").classList.remove("active");
+        document.getElementById("hamburgerBtn").textContent = "☰";
+        
         showStatusBox("loading");
         switchScreen("loginScreen");
       }
 
-      // [GEMS 데이터 연동 목적] 구글 시트에서 연락처 리스트를 가져옵니다. 비전공자 교사도 시트만 수정하면 자동 연동됩니다.
+      /* GAS 데이터 시트 파싱 및 덤프 */
       async function fetchData() {
         showStatusBox("loading");
         try {
@@ -540,7 +625,6 @@
 
           if (!data || data.length < 2) { showStatusBox("empty"); return; }
 
-          // 첫 번째 행(헤더)을 기준으로 각 데이터 컬럼의 위치를 파악합니다.
           const rawHeaders = data[0];
           rawHeaders.forEach((h, i) => { headers[h] = i; });
 
@@ -551,9 +635,10 @@
         } catch (error) { showStatusBox("error"); }
       }
 
+      /* 컬럼 인덱스 매핑 예외 처리 */
       function col(name) { return headers[name] !== undefined ? headers[name] : { 기업명: 1, 담당업무: 2, 이름: 3, 직급: 4, 전화번호: 5, 핸드폰: 6, 이메일: 7, 주소: 8 }[name]; }
 
-      // [GEMS UX 목적] 검색한 단어를 노란색 형광펜처럼 하이라이트 처리하여 직관성을 높입니다.
+      /* 검색 쿼리에 걸맞은 일치 텍스트 하이라이트 기능 */
       function highlight(text, query) {
         if (!query || !text) return text || "-";
         const escaped = String(text).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -561,7 +646,7 @@
         return String(text).replace(new RegExp(`(${qEscaped})`, "gi"), '<mark class="highlight">$1</mark>');
       }
 
-      // [GEMS 뷰 생성] 필터링된 데이터를 바탕으로 각각의 명함 카드 UI를 생성하여 화면에 추가합니다.
+      /* 주소록 데이터 렌더링 엔진 */
       function renderCards(rows, query = "") {
         const grid = document.getElementById("cardGrid");
         grid.innerHTML = ""; hideStatusBox();
@@ -603,6 +688,7 @@
             </div>
           `;
 
+          /* 클릭 시 카드 토글 선택 바인딩 */
           card.addEventListener("click", (e) => {
             if (e.target.type === "checkbox") return;
             const cb = card.querySelector(".contact-check");
@@ -614,7 +700,7 @@
         });
       }
 
-      // [GEMS 기능 설명] 실시간 검색 기능입니다. 이름, 기업명, 직급뿐 아니라 연락처 번호로도 검색이 가능합니다.
+      /* 복합 키워드 검색 로직 처리 */
       function handleSearch() {
         const q = document.getElementById("searchInput").value.trim().toLowerCase();
         if (!q) { 
@@ -641,7 +727,7 @@
       function selectAll() { document.querySelectorAll(".contact-check").forEach((cb) => { cb.checked = true; cb.closest(".card").classList.add("selected"); }); }
       function deselectAll() { document.querySelectorAll(".contact-check").forEach((cb) => { cb.checked = false; cb.closest(".card").classList.remove("selected"); }); }
 
-      // [GEMS 행정지원 기능] 선택한 대상의 전화번호를 한 번에 복사하여 학교용 문자발송 시스템(SMS)에 붙여넣기 편리하도록 돕습니다.
+      /* 클립보드 연락처 멀티 복사 함수 */
       async function copySelectedPhones() {
         const checks = document.querySelectorAll(".contact-check:checked");
         const phones = Array.from(checks).map((c) => c.dataset.phone).filter((p) => p && p.trim() !== "" && p !== "-");
@@ -651,7 +737,7 @@
         catch { const ta = Object.assign(document.createElement("textarea"), { value: textToCopy, style: "position:fixed;top:-9999px;" }); document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); showToast(`📱 ${phones.length}건 복사됨`, "success"); }
       }
 
-      // [GEMS 행정지원 기능] 단체 메일 발송을 위해 선택한 이메일 주소를 콤마(,) 구분자로 복사합니다.
+      /* 클립보드 이메일 주소 멀티 복사 함수 */
       async function copySelectedEmails() {
         const checks = document.querySelectorAll(".contact-check:checked");
         const emails = Array.from(checks).map((c) => c.dataset.email).filter((e) => e && e.trim() !== "" && e !== "-");
@@ -661,7 +747,7 @@
         catch { const ta = Object.assign(document.createElement("textarea"), { value: textToCopy, style: "position:fixed;top:-9999px;" }); document.body.appendChild(ta); ta.select(); document.execCommand("copy"); document.body.removeChild(ta); showToast(`📧 ${emails.length}건 복사됨`, "success"); }
       }
 
-      // [GEMS 행정지원 기능] 기안 문서나 출장 결과 보고서 첨부용으로 선택된 기업 연락처를 이미지로 캡처하여 저장합니다.
+      /* 스크린샷 렌더러 기반 정적 고해상도 이미지 다운로드 */
       async function saveSelectedAsImage() {
         const selectedCards = document.querySelectorAll('.card.selected');
         if (selectedCards.length === 0) {
@@ -787,6 +873,7 @@
         }
       }
 
+      /* 메일 전송 다이얼로그 바인딩 */
       function openBulkModal() {
         const checks = document.querySelectorAll(".contact-check:checked");
         const emails = Array.from(checks).map((c) => c.dataset.email).filter((e) => e && e !== "-" && isValidEmail(e));
@@ -811,7 +898,7 @@
         const r = new FileReader(); r.onload = () => res({ name: file.name, data: r.result }); r.onerror = rej; r.readAsDataURL(file);
       });
 
-      // [GEMS 업무 자동화] 선택한 담당자들에게 안내 공문 및 첨부파일을 이메일로 일괄 발송합니다.
+      /* 메일 발송 트랜잭션 수행 */
       async function sendMail() {
         const subject = document.getElementById("mailSubject").value.trim();
         const body    = document.getElementById("mailBody").value.trim();
@@ -836,10 +923,11 @@
 
           if (res.success) { showToast(`✉️ ${res.sent}건 메일이 발송되었습니다.`, "success"); closeModal(); } 
           else { showToast("발송 실패: " + (res.error || "알 수 없는 오류"), "error"); }
-        } catch (err) { showToast("학교 망 문제 또는 네트워크 오류: " + err.message, "error"); } 
+        } catch (err) { showToast("네트워크 오류: " + err.message, "error"); } 
         finally { sendBtn.textContent = "발송하기"; sendBtn.disabled = false; }
       }
 
+      /* 상태 안내 UI 인터페이스 제어 */
       function showStatusBox(type) {
         const box = document.getElementById("statusBox"); const grid = document.getElementById("cardGrid");
         grid.innerHTML = ""; box.style.display = "block";
