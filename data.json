@@ -123,6 +123,11 @@
         "title": "도제 일학습병행 내부평가시스템 v1.0",
         "url": "project26/doje_project05_innertest_v1.0.html",
         "type": "secondary"
+      },
+      {
+        "title": "도제 일학습병행 내부평가 문제은행 v1.0",
+        "url": "project26/doje_project06_testbank2_v160.html",
+        "type": "primary"
       }
     ]
   },
