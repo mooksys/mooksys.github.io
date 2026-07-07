@@ -77,12 +77,12 @@
       {
         "title": "꾸르실료 사무국+GAS v0.2",
         "url": "gwanggyo_cathedral/index_cursillo_v0.2.html",
-        "type": "primary"
+        "type": "secondary"
       },
       {
         "title": "광교1동성당 울뜨레야명단(2026)",
         "url": "project26/project26_06_ultreya_v1.html",
-        "type": "secondary"
+        "type": "primary"
       },
       {
         "title": "봉고차 운전봉사 일정",
@@ -92,7 +92,7 @@
       {
         "title": "울뜨레야 개인기도 집계 v2",
         "url": "gwanggyo_cathedral/index_prayer_v2.html",
-        "type": "secondary"
+        "type": "primary"
       }
     ]
   },
@@ -117,7 +117,7 @@
       {
         "title": "Beacon System",
         "url": "project26/project26_05_becon_v1.html",
-        "type": "secondary"
+        "type": "primary"
       },
       {
         "title": "도제 내부평가시스템 v1.0",
@@ -152,7 +152,7 @@
       {
         "title": "성일정보 도제(3-12)아침인사 v0.4",
         "url": "school_project26/school_project_03_greeting.v0.4.html",
-        "type": "secondary"
+        "type": "primary"
       },
       {
         "title": "성일정보 도제(3-12)학사일정표 v1.1",
