@@ -101,16 +101,16 @@
     "title": "Doje Project",
     "icon": "fa-industry",
     "category": "project",
-    "description": "도제 교육 지원 시스템 — 내부평가, 기업 연락처, 비콘 출결 관리",
+    "description": "도제 교육 지원 시스템 — 내부평가, 기업 연락처, 비콘 출결 관리,내부과목 문제은행 시스템",
     "visible": true,
     "links": [
       {
-        "title": "도제기업 연락처 관리 System v2.5",
+        "title": "도제 기업연락처 관리 System v2.5",
         "url": "project26/project26_04_outerteacher_v2.5.html",
         "type": "primary"
       },
       {
-        "title": "도제반 내부평가 과목정리 v4",
+        "title": "도제 내부평가 과목정리 v4",
         "url": "project26/project26_03_innertest_v4.html",
         "type": "secondary"
       },
@@ -120,12 +120,12 @@
         "type": "secondary"
       },
       {
-        "title": "도제 일학습병행 내부평가시스템 v1.0",
+        "title": "도제 내부평가시스템 v1.0",
         "url": "project26/doje_project05_innertest_v1.0.html",
         "type": "secondary"
       },
       {
-        "title": "도제 일학습병행 내부평가 문제은행 v1.0",
+        "title": "도제 내부평가 문제은행 v1.0",
         "url": "project26/doje_project06_testbank2_v160.html",
         "type": "primary"
       }
