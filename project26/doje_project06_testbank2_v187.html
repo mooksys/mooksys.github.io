@@ -1,0 +1,2418 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>문제은행 대시보드</title>
+<style>
+    /* ============================================================
+     전역 CSS 변수 (컬러 팔레트, 테두리 반경 등 테마 토큰)
+     새 색상을 추가/변경하려면 여기서 변수만 수정하면 전체 반영됨
+     ============================================================ */
+:root{
+    --bg:#f7f8fb;
+    --surface:#ffffff;
+    --border:#e5e7eb;
+    --text:#111827;
+    --text-secondary:#6b7280;
+    --primary:#4f46e5;
+    --primary-light:#eef2ff;
+    --success:#10b981;
+    --warning:#f59e0b;
+    --danger:#ef4444;
+    --essay:#3b82f6;
+    --question:#8b5cf6;
+    --presentation:#f59e0b;
+    --radius:12px;
+  }
+    /* 전역 리셋 */
+*{box-sizing:border-box;margin:0;padding:0;}
+  body{
+    font-family:-apple-system,BlinkMacSystemFont,"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Segoe UI",Roboto,sans-serif;
+    background:var(--bg);
+    color:var(--text);
+    line-height:1.5;
+  }
+  #app{min-height:100vh;display:flex;flex-direction:column;}
+
+  /* ── 상단 헤더 (타이틀 / 새로고침 / GAS 연결 URL 입력) ── */
+  .header{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:16px 24px;background:var(--surface);border-bottom:1px solid var(--border);
+    flex-wrap:wrap;gap:12px;position:sticky;top:0;z-index:10;
+  }
+  .header h1{font-size:18px;font-weight:700;display:flex;align-items:center;gap:8px;white-space:nowrap;}
+  .header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap;}
+  .input{
+    padding:9px 12px;border:1px solid var(--border);border-radius:8px;font-size:13px;width:280px;outline:none;transition:border-color .15s;
+  }
+  .input:focus{border-color:var(--primary);}
+  textarea.input{resize:vertical;font-family:inherit;width:100%;}
+  select.input{cursor:pointer;}
+  .btn{
+    padding:9px 16px;border-radius:8px;border:1px solid var(--border);background:var(--surface);
+    font-size:13px;font-weight:600;cursor:pointer;transition:all .15s;color:var(--text);
+  }
+  .btn:hover{background:#f3f4f6;}
+  .btn-primary{background:var(--primary);color:#fff;border-color:var(--primary);}
+  .btn-primary:hover{background:#4338ca;}
+  .btn-ghost{border:none;background:transparent;font-size:16px;padding:8px 10px;}
+  .btn-sm{padding:6px 12px;font-size:12px;}
+  .icon-btn{border:none;background:none;cursor:pointer;font-size:13px;padding:4px 6px;border-radius:6px;}
+  .icon-btn:hover{background:#f3f4f6;}
+  .status-dot{width:9px;height:9px;border-radius:50%;background:#d1d5db;display:inline-block;transition:background .2s;}
+  .status-dot.on{background:var(--success);}
+  .status-dot.error{background:var(--danger);}
+  .status-dot.loading{background:var(--warning);}
+
+  /* ── 상단 탭 내비게이션 (개요/데이터입력/기업별보기/학생검색/통계/시험지배포) ── */
+  .tabs{
+    display:flex;gap:4px;padding:0 24px;background:var(--surface);border-bottom:1px solid var(--border);overflow-x:auto;
+  }
+  .tab-btn{
+    padding:14px 16px;border:none;background:none;font-size:14px;font-weight:600;color:var(--text-secondary);
+    cursor:pointer;border-bottom:2px solid transparent;white-space:nowrap;transition:all .15s;
+  }
+  .tab-btn.active{color:var(--primary);border-bottom-color:var(--primary);}
+  .tab-btn:hover{color:var(--text);}
+
+  /* ── 본문 레이아웃 컨테이너: 실제 내용은 JS render()가 innerHTML로 채움 ── */
+  main{flex:1;padding:24px;max-width:1100px;width:100%;margin:0 auto;}
+
+  /* ── 요약 카드 그리드 (개요 탭 상단 통계 카드 4개) ── */
+  .summary-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
+  .summary-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;}
+  .summary-card .num{font-size:28px;font-weight:800;color:var(--text);}
+  .summary-card .label{font-size:13px;color:var(--text-secondary);margin-top:4px;}
+  button.summary-card{cursor:pointer;text-align:left;font:inherit;width:100%;transition:all .15s;color:var(--text);}
+  button.summary-card:hover{border-color:var(--primary);background:var(--primary-light);}
+
+  /* ── 경고/알림 박스 (미배정 과목, 문제 누락 등 안내) ── */
+  .warning-box{
+    background:#fffbeb;border:1px solid #fde68a;border-radius:var(--radius);padding:16px 20px;margin-bottom:20px;
+  }
+  .warning-box.ok{background:#ecfdf5;border-color:#a7f3d0;}
+  .warning-box h3{font-size:14px;margin-bottom:8px;display:flex;align-items:center;gap:6px;}
+  .warning-box ul{padding-left:20px;font-size:13px;color:var(--text-secondary);}
+  .warning-box li{margin-bottom:4px;}
+
+  /* ── 2단 레이아웃: 좌측 목록 패널 + 우측 상세 패널 (기업별 보기 등에서 사용) ── */
+  .layout-2col{display:grid;grid-template-columns:320px 1fr;gap:20px;}
+  .panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:16px;}
+  .panel-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;gap:8px;flex-wrap:wrap;}
+  .company-card{
+    padding:14px;border-radius:10px;border:1px solid var(--border);margin-bottom:8px;cursor:pointer;transition:all .15s;
+  }
+  .company-card:hover{border-color:var(--primary);background:var(--primary-light);}
+  .company-card.active{border-color:var(--primary);background:var(--primary-light);}
+  .company-card .name{font-weight:700;font-size:14px;}
+  .company-card .meta{font-size:12px;color:var(--text-secondary);margin-top:4px;}
+  .card-row{display:flex;justify-content:space-between;align-items:flex-start;gap:8px;}
+  .card-actions{display:flex;gap:2px;flex-shrink:0;}
+
+  /* ── 과목 칩 그리드 및 드래그앤드롭(과목 순서 변경) 관련 스타일 ── */
+  .subject-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0;}
+  .subject-chip{
+    padding:12px;border:1.5px solid var(--border);border-radius:10px;cursor:pointer;transition:border-color .15s,background .15s,box-shadow .15s;
+    user-select:none;position:relative;
+  }
+  .subject-chip:hover,.subject-chip.active{border-color:var(--primary);background:var(--primary-light);}
+  .subject-chip.drag-source{opacity:0.5;border:2px dashed var(--primary);}
+  .subject-chip.drag-over{border:2px solid var(--primary);background:#e0e7ff;box-shadow:0 4px 14px rgba(79,70,229,0.18);}
+  .subject-chip .drag-handle{
+    position:absolute;top:8px;right:8px;font-size:14px;color:#c7c9d4;
+    cursor:grab;padding:2px 4px;border-radius:4px;line-height:1;
+  }
+  .subject-chip .drag-handle:hover{color:var(--primary);background:var(--primary-light);}
+  .subject-chip .sname{font-weight:600;font-size:13px;}
+  .subject-chip .scount{font-size:11px;color:var(--text-secondary);margin-top:4px;}
+  .subject-chip .scount.incomplete{color:var(--danger);}
+
+  /* 과목 카드 상단의 "제N과목" 순번 라벨 */
+  .subject-order-label{
+    display:inline-block;font-size:10px;font-weight:700;color:var(--primary);
+    background:var(--primary-light);padding:2px 8px;border-radius:20px;margin-bottom:6px;
+  }
+  /* 과목 카드 하단의 순서 이동(↑앞으로 / ↓뒤로) 버튼 */
+  .subject-order-btns{display:flex;gap:6px;margin-top:10px;}
+  .order-btn{
+    flex:1;display:inline-flex;align-items:center;justify-content:center;gap:4px;
+    padding:7px 8px;border:1.5px solid var(--border);border-radius:8px;
+    background:#fff;font-size:11.5px;font-weight:700;color:var(--text-secondary);
+    cursor:pointer;transition:all .15s;line-height:1.2;
+  }
+  .order-btn:hover{
+    border-color:var(--primary);background:var(--primary-light);color:var(--primary);
+    transform:translateY(-1px);box-shadow:0 3px 8px rgba(79,70,229,0.18);
+  }
+  .order-btn:active{transform:translateY(0);box-shadow:none;}
+  .order-btn-spacer{flex:1;}
+  .drag-ghost{
+    position:fixed;pointer-events:none;z-index:9999;opacity:0.85;
+    background:#fff;border:2px solid var(--primary);border-radius:10px;
+    padding:10px 14px;font-size:12px;font-weight:700;color:var(--primary);
+    box-shadow:0 8px 24px rgba(79,70,229,0.25);white-space:nowrap;
+    transform:translate(-50%,-50%);display:none;
+  }
+  /* ── 과목 순서 변경 모달 내 리스트(▲▼ 버튼 방식) 스타일 ── */
+  .reorder-list{display:flex;flex-direction:column;gap:8px;}
+  .reorder-item{
+    display:flex;align-items:center;gap:10px;
+    padding:10px 14px;background:#fafafa;
+    border:1.5px solid var(--border);border-radius:10px;
+    transition:all .15s;
+  }
+  .reorder-item:hover{border-color:var(--primary);background:var(--primary-light);}
+  .reorder-num{font-size:12px;font-weight:800;color:var(--primary);width:48px;flex-shrink:0;text-align:center;}
+  .reorder-name{flex:1;font-size:13px;font-weight:600;}
+  .reorder-btns{display:flex;flex-direction:column;gap:3px;flex-shrink:0;}
+  .reorder-arrow{
+    border:1px solid var(--border);background:#fff;border-radius:5px;
+    font-size:12px;padding:3px 8px;cursor:pointer;color:var(--text-secondary);
+    transition:all .15s;line-height:1.2;
+  }
+  .reorder-arrow:hover{background:var(--primary);color:#fff;border-color:var(--primary);}
+  .reorder-arrow:disabled{opacity:0.3;cursor:default;pointer-events:none;}
+  .share-tag{font-size:10px;color:var(--text-secondary);font-weight:500;}
+
+  /* ── 문제유형 뱃지 (서술형/질문형/발표형) 스타일 ── */
+  .badge{
+    display:inline-flex;align-items:center;gap:4px;
+    padding:4px 11px;border-radius:20px;font-size:11px;font-weight:700;
+    color:#fff;letter-spacing:0.1px;line-height:1.3;
+    box-shadow:0 2px 5px rgba(15,23,42,0.16);
+    white-space:nowrap;flex-shrink:0;width:max-content;
+  }
+  .badge-essay{background:linear-gradient(135deg,#60a5fa,var(--essay));}
+  .badge-question{background:linear-gradient(135deg,#a78bfa,var(--question));}
+  .badge-presentation{background:linear-gradient(135deg,#fbbf24,var(--presentation));}
+  .badge-default{background:linear-gradient(135deg,#cbd5e1,#9ca3af);}
+
+  /* ── 문제 카드 및 모범답안 표시 스타일 ── */
+  .question-item{
+    border:1px solid var(--border);border-radius:10px;padding:14px;margin-bottom:8px;
+  }
+  .question-item .qhead{display:flex;align-items:center;margin-bottom:6px;gap:8px;}
+  .question-item .qnum{font-weight:700;font-size:13px;}
+  .question-item .qpoint{font-size:12px;color:var(--text-secondary);margin-left:auto;}
+  .ncs-answer{
+    display:flex;gap:10px;
+    font-size:13.5px;color:#374151;
+    background:#f9fafb;border-left:3px solid var(--border);
+    padding:8px 12px;margin-left:14px;
+  }
+  .ncs-answer-label{
+    font-weight:700;color:var(--text-secondary);
+    white-space:nowrap;flex-shrink:0;font-size:13.5px;
+  }
+  .ncs-answer-content{white-space:pre-wrap;line-height:1.8;font-size:13.5px;}
+  .qanswer{
+    display:flex;gap:10px;
+    font-size:13.5px;color:var(--text-secondary);
+    margin-top:8px;padding:8px 10px;
+    background:#f9fafb;border-left:3px solid var(--border);
+  }
+  .qanswer-label{font-weight:700;white-space:nowrap;flex-shrink:0;font-size:13.5px;}
+
+  /* ── 공통 테이블 스타일 (학생 검색 결과 등) ── */
+  table{width:100%;border-collapse:collapse;font-size:13px;}
+  th{text-align:left;padding:10px 12px;color:var(--text-secondary);font-weight:600;border-bottom:1px solid var(--border);}
+  td{padding:10px 12px;border-bottom:1px solid #f3f4f6;}
+  tr.row-warning td{color:var(--danger);}
+
+  /* ── 빈 상태(데이터 없음) 안내 UI ── */
+  .empty-state{
+    text-align:center;padding:60px 20px;color:var(--text-secondary);
+  }
+  .empty-state .icon{font-size:40px;margin-bottom:12px;}
+
+  /* ── 진행률 막대 그래프 (통계 탭 등에서 사용) ── */
+  .bar-row{margin-bottom:16px;}
+  .bar-row .bar-label{display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px;align-items:center;}
+  .bar-track{height:10px;background:#f3f4f6;border-radius:6px;overflow:hidden;}
+  .bar-fill{height:100%;border-radius:6px;transition:width .3s;}
+
+  .section-title{font-size:15px;font-weight:700;margin-bottom:12px;}
+
+  /* 개요 탭 */
+  .overview-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:20px;}
+  .overview-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:20px;display:flex;align-items:center;gap:14px;transition:all .15s;}
+  .overview-card:hover{border-color:var(--primary);box-shadow:0 4px 14px rgba(15,23,42,0.06);}
+  .overview-icon{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;}
+  .overview-num{font-size:26px;font-weight:800;color:var(--text);line-height:1.1;}
+  .overview-label{font-size:12px;color:var(--text-secondary);margin-top:2px;}
+
+  .status-banner{display:flex;align-items:center;gap:14px;padding:16px 18px;border-radius:12px;}
+  .status-banner.ok{background:#ecfdf5;border:1px solid #a7f3d0;}
+  .status-banner.warn{background:#fffbeb;border:1px solid #fde68a;margin-bottom:16px;}
+  .status-icon{font-size:24px;flex-shrink:0;}
+  .status-title{font-weight:700;font-size:14px;}
+  .status-sub{font-size:12px;color:var(--text-secondary);margin-top:2px;}
+
+  .warning-list{display:flex;flex-direction:column;gap:8px;}
+  .warning-row{display:flex;align-items:center;gap:10px;padding:10px 12px;background:#fafafa;border:1px solid var(--border);border-radius:8px;font-size:13px;}
+  .warning-tag{font-size:11px;font-weight:700;padding:3px 9px;border-radius:6px;flex-shrink:0;white-space:nowrap;}
+  .warning-tag.company{background:#e0e7ff;color:#4338ca;}
+  .warning-tag.subject{background:#fef3c7;color:#92400e;}
+  .warning-tag.student{background:#fee2e2;color:#b91c1c;}
+
+  .mini-progress{display:flex;align-items:center;gap:8px;}
+  .mini-progress-track{flex:1;height:8px;background:#f3f4f6;border-radius:6px;overflow:hidden;max-width:120px;}
+  .mini-progress-fill{height:100%;border-radius:6px;transition:width .3s;}
+  .mini-progress span{font-size:12px;color:var(--text-secondary);flex-shrink:0;width:34px;}
+  .badge-status{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;display:inline-block;}
+  .badge-status.complete{background:#d1fae5;color:#065f46;}
+  .badge-status.incomplete{background:#fef3c7;color:#92400e;}
+
+  .subtab-nav{display:flex;gap:6px;margin-bottom:18px;flex-wrap:wrap;}
+  .subtab-btn{padding:8px 16px;border-radius:20px;border:1px solid var(--border);background:var(--surface);font-size:13px;font-weight:600;color:var(--text-secondary);cursor:pointer;transition:all .15s;}
+  .subtab-btn:hover{border-color:var(--primary);color:var(--text);}
+  .subtab-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+  .subtab-btn .count-badge{display:inline-block;margin-left:6px;padding:1px 7px;border-radius:10px;font-size:11px;background:#fee2e2;color:#b91c1c;}
+  .subtab-btn.active .count-badge{background:rgba(255,255,255,0.3);color:#fff;}
+
+  /* 데이터 입력 탭 */
+  .stat-strip{display:flex;align-items:center;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);margin-bottom:20px;overflow-x:auto;}
+  .stats-inline-row{display:flex;align-items:center;overflow-x:auto;}
+  .panel-divider{border-top:1px solid var(--border);margin:18px -16px;}
+  .stat-strip-item{flex:1;text-align:center;padding:16px 8px;position:relative;min-width:90px;}
+  .stat-strip-item:not(:last-child)::after{content:'';position:absolute;right:0;top:22%;bottom:22%;width:1px;background:var(--border);}
+  .stat-strip-num{font-size:22px;font-weight:800;color:var(--text);}
+  .stat-strip-label{font-size:11px;color:var(--text-secondary);margin-top:3px;}
+
+  .entry-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:20px;}
+  .entry-card{
+    background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);
+    padding:18px;display:flex;align-items:center;gap:14px;text-align:left;cursor:pointer;
+    transition:all .15s;font:inherit;color:var(--text);width:100%;
+  }
+  .entry-card:hover{border-color:var(--primary);box-shadow:0 6px 16px rgba(15,23,42,0.08);transform:translateY(-1px);}
+  .entry-card-icon{width:42px;height:42px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:19px;flex-shrink:0;}
+  .entry-card-body{flex:1;min-width:0;}
+  .entry-card-title{font-weight:700;font-size:14px;}
+  .entry-card-desc{font-size:11px;color:var(--text-secondary);margin-top:3px;line-height:1.4;}
+  .entry-card-arrow{color:var(--text-secondary);font-size:16px;flex-shrink:0;opacity:0;transition:opacity .15s;}
+  .entry-card:hover .entry-card-arrow{opacity:1;color:var(--primary);}
+
+  .usage-pill{font-size:11px;font-weight:600;padding:3px 10px;border-radius:20px;display:inline-block;}
+  .usage-pill.usage-none{background:#f3f4f6;color:var(--text-secondary);}
+  .usage-pill.usage-single{background:#e0e7ff;color:#4338ca;}
+  .usage-pill.usage-shared{background:#d1fae5;color:#065f46;}
+  .info-note{font-size:12px;color:var(--text-secondary);margin-top:14px;padding:10px 14px;background:#f9fafb;border-radius:8px;border:1px solid var(--border);}
+  .student-cell{display:flex;align-items:center;gap:10px;}
+  .student-avatar{width:32px;height:32px;border-radius:50%;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-weight:700;font-size:13px;flex-shrink:0;}
+
+  /* 통계 탭 */
+  .donut-row{display:flex;align-items:center;gap:32px;flex-wrap:wrap;}
+  .donut{width:140px;height:140px;border-radius:50%;position:relative;flex-shrink:0;}
+  .donut-center{position:absolute;inset:20px;background:var(--surface);border-radius:50%;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+  .donut-num{font-size:22px;font-weight:800;color:var(--text);}
+  .donut-label{font-size:10px;color:var(--text-secondary);}
+  .legend-list{display:flex;flex-direction:column;gap:10px;flex:0 1 260px;min-width:200px;max-width:300px;}
+  .legend-row{display:flex;align-items:center;gap:10px;font-size:13px;}
+  .legend-dot{width:10px;height:10px;border-radius:50%;flex-shrink:0;}
+  .legend-label{flex:1;}
+  .legend-value{color:var(--text-secondary);font-size:12px;font-weight:600;}
+  .readiness-row{display:flex;align-items:center;gap:32px;flex-wrap:wrap;}
+  .readiness-detail{display:flex;flex-direction:column;gap:10px;flex:1;min-width:200px;}
+  .readiness-item{font-size:13px;color:var(--text);}
+  .readiness-item strong{color:var(--primary);}
+  .student-count-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:18px;}
+  .student-count-card{background:#fafafa;border:1px solid var(--border);border-radius:12px;padding:14px 16px;transition:all .15s;}
+  .student-count-card:hover{border-color:#d1d5db;}
+  .student-count-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;}
+  .student-count-num{font-size:11px;font-weight:700;color:var(--success);background:#d1fae5;padding:3px 9px;border-radius:20px;flex-shrink:0;white-space:nowrap;}
+  .student-chip-list{display:flex;flex-wrap:wrap;gap:6px;}
+  .student-chip{
+    padding:4px 11px;border-radius:7px;border:none;background:#fff;
+    font-size:11px;font-weight:600;color:var(--text-secondary);cursor:default;
+    box-shadow:0 1px 2px rgba(15,23,42,0.05);
+  }
+  @media (max-width:860px){ .student-count-grid{grid-template-columns:1fr;} }
+  .subject-share-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;}
+  .subject-share-card{background:#fafafa;border:1px solid var(--border);border-radius:12px;padding:14px 16px;transition:all .15s;}
+  .subject-share-card:hover{border-color:#d1d5db;}
+  .subject-share-head{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-bottom:12px;}
+  .subject-share-title{display:flex;align-items:center;gap:8px;font-size:13px;font-weight:700;}
+  .subject-share-count{font-size:11px;font-weight:700;color:var(--primary);background:var(--primary-light);padding:3px 9px;border-radius:20px;flex-shrink:0;white-space:nowrap;}
+  .company-chip-list{display:flex;flex-wrap:wrap;gap:6px;max-width:320px;}
+  .company-chip{
+    padding:4px 11px;border-radius:7px;border:none;background:#fff;
+    font-size:11px;font-weight:600;color:var(--text-secondary);cursor:pointer;transition:all .15s;
+    box-shadow:0 1px 2px rgba(15,23,42,0.05);
+  }
+  .company-chip:hover{background:var(--primary);color:#fff;box-shadow:0 3px 8px rgba(79,70,229,0.3);}
+  @media (max-width:860px){ .subject-share-grid{grid-template-columns:1fr;} }
+  .company-badge{
+    display:inline-flex;align-items:center;padding:4px 12px;border-radius:8px;border:none;
+    font-size:12px;font-weight:700;line-height:1.4;
+  }
+  button.company-badge{cursor:pointer;transition:all .15s;}
+  button.company-badge:hover{filter:brightness(0.93);transform:translateY(-1px);}
+
+  /* 시험지 배포 탭 */
+  .deploy-controls{margin-bottom:24px;}
+  .deploy-subject-row{
+    display:flex;align-items:center;gap:10px;padding:10px 12px;border:1px solid var(--border);
+    border-radius:8px;margin-bottom:8px;cursor:pointer;transition:all .15s;
+  }
+  .deploy-subject-row:hover{border-color:var(--primary);}
+  .deploy-subject-row.selected{border-color:var(--primary);background:var(--primary-light);}
+  .deploy-subject-row input[type=checkbox]{width:16px;height:16px;cursor:pointer;flex-shrink:0;}
+  .deploy-question-list{margin:-4px 0 10px 30px;padding-left:12px;border-left:2px solid var(--border);display:flex;flex-direction:column;gap:2px;}
+  .deploy-question-row{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;font-size:12px;cursor:pointer;transition:background .15s;}
+  .deploy-question-row:hover{background:#f9fafb;}
+  .deploy-question-row input[type=checkbox]{width:14px;height:14px;cursor:pointer;flex-shrink:0;}
+  .deploy-counter{
+    font-size:13px;color:var(--primary);margin:10px 0;padding:8px 12px;background:var(--primary-light);
+    border-radius:8px;display:inline-block;font-weight:600;
+  }
+  .mode-toggle-btn.active{background:var(--primary);color:#fff;border-color:var(--primary);}
+  .exam-paper{
+    background:#fff;border:1px solid var(--border);border-radius:var(--radius);padding:32px;
+    max-width:760px;margin:0 auto;
+  }
+  .exam-subject{margin-bottom:36px;}
+  .exam-subject-pagetitle{font-size:15px;font-weight:700;margin-bottom:12px;}
+
+  .ncs-table{width:100%;border-collapse:collapse;margin-bottom:18px;font-size:13px;}
+  .ncs-table td{border:1px solid #555;padding:8px 10px;vertical-align:top;}
+  .ncs-table td.lbl{background:#f3f4f6;font-weight:700;width:110px;white-space:nowrap;}
+
+  .ncs-question{margin-bottom:16px;}
+  .ncs-qtext{font-size:13px;margin-bottom:6px;overflow:hidden;}
+  .ncs-point-right{float:right;font-size:12px;color:var(--text-secondary);margin-left:8px;white-space:nowrap;}
+  .ncs-answer{font-size:12px;color:#374151;background:#f9fafb;border-left:3px solid var(--border);padding:8px 12px;margin-left:14px;white-space:pre-wrap;}
+  .answer-line{border-bottom:1px solid #cbd5e1;height:30px;margin-bottom:3px;margin-left:14px;}
+  .exam-subject-label{font-size:13px;font-weight:600;color:var(--text-secondary);margin-bottom:14px;}
+  .ncs-table{page-break-inside:avoid;}
+  .ncs-question{page-break-inside:avoid;}
+
+  .exam-footer{text-align:right;font-weight:700;margin-top:8px;border-top:2px solid var(--text);padding-top:12px;}
+
+  /* 모달 */
+  @keyframes modalFadeIn{ from{opacity:0;} to{opacity:1;} }
+  @keyframes modalScaleIn{ from{opacity:0;transform:scale(.96) translateY(8px);} to{opacity:1;transform:scale(1) translateY(0);} }
+  .modal-overlay{
+    position:fixed;inset:0;background:rgba(17,24,39,0.55);backdrop-filter:blur(4px);
+    display:none;align-items:center;justify-content:center;
+    z-index:100;padding:20px;animation:modalFadeIn .15s ease;
+  }
+  .modal-box{
+    background:#fff;border-radius:18px;padding:0;max-width:440px;width:100%;max-height:90vh;
+    display:flex;flex-direction:column;overflow:hidden;
+    box-shadow:0 24px 64px rgba(15,23,42,0.28),0 0 0 1px rgba(15,23,42,0.04);
+    animation:modalScaleIn .22s cubic-bezier(.16,1,.3,1);
+  }
+  .modal-box.modal-lg{max-width:660px;}
+  .modal-header{
+    display:flex;justify-content:space-between;align-items:center;
+    padding:20px 24px;border-bottom:1px solid var(--border);flex-shrink:0;
+  }
+  .modal-header h3{font-size:17px;font-weight:700;display:flex;align-items:center;gap:8px;}
+  .modal-body-scroll{padding:22px 24px;overflow-y:auto;flex:1;}
+  .modal-footer{
+    display:flex;justify-content:flex-end;gap:10px;
+    padding:16px 24px;border-top:1px solid var(--border);background:#fafafa;flex-shrink:0;
+  }
+  .btn-ghost-close{
+    border:none;background:#f3f4f6;width:30px;height:30px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;cursor:pointer;font-size:14px;color:var(--text-secondary);
+    transition:all .15s;flex-shrink:0;
+  }
+  .btn-ghost-close:hover{background:#e5e7eb;color:var(--text);}
+  .form-group{margin-bottom:18px;}
+  .form-group label{display:block;font-size:13px;font-weight:600;color:var(--text);margin-bottom:7px;}
+  .form-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:18px;}
+  .form-row .form-group{margin-bottom:0;}
+
+  /* ── 인쇄(시험지 출력) 시 숨김 처리할 요소 지정 ── */
+  .print-hide{}
+  @media print{
+    .print-hide{display:none !important;}
+    .exam-subject-pagetitle{display:none !important;}
+    body{background:#fff;}
+    main{padding:0 !important;}
+    .layout-2col{display:block !important;}
+    .exam-paper{border:none;box-shadow:none;max-width:100%;padding:0;}
+    .exam-subject{page-break-after:always;}
+    .exam-subject:last-child{page-break-after:auto;}
+  }
+
+  /* ── 반응형(모바일 화면) 레이아웃 조정 ── */
+  @media (max-width:860px){
+    .summary-grid{grid-template-columns:repeat(2,1fr);}
+    .layout-2col{grid-template-columns:1fr;}
+    .subject-grid{grid-template-columns:repeat(2,1fr);}
+    .input{width:160px;}
+    .header h1{font-size:15px;}
+    .ncs-table td.lbl{width:84px;}
+  }
+</style>
+</head>
+<body>
+  <!-- ============================================================
+       앱 루트 컨테이너: 상단(헤더+탭) + 본문(main) + 하단(footer) + 모달
+       ============================================================ -->
+  <div id="app">
+    <div class="topbar-sticky print-hide">
+      <div class="topbar-inner">
+        <!-- 상단 헤더: 타이틀, 새로고침 버튼, 연결상태 점, GAS 웹앱 URL 입력/연결 -->
+        <header class="header">
+          <h1>📊 문제은행 대시보드
+            <button id="refreshBtn" class="btn btn-ghost" title="새로고침" style="font-size:14px;padding:4px 8px;">🔄</button>
+            <span id="statusDot" class="status-dot"></span>
+          </h1>
+          <div class="header-right">
+            <input id="urlInput" class="input" style="display:none;" placeholder="Apps Script 웹앱 URL을 입력하세요">
+            <button id="connectBtn" class="btn btn-primary" style="display:none;">연결</button>
+            <!-- 비밀번호가 설정되어 로그인 상태일 때만 표시되는 로그아웃 버튼 (render()에서 표시 여부 갱신) -->
+            <button id="logoutBtn" class="btn btn-sm" style="display:none;" title="로그아웃">🔓 로그아웃</button>
+          </div>
+        </header>
+        <div class="topbar-divider"></div>
+        <!-- 탭 메뉴: 개요 / 데이터 입력 / 기업별 보기 / 학생 검색 / 통계 / 시험지 배포 -->
+        <nav class="tabs" id="tabs">
+          <div class="tabs-bar">
+            <div class="tabs-inner" id="tabsInner">
+              <button class="tab-btn active" data-tab="overview">개요</button>
+              <button class="tab-btn" data-tab="entry">데이터 입력</button>
+              <button class="tab-btn" data-tab="companies">기업별 보기</button>
+              <button class="tab-btn" data-tab="students">학생 검색</button>
+              <button class="tab-btn" data-tab="stats">통계</button>
+              <button class="tab-btn" data-tab="deploy">시험지 배포</button>
+            </div>
+          </div>
+        </nav>
+      </div>
+    </div>
+    <!-- 실제 콘텐츠 영역: JS render() 함수가 activeTab에 따라 이 안을 채움 -->
+    <main id="main"></main>
+    <!-- 하단 푸터 (학교명, 시스템 설명) -->
+    <footer class="footer print-hide">
+      <div style="max-width:1200px;margin:0 auto;background:#fff;border:1.5px solid var(--border);border-radius:16px;box-shadow:0 4px 16px rgba(15,23,42,0.06);padding:14px 24px;display:flex;flex-direction:row;align-items:center;justify-content:space-between;">
+        <div style="display:flex;flex-direction:row;align-items:center;gap:12px;">
+          <div style="width:38px;height:38px;border-radius:10px;background:var(--primary-light);color:var(--primary);display:flex;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;">📊</div>
+          <div>
+            <div style="font-weight:700;font-size:14px;color:var(--text);">성일정보고등학교 도제 (3-12)</div>
+            <div style="font-size:11px;color:var(--text-secondary);margin-top:2px;">문제은행 평가 관리 시스템</div>
+          </div>
+        </div>
+        <div style="font-size:11px;color:var(--text-secondary);">NCS 기반 능력단위 평가 관리 · © 성일정보고등학교</div>
+      </div>
+    </footer>
+
+  <!-- 공용 모달: 기업/학생/과목/문제 등록·수정, 순서변경 등에서 재사용되는 모달 뼈대 -->
+  <div id="modalOverlay" class="modal-overlay print-hide">
+    <div class="modal-box" id="modalBox">
+      <div class="modal-header">
+        <h3 id="modalTitle"></h3>
+        <button id="modalCloseBtn" class="btn-ghost-close">✕</button>
+      </div>
+      <div class="modal-body-scroll">
+        <div id="modalBody"></div>
+      </div>
+      <div class="modal-footer">
+        <button id="modalCancelBtn" class="btn">취소</button>
+        <button id="modalSaveBtn" class="btn btn-primary">저장</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+  /* ============================================================
+     설정값: 같은 폴더의 json 파일에서 GAS(Google Apps Script) 웹앱 URL을 읽어옴
+     ============================================================ */
+  var GAS_CONFIG_URL = 'doje_project06_gasurl.json'; // html 파일과 같은 폴더에 위치해야 합니다
+
+  /* ── 전역 상태(state) 객체: 화면 전체가 이 객체를 기준으로 렌더링됨 ── */
+  var state = {
+    url: '',
+    students: [], companies: [], subjects: [], questions: [], assignments: [],
+    loaded: false,
+    activeTab: 'overview',
+    overviewTab: 'company',
+    statsTab: 'readiness',
+    selectedCompanyId: null,
+    selectedSubjectId: null,
+    searchQuery: '',
+    studentCompanyFilter: '',
+    statsSubjectSearch: '',
+    error: null,
+    deploy: { companyId: null, subjectIds: [], studentId: '', viewMode: 'student', examDate: todayISO(), questionIds: [] },
+    modal: null,
+    authenticated: false,
+    fetchedPassword: '',
+    loginError: null
+  };
+
+  /* ── DOM 참조 및 시트명 ↔ state 배열/ID필드 매핑 상수 ── */
+  var main = document.getElementById('main');
+  var ID_FIELD = {'기업':'기업ID','학생':'학생ID','과목':'과목ID','문제':'문제ID','배정':'배정ID'};
+  var ARR_KEY = {'기업':'companies','학생':'students','과목':'subjects','문제':'questions','배정':'assignments'};
+  var EVAL_METHOD_MAP = {'서술형':'서술형시험', '질문형':'면접형시험', '발표형':'발표형시험'};
+
+  /* ── 공통 유틸 함수 모음 (HTML 이스케이프, 줄바꿈 처리, localStorage 래퍼 등) ── */
+  function escapeHtml(str){
+    if(str===undefined || str===null) return '';
+    return String(str).replace(/[&<>"']/g, function(m){
+      return ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'})[m];
+    });
+  }
+
+  function nl2br(str){
+    if(str===undefined || str===null) return '';
+    return escapeHtml(String(str)).replace(/\n/g,'<br>');
+  }
+
+  function localGet(key){
+    try{ return localStorage.getItem(key); }catch(e){ return null; }
+  }
+  function localSet(key, value){
+    try{ localStorage.setItem(key, value); }catch(e){}
+  }
+  function localRemove(key){
+    try{ localStorage.removeItem(key); }catch(e){}
+  }
+
+  /* 문제유형(서술형/질문형/발표형)에 맞는 뱃지 HTML 생성 */
+  function typeBadge(type){
+    var map = {'서술형':'badge-essay','질문형':'badge-question','발표형':'badge-presentation'};
+    var cls = map[type] || 'badge-default';
+    return '<span class="badge ' + cls + '">' + escapeHtml(type || '미정') + '</span>';
+  }
+
+  /* ── 기업별 색상 팔레트: 기업ID를 해시하여 색상을 고정 배정 (companyChip에서 사용) ── */
+  var COMPANY_COLORS = [
+    {bg:'#eef2ff', text:'#4338ca'},
+    {bg:'#ecfdf5', text:'#047857'},
+    {bg:'#fef3c7', text:'#b45309'},
+    {bg:'#fee2e2', text:'#b91c1c'},
+    {bg:'#f3e8ff', text:'#7e22ce'},
+    {bg:'#e0f2fe', text:'#0369a1'},
+    {bg:'#fce7f3', text:'#be185d'},
+    {bg:'#ecfccb', text:'#4d7c0f'},
+    {bg:'#ffedd5', text:'#c2410c'},
+    {bg:'#e0e7ff', text:'#3730a3'}
+  ];
+  function getCompanyColor(companyId){
+    var str = String(companyId);
+    var hash = 0;
+    for(var i=0;i<str.length;i++){ hash = (hash*31 + str.charCodeAt(i)) >>> 0; }
+    return COMPANY_COLORS[hash % COMPANY_COLORS.length];
+  }
+  function companyChip(companyId, companyName, clickable){
+    var color = getCompanyColor(companyId);
+    if(clickable){
+      return '<button type="button" class="company-badge" data-action="goto-company" data-company-id="'+escapeHtml(companyId)+'" style="background:'+color.bg+';color:'+color.text+';">'+escapeHtml(companyName)+'</button>';
+    }
+    return '<span class="company-badge" style="background:'+color.bg+';color:'+color.text+';">'+escapeHtml(companyName)+'</span>';
+  }
+
+  /* ── 날짜 포맷 유틸 (오늘 날짜, ISO 변환, 화면 표시용 변환) ── */
+  function formatTodayDate(){
+    var d = new Date();
+    var yyyy = d.getFullYear();
+    var mm = String(d.getMonth()+1).padStart(2,'0');
+    var dd = String(d.getDate()).padStart(2,'0');
+    return yyyy+'.'+mm+'.'+dd+'.';
+  }
+  function todayISO(){
+    var d = new Date();
+    var yyyy = d.getFullYear();
+    var mm = String(d.getMonth()+1).padStart(2,'0');
+    var dd = String(d.getDate()).padStart(2,'0');
+    return yyyy+'-'+mm+'-'+dd;
+  }
+  function formatDisplayDate(isoStr){
+    if(!isoStr) return '';
+    var parts = isoStr.split('-');
+    if(parts.length!==3) return isoStr;
+    return parts[0]+'.'+parts[1]+'.'+parts[2]+'.';
+  }
+
+  /* ── 데이터 조회 헬퍼: 기업에 배정된 과목 목록(순서 정렬 포함) 반환 ── */
+  function getCompanySubjects(companyId){
+    var assignedList = state.assignments
+      .filter(function(a){ return String(a.기업ID)===String(companyId); })
+      .sort(function(a,b){ return (parseInt(a.순서,10)||999) - (parseInt(b.순서,10)||999); });
+    return assignedList.map(function(a){
+      return state.subjects.find(function(s){ return String(s.과목ID)===String(a.과목ID); });
+    }).filter(Boolean);
+  }
+
+  /* 기업 안에서 해당 과목이 몇 번째 과목인지 "제N과목" 형태로 반환 (문제지 화면·PDF 파일명에서 사용) */
+  function getSubjectOrderLabel(companyId, subjectId){
+    var subs = getCompanySubjects(companyId);
+    var idx = subs.findIndex(function(s){ return String(s.과목ID)===String(subjectId); });
+    return idx>=0 ? '제'+(idx+1)+'과목' : '';
+  }
+
+  function getCompanyAssignments(companyId){
+    return state.assignments
+      .filter(function(a){ return String(a.기업ID)===String(companyId); })
+      .sort(function(a,b){ return (parseInt(a.순서,10)||999) - (parseInt(b.순서,10)||999); });
+  }
+
+  /* ============================================================
+     과목 순서 변경 모달 (openReorderModal ~ saveReorder)
+     ============================================================ */
+  var reorderState = { list: [], companyId: null };
+  // 과목 순서 변경 방식(드래그앤드롭 / ▲▼ 모달 / ↑↓ 버튼)이 동시에 서버에 저장되지 않도록 막는 공용 잠금 플래그
+  var assignReorderBusy = false;
+
+  /* ── [기업별 보기] 과목 카드의 ↑ 앞으로 / ↓ 뒤로(order-btn) 버튼: 해당 과목을 한 칸 이동 ── */
+  async function reorderSubjectStep(companyId, subjectId, dir){
+    if(assignReorderBusy) return; // 드래그나 순서변경 모달로 이미 저장 중이면 무시
+    if(!companyId || !subjectId) return;
+
+    var assigns = getCompanyAssignments(companyId);
+    var idx = assigns.findIndex(function(a){ return String(a.과목ID)===String(subjectId); });
+    if(idx<0) return;
+    var targetIdx = dir==='up' ? idx-1 : idx+1;
+    if(targetIdx<0 || targetIdx>=assigns.length) return; // 맨 앞/맨 뒤에서는 더 이동할 수 없음
+
+    var moved = assigns.splice(idx,1)[0];
+    assigns.splice(targetIdx,0,moved);
+
+    // 실패 시 되돌릴 수 있도록 변경 전 순서를 기억해둠
+    var prevOrders7 = {};
+    state.assignments.forEach(function(a){ prevOrders7[a.배정ID] = a.순서; });
+
+    // state.assignments의 순서 값 직접 업데이트
+    assigns.forEach(function(a,i){
+      var orig = state.assignments.find(function(x){ return String(x.배정ID)===String(a.배정ID); });
+      if(orig) orig.순서 = i+1;
+    });
+
+    if(state.url){
+      assignReorderBusy = true;
+      setStatus('loading');
+      var stepOk = true;
+      for(var i=0;i<assigns.length;i++){
+        var orig = state.assignments.find(function(x){ return String(x.배정ID)===String(assigns[i].배정ID); });
+        if(orig){
+          var writeOk7 = await writeData('배정','update', Object.assign({},orig));
+          if(!writeOk7){ stepOk = false; break; } // writeData가 이미 alert로 실패를 안내함
+        }
+      }
+      if(!stepOk){
+        // 실패한 만큼은 변경 전 순서로 되돌림
+        state.assignments.forEach(function(a){ if(prevOrders7[a.배정ID]!==undefined) a.순서 = prevOrders7[a.배정ID]; });
+      }
+      assignReorderBusy = false;
+      await fetchData(state.url); // 성공/실패 관계없이 서버 최신 상태로 재동기화
+    } else {
+      render();
+    }
+  }
+
+  function openReorderModal(companyId){
+    var assigns = getCompanyAssignments(companyId);
+    reorderState.companyId = companyId;
+    reorderState.list = assigns.map(function(a){
+      var s = state.subjects.find(function(x){ return String(x.과목ID)===String(a.과목ID); });
+      return { assignmentId: a.배정ID, subjectId: a.과목ID, name: s ? s.과목명 : a.과목ID, type: s ? s.문제유형 : '' };
+    });
+    // state.modal을 reorder 전용 타입으로 명시 설정
+    state.modal = { type: 'reorder', companyId: companyId };
+    renderReorderModal();
+    document.getElementById('modalTitle').innerHTML = '🔀 과목 순서 변경';
+    if(document.getElementById('modalBox')) document.getElementById('modalBox').classList.remove('modal-lg');
+    document.getElementById('modalOverlay').style.display = 'flex';
+  }
+
+  function renderReorderModal(){
+    var html = '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:14px;">▲▼ 버튼으로 순서를 조정한 뒤 저장을 눌러주세요</div>';
+    html += '<div class="reorder-list">';
+    reorderState.list.forEach(function(item, idx){
+      var isFirst = idx===0;
+      var isLast = idx===reorderState.list.length-1;
+      html += '<div class="reorder-item">' +
+        '<div class="reorder-num">제'+(idx+1)+'과목</div>' +
+        '<div class="reorder-name">'+escapeHtml(item.name)+'<br><span style="font-size:11px;color:var(--text-secondary);font-weight:400;">'+escapeHtml(item.type)+'</span></div>' +
+        '<div class="reorder-btns">' +
+          '<button class="reorder-arrow" data-reorder-idx="'+idx+'" data-reorder-dir="up" '+(isFirst?'disabled':'')+'>▲</button>' +
+          '<button class="reorder-arrow" data-reorder-idx="'+idx+'" data-reorder-dir="down" '+(isLast?'disabled':'')+'>▼</button>' +
+        '</div>' +
+      '</div>';
+    });
+    html += '</div>';
+    document.getElementById('modalBody').innerHTML = html;
+  }
+
+  async function saveReorder(){
+    if(assignReorderBusy) return; // 다른 방식(드래그·↑↓버튼)으로 이미 저장 중이면 대기
+    var list = reorderState.list;
+    var saveBtn = document.getElementById('modalSaveBtn');
+    if(saveBtn){ saveBtn.disabled = true; saveBtn.textContent = '저장 중...'; }
+
+    if(state.url){
+      assignReorderBusy = true;
+      // 실패 시 되돌릴 수 있도록 변경 전 순서를 기억해둠
+      var prevOrders5 = {};
+      state.assignments.forEach(function(a){ prevOrders5[a.배정ID] = a.순서; });
+      var reorderOk = true;
+      for(var i=0; i<list.length; i++){
+        var assign = state.assignments.find(function(a){ return String(a.배정ID)===String(list[i].assignmentId); });
+        if(assign){
+          assign.순서 = i+1;
+          var writeOk5 = await writeData('배정','update', Object.assign({}, assign));
+          if(!writeOk5){ reorderOk = false; break; } // writeData가 이미 alert로 실패를 안내함
+        }
+      }
+      assignReorderBusy = false;
+      if(reorderOk){
+        state.modal = null;
+        reorderState.companyId = null;
+        closeModal();
+      } else {
+        // 실패한 만큼은 되돌리고, 모달은 열어둔 채 사용자가 재시도할 수 있게 함
+        state.assignments.forEach(function(a){ if(prevOrders5[a.배정ID]!==undefined) a.순서 = prevOrders5[a.배정ID]; });
+      }
+      await fetchData(state.url); // 성공/실패 관계없이 서버 최신 상태로 재동기화
+    } else {
+      list.forEach(function(item, i){
+        var assign = state.assignments.find(function(a){ return String(a.배정ID)===String(item.assignmentId); });
+        if(assign) assign.순서 = i+1;
+      });
+      state.modal = null;
+      reorderState.companyId = null;
+      closeModal();
+      render();
+    }
+    if(saveBtn){ saveBtn.disabled = false; saveBtn.textContent = '저장'; }
+  }
+
+  /* 과목이 몇 개 기업에 배정되어 있는지 개수 반환 (공유 과목 판단용) */
+  function subjectUsageCount(subjectId){
+    return state.assignments.filter(function(a){ return String(a.과목ID)===String(subjectId); }).length;
+  }
+
+  /* 특정 과목을 사용 중인 기업 목록(객체 배열)을 기업명 가나다순으로 반환 */
+  function getSubjectCompanies(subjectId){
+    return state.assignments
+      .filter(function(a){ return String(a.과목ID)===String(subjectId); })
+      .map(function(a){ return state.companies.find(function(c){ return String(c.기업ID)===String(a.기업ID); }); })
+      .filter(Boolean)
+      .sort(function(a,b){ return (a.기업명||'').localeCompare(b.기업명||'','ko'); });
+  }
+
+  /* 상단 연결 상태 점(status-dot) UI 갱신 (loading/on/error) */
+  function setStatus(s){
+    var dot = document.getElementById('statusDot');
+    dot.className = 'status-dot' + (s==='on'?' on': s==='error'?' error': s==='loading'?' loading':'');
+  }
+
+  /* main 영역에 HTML 주입 (state.error가 있으면 상단에 에러 배너 함께 표시) */
+  function setMain(html){
+    var errorHtml = state.error ? (
+      '<div class="warning-box print-hide" style="background:#fef2f2;border-color:#fecaca;margin-bottom:16px;">' +
+        '<h3>❌ 오류</h3>' +
+        '<div style="font-size:13px;color:var(--text-secondary);">' + escapeHtml(state.error) + '</div>' +
+      '</div>'
+    ) : '';
+    main.innerHTML = errorHtml + html;
+  }
+
+  /* ============================================================
+     샘플/데모 데이터: GAS 웹앱에 연결하지 않았을 때 미리보기용으로 사용
+     ============================================================ */
+  function getSampleData(){
+    var companies=[
+      {기업ID:'C1',기업명:'네이버'},
+      {기업ID:'C2',기업명:'삼성전자'},
+      {기업ID:'C3',기업명:'카카오'}
+    ];
+    var subjectDefs=[
+      {id:'S1',name:'자료구조',type:'서술형'},
+      {id:'S2',name:'알고리즘',type:'질문형'},
+      {id:'S3',name:'데이터베이스',type:'발표형'},
+      {id:'S4',name:'네트워크',type:'서술형'},
+      {id:'S5',name:'운영체제',type:'질문형'},
+      {id:'S6',name:'소프트웨어공학',type:'발표형'}
+    ];
+    var subjects = subjectDefs.map(function(d){
+      return {
+        과목ID:d.id, 과목명:d.name, 문제유형:d.type, 난이도:'중', 평가시간:'50분',
+        능력단위요소명:'1. '+d.name+' 분석하기\n2. '+d.name+' 요구사항 확인하기\n3. '+d.name+' 결과 확인하기'
+      };
+    });
+    var questions=[];
+    subjects.forEach(function(s){
+      for(var i=1;i<=5;i++){
+        if(s.과목ID==='S1' && i===5) continue; // 문제 누락 예시
+        questions.push({
+          문제ID:s.과목ID+'-Q'+i,
+          과목ID:s.과목ID,
+          문제번호:i,
+          문제내용: s.과목명+' 관련 '+i+'번 문제 내용입니다.',
+          모범답안: s.과목명+' '+i+'번 문제에 대한 모범답안 예시입니다.',
+          배점:20
+        });
+      }
+    });
+    // 배정: S1은 세 기업이 공유, C2는 일부러 5개만 배정(과목 누락 경고 예시)
+    var assignments=[
+      {배정ID:'C1_S1',기업ID:'C1',과목ID:'S1'},
+      {배정ID:'C1_S2',기업ID:'C1',과목ID:'S2'},
+      {배정ID:'C1_S3',기업ID:'C1',과목ID:'S3'},
+      {배정ID:'C1_S4',기업ID:'C1',과목ID:'S4'},
+      {배정ID:'C1_S5',기업ID:'C1',과목ID:'S5'},
+      {배정ID:'C1_S6',기업ID:'C1',과목ID:'S6'},
+      {배정ID:'C2_S1',기업ID:'C2',과목ID:'S1'},
+      {배정ID:'C2_S2',기업ID:'C2',과목ID:'S2'},
+      {배정ID:'C2_S3',기업ID:'C2',과목ID:'S3'},
+      {배정ID:'C2_S4',기업ID:'C2',과목ID:'S4'},
+      {배정ID:'C2_S5',기업ID:'C2',과목ID:'S5'},
+      {배정ID:'C3_S1',기업ID:'C3',과목ID:'S1'},
+      {배정ID:'C3_S2',기업ID:'C3',과목ID:'S2'},
+      {배정ID:'C3_S3',기업ID:'C3',과목ID:'S3'},
+      {배정ID:'C3_S4',기업ID:'C3',과목ID:'S4'},
+      {배정ID:'C3_S5',기업ID:'C3',과목ID:'S5'},
+      {배정ID:'C3_S6',기업ID:'C3',과목ID:'S6'}
+    ];
+    var students=[];
+    var sid=1;
+    companies.forEach(function(c){
+      for(var i=1;i<=4;i++){
+        students.push({학생ID:'ST'+String(sid).padStart(3,'0'),이름:c.기업명+' 학생'+i,기업ID:c.기업ID});
+        sid++;
+      }
+    });
+    students.push({학생ID:'ST099',이름:'매칭오류 학생',기업ID:'C99'});
+    return {companies:companies,subjects:subjects,questions:questions,students:students,assignments:assignments};
+  }
+
+  /* ============================================================
+     데이터 통신 (GAS 웹앱 fetch/write/persist)
+     fetchData : 초기 로드 및 새로고침 시 GAS 웹앱에서 전체 데이터를 가져옴
+     ============================================================ */
+  async function fetchData(url){
+    state.url = url;
+    state.error = null;
+    setStatus('loading');
+    render();
+    try{
+      var res = await fetch(url);
+      if(!res.ok) throw new Error('HTTP ' + res.status);
+      var data = await res.json();
+      state.students = Array.isArray(data.students) ? data.students : [];
+      state.companies = Array.isArray(data.companies) ? data.companies : [];
+      state.subjects = Array.isArray(data.subjects) ? data.subjects : [];
+      state.questions = Array.isArray(data.questions) ? data.questions : [];
+      state.assignments = Array.isArray(data.assignments) ? data.assignments : [];
+      state.fetchedPassword = data.password || '';
+      if(!state.fetchedPassword){
+        state.authenticated = true;
+      } else {
+        var savedAuth = localGet('auth-pw');
+        if(savedAuth && String(savedAuth).trim() === String(state.fetchedPassword).trim()){
+          state.authenticated = true;
+        }
+      }
+      state.loaded = true;
+      setStatus('on');
+      localSet('webapp-url', url);
+    }catch(err){
+      state.error = '데이터를 불러오지 못했습니다 (' + err.message + '). URL과 배포 설정(액세스 권한: 모든 사용자)을 확인해주세요.';
+      setStatus('error');
+    }
+    render();
+  }
+
+  /* GAS 웹앱에 생성/수정/삭제(create/update/delete) 요청을 raw fetch로 전송 */
+  async function writeData(sheetName, action, data){
+    try{
+      var res = await fetch(state.url, {
+        method:'POST',
+        headers:{'Content-Type':'text/plain;charset=utf-8'},
+        body: JSON.stringify({sheet:sheetName, action:action, data:data})
+      });
+      var result = await res.json();
+      if(!result.success) throw new Error(result.error || '알 수 없는 오류');
+      return true;
+    }catch(err){
+      alert('저장에 실패했습니다: ' + err.message);
+      return false;
+    }
+  }
+
+  /* writeData 래퍼: 서버 반영 후 로컬 state도 함께 갱신하고 재조회(fetchData) 수행 */
+  async function persist(sheetName, action, data, idField){
+    if(state.url){
+      var ok = await writeData(sheetName, action, data);
+      if(!ok) return false;
+      await fetchData(state.url);
+      return true;
+    } else {
+      var arr = state[ARR_KEY[sheetName]];
+      if(action==='create'){
+        arr.push(data);
+      } else if(action==='update'){
+        var idx = arr.findIndex(function(item){ return String(item[idField])===String(data[idField]); });
+        if(idx>-1) arr[idx] = data;
+      } else if(action==='delete'){
+        var idx2 = arr.findIndex(function(item){ return String(item[idField])===String(data[idField]); });
+        if(idx2>-1) arr.splice(idx2,1);
+      }
+      render();
+      return true;
+    }
+  }
+
+  /* ── 삭제/배정해제 관련 공통 처리 (확인창 포함) ── */
+  async function handleDelete(type, id, message){
+    if(!confirm(message || '정말 삭제하시겠습니까?')) return;
+    var idField = ID_FIELD[type];
+    var data = {}; data[idField] = id;
+    await persist(type, 'delete', data, idField);
+  }
+
+  async function handleUnassign(companyId, subjectId){
+    if(!confirm('이 기업에서 과목 배정을 해제하시겠습니까? (과목 자체와 등록된 문제는 삭제되지 않습니다)')) return;
+    var assignId = companyId + '_' + subjectId;
+    await persist('배정', 'delete', {배정ID:assignId}, '배정ID');
+  }
+
+  async function deleteSubjectCompletely(subjectId){
+    if(!confirm('정말 이 과목을 완전히 삭제하시겠습니까? 등록된 문제도 함께 삭제됩니다.')) return;
+    var relatedQuestions = state.questions.filter(function(q){ return String(q.과목ID)===String(subjectId); });
+    for(var i=0;i<relatedQuestions.length;i++){
+      var qOk = await persist('문제', 'delete', {문제ID:relatedQuestions[i].문제ID}, '문제ID');
+      if(!qOk){
+        alert('문제 삭제 중 오류가 발생하여 과목 삭제를 중단했습니다. 일부 문제만 삭제되었을 수 있으니 새로고침 후 다시 시도해주세요.');
+        return;
+      }
+    }
+    await persist('과목', 'delete', {과목ID:subjectId}, '과목ID');
+  }
+
+  /* ── 신규 등록 시 사용할 ID 자동 생성 유틸 모음 (기업/학생/과목/문제/배정 ID) ── */
+  function nextId(prefix, list, idField){
+    var max = 0;
+    list.forEach(function(item){
+      var m = String(item[idField]).match(new RegExp('^'+prefix+'(\\d+)$'));
+      if(m){ var n = parseInt(m[1],10); if(n>max) max = n; }
+    });
+    return prefix + (max+1);
+  }
+  function nextStudentId(list){
+    var max = 0;
+    list.forEach(function(s){
+      var m = String(s.학생ID).match(/^ST(\d+)$/);
+      if(m){ var n = parseInt(m[1],10); if(n>max) max=n; }
+    });
+    return 'ST' + String(max+1).padStart(3,'0');
+  }
+  function nextSubjectId(){
+    return nextId('S', state.subjects, '과목ID');
+  }
+  function nextQuestionNum(subjectId){
+    var used = state.questions.filter(function(q){ return String(q.과목ID)===String(subjectId); }).map(function(q){ return parseInt(q.문제번호,10); });
+    var n = 1;
+    while(used.indexOf(n)>-1){ n++; }
+    return n;
+  }
+  function nextQuestionId(subjectId){
+    return subjectId+'-Q'+nextQuestionNum(subjectId);
+  }
+  function nextAssignmentId(companyId, subjectId){
+    return companyId + '_' + subjectId;
+  }
+
+  /* ============================================================
+     모달(등록/수정) 공통 로직: openModal → buildModalForm → (저장 시 persist)
+     type: '기업' | '학생' | '과목' | '문제' 등, mode: 'create' | 'edit'
+     ============================================================ */
+  function openModal(type, mode, data, context){
+    state.modal = {type:type, mode:mode, data:data||{}, context:context||{}, assignMode:'existing'};
+    var titleMap = {기업:'기업', 학생:'학생', 과목:'과목', 문제:'문제', 과목배정:'과목 배정'};
+    var iconMap = {기업:'🏢', 학생:'🎓', 과목:'📚', 문제:'📝', 과목배정:'🔗'};
+    document.getElementById('modalTitle').innerHTML = '<span>'+(iconMap[type]||'')+'</span> ' + (mode==='create'?'추가: ':'수정: ') + titleMap[type];
+    document.getElementById('modalBody').innerHTML = buildModalForm(type, mode, data||{}, context||{});
+    var modalBoxEl = document.getElementById('modalBox');
+    if(modalBoxEl && modalBoxEl.classList){ modalBoxEl.classList.toggle('modal-lg', type==='문제'); }
+    document.getElementById('modalOverlay').style.display = 'flex';
+  }
+  function closeModal(){
+    document.getElementById('modalOverlay').style.display = 'none';
+    state.modal = null;
+  }
+
+  /* 모달 내부에 표시할 입력 폼 HTML을 type/mode별로 생성 */
+  function buildModalForm(type, mode, data, context){
+    if(type==='기업'){
+      var id = data.기업ID || nextId('C', state.companies, '기업ID');
+      return '<div class="form-group"><label>🆔 기업ID</label><input id="f_id" class="input" style="width:100%;" value="'+escapeHtml(id)+'" '+(mode==='edit'?'readonly':'')+'></div>'+
+        '<div class="form-group"><label>🏢 기업명</label><input id="f_name" class="input" style="width:100%;" value="'+escapeHtml(data.기업명||'')+'" placeholder="예: 네이버"></div>';
+    }
+    if(type==='학생'){
+      var id2 = data.학생ID || nextStudentId(state.students);
+      var options = state.companies.map(function(c){
+        var sel = String(c.기업ID)===String(data.기업ID) ? 'selected':'';
+        return '<option value="'+escapeHtml(c.기업ID)+'" '+sel+'>'+escapeHtml(c.기업명)+'</option>';
+      }).join('');
+      return '<div class="form-group"><label>🆔 학생ID</label><input id="f_id" class="input" style="width:100%;" value="'+escapeHtml(id2)+'" '+(mode==='edit'?'readonly':'')+'></div>'+
+        '<div class="form-group"><label>👤 이름</label><input id="f_name" class="input" style="width:100%;" value="'+escapeHtml(data.이름||'')+'"></div>'+
+        '<div class="form-group"><label>🏢 소속 기업</label><select id="f_company" class="input" style="width:100%;"><option value="">선택 안함</option>'+options+'</select></div>';
+    }
+    if(type==='과목'){
+      var id3 = data.과목ID || nextSubjectId();
+      var typeOptions = ['서술형','질문형','발표형'].map(function(t){
+        var sel = data.문제유형===t ? 'selected':'';
+        return '<option value="'+t+'" '+sel+'>'+t+'</option>';
+      }).join('');
+      var diffOptions = ['상','중','하'].map(function(d){
+        var sel = (data.난이도||'중')===d ? 'selected':'';
+        return '<option value="'+d+'" '+sel+'>'+d+'</option>';
+      }).join('');
+      var usageNote = '';
+      if(mode==='edit'){
+        var usageCount = subjectUsageCount(data.과목ID);
+        if(usageCount>1){
+          usageNote = '<div style="font-size:12px;color:#b45309;margin-bottom:16px;background:#fffbeb;padding:10px 12px;border-radius:8px;">⚠️ 이 과목은 현재 '+usageCount+'개 기업에서 공유 중입니다. 수정하면 모든 기업에 함께 반영돼요.</div>';
+        }
+      }
+      return usageNote +
+        '<div class="form-group"><label>🆔 과목ID</label><input id="f_id" class="input" style="width:100%;" value="'+escapeHtml(id3)+'" '+(mode==='edit'?'readonly':'')+'></div>'+
+        '<div class="form-group"><label>📚 과목명</label><input id="f_name" class="input" style="width:100%;" value="'+escapeHtml(data.과목명||'')+'"></div>'+
+        '<div class="form-row">' +
+          '<div class="form-group"><label>🗂️ 문제유형(평가방법)</label><select id="f_type" class="input" style="width:100%;">'+typeOptions+'</select></div>'+
+          '<div class="form-group"><label>🎯 난이도</label><select id="f_diff" class="input" style="width:100%;">'+diffOptions+'</select></div>'+
+        '</div>'+
+        '<div class="form-group"><label>⏱️ 평가시간</label><input id="f_time" class="input" style="width:100%;" placeholder="예: 50분" value="'+escapeHtml(data.평가시간||'50분')+'"></div>'+
+        '<div class="form-group"><label>📋 능력단위요소명 (선택, 줄바꿈으로 구분)</label><textarea id="f_elements" class="input" style="min-height:70px;">'+escapeHtml(data.능력단위요소명||'')+'</textarea></div>';
+    }
+    if(type==='과목배정'){
+      var companyId = context.companyId;
+      var unassigned = state.subjects.filter(function(s){
+        return !state.assignments.find(function(a){ return String(a.기업ID)===String(companyId) && String(a.과목ID)===String(s.과목ID); });
+      });
+      var existingOptions = unassigned.map(function(s){
+        var usage = subjectUsageCount(s.과목ID);
+        return '<option value="'+escapeHtml(s.과목ID)+'">'+escapeHtml(s.과목명)+' ('+escapeHtml(s.문제유형)+') · 현재 '+usage+'개 기업 사용중</option>';
+      }).join('');
+      var typeOptions2 = ['서술형','질문형','발표형'].map(function(t){ return '<option value="'+t+'">'+t+'</option>'; }).join('');
+      var diffOptions2 = ['상','중','하'].map(function(d){ var sel = d==='중'?'selected':''; return '<option value="'+d+'" '+sel+'>'+d+'</option>'; }).join('');
+
+      return '<div style="display:flex;gap:8px;margin-bottom:18px;">' +
+          '<button type="button" class="btn btn-sm mode-toggle-btn active" data-assign-mode="existing" style="flex:1;">🔗 기존 과목 배정</button>' +
+          '<button type="button" class="btn btn-sm mode-toggle-btn" data-assign-mode="new" style="flex:1;">✨ 새 과목 만들기</button>' +
+        '</div>' +
+        '<div id="assignExistingSection">' +
+          (unassigned.length>0 ?
+            '<div class="form-group"><label>📚 배정할 과목 선택</label><select id="f_existing_subject" class="input" style="width:100%;">'+existingOptions+'</select></div>' :
+            '<div style="font-size:13px;color:var(--text-secondary);margin-bottom:10px;">배정 가능한 기존 과목이 없습니다. "새 과목 만들기"를 이용해주세요.</div>') +
+        '</div>' +
+        '<div id="assignNewSection" style="display:none;">' +
+          '<div class="form-group"><label>🆔 과목ID</label><input id="f_id" class="input" style="width:100%;" value="'+escapeHtml(nextSubjectId())+'"></div>'+
+          '<div class="form-group"><label>📚 과목명</label><input id="f_name" class="input" style="width:100%;"></div>'+
+          '<div class="form-row">' +
+            '<div class="form-group"><label>🗂️ 문제유형</label><select id="f_type" class="input" style="width:100%;">'+typeOptions2+'</select></div>'+
+            '<div class="form-group"><label>🎯 난이도</label><select id="f_diff" class="input" style="width:100%;">'+diffOptions2+'</select></div>'+
+          '</div>'+
+          '<div class="form-group"><label>⏱️ 평가시간</label><input id="f_time" class="input" style="width:100%;" placeholder="예: 50분" value="50분"></div>'+
+          '<div class="form-group"><label>📋 능력단위요소명 (선택)</label><textarea id="f_elements" class="input" style="min-height:60px;"></textarea></div>'+
+        '</div>';
+    }
+    if(type==='문제'){
+      var lockSubject = (mode==='edit') || !!context.subjectId;
+      var subjectId = context.subjectId || data.과목ID || (state.subjects[0] && state.subjects[0].과목ID) || '';
+      var id4 = data.문제ID || (subjectId ? nextQuestionId(subjectId) : '');
+      var num = data.문제번호 || (subjectId ? nextQuestionNum(subjectId) : 1);
+      var subjectFieldHtml;
+      if(lockSubject){
+        subjectFieldHtml = '<input class="input" style="width:100%;background:#f3f4f6;" value="'+escapeHtml(subjectId)+'" readonly>';
+      } else {
+        var subjOptions = state.subjects.map(function(s){
+          var sel = String(s.과목ID)===String(subjectId) ? 'selected':'';
+          return '<option value="'+escapeHtml(s.과목ID)+'" '+sel+'>'+escapeHtml(s.과목명)+' ('+escapeHtml(s.문제유형)+')</option>';
+        }).join('');
+        subjectFieldHtml = '<select id="f_subject" class="input" style="width:100%;">'+(subjOptions||'<option value="">등록된 과목이 없습니다</option>')+'</select>';
+      }
+      return '<div class="form-row">' +
+          '<div class="form-group"><label>🆔 문제ID</label><input id="f_id" class="input" style="width:100%;" value="'+escapeHtml(id4)+'" readonly></div>'+
+          '<div class="form-group"><label>🔢 문제번호</label><input id="f_num" type="number" min="1" class="input" style="width:100%;" value="'+escapeHtml(num)+'"></div>'+
+        '</div>'+
+        '<div class="form-group"><label>📂 소속 과목</label>'+subjectFieldHtml+'</div>'+
+        '<div class="form-group"><label>✏️ 문제내용</label><textarea id="f_content" class="input" style="min-height:120px;">'+escapeHtml(data.문제내용||'')+'</textarea></div>'+
+        '<div class="form-group"><label>✅ 모범답안 (평가자 참고용)</label><textarea id="f_answer" class="input" style="min-height:120px;">'+escapeHtml(data.모범답안||'')+'</textarea></div>'+
+        '<div class="form-group"><label>💯 배점</label><input id="f_point" type="number" class="input" style="width:100%;" value="'+escapeHtml(data.배점||20)+'"></div>';
+    }
+    return '';
+  }
+
+  /* 비밀번호가 설정되어 있고 현재 로그인된 상태일 때만 헤더의 로그아웃 버튼을 보여줌 */
+  function updateAuthUI(){
+    var logoutBtn = document.getElementById('logoutBtn');
+    if(!logoutBtn) return;
+    var shouldShow = !!(state.loaded && state.fetchedPassword && state.authenticated);
+    logoutBtn.style.display = shouldShow ? '' : 'none';
+  }
+
+  /* 현재 activeTab에 맞춰 상단 탭 버튼의 active 클래스만 갱신 */
+  function renderTabsActive(){
+    document.querySelectorAll('.tab-btn').forEach(function(btn){
+      if(btn && btn.classList){ btn.classList.toggle('active', btn.dataset.tab === state.activeTab); }
+    });
+  }
+
+  /* 비밀번호가 설정된 경우 표시하는 로그인 화면 렌더링 */
+  function renderLogin(){
+    setMain(
+      '<div style="max-width:360px;margin:60px auto;background:var(--surface);border:1px solid var(--border);border-radius:var(--radius);padding:32px;text-align:center;">' +
+        '<div style="font-size:40px;margin-bottom:12px;">🔒</div>' +
+        '<div style="font-size:16px;font-weight:700;margin-bottom:16px;">비밀번호를 입력해주세요</div>' +
+        '<input id="passwordInput" type="password" class="input" style="width:100%;margin-bottom:12px;" placeholder="비밀번호">' +
+        '<button id="loginBtn" class="btn btn-primary" style="width:100%;">입장하기</button>' +
+        (state.loginError ? '<div style="color:var(--danger);font-size:12px;margin-top:10px;">'+escapeHtml(state.loginError)+'</div>' : '') +
+      '</div>'
+    );
+    var pwInput = document.getElementById('passwordInput');
+    if(pwInput) pwInput.focus();
+  }
+
+  async function checkPassword(){
+    var pwInput = document.getElementById('passwordInput');
+    var entered = pwInput ? pwInput.value.trim() : '';
+    var expected = String(state.fetchedPassword).trim();
+    if(expected && entered === expected){
+      state.authenticated = true;
+      state.loginError = null;
+      localSet('auth-pw', expected);
+      render();
+    } else {
+      state.loginError = '비밀번호가 올바르지 않습니다';
+      render();
+    }
+  }
+
+  /* ============================================================
+     최상위 렌더 함수: state.activeTab 값에 따라 각 탭별 render* 함수로 분기
+     상태(state)가 바뀔 때마다 이 함수를 호출해 화면을 다시 그림
+     ============================================================ */
+  function render(){
+    renderTabsActive();
+    updateAuthUI();
+    if(!state.loaded){
+      setMain(
+        '<div class="empty-state">' +
+          '<div class="icon">📊</div>' +
+          '<div style="font-size:16px;font-weight:700;margin-bottom:8px;">연동된 데이터가 없습니다</div>' +
+          '<div style="margin-bottom:20px;">상단에 Apps Script 웹앱 URL을 입력하고 연결해주세요</div>' +
+          '<button class="btn btn-primary" id="sampleBtn">샘플 데이터로 미리보기</button>' +
+        '</div>'
+      );
+      return;
+    }
+    if(!state.authenticated){
+      renderLogin();
+      return;
+    }
+    if(state.activeTab==='overview') renderOverview();
+    else if(state.activeTab==='entry') renderEntry();
+    else if(state.activeTab==='companies') renderCompanies();
+    else if(state.activeTab==='students') renderStudents();
+    else if(state.activeTab==='stats') renderStats();
+    else if(state.activeTab==='deploy') renderDeploy();
+  }
+
+  /* ── [개요] 탭: 전체 요약 통계, 경고 목록 렌더링 ── */
+  function renderOverview(){
+    var companyWarnings = [];
+    state.companies.forEach(function(c){
+      var cnt = getCompanySubjects(c.기업ID).length;
+      if(cnt < 6) companyWarnings.push({tag:'company', text: c.기업명 + ': 과목 ' + cnt + '/6개 배정'});
+    });
+    var unmatched = state.students.filter(function(s){
+      return !state.companies.find(function(c){ return String(c.기업ID)===String(s.기업ID); });
+    });
+    if(unmatched.length>0) companyWarnings.push({tag:'student', text: unmatched.length + '명의 학생이 기업과 매칭되지 않았습니다'});
+
+    var subjectWarnings = [];
+    state.subjects.forEach(function(s){
+      var cnt = state.questions.filter(function(q){ return String(q.과목ID)===String(s.과목ID); }).length;
+      if(cnt < 5){
+        var usingNames = state.assignments.filter(function(a){return String(a.과목ID)===String(s.과목ID);})
+          .map(function(a){ var c = state.companies.find(function(cc){return String(cc.기업ID)===String(a.기업ID);}); return c?c.기업명:'?'; });
+        subjectWarnings.push({tag:'subject', text: s.과목명 + ': 문제 ' + cnt + '/5개 등록' + (usingNames.length? ' (사용: '+usingNames.join(', ')+')' : ' (미배정 과목)')});
+      }
+    });
+
+    var tagLabel = {company:'기업 배정', subject:'문제 등록', student:'학생 매칭'};
+
+    function warningListHtml(list, okTitle, okSub){
+      if(list.length===0){
+        return '<div class="status-banner ok"><div class="status-icon">✅</div><div><div class="status-title">'+okTitle+'</div><div class="status-sub">'+okSub+'</div></div></div>';
+      }
+      return '<div class="warning-list">' +
+        list.map(function(w){
+          return '<div class="warning-row"><span class="warning-tag '+w.tag+'">'+tagLabel[w.tag]+'</span><span>'+escapeHtml(w.text)+'</span></div>';
+        }).join('') +
+      '</div>';
+    }
+
+    var fullyAssignedCount = state.companies.filter(function(c){ return getCompanySubjects(c.기업ID).length>=6; }).length;
+    var completionPct = state.companies.length ? Math.round(fullyAssignedCount/state.companies.length*100) : 0;
+
+    var rowsHtml = state.companies.map(function(c){
+      var subjs = getCompanySubjects(c.기업ID);
+      var studCount = state.students.filter(function(s){ return String(s.기업ID)===String(c.기업ID); }).length;
+      var qCount = subjs.reduce(function(sum,s){
+        return sum + state.questions.filter(function(q){ return String(q.과목ID)===String(s.과목ID); }).length;
+      }, 0);
+      var pct = Math.round(subjs.length/6*100);
+      var complete = subjs.length>=6;
+      return '<tr>' +
+        '<td>'+companyChip(c.기업ID, c.기업명, true)+'</td>' +
+        '<td>' +
+          '<div class="mini-progress">' +
+            '<div class="mini-progress-track"><div class="mini-progress-fill" style="width:'+pct+'%;background:'+(complete?'var(--success)':'var(--warning)')+';"></div></div>' +
+            '<span>'+subjs.length+'/6</span>' +
+          '</div>' +
+        '</td>' +
+        '<td>'+studCount+'명</td>' +
+        '<td>'+qCount+'개</td>' +
+        '<td><span class="badge-status '+(complete?'complete':'incomplete')+'">'+(complete?'완료':'진행중')+'</span></td>' +
+      '</tr>';
+    }).join('');
+
+    var activeSub = state.overviewTab || 'company';
+    var subContentHtml = '';
+    if(activeSub==='company'){
+      subContentHtml = warningListHtml(companyWarnings, '모든 기업이 6과목을 정상적으로 배정했습니다', '학생 매칭도 누락 없이 잘 연결되어 있어요');
+    } else if(activeSub==='subject'){
+      subContentHtml = warningListHtml(subjectWarnings, '모든 과목에 문제가 5개씩 등록되어 있습니다', '문제 등록 누락 항목이 없어요');
+    } else {
+      subContentHtml =
+        '<div style="font-size:12px;color:var(--text-secondary);margin-bottom:12px;">전체 '+state.companies.length+'개 기업 중 '+fullyAssignedCount+'개 완료 ('+completionPct+'%)</div>' +
+        '<table><thead><tr><th>기업명</th><th>배정 현황</th><th>소속 학생</th><th>전체 문제 수</th><th>상태</th></tr></thead>' +
+        '<tbody>' + (rowsHtml || '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);">데이터 없음</td></tr>') + '</tbody></table>';
+    }
+
+    function subtabBtn(key, label, count){
+      var active = activeSub===key ? 'active':'';
+      var countBadge = (count>0) ? '<span class="count-badge">'+count+'</span>' : '';
+      return '<button class="subtab-btn '+active+'" data-overview-tab="'+key+'">'+label+countBadge+'</button>';
+    }
+
+    setMain(
+      '<div class="overview-grid">' +
+        '<div class="overview-card"><div class="overview-icon" style="background:#eef2ff;color:#4f46e5;">🏢</div><div><div class="overview-num">'+state.companies.length+'</div><div class="overview-label">기업 수</div></div></div>' +
+        '<div class="overview-card"><div class="overview-icon" style="background:#ecfdf5;color:#059669;">🎓</div><div><div class="overview-num">'+state.students.length+'</div><div class="overview-label">학생 수</div></div></div>' +
+        '<div class="overview-card"><div class="overview-icon" style="background:#fef3c7;color:#b45309;">📚</div><div><div class="overview-num">'+state.subjects.length+'</div><div class="overview-label">과목 수 (공유 풀)</div></div></div>' +
+        '<div class="overview-card"><div class="overview-icon" style="background:#fee2e2;color:#b91c1c;">📝</div><div><div class="overview-num">'+state.questions.length+'</div><div class="overview-label">문제 수</div></div></div>' +
+      '</div>' +
+      '<div class="panel">' +
+        '<div class="subtab-nav">' +
+          subtabBtn('company','🏢 기업 배정', companyWarnings.length) +
+          subtabBtn('subject','📝 문제 등록', subjectWarnings.length) +
+          subtabBtn('status','📊 기업별 배정현황', 0) +
+        '</div>' +
+        subContentHtml +
+      '</div>'
+    );
+  }
+
+  /* ── [데이터 입력] 탭 UI 헬퍼: 큰 카드 버튼 / 통계 스트립 아이템 ── */
+  function entryCard(icon, iconBg, iconColor, title, desc, action){
+    return '<button class="entry-card" data-action="'+action+'">' +
+      '<div class="entry-card-icon" style="background:'+iconBg+';color:'+iconColor+';">'+icon+'</div>' +
+      '<div class="entry-card-body">' +
+        '<div class="entry-card-title">'+title+'</div>' +
+        '<div class="entry-card-desc">'+desc+'</div>' +
+      '</div>' +
+      '<div class="entry-card-arrow">→</div>' +
+    '</button>';
+  }
+
+  function statStripItem(num, label){
+    return '<div class="stat-strip-item"><div class="stat-strip-num">'+num+'</div><div class="stat-strip-label">'+label+'</div></div>';
+  }
+
+  /* ── [데이터 입력] 탭: 기업/학생/과목/문제 등록 진입 카드 렌더링 ── */
+  function renderEntry(){
+    var subjectRows = state.subjects.slice().sort(function(a,b){
+      return escapeHtml(a.과목명).localeCompare(escapeHtml(b.과목명),'ko');
+    }).map(function(s){
+      var usageCompanies = getSubjectCompanies(s.과목ID);
+      var qCount = state.questions.filter(function(q){ return String(q.과목ID)===String(s.과목ID); }).length;
+      var usageHtml = usageCompanies.length>0 ?
+        '<div class="company-chip-list">' + usageCompanies.map(function(c){ return companyChip(c.기업ID, c.기업명, true); }).join('') + '</div>' :
+        '<span class="usage-pill usage-none">미배정</span>';
+      var qPct = Math.round(qCount/5*100);
+      return '<tr>' +
+        '<td style="white-space:nowrap;"><strong>'+escapeHtml(s.과목명)+'</strong></td>' +
+        '<td>'+typeBadge(s.문제유형)+'</td>' +
+        '<td>'+usageHtml+'</td>' +
+        '<td>' +
+          '<div class="mini-progress">' +
+            '<div class="mini-progress-track"><div class="mini-progress-fill" style="width:'+qPct+'%;background:'+(qCount>=5?'var(--success)':'var(--warning)')+';"></div></div>' +
+            '<span>'+qCount+'/5</span>' +
+          '</div>' +
+        '</td>' +
+        '<td>' +
+          '<button class="icon-btn" data-action="edit-subject" data-id="'+escapeHtml(s.과목ID)+'">✏️</button>' +
+          (usageCompanies.length===0 ? '<button class="icon-btn" data-action="delete-subject-full" data-id="'+escapeHtml(s.과목ID)+'">🗑️</button>' : '') +
+        '</td>' +
+      '</tr>';
+    }).join('');
+
+    setMain(
+      '<div class="stat-strip">' +
+        statStripItem(state.companies.length, '기업') +
+        statStripItem(state.students.length, '학생') +
+        statStripItem(state.subjects.length, '과목 (공유 풀)') +
+        statStripItem(state.questions.length, '문제') +
+        statStripItem(state.assignments.length, '기업-과목 배정') +
+      '</div>' +
+      '<div class="entry-grid">' +
+        entryCard('🏢','#eef2ff','#4f46e5','기업 추가','새로운 기업을 등록합니다','add-company') +
+        entryCard('🎓','#ecfdf5','#059669','학생 추가','학생을 등록하고 기업에 배정합니다','add-student') +
+        entryCard('📚','#fef3c7','#b45309','과목 추가','공유 과목 풀에 새 과목을 등록합니다','add-subject-generic') +
+        entryCard('📝','#fee2e2','#b91c1c','문제 추가','과목을 선택해 문제와 모범답안을 등록합니다','add-question-generic') +
+      '</div>' +
+      '<div class="panel">' +
+        '<div class="panel-head">' +
+          '<div><div class="section-title" style="margin-bottom:2px;">📚 공유 과목 목록</div>' +
+          '<div style="font-size:12px;color:var(--text-secondary);">전체 '+state.subjects.length+'개 과목 · 같은 과목을 여러 기업에서 함께 쓸 수 있어요</div></div>' +
+        '</div>' +
+        '<table><thead><tr><th>과목명</th><th>유형</th><th>사용 기업</th><th>문제 등록</th><th>관리</th></tr></thead><tbody>' +
+          (subjectRows || '<tr><td colspan="5" style="text-align:center;color:var(--text-secondary);">등록된 과목이 없습니다</td></tr>') +
+        '</tbody></table>' +
+        '<div class="info-note">💡 사용 기업 수가 0일 때만 완전 삭제할 수 있어요. 여러 기업에서 쓰는 과목을 수정하면 모든 기업에 함께 반영돼요.</div>' +
+      '</div>'
+    );
+  }
+
+  /* ── [기업별 보기] 탭: 좌측 기업 목록 + 우측 배정 과목/문제 상세 (2단 레이아웃) ── */
+  function renderCompanies(){
+    var company = state.companies.find(function(c){ return String(c.기업ID)===String(state.selectedCompanyId); });
+    var detailHtml = '<div class="empty-state"><div class="icon">🏢</div><div>왼쪽에서 기업을 선택해주세요</div></div>';
+
+    if(company){
+      var subjects = getCompanySubjects(company.기업ID);
+      var students = state.students.filter(function(s){ return String(s.기업ID)===String(company.기업ID); });
+      var subject = state.subjects.find(function(s){ return String(s.과목ID)===String(state.selectedSubjectId); });
+
+      var addSubjectBtnHtml = subjects.length<6 ?
+        '<button class="btn btn-primary btn-sm" data-action="add-subject" data-company-id="'+escapeHtml(company.기업ID)+'">+ 과목 배정/추가</button>' : '';
+
+      var subjectChips = subjects.map(function(s, idx){
+        var qCount = state.questions.filter(function(q){ return String(q.과목ID)===String(s.과목ID); }).length;
+        var usage = subjectUsageCount(s.과목ID);
+        var active = String(s.과목ID)===String(state.selectedSubjectId) ? 'active':'';
+        var orderLabel = '제'+(idx+1)+'과목';
+        var isFirst = idx===0;
+        var isLast = idx===subjects.length-1;
+        return '<div class="subject-chip ' + active + '" data-subject-id="' + escapeHtml(s.과목ID) + '">' +
+          '<div class="subject-order-label">'+orderLabel+'</div>'+
+          '<div class="card-row">' +
+            '<div class="sname">'+escapeHtml(s.과목명)+'</div>' +
+            '<div class="card-actions">' +
+              '<button class="icon-btn" data-action="edit-subject" data-id="'+escapeHtml(s.과목ID)+'" title="과목 내용 수정">✏️</button>' +
+              '<button class="icon-btn" data-action="unassign-subject" data-company-id="'+escapeHtml(company.기업ID)+'" data-subject-id="'+escapeHtml(s.과목ID)+'" title="배정 해제">➖</button>' +
+            '</div>' +
+          '</div>' +
+          '<div style="margin:6px 0;">'+typeBadge(s.문제유형)+(usage>1?' <span class="share-tag">· '+usage+'개 기업 공유</span>':'')+'</div>' +
+          '<div class="scount ' + (qCount<5?'incomplete':'') + '">문제 '+qCount+'개 등록</div>' +
+          '<div class="subject-order-btns">' +
+            (isFirst?'<span class="order-btn-spacer"></span>':'<button class="order-btn" data-action="reorder-subject" data-company-id="'+escapeHtml(company.기업ID)+'" data-subject-id="'+escapeHtml(s.과목ID)+'" data-dir="up">↑ 앞으로</button>') +
+            (isLast?'':'<button class="order-btn" data-action="reorder-subject" data-company-id="'+escapeHtml(company.기업ID)+'" data-subject-id="'+escapeHtml(s.과목ID)+'" data-dir="down">↓ 뒤로</button>') +
+          '</div>'+
+        '</div>';
+      }).join('');
+
+      var questionsHtml = '';
+      if(subject){
+        var qs = state.questions.filter(function(q){ return String(q.과목ID)===String(subject.과목ID); })
+          .sort(function(a,b){ return (a.문제번호||0)-(b.문제번호||0); });
+        var addQBtnHtml = '<button class="btn btn-primary btn-sm" data-action="add-question" data-subject-id="'+escapeHtml(subject.과목ID)+'">+ 문제 추가</button>';
+        questionsHtml = '<div class="panel-head" style="margin-top:20px;">' +
+            '<div class="section-title" style="margin-bottom:0;display:flex;align-items:center;gap:8px;">' + escapeHtml(subject.과목명) + ' 문제 목록 ' + typeBadge(subject.문제유형) + '</div>' +
+            addQBtnHtml +
+          '</div>';
+        if(qs.length===0){
+          questionsHtml += '<div class="empty-state"><div class="icon">📝</div><div>등록된 문제가 없습니다</div></div>';
+        } else {
+          questionsHtml += qs.map(function(q){
+            return '<div class="question-item">' +
+              '<div class="qhead">' +
+                '<span class="qnum">문제 '+escapeHtml(q.문제번호)+'</span>' +
+                '<span class="qpoint">'+escapeHtml(q.배점)+'점</span>' +
+                '<button class="icon-btn" data-action="edit-question" data-id="'+escapeHtml(q.문제ID)+'">✏️</button>' +
+                '<button class="icon-btn" data-action="delete-question" data-id="'+escapeHtml(q.문제ID)+'">🗑️</button>' +
+              '</div>' +
+              '<div class="qcontent">'+nl2br(q.문제내용)+'</div>' +
+              (q.모범답안 ? '<div class="qanswer"><span class="qanswer-label">모범답안</span><span>'+nl2br(q.모범답안)+'</span></div>' : '') +
+            '</div>';
+          }).join('');
+        }
+      }
+
+      var studentsHtml = students.length===0 ?
+        '<div class="empty-state"><div class="icon">👥</div><div>매칭된 학생이 없습니다</div></div>' :
+        '<table><thead><tr><th>학생ID</th><th>이름</th></tr></thead><tbody>' +
+          students.map(function(s){ return '<tr><td>'+escapeHtml(s.학생ID)+'</td><td>'+escapeHtml(s.이름)+'</td></tr>'; }).join('') +
+        '</tbody></table>';
+
+      detailHtml =
+        '<div class="panel-head">' +
+          '<div class="section-title" style="margin-bottom:0;display:flex;align-items:center;gap:8px;flex-wrap:wrap;">' + companyChip(company.기업ID, company.기업명, false) + '<span>— 배정 과목 (' + subjects.length + '/6)</span></div>' +
+          addSubjectBtnHtml +
+        '</div>' +
+        '<div class="subject-grid">' + (subjectChips || '<div class="empty-state" style="grid-column:1/-1;padding:24px;">배정된 과목이 없습니다</div>') + '</div>' +
+        questionsHtml +
+        '<div class="section-title" style="margin-top:24px;">소속 학생 (' + students.length + '명)</div>' +
+        studentsHtml;
+    }
+
+    var companyCards = state.companies.map(function(c){
+      var subjCount = getCompanySubjects(c.기업ID).length;
+      var active = String(c.기업ID)===String(state.selectedCompanyId) ? 'active':'';
+      return '<div class="company-card ' + active + '" data-company-id="' + escapeHtml(c.기업ID) + '">' +
+        '<div class="card-row">' +
+          '<div><div class="name">'+companyChip(c.기업ID, c.기업명, false)+'</div><div class="meta">과목 '+subjCount+'/6 배정</div></div>' +
+          '<div class="card-actions">' +
+            '<button class="icon-btn" data-action="edit-company" data-id="'+escapeHtml(c.기업ID)+'">✏️</button>' +
+            '<button class="icon-btn" data-action="delete-company" data-id="'+escapeHtml(c.기업ID)+'">🗑️</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    }).join('');
+
+    setMain(
+      '<div class="layout-2col">' +
+        '<div class="panel">' +
+          '<div class="panel-head"><div class="section-title" style="margin-bottom:0;">기업 목록</div>' +
+          '<button class="btn btn-primary btn-sm" data-action="add-company">+ 추가</button></div>' +
+          (companyCards || '<div class="empty-state">등록된 기업이 없습니다</div>') +
+        '</div>' +
+        '<div class="panel">' + detailHtml + '</div>' +
+      '</div>'
+    );
+  }
+
+  /* ── [학생 검색] 탭: 학생 목록 검색/필터 렌더링 ── */
+  function renderStudents(){
+    var matchedCount = state.students.filter(function(s){ return state.companies.find(function(c){return String(c.기업ID)===String(s.기업ID);}); }).length;
+    var unmatchedCount = state.students.length - matchedCount;
+    var companyOptions = '<option value="">전체 기업</option>' + state.companies.map(function(c){
+      var sel = state.studentCompanyFilter===c.기업ID ? 'selected':'';
+      return '<option value="'+escapeHtml(c.기업ID)+'" '+sel+'>'+escapeHtml(c.기업명)+'</option>';
+    }).join('');
+
+    setMain(
+      '<div class="stat-strip">' +
+        statStripItem(state.students.length, '전체 학생') +
+        statStripItem(matchedCount, '매칭 정상') +
+        statStripItem(unmatchedCount, '매칭 오류') +
+      '</div>' +
+      '<div class="panel">' +
+        '<div class="panel-head" style="flex-wrap:wrap;gap:10px;">' +
+          '<div style="display:flex;gap:10px;flex-wrap:wrap;flex:1;">' +
+            '<input id="studentSearch" class="input" style="flex:1;min-width:200px;max-width:280px;" placeholder="🔍 이름 · 소속기업 검색" value="' + escapeHtml(state.searchQuery) + '">' +
+            '<select id="studentCompanyFilter" class="input" style="max-width:200px;">' + companyOptions + '</select>' +
+          '</div>' +
+          '<button class="btn btn-primary btn-sm" data-action="add-student">+ 학생 추가</button>' +
+        '</div>' +
+        '<div id="studentTableWrap"></div>' +
+      '</div>'
+    );
+    updateStudentsTable();
+  }
+
+  function updateStudentsTable(){
+    var wrap = document.getElementById('studentTableWrap');
+    if(!wrap) return;
+    var q = state.searchQuery.trim().toLowerCase();
+    var companyMap = {};
+    state.companies.forEach(function(c){ companyMap[String(c.기업ID)] = c.기업명; });
+
+    var filtered = state.students.filter(function(s){
+      if(state.studentCompanyFilter && String(s.기업ID)!==String(state.studentCompanyFilter)) return false;
+      if(!q) return true;
+      var companyName = (companyMap[String(s.기업ID)] || '').toLowerCase();
+      return String(s.이름).toLowerCase().indexOf(q)>-1 ||
+             String(s.학생ID).toLowerCase().indexOf(q)>-1 ||
+             companyName.indexOf(q)>-1;
+    });
+
+    if(filtered.length===0){
+      wrap.innerHTML = '<div class="empty-state"><div class="icon">🔍</div><div>검색 결과가 없습니다</div></div>';
+      return;
+    }
+
+    wrap.innerHTML =
+      '<table><thead><tr><th>학생</th><th>소속 기업</th><th>배정 과목 수</th><th>매칭 상태</th><th>관리</th></tr></thead><tbody>' +
+      filtered.map(function(s){
+        var companyName = companyMap[String(s.기업ID)];
+        var isMatched = !!companyName;
+        var subjCount = isMatched ? getCompanySubjects(s.기업ID).length : 0;
+        return '<tr>' +
+          '<td><div class="student-cell"><div class="student-avatar">'+escapeHtml((s.이름||'?').charAt(0))+'</div><div><div style="font-weight:600;">'+escapeHtml(s.이름)+'</div><div style="font-size:11px;color:var(--text-secondary);">'+escapeHtml(s.학생ID)+'</div></div></div></td>' +
+          '<td>'+(isMatched ? companyChip(s.기업ID, companyName, true) : '<span style="color:var(--text-secondary);">매칭 없음</span>')+'</td>' +
+          '<td>'+(isMatched? subjCount+'개':'-')+'</td>' +
+          '<td><span class="badge-status '+(isMatched?'complete':'incomplete')+'">'+(isMatched? '✅ 정상':'⚠️ 매칭 오류')+'</span></td>' +
+          '<td><button class="icon-btn" data-action="edit-student" data-id="'+escapeHtml(s.학생ID)+'">✏️</button><button class="icon-btn" data-action="delete-student" data-id="'+escapeHtml(s.학생ID)+'">🗑️</button></td>' +
+        '</tr>';
+      }).join('') +
+      '</tbody></table>';
+  }
+
+  /* ── [통계] 탭 데이터 계산 헬퍼: 과목별 공유(배정) 현황 집계 ── */
+  function getSubjectUsageList(){
+    return state.subjects.slice().sort(function(a,b){
+      return (a.과목명||'').localeCompare(b.과목명||'','ko');
+    }).map(function(s){
+      var companies = state.assignments.filter(function(a){ return String(a.과목ID)===String(s.과목ID); })
+        .map(function(a){ return state.companies.find(function(cc){return String(cc.기업ID)===String(a.기업ID);}); })
+        .filter(Boolean);
+      return {name: s.과목명, type: s.문제유형, companies: companies};
+    }).sort(function(a,b){ return b.companies.length-a.companies.length; });
+  }
+
+  function renderSubjectShareCardsHtml(list){
+    var rows = list.map(function(s){
+      var chips = s.companies.length>0 ?
+        s.companies.map(function(c){
+          return companyChip(c.기업ID, c.기업명, true);
+        }).join('') :
+        '<span style="font-size:12px;color:var(--text-secondary);">배정된 기업 없음</span>';
+      return '<div class="subject-share-card">' +
+        '<div class="subject-share-head">' +
+          '<div class="subject-share-title">'+typeBadge(s.type)+'<span>'+escapeHtml(s.name)+'</span></div>' +
+          '<span class="subject-share-count">'+s.companies.length+'개 기업</span>' +
+        '</div>' +
+        '<div class="company-chip-list">'+chips+'</div>' +
+      '</div>';
+    }).join('');
+    return rows || '<div class="empty-state" style="grid-column:1/-1;">검색 결과가 없습니다</div>';
+  }
+
+  function updateSubjectShareGrid(){
+    var wrap = document.getElementById('subjectShareWrap');
+    if(!wrap) return;
+    var q = state.statsSubjectSearch.trim().toLowerCase();
+    var list = getSubjectUsageList();
+    if(q){ list = list.filter(function(s){ return s.name.toLowerCase().indexOf(q)>-1; }); }
+    wrap.innerHTML = renderSubjectShareCardsHtml(list);
+  }
+
+  /* ── [통계] 탭: 준비도/공유현황 등 서브탭별 통계 렌더링 (도넛차트, 막대그래프 등) ── */
+  function renderStats(){
+    var activeSub = state.statsTab || 'readiness';
+
+    function statsTabBtn(key, label){
+      var active = activeSub===key ? 'active':'';
+      return '<button class="subtab-btn '+active+'" data-stats-tab="'+key+'">'+label+'</button>';
+    }
+
+    var subContentHtml = '';
+
+    if(activeSub==='readiness'){
+      var companiesReady = state.companies.filter(function(c){ return getCompanySubjects(c.기업ID).length>=6; }).length;
+      var subjectsReady = state.subjects.filter(function(s){ return state.questions.filter(function(q){return String(q.과목ID)===String(s.과목ID);}).length>=5; }).length;
+      var parts = [];
+      if(state.companies.length) parts.push(companiesReady/state.companies.length);
+      if(state.subjects.length) parts.push(subjectsReady/state.subjects.length);
+      var overallPct = parts.length ? Math.round(parts.reduce(function(a,b){return a+b;},0)/parts.length*100) : 0;
+      var gaugeColor = overallPct>=80 ? 'var(--success)' : (overallPct>=50 ? 'var(--warning)' : 'var(--danger)');
+      var gaugeBg = overallPct>0 ? 'conic-gradient('+gaugeColor+' 0% '+overallPct+'%, #f3f4f6 '+overallPct+'% 100%)' : '#f3f4f6';
+
+      var studentCards = state.companies.map(function(c){
+        var studs = state.students.filter(function(s){return String(s.기업ID)===String(c.기업ID);});
+        return {id:c.기업ID, name:c.기업명, students:studs};
+      }).sort(function(a,b){ return b.students.length-a.students.length; });
+
+      var studentCardsHtml = studentCards.map(function(c){
+        var chips = c.students.length>0 ?
+          c.students.map(function(s){ return '<span class="student-chip">'+escapeHtml(s.이름)+'</span>'; }).join('') :
+          '<span style="font-size:12px;color:var(--text-secondary);">소속 학생 없음</span>';
+        return '<div class="student-count-card">' +
+          '<div class="student-count-head">' +
+            '<div>'+companyChip(c.id, c.name, true)+'</div>' +
+            '<span class="student-count-num">'+c.students.length+'명</span>' +
+          '</div>' +
+          '<div class="student-chip-list">'+chips+'</div>' +
+        '</div>';
+      }).join('');
+
+      subContentHtml =
+        '<div class="readiness-row">' +
+          '<div class="donut" style="background:'+gaugeBg+';"><div class="donut-center"><div class="donut-num">'+overallPct+'%</div><div class="donut-label">준비 완료</div></div></div>' +
+          '<div class="readiness-detail">' +
+            '<div class="readiness-item">🏢 기업 배정 완료 <strong>'+companiesReady+'/'+state.companies.length+'</strong>개 기업 (6과목 모두 채움)</div>' +
+            '<div class="readiness-item">📚 과목 문제 등록 완료 <strong>'+subjectsReady+'/'+state.subjects.length+'</strong>개 과목 (5문제 이상 등록)</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="panel-divider"></div>' +
+        '<div class="section-title">🎓 기업별 학생 현황</div>' +
+        '<div class="student-count-grid">' + (studentCardsHtml || '<div class="empty-state" style="grid-column:1/-1;">데이터가 없습니다</div>') + '</div>';
+    } else {
+      subContentHtml =
+        '<div class="panel-head">' +
+          '<div style="font-size:12px;color:var(--text-secondary);">여러 기업에서 함께 쓰는 과목일수록 위쪽에 표시돼요 · 기업 버튼을 누르면 해당 기업 상세로 이동해요</div>' +
+          '<input id="statsSubjectSearch" class="input" style="max-width:220px;" placeholder="🔍 과목명 검색" value="'+escapeHtml(state.statsSubjectSearch)+'">' +
+        '</div>' +
+        '<div class="subject-share-grid" id="subjectShareWrap">' + renderSubjectShareCardsHtml(getSubjectUsageList()) + '</div>';
+    }
+
+    setMain(
+      '<div class="panel">' +
+        '<div class="subtab-nav">' +
+          statsTabBtn('readiness','🚀 준비도 · 학생 현황') +
+          statsTabBtn('sharing','🔗 과목 공유') +
+        '</div>' +
+        subContentHtml +
+      '</div>'
+    );
+  }
+
+  /* ── 파일명으로 쓸 수 없는 문자(\ / : * ? " < > |)를 제거 ── */
+  function sanitizeFileName(str){
+    return String(str||'').replace(/[\\/:*?"<>|]/g, '').trim();
+  }
+
+  /* PDF 파일명 생성: "회사명 제N과목 과목명 유형 문제지(or 모범답안지).pdf"
+     과목을 2개 이상 선택했을 때는 모든 과목명을 다 담기 어려워 "N개과목"으로 요약함 */
+  function buildExamFileName(company, selectedSubjects, isTeacherView){
+    var docType = isTeacherView ? '모범답안지' : '문제지';
+    var parts;
+    if(selectedSubjects.length===1){
+      var s = selectedSubjects[0];
+      var orderLabel = getSubjectOrderLabel(company.기업ID, s.과목ID);
+      parts = [company.기업명, orderLabel, s.과목명, s.문제유형, docType];
+    } else {
+      parts = [company.기업명, selectedSubjects.length+'개과목', docType];
+    }
+    return sanitizeFileName(parts.filter(Boolean).join(' ')) + '.pdf';
+  }
+
+  /* 📄 PDF로 저장 버튼: html2canvas로 화면을 캡처하는 방식은 flex 간격/표 경계 등 복잡한 CSS를
+     제대로 재현하지 못해 글자·레이아웃이 깨지거나 내용이 잘리는 문제가 있었음.
+     대신 이미 검증된 인쇄용 CSS(페이지 나눔 포함)를 그대로 쓰는 브라우저 인쇄창을 열어,
+     사용자가 "PDF로 저장"을 프린터로 선택하도록 함. document.title을 잠깐 바꿔서
+     인쇄창의 기본 저장 파일명이 원하는 이름으로 뜨도록 처리함. */
+  function downloadExamPdf(){
+    var company = state.companies.find(function(c){ return String(c.기업ID)===String(state.deploy.companyId); });
+    if(!company) return;
+
+    var selectedSubjects = state.subjects.filter(function(s){ return state.deploy.subjectIds.indexOf(String(s.과목ID))>-1; });
+    var isTeacherView = state.deploy.viewMode === 'teacher';
+    // 브라우저 인쇄창은 파일 확장자를 알아서 붙여주므로 .pdf는 제외한 이름만 사용
+    var fileName = buildExamFileName(company, selectedSubjects, isTeacherView).replace(/\.pdf$/i, '');
+
+    var originalTitle = document.title;
+    document.title = fileName;
+
+    var restored = false;
+    var restoreTitle = function(){
+      if(restored) return;
+      restored = true;
+      document.title = originalTitle;
+      window.removeEventListener('afterprint', restoreTitle);
+    };
+    window.addEventListener('afterprint', restoreTitle);
+    // afterprint를 지원하지 않는 환경을 대비한 안전장치 (인쇄창을 오래 열어둬도 문제 없도록 넉넉하게 설정)
+    setTimeout(restoreTitle, 60000);
+
+    window.print();
+  }
+
+  /* ============================================================
+     [시험지 배포] 탭: 기업/과목/문제 선택 → 실제 시험지(인쇄용) 렌더링까지 포함
+     파일 내 가장 긴 함수이므로 수정 시 특히 주의
+     ============================================================ */
+  function renderDeploy(){
+    var company = state.companies.find(function(c){ return String(c.기업ID)===String(state.deploy.companyId); });
+
+    var companyListHtml = state.companies.map(function(c){
+      var active = String(c.기업ID)===String(state.deploy.companyId) ? 'active':'';
+      var subjCount = getCompanySubjects(c.기업ID).length;
+      return '<div class="company-card ' + active + '" data-deploy-company-id="' + escapeHtml(c.기업ID) + '">' +
+        '<div class="name">'+companyChip(c.기업ID, c.기업명, false)+'</div>' +
+        '<div class="meta">과목 '+subjCount+'/6 배정</div>' +
+      '</div>';
+    }).join('');
+
+    var rightHtml = '<div class="empty-state"><div class="icon">📄</div><div>왼쪽에서 기업을 선택해주세요</div></div>';
+
+    if(company){
+      var subjects = getCompanySubjects(company.기업ID);
+      var students = state.students.filter(function(s){ return String(s.기업ID)===String(company.기업ID); });
+      var selCount = state.deploy.subjectIds.length;
+      var isTeacherView = state.deploy.viewMode === 'teacher';
+      var selectedQuestionObjs = state.questions.filter(function(q){ return state.deploy.questionIds.indexOf(String(q.문제ID))>-1; });
+      var selectedQuestionCount = selectedQuestionObjs.length;
+      var selectedTotalPoints = selectedQuestionObjs.reduce(function(sum,q){ return sum + (parseInt(q.배점,10)||0); }, 0);
+
+      var checkboxesHtml = subjects.map(function(s, idx){
+        var orderLabel = '제'+(idx+1)+'과목';
+        var qCount = state.questions.filter(function(q){ return String(q.과목ID)===String(s.과목ID); }).length;
+        var checked = state.deploy.subjectIds.indexOf(String(s.과목ID)) > -1;
+        var rowHtml = '<label class="deploy-subject-row ' + (checked?'selected':'') + '">' +
+          '<input type="checkbox" data-deploy-subject-id="' + escapeHtml(s.과목ID) + '" ' + (checked?'checked':'') + '>' +
+          '<span style="flex:1;display:flex;align-items:center;gap:8px;">' +
+            '<span style="font-size:11px;font-weight:700;color:var(--primary);white-space:nowrap;">'+orderLabel+'</span>' +
+            escapeHtml(s.과목명)+typeBadge(s.문제유형) +
+          '</span>' +
+          '<span style="font-size:12px;color:var(--text-secondary);">문제 '+qCount+'개</span>' +
+        '</label>';
+        if(checked){
+          var qs2 = state.questions.filter(function(q){ return String(q.과목ID)===String(s.과목ID); })
+            .sort(function(a,b){ return (a.문제번호||0)-(b.문제번호||0); });
+          var qRows = qs2.map(function(q){
+            var qChecked = state.deploy.questionIds.indexOf(String(q.문제ID))>-1;
+            var preview = (q.문제내용||'').slice(0,36);
+            if((q.문제내용||'').length>36) preview += '…';
+            return '<label class="deploy-question-row">' +
+              '<input type="checkbox" data-deploy-question-id="'+escapeHtml(q.문제ID)+'" '+(qChecked?'checked':'')+'>' +
+              '<span style="flex:1;">'+escapeHtml(q.문제번호)+'. '+escapeHtml(preview)+'</span>' +
+              '<span style="font-size:11px;color:var(--text-secondary);flex-shrink:0;">'+escapeHtml(q.배점)+'점</span>' +
+            '</label>';
+          }).join('');
+          rowHtml += '<div class="deploy-question-list">' + (qRows || '<div style="font-size:12px;color:var(--text-secondary);padding:6px 0;">등록된 문제가 없습니다</div>') + '</div>';
+        }
+        return rowHtml;
+      }).join('');
+
+      var studentOptions = '<option value="">학습근로자명 비워두기</option>' + students.map(function(s){
+        var sel = String(s.학생ID)===String(state.deploy.studentId) ? 'selected':'';
+        return '<option value="'+escapeHtml(s.학생ID)+'" '+sel+'>'+escapeHtml(s.이름)+' ('+escapeHtml(s.학생ID)+')</option>';
+      }).join('');
+
+      var modeToggleHtml = selectedQuestionCount>0 ?
+        '<div style="display:flex;gap:8px;margin:16px 0 4px;flex-wrap:wrap;">' +
+          '<button type="button" class="btn btn-sm mode-toggle-btn ' + (!isTeacherView?'active':'') + '" data-action="set-view-student">📄 학생용 문제지</button>' +
+          '<button type="button" class="btn btn-sm mode-toggle-btn ' + (isTeacherView?'active':'') + '" data-action="set-view-teacher">🏫 현장교사용 모범답안지</button>' +
+        '</div>' : '';
+
+      var controlsHtml =
+        '<div class="deploy-controls print-hide">' +
+          '<div class="section-title">' + escapeHtml(company.기업명) + ' — 배포할 과목 선택 (1~6개)</div>' +
+          (checkboxesHtml || '<div class="empty-state" style="padding:24px;">배정된 과목이 없습니다</div>') +
+          '<div class="deploy-counter">선택됨: ' + selCount + '/6 과목 · 문제 ' + selectedQuestionCount + '개 선택 · 총 ' + selectedTotalPoints + '점</div>' +
+          '<div style="margin-top:16px;">' +
+            '<div class="section-title" style="font-size:13px;">학습근로자명 (선택)</div>' +
+            '<select id="deployStudentSelect" class="input" style="width:100%;max-width:320px;">' + studentOptions + '</select>' +
+          '</div>' +
+          '<div style="margin-top:16px;">' +
+            '<div class="section-title" style="font-size:13px;">평가일자</div>' +
+            '<input type="date" id="deployDateInput" class="input" style="width:100%;max-width:200px;" value="'+escapeHtml(state.deploy.examDate)+'">' +
+          '</div>' +
+          modeToggleHtml +
+          (selectedQuestionCount>0 ? '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
+            '<button id="printExamBtn" class="btn btn-primary">🖨️ '+(isTeacherView?'모범답안지':'문제지')+' 인쇄하기</button>' +
+            '<button id="savePdfBtn" class="btn">📄 PDF로 저장</button>' +
+            '<span style="font-size:11px;color:var(--text-secondary);width:100%;">💡 PDF로 저장을 누르면 인쇄창이 열려요. 프린터 선택에서 "PDF로 저장"을 골라주세요.</span>' +
+          '</div>' : '') +
+        '</div>';
+
+      var examHtml = '';
+      if(selectedQuestionCount>0){
+        var selectedSubjects = subjects.filter(function(s){ return state.deploy.subjectIds.indexOf(String(s.과목ID))>-1; });
+        var student = students.find(function(s){ return String(s.학생ID)===String(state.deploy.studentId); });
+        var todayStr = formatDisplayDate(state.deploy.examDate);
+
+        var subjectsHtml = selectedSubjects.map(function(s, idx){
+          var qs = state.questions.filter(function(q){ return String(q.과목ID)===String(s.과목ID) && state.deploy.questionIds.indexOf(String(q.문제ID))>-1; })
+            .sort(function(a,b){ return (a.문제번호||0)-(b.문제번호||0); });
+          var evalMethod = EVAL_METHOD_MAP[s.문제유형] || s.문제유형 || '-';
+          var qHtml = qs.map(function(q){
+            var block = '<div class="ncs-question">' +
+              '<div class="ncs-qtext"><span class="ncs-point-right">('+escapeHtml(q.배점)+'점)</span><b>'+escapeHtml(q.문제번호)+'.</b> '+nl2br(q.문제내용)+'</div>';
+            if(isTeacherView){
+              block += (q.모범답안 ? '<div class="ncs-answer"><span class="ncs-answer-label">모범답안</span><span class="ncs-answer-content">'+nl2br(q.모범답안)+'</span></div>' : '');
+            } else {
+              // 답안줄 높이가 30px로 늘어난 만큼, 과목(최대 5문제) 전체가 인쇄 시 한 페이지를 넘지 않도록 줄 수를 줄여서 균형을 맞춤
+              var lineCount = (s.문제유형==='질문형') ? 2 : (s.문제유형==='발표형' ? 2 : 3);
+              for(var li=0; li<lineCount; li++){ block += '<div class="answer-line"></div>'; }
+            }
+            block += '</div>';
+            return block;
+          }).join('');
+          var pageTitle = escapeHtml(company.기업명)+' 능력단위 평가지 — '+(isTeacherView?'현장교사용(모범답안 포함)':'학생용')+' ('+(idx+1)+'/'+selectedSubjects.length+')';
+          return '<div class="exam-subject">' +
+            '<div class="exam-subject-pagetitle">'+pageTitle+'</div>' +
+            '<div class="exam-subject-label">내부평가 과목 : '+escapeHtml(s.과목명)+'('+escapeHtml(s.문제유형)+')</div>' +
+            '<table class="ncs-table">' +
+              '<tr><td class="lbl">평가일자</td><td>'+todayStr+'</td><td class="lbl">학습근로자명</td><td>'+(student?escapeHtml(student.이름):'')+'</td></tr>' +
+              '<tr><td class="lbl">교과목명</td><td>'+escapeHtml(s.과목명)+'</td><td class="lbl">평가자명</td><td style="text-align:right;">(인)</td></tr>' +
+              '<tr><td class="lbl">능력단위명</td><td>'+escapeHtml(s.과목명)+'</td><td class="lbl">평가방법</td><td>'+escapeHtml(evalMethod)+'</td></tr>' +
+              '<tr><td class="lbl">능력단위요소명</td><td colspan="3" style="white-space:pre-wrap;">'+escapeHtml(s.능력단위요소명||'')+'</td></tr>' +
+              '<tr><td class="lbl">난이도</td><td>'+escapeHtml(s.난이도||'-')+'</td><td class="lbl">평가시간</td><td>'+escapeHtml(s.평가시간||'-')+'</td></tr>' +
+              '<tr><td class="lbl">평가기준</td><td>60점 이상 PASS</td><td class="lbl">평가결과</td><td>PASS / FAIL</td></tr>' +
+            '</table>' +
+            (qHtml || '<div style="color:var(--text-secondary);font-size:13px;">등록된 문제가 없습니다</div>') +
+          '</div>';
+        }).join('');
+
+        examHtml =
+          '<div class="exam-paper" id="examPaperWrap">' +
+            subjectsHtml +
+          '</div>';
+      } else {
+        examHtml = '<div class="empty-state print-hide"><div class="icon">☑️</div><div>과목을 선택하고, 배포할 문제를 체크해주세요</div></div>';
+      }
+
+      rightHtml = controlsHtml + examHtml;
+    }
+
+    setMain(
+      '<div class="layout-2col">' +
+        '<div class="panel print-hide"><div class="section-title">기업 목록</div>' + (companyListHtml || '<div class="empty-state">등록된 기업이 없습니다</div>') + '</div>' +
+        '<div>' + rightHtml + '</div>' +
+      '</div>'
+    );
+  }
+
+  // 이벤트 바인딩
+  /* ============================================================
+     전역 이벤트 리스너 등록 (연결/새로고침/탭 클릭 및 main 영역 이벤트 위임)
+     ============================================================ */
+  document.getElementById('connectBtn').addEventListener('click', function(){
+    var url = document.getElementById('urlInput').value.trim();
+    if(!url){ state.error = '웹앱 URL을 입력해주세요'; render(); return; }
+    fetchData(url);
+  });
+
+  document.getElementById('refreshBtn').addEventListener('click', function(){
+    if(state.url){ fetchData(state.url); }
+    else{ state.error = '먼저 웹앱 URL을 연결해주세요'; render(); }
+  });
+
+  /* 로그아웃: 저장해둔 인증 정보를 지우고 로그인 화면으로 되돌림 (연결된 URL 자체는 유지) */
+  document.getElementById('logoutBtn').addEventListener('click', function(){
+    localRemove('auth-pw');
+    state.authenticated = false;
+    state.loginError = null;
+    render();
+  });
+
+  document.getElementById('tabs').addEventListener('click', function(e){
+    var hamburger = e.target.closest('#hamburgerBtn');
+    if(hamburger){
+      var menu = document.getElementById('mobileMenu');
+      var isOpen = menu.classList.toggle('open');
+      hamburger.textContent = isOpen ? '✕' : '☰';
+      return;
+    }
+    var btn = e.target.closest('.tab-btn');
+    if(!btn) return;
+    state.activeTab = btn.dataset.tab;
+    state.selectedCompanyId = null;
+    state.selectedSubjectId = null;
+    document.getElementById('mobileMenu').classList.remove('open');
+    document.getElementById('hamburgerBtn').textContent = '☰';
+    render();
+  });
+
+  /* main 영역 클릭 이벤트 위임: data-action 속성값에 따라 분기 처리 (버튼 하나하나에 리스너를 달지 않고 상위에서 한 번에 처리) */
+  main.addEventListener('click', function(e){
+    if(e.target.closest('#loginBtn')){ checkPassword(); return; }
+    var ovTabBtn = e.target.closest('[data-overview-tab]');
+    if(ovTabBtn){ state.overviewTab = ovTabBtn.dataset.overviewTab; renderOverview(); return; }
+    var statsTabBtnEl = e.target.closest('[data-stats-tab]');
+    if(statsTabBtnEl){ state.statsTab = statsTabBtnEl.dataset.statsTab; renderStats(); return; }
+    var gotoCompanyBtn = e.target.closest('[data-action="goto-company"]');
+    if(gotoCompanyBtn){
+      state.activeTab = 'companies';
+      state.selectedCompanyId = gotoCompanyBtn.dataset.companyId;
+      state.selectedSubjectId = null;
+      render();
+      return;
+    }
+    // ---- CRUD 액션 버튼 (우선 처리) ----
+    if(e.target.closest('[data-action="add-company"]')){ openModal('기업','create',{}); return; }
+    var editC = e.target.closest('[data-action="edit-company"]');
+    if(editC){
+      var c = state.companies.find(function(x){return String(x.기업ID)===String(editC.dataset.id);});
+      openModal('기업','edit', c || {}); return;
+    }
+    var delC = e.target.closest('[data-action="delete-company"]');
+    if(delC){ handleDelete('기업', delC.dataset.id, '이 기업을 삭제하면 연결된 배정·학생 정보는 자동으로 삭제되지 않습니다. 정말 삭제하시겠습니까?'); return; }
+
+    var addS = e.target.closest('[data-action="add-subject"]');
+    if(addS){ openModal('과목배정','create',{}, {companyId: addS.dataset.companyId}); return; }
+    if(e.target.closest('[data-action="add-subject-generic"]')){ openModal('과목','create',{}); return; }
+    var editS = e.target.closest('[data-action="edit-subject"]');
+    if(editS){
+      var s = state.subjects.find(function(x){return String(x.과목ID)===String(editS.dataset.id);});
+      openModal('과목','edit', s || {}); return;
+    }
+    var reorderBtn2 = e.target.closest('[data-action="open-reorder"]');
+    if(reorderBtn2){ openReorderModal(reorderBtn2.dataset.companyId); return; }
+    var reorderBtn = e.target.closest('[data-action="reorder-subject"]');
+    if(reorderBtn){
+      e.stopPropagation(); // 카드 클릭(과목 선택)으로 이벤트가 번지는 것을 막음
+      reorderSubjectStep(reorderBtn.dataset.companyId, reorderBtn.dataset.subjectId, reorderBtn.dataset.dir);
+      return;
+    }
+    var unassignS = e.target.closest('[data-action="unassign-subject"]');
+    if(unassignS){ handleUnassign(unassignS.dataset.companyId, unassignS.dataset.subjectId); return; }
+    var delSubjectFull = e.target.closest('[data-action="delete-subject-full"]');
+    if(delSubjectFull){ deleteSubjectCompletely(delSubjectFull.dataset.id); return; }
+
+    var addQ = e.target.closest('[data-action="add-question"]');
+    if(addQ){ openModal('문제','create',{}, {subjectId: addQ.dataset.subjectId}); return; }
+    if(e.target.closest('[data-action="add-question-generic"]')){ openModal('문제','create',{}); return; }
+    var editQ = e.target.closest('[data-action="edit-question"]');
+    if(editQ){
+      var q = state.questions.find(function(x){return String(x.문제ID)===String(editQ.dataset.id);});
+      openModal('문제','edit', q || {}, {subjectId: q? q.과목ID: null}); return;
+    }
+    var delQ = e.target.closest('[data-action="delete-question"]');
+    if(delQ){ handleDelete('문제', delQ.dataset.id, '정말 이 문제를 삭제하시겠습니까?'); return; }
+
+    if(e.target.closest('[data-action="add-student"]')){ openModal('학생','create',{}); return; }
+    var editSt = e.target.closest('[data-action="edit-student"]');
+    if(editSt){
+      var st = state.students.find(function(x){return String(x.학생ID)===String(editSt.dataset.id);});
+      openModal('학생','edit', st || {}); return;
+    }
+    var delSt = e.target.closest('[data-action="delete-student"]');
+    if(delSt){ handleDelete('학생', delSt.dataset.id, '정말 이 학생을 삭제하시겠습니까?'); return; }
+
+    // ---- 기존 동작 ----
+    if(e.target.closest('#sampleBtn')){
+      var sample = getSampleData();
+      state.companies = sample.companies;
+      state.subjects = sample.subjects;
+      state.questions = sample.questions;
+      state.students = sample.students;
+      var assignments = getSampleData().assignments;
+      assignments.forEach(function(a,i){
+        var compAssigns = assignments.filter(function(x){ return x.기업ID===a.기업ID; });
+        a.순서 = compAssigns.indexOf(a)+1;
+      });
+      state.assignments = assignments;
+      state.loaded = true;
+      state.error = null;
+      state.authenticated = true;
+      render();
+      return;
+    }
+    var companyCard = e.target.closest('[data-company-id]');
+    if(companyCard){
+      state.selectedCompanyId = companyCard.dataset.companyId;
+      state.selectedSubjectId = null;
+      render();
+      return;
+    }
+    var subjectChip = e.target.closest('[data-subject-id]');
+    if(subjectChip){
+      // 드래그 직후 click 이벤트 무시 (300ms)
+      if(Date.now() - dragState.lastDropTime < 300) return;
+      state.selectedSubjectId = subjectChip.dataset.subjectId;
+      render();
+      return;
+    }
+    var deployCompanyCard = e.target.closest('[data-deploy-company-id]');
+    if(deployCompanyCard){
+      state.deploy.companyId = deployCompanyCard.dataset.deployCompanyId;
+      state.deploy.subjectIds = [];
+      state.deploy.studentId = '';
+      state.deploy.questionIds = [];
+      render();
+      return;
+    }
+    if(e.target.closest('[data-action="set-view-student"]')){
+      state.deploy.viewMode = 'student';
+      renderDeploy();
+      return;
+    }
+    if(e.target.closest('[data-action="set-view-teacher"]')){
+      state.deploy.viewMode = 'teacher';
+      renderDeploy();
+      return;
+    }
+    if(e.target.closest('#printExamBtn')){
+      window.print();
+      return;
+    }
+    if(e.target.closest('#savePdfBtn')){
+      downloadExamPdf();
+      return;
+    }
+  });
+
+  /* main 영역 change 이벤트 위임 (셀렉트박스, 체크박스 등) */
+  main.addEventListener('change', function(e){
+    if(e.target.matches('[data-deploy-subject-id]')){
+      var id = e.target.getAttribute('data-deploy-subject-id');
+      var idx = state.deploy.subjectIds.indexOf(id);
+      var relatedQIds = state.questions.filter(function(q){ return String(q.과목ID)===String(id); }).map(function(q){ return String(q.문제ID); });
+      if(e.target.checked){
+        if(idx===-1) state.deploy.subjectIds.push(id);
+        relatedQIds.forEach(function(qid){ if(state.deploy.questionIds.indexOf(qid)===-1) state.deploy.questionIds.push(qid); });
+      } else {
+        if(idx>-1) state.deploy.subjectIds.splice(idx,1);
+        state.deploy.questionIds = state.deploy.questionIds.filter(function(qid){ return relatedQIds.indexOf(qid)===-1; });
+      }
+      renderDeploy();
+      return;
+    }
+    if(e.target.matches('[data-deploy-question-id]')){
+      var qid = e.target.getAttribute('data-deploy-question-id');
+      var qidx = state.deploy.questionIds.indexOf(qid);
+      if(e.target.checked){ if(qidx===-1) state.deploy.questionIds.push(qid); }
+      else { if(qidx>-1) state.deploy.questionIds.splice(qidx,1); }
+      renderDeploy();
+      return;
+    }
+    if(e.target.id === 'deployStudentSelect'){
+      state.deploy.studentId = e.target.value;
+      renderDeploy();
+      return;
+    }
+    if(e.target.id === 'deployDateInput'){
+      state.deploy.examDate = e.target.value;
+      renderDeploy();
+      return;
+    }
+    if(e.target.id === 'studentCompanyFilter'){
+      state.studentCompanyFilter = e.target.value;
+      updateStudentsTable();
+      return;
+    }
+  });
+
+  /* main 영역 input 이벤트 위임 (검색어 등 실시간 입력 반영) */
+  main.addEventListener('input', function(e){
+    if(e.target.id === 'studentSearch'){
+      state.searchQuery = e.target.value;
+      updateStudentsTable();
+    }
+    if(e.target.id === 'statsSubjectSearch'){
+      state.statsSubjectSearch = e.target.value;
+      updateSubjectShareGrid();
+    }
+  });
+
+  /* main 영역 키보드 이벤트 위임 (Enter 검색 등) */
+  main.addEventListener('keydown', function(e){
+    if(e.target.id === 'passwordInput' && e.key === 'Enter'){
+      checkPassword();
+    }
+  });
+
+  // ---- 모달 이벤트 ----
+  /* ── 모달 닫기/취소/오버레이 클릭 시 닫기 처리 ── */
+  document.getElementById('modalCloseBtn').addEventListener('click', function(){
+    reorderState.companyId = null;
+    state.modal = null;
+    closeModal();
+  });
+  document.getElementById('modalCancelBtn').addEventListener('click', function(){
+    reorderState.companyId = null;
+    state.modal = null;
+    closeModal();
+  });
+  document.getElementById('modalOverlay').addEventListener('click', function(e){
+    if(e.target.id === 'modalOverlay'){
+      reorderState.companyId = null;
+      state.modal = null;
+      closeModal();
+    }
+  });
+
+  /* 모달 내부 클릭 이벤트 위임 (순서변경 ▲▼ 버튼 등) */
+  document.getElementById('modalBody').addEventListener('click', function(e){
+    var modeBtn = e.target.closest('.mode-toggle-btn[data-assign-mode]');
+    if(modeBtn){
+      document.querySelectorAll('#modalBody .mode-toggle-btn[data-assign-mode]').forEach(function(b){ if(b && b.classList){ b.classList.remove('active'); } });
+      if(modeBtn.classList){ modeBtn.classList.add('active'); }
+      var amode = modeBtn.dataset.assignMode;
+      var exSec = document.getElementById('assignExistingSection');
+      var newSec = document.getElementById('assignNewSection');
+      if(exSec) exSec.style.display = (amode==='existing')?'':'none';
+      if(newSec) newSec.style.display = (amode==='new')?'':'none';
+      if(state.modal) state.modal.assignMode = amode;
+    }
+    var arrowBtn = e.target.closest('.reorder-arrow');
+    if(arrowBtn){
+      if(arrowBtn.disabled || arrowBtn.hasAttribute('disabled')) return;
+      var idx = parseInt(arrowBtn.dataset.reorderIdx, 10);
+      var dir = arrowBtn.dataset.reorderDir;
+      var swapIdx = dir==='up' ? idx-1 : idx+1;
+      if(swapIdx>=0 && swapIdx<reorderState.list.length){
+        var tmp = reorderState.list[idx];
+        reorderState.list[idx] = reorderState.list[swapIdx];
+        reorderState.list[swapIdx] = tmp;
+        renderReorderModal();
+      }
+    }
+  });
+
+  document.getElementById('modalBody').addEventListener('change', function(e){
+    if(e.target.id==='f_subject' && state.modal && state.modal.type==='문제'){
+      var fId2 = document.getElementById('f_id');
+      var fNum2 = document.getElementById('f_num');
+      if(fId2) fId2.value = nextQuestionId(e.target.value);
+      if(fNum2) fNum2.value = nextQuestionNum(e.target.value);
+    }
+  });
+
+  /* ============================================================
+     모달 저장 버튼 클릭: state.modal.type별로 payload를 구성한 뒤 persist() 호출
+     ============================================================ */
+  document.getElementById('modalSaveBtn').addEventListener('click', async function(){
+    // reorder 모달인 경우 우선 처리
+    if(state.modal && state.modal.type === 'reorder'){
+      await saveReorder();
+      return;
+    }
+    if(!state.modal) return;
+    var m = state.modal;
+    var sheetName = m.type;
+    var action = m.mode === 'create' ? 'create' : 'update';
+    var payload = null;
+    var saveBtn = document.getElementById('modalSaveBtn');
+
+    if(m.type==='기업'){
+      var id = document.getElementById('f_id').value.trim();
+      var name = document.getElementById('f_name').value.trim();
+      if(!id || !name){ alert('기업ID와 기업명을 모두 입력해주세요'); return; }
+      if(m.mode==='create' && state.companies.find(function(c){return String(c.기업ID)===id;})){ alert('이미 존재하는 기업ID입니다'); return; }
+      payload = {기업ID:id, 기업명:name};
+    }
+    else if(m.type==='학생'){
+      var id2 = document.getElementById('f_id').value.trim();
+      var name2 = document.getElementById('f_name').value.trim();
+      var companyId2 = document.getElementById('f_company').value;
+      if(!id2 || !name2){ alert('학생ID와 이름을 입력해주세요'); return; }
+      if(m.mode==='create' && state.students.find(function(s){return String(s.학생ID)===id2;})){ alert('이미 존재하는 학생ID입니다'); return; }
+      payload = {학생ID:id2, 이름:name2, 기업ID:companyId2};
+    }
+    else if(m.type==='과목'){
+      var id3 = document.getElementById('f_id').value.trim();
+      var name3 = document.getElementById('f_name').value.trim();
+      var type3 = document.getElementById('f_type').value;
+      var diff3 = document.getElementById('f_diff').value;
+      var time3 = document.getElementById('f_time').value.trim();
+      var elements3 = document.getElementById('f_elements').value.trim();
+      if(!id3 || !name3){ alert('과목ID와 과목명을 입력해주세요'); return; }
+      if(m.mode==='create' && state.subjects.find(function(s){return String(s.과목ID)===id3;})){ alert('이미 존재하는 과목ID입니다'); return; }
+      payload = {과목ID:id3, 과목명:name3, 문제유형:type3, 난이도:diff3, 평가시간:time3, 능력단위요소명:elements3};
+    }
+    else if(m.type==='과목배정'){
+      var companyId6 = m.context.companyId;
+      var mode6 = m.assignMode || 'existing';
+      if(mode6 === 'existing'){
+        var selectEl = document.getElementById('f_existing_subject');
+        if(!selectEl || !selectEl.value){ alert('배정할 과목을 선택해주세요'); return; }
+        var subjectId6 = selectEl.value;
+        var assignId6 = nextAssignmentId(companyId6, subjectId6);
+        if(state.assignments.find(function(a){return String(a.배정ID)===assignId6;})){ alert('이미 배정된 과목입니다'); return; }
+        saveBtn.disabled = true; saveBtn.textContent = '저장 중...';
+        var ok6 = await persist('배정', 'create', {배정ID:assignId6, 기업ID:companyId6, 과목ID:subjectId6}, '배정ID');
+        saveBtn.disabled = false; saveBtn.textContent = '저장';
+        if(ok6) closeModal();
+      } else {
+        var id6 = document.getElementById('f_id').value.trim();
+        var name6 = document.getElementById('f_name').value.trim();
+        var type6 = document.getElementById('f_type').value;
+        var diff6 = document.getElementById('f_diff').value;
+        var time6 = document.getElementById('f_time').value.trim();
+        var elements6 = document.getElementById('f_elements').value.trim();
+        if(!id6 || !name6){ alert('과목ID와 과목명을 입력해주세요'); return; }
+        if(state.subjects.find(function(s){return String(s.과목ID)===id6;})){ alert('이미 존재하는 과목ID입니다'); return; }
+        var existingCompanyCount6 = state.assignments.filter(function(a){return String(a.기업ID)===String(companyId6);}).length;
+        if(existingCompanyCount6>=6){ alert('이 기업에는 이미 6개 과목이 배정되어 있습니다'); return; }
+        saveBtn.disabled = true; saveBtn.textContent = '저장 중...';
+        var subjPayload = {과목ID:id6, 과목명:name6, 문제유형:type6, 난이도:diff6, 평가시간:time6, 능력단위요소명:elements6};
+        var ok6b = await persist('과목', 'create', subjPayload, '과목ID');
+        if(ok6b){
+          var assignId6b = nextAssignmentId(companyId6, id6);
+          var ok6c = await persist('배정', 'create', {배정ID:assignId6b, 기업ID:companyId6, 과목ID:id6}, '배정ID');
+          saveBtn.disabled = false; saveBtn.textContent = '저장';
+          if(ok6c) closeModal();
+        } else {
+          saveBtn.disabled = false; saveBtn.textContent = '저장';
+        }
+      }
+      return;
+    }
+    else if(m.type==='문제'){
+      var id4 = document.getElementById('f_id').value.trim();
+      var num4 = parseInt(document.getElementById('f_num').value,10);
+      var content4 = document.getElementById('f_content').value.trim();
+      var answer4 = document.getElementById('f_answer').value.trim();
+      var pointRaw4 = document.getElementById('f_point').value.trim();
+      var point4 = parseInt(pointRaw4,10);
+      var subjectSelectEl = document.getElementById('f_subject');
+      var subjectId4 = subjectSelectEl ? subjectSelectEl.value : (m.context.subjectId || m.data.과목ID);
+      if(!subjectId4){ alert('소속 과목을 선택해주세요 (먼저 과목을 등록해주세요)'); return; }
+      if(!content4){ alert('문제내용을 입력해주세요'); return; }
+      if(!num4 || num4<1){ alert('문제번호는 1 이상의 숫자로 입력해주세요'); return; }
+      // 같은 과목 안에서 문제번호가 중복되지 않는지 확인 (본인 자신은 제외)
+      var dupNum4 = state.questions.find(function(q){
+        return String(q.과목ID)===String(subjectId4) && String(q.문제ID)!==String(id4) && parseInt(q.문제번호,10)===num4;
+      });
+      if(dupNum4){ alert('이미 같은 과목에 문제번호 '+num4+'번이 존재합니다. 다른 번호를 입력해주세요.'); return; }
+      // 배점은 비워두거나 0/음수/숫자가 아닌 값이면 저장하지 않고 안내 (예전엔 0을 입력해도 조용히 20점으로 바뀌는 버그가 있었음)
+      if(!pointRaw4 || isNaN(point4) || point4<1){ alert('배점은 1 이상의 숫자로 입력해주세요'); return; }
+      payload = {문제ID:id4, 과목ID:subjectId4, 문제번호:num4, 문제내용:content4, 모범답안:answer4, 배점:point4};
+    }
+
+    if(!payload) return;
+    saveBtn.disabled = true; saveBtn.textContent = '저장 중...';
+    var ok = await persist(sheetName, action, payload, ID_FIELD[sheetName]);
+    saveBtn.disabled = false; saveBtn.textContent = '저장';
+    if(ok) closeModal();
+  });
+
+  /* ============================================================
+     앱 초기화 (loadGasUrlFromConfig → init)
+     ============================================================ */
+  async function loadGasUrlFromConfig(){
+    if(!GAS_CONFIG_URL) return '';
+    try{
+      var res = await fetch(GAS_CONFIG_URL);
+      if(!res.ok) return '';
+      var data = await res.json();
+      return data.gas_url || '';
+    }catch(e){
+      return '';
+    }
+  }
+
+  /* 앱 진입점: 설정파일 URL → localStorage 저장 URL 순으로 확인 후 데이터 로드, 없으면 초기 화면만 렌더링 */
+  async function init(){
+    var configUrl = await loadGasUrlFromConfig();
+    if(configUrl){
+      document.getElementById('urlInput').value = configUrl;
+      fetchData(configUrl);
+      return;
+    }
+    var savedUrl = localGet('webapp-url');
+    if(savedUrl){
+      document.getElementById('urlInput').value = savedUrl;
+      fetchData(savedUrl);
+      return;
+    }
+    render();
+  }
+
+  init();
+
+  // ── 드래그 앤 드롭 과목 순서 변경 ──
+  var dragState = { fromId: null, companyId: null, dragging: false, lastDropTime: 0 };
+
+  main.addEventListener('dragstart', function(e){
+    var chip = e.target.closest('[data-drag-subject-id]');
+    if(!chip) return;
+    dragState.fromId  = chip.dataset.dragSubjectId;
+    dragState.companyId = state.selectedCompanyId;
+    dragState.dragging = true;
+    setTimeout(function(){ chip.classList.add('dragging'); }, 0);
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', dragState.fromId);
+  });
+
+  main.addEventListener('dragend', function(){
+    dragState.dragging = false;
+    dragState.lastDropTime = Date.now();
+    document.querySelectorAll('.subject-chip').forEach(function(c){
+      c.classList.remove('dragging','drag-over');
+    });
+  });
+
+  main.addEventListener('dragover', function(e){
+    if(!dragState.dragging) return;
+    var chip = e.target.closest('[data-drag-subject-id]');
+    if(!chip) return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+    document.querySelectorAll('.subject-chip').forEach(function(c){ c.classList.remove('drag-over'); });
+    if(chip.dataset.dragSubjectId !== dragState.fromId) chip.classList.add('drag-over');
+  });
+
+  main.addEventListener('dragleave', function(e){
+    var chip = e.target.closest('[data-drag-subject-id]');
+    if(chip && !chip.contains(e.relatedTarget)) chip.classList.remove('drag-over');
+  });
+
+  main.addEventListener('drop', async function(e){
+    e.preventDefault();
+    dragState.dragging = false;
+    dragState.lastDropTime = Date.now();
+    document.querySelectorAll('.subject-chip').forEach(function(c){
+      c.classList.remove('dragging','drag-over');
+    });
+
+    if(assignReorderBusy) return; // 다른 방식(↑↓버튼 등)으로 이미 순서를 저장 중이면 이번 드롭은 무시
+
+    var toChip = e.target.closest('[data-drag-subject-id]');
+    var fromId = dragState.fromId;
+    var companyId = dragState.companyId;
+    dragState.fromId = null;
+
+    if(!toChip || !fromId || !companyId) return;
+    var toId = toChip.dataset.dragSubjectId;
+    if(fromId === toId) return;
+
+    // state.assignments에서 해당 기업의 배정 목록을 순서대로 가져옴
+    var assigns = getCompanyAssignments(companyId);
+    var fromIdx = assigns.findIndex(function(a){ return String(a.과목ID)===String(fromId); });
+    var toIdx   = assigns.findIndex(function(a){ return String(a.과목ID)===String(toId); });
+    if(fromIdx<0 || toIdx<0) return;
+
+    // 순서 재배치
+    var moved = assigns.splice(fromIdx,1)[0];
+    assigns.splice(toIdx,0,moved);
+
+    // 실패 시 되돌릴 수 있도록 변경 전 순서를 기억해둠
+    var prevOrders6 = {};
+    state.assignments.forEach(function(a){ prevOrders6[a.배정ID] = a.순서; });
+
+    // state.assignments의 순서 값 직접 업데이트
+    assigns.forEach(function(a,i){
+      var orig = state.assignments.find(function(x){ return String(x.배정ID)===String(a.배정ID); });
+      if(orig) orig.순서 = i+1;
+    });
+
+    if(state.url){
+      assignReorderBusy = true;
+      setStatus('loading');
+      var dropOk = true;
+      for(var i=0;i<assigns.length;i++){
+        var orig = state.assignments.find(function(x){ return String(x.배정ID)===String(assigns[i].배정ID); });
+        if(orig){
+          var writeOk6 = await writeData('배정','update', Object.assign({},orig));
+          if(!writeOk6){ dropOk = false; break; } // writeData가 이미 alert로 실패를 안내함
+        }
+      }
+      if(!dropOk){
+        // 실패한 만큼은 변경 전 순서로 되돌림
+        state.assignments.forEach(function(a){ if(prevOrders6[a.배정ID]!==undefined) a.순서 = prevOrders6[a.배정ID]; });
+      }
+      assignReorderBusy = false;
+      await fetchData(state.url); // 성공/실패 관계없이 서버 최신 상태로 재동기화
+    } else {
+      render();
+    }
+  });
+  /* 탭 클릭 이벤트 중복 바인딩 방지를 위해 tabs 엘리먼트를 복제 후 새로 이벤트 등록 */
+  (function setupTabsHandlerOnce(){
+    var oldTabsEl = document.getElementById('tabs');
+    if(!oldTabsEl) return;
+    var freshTabsEl = oldTabsEl.cloneNode(true);
+    oldTabsEl.parentNode.replaceChild(freshTabsEl, oldTabsEl);
+
+    freshTabsEl.addEventListener('click', function(e){
+      try{
+        var btn = e.target.closest('.tab-btn');
+        if(!btn) return;
+        state.activeTab = btn.dataset.tab;
+        state.selectedCompanyId = null;
+        state.selectedSubjectId = null;
+        render();
+      }catch(err){ console.error('tab click error', err); }
+    });
+  })();
+</script>
+</body>
+</html>
