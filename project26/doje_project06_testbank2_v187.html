@@ -146,6 +146,7 @@
     transform:translateY(-1px);box-shadow:0 3px 8px rgba(79,70,229,0.18);
   }
   .order-btn:active{transform:translateY(0);box-shadow:none;}
+  .order-btn:disabled{opacity:0.45;cursor:not-allowed;pointer-events:none;background:#f3f4f6;}
   .order-btn-spacer{flex:1;}
   .drag-ghost{
     position:fixed;pointer-events:none;z-index:9999;opacity:0.85;
@@ -661,6 +662,20 @@
   // 과목 순서 변경 방식(드래그앤드롭 / ▲▼ 모달 / ↑↓ 버튼)이 동시에 서버에 저장되지 않도록 막는 공용 잠금 플래그
   var assignReorderBusy = false;
 
+  /* ↑↓ order-btn 버튼들을 저장 중(비활성+"저장 중..." 표시) 상태로 바꾸거나 원래대로 되돌림 */
+  function setOrderButtonsBusy(busy){
+    document.querySelectorAll('.order-btn').forEach(function(b){
+      b.disabled = busy;
+      if(busy){
+        if(!b.dataset.origText) b.dataset.origText = b.textContent;
+        b.textContent = '⏳ 저장 중';
+      } else if(b.dataset.origText){
+        b.textContent = b.dataset.origText;
+        delete b.dataset.origText;
+      }
+    });
+  }
+
   /* ── [기업별 보기] 과목 카드의 ↑ 앞으로 / ↓ 뒤로(order-btn) 버튼: 해당 과목을 한 칸 이동 ── */
   async function reorderSubjectStep(companyId, subjectId, dir){
     if(assignReorderBusy) return; // 드래그나 순서변경 모달로 이미 저장 중이면 무시
@@ -688,6 +703,7 @@
     if(state.url){
       assignReorderBusy = true;
       setStatus('loading');
+      setOrderButtonsBusy(true); // 저장 중인 동안 버튼을 눈에 띄게 비활성화
       var stepOk = true;
       for(var i=0;i<assigns.length;i++){
         var orig = state.assignments.find(function(x){ return String(x.배정ID)===String(assigns[i].배정ID); });
@@ -701,6 +717,7 @@
         state.assignments.forEach(function(a){ if(prevOrders7[a.배정ID]!==undefined) a.순서 = prevOrders7[a.배정ID]; });
       }
       assignReorderBusy = false;
+      setOrderButtonsBusy(false);
       await fetchData(state.url); // 성공/실패 관계없이 서버 최신 상태로 재동기화
     } else {
       render();
@@ -732,8 +749,8 @@
         '<div class="reorder-num">제'+(idx+1)+'과목</div>' +
         '<div class="reorder-name">'+escapeHtml(item.name)+'<br><span style="font-size:11px;color:var(--text-secondary);font-weight:400;">'+escapeHtml(item.type)+'</span></div>' +
         '<div class="reorder-btns">' +
-          '<button class="reorder-arrow" data-reorder-idx="'+idx+'" data-reorder-dir="up" '+(isFirst?'disabled':'')+'>▲</button>' +
-          '<button class="reorder-arrow" data-reorder-idx="'+idx+'" data-reorder-dir="down" '+(isLast?'disabled':'')+'>▼</button>' +
+          '<button class="reorder-arrow" data-reorder-idx="'+idx+'" data-reorder-dir="up" title="위로 이동" '+(isFirst?'disabled':'')+'>▲</button>' +
+          '<button class="reorder-arrow" data-reorder-idx="'+idx+'" data-reorder-dir="down" title="아래로 이동" '+(isLast?'disabled':'')+'>▼</button>' +
         '</div>' +
       '</div>';
     });
@@ -1381,8 +1398,8 @@
           '</div>' +
         '</td>' +
         '<td>' +
-          '<button class="icon-btn" data-action="edit-subject" data-id="'+escapeHtml(s.과목ID)+'">✏️</button>' +
-          (usageCompanies.length===0 ? '<button class="icon-btn" data-action="delete-subject-full" data-id="'+escapeHtml(s.과목ID)+'">🗑️</button>' : '') +
+          '<button class="icon-btn" data-action="edit-subject" data-id="'+escapeHtml(s.과목ID)+'" title="과목 정보 수정">✏️</button>' +
+          (usageCompanies.length===0 ? '<button class="icon-btn" data-action="delete-subject-full" data-id="'+escapeHtml(s.과목ID)+'" title="과목 완전 삭제">🗑️</button>' : '') +
         '</td>' +
       '</tr>';
     }).join('');
@@ -1469,8 +1486,8 @@
               '<div class="qhead">' +
                 '<span class="qnum">문제 '+escapeHtml(q.문제번호)+'</span>' +
                 '<span class="qpoint">'+escapeHtml(q.배점)+'점</span>' +
-                '<button class="icon-btn" data-action="edit-question" data-id="'+escapeHtml(q.문제ID)+'">✏️</button>' +
-                '<button class="icon-btn" data-action="delete-question" data-id="'+escapeHtml(q.문제ID)+'">🗑️</button>' +
+                '<button class="icon-btn" data-action="edit-question" data-id="'+escapeHtml(q.문제ID)+'" title="문제 수정">✏️</button>' +
+                '<button class="icon-btn" data-action="delete-question" data-id="'+escapeHtml(q.문제ID)+'" title="문제 삭제">🗑️</button>' +
               '</div>' +
               '<div class="qcontent">'+nl2br(q.문제내용)+'</div>' +
               (q.모범답안 ? '<div class="qanswer"><span class="qanswer-label">모범답안</span><span>'+nl2br(q.모범답안)+'</span></div>' : '') +
@@ -1503,8 +1520,8 @@
         '<div class="card-row">' +
           '<div><div class="name">'+companyChip(c.기업ID, c.기업명, false)+'</div><div class="meta">과목 '+subjCount+'/6 배정</div></div>' +
           '<div class="card-actions">' +
-            '<button class="icon-btn" data-action="edit-company" data-id="'+escapeHtml(c.기업ID)+'">✏️</button>' +
-            '<button class="icon-btn" data-action="delete-company" data-id="'+escapeHtml(c.기업ID)+'">🗑️</button>' +
+            '<button class="icon-btn" data-action="edit-company" data-id="'+escapeHtml(c.기업ID)+'" title="기업 정보 수정">✏️</button>' +
+            '<button class="icon-btn" data-action="delete-company" data-id="'+escapeHtml(c.기업ID)+'" title="기업 삭제">🗑️</button>' +
           '</div>' +
         '</div>' +
       '</div>';
@@ -1583,7 +1600,7 @@
           '<td>'+(isMatched ? companyChip(s.기업ID, companyName, true) : '<span style="color:var(--text-secondary);">매칭 없음</span>')+'</td>' +
           '<td>'+(isMatched? subjCount+'개':'-')+'</td>' +
           '<td><span class="badge-status '+(isMatched?'complete':'incomplete')+'">'+(isMatched? '✅ 정상':'⚠️ 매칭 오류')+'</span></td>' +
-          '<td><button class="icon-btn" data-action="edit-student" data-id="'+escapeHtml(s.학생ID)+'">✏️</button><button class="icon-btn" data-action="delete-student" data-id="'+escapeHtml(s.학생ID)+'">🗑️</button></td>' +
+          '<td><button class="icon-btn" data-action="edit-student" data-id="'+escapeHtml(s.학생ID)+'" title="학생 정보 수정">✏️</button><button class="icon-btn" data-action="delete-student" data-id="'+escapeHtml(s.학생ID)+'" title="학생 삭제">🗑️</button></td>' +
         '</tr>';
       }).join('') +
       '</tbody></table>';
@@ -2435,6 +2452,7 @@
     if(state.url){
       assignReorderBusy = true;
       setStatus('loading');
+      setOrderButtonsBusy(true);
       var dropOk = true;
       for(var i=0;i<assigns.length;i++){
         var orig = state.assignments.find(function(x){ return String(x.배정ID)===String(assigns[i].배정ID); });
@@ -2448,6 +2466,7 @@
         state.assignments.forEach(function(a){ if(prevOrders6[a.배정ID]!==undefined) a.순서 = prevOrders6[a.배정ID]; });
       }
       assignReorderBusy = false;
+      setOrderButtonsBusy(false);
       await fetchData(state.url); // 성공/실패 관계없이 서버 최신 상태로 재동기화
     } else {
       render();
