@@ -988,6 +988,34 @@
     await persist('과목', 'delete', {과목ID:subjectId}, '과목ID');
   }
 
+  /* 기업 완전 삭제: 그냥 기업만 지우면 연결된 배정(과목 배정)·소속 학생 정보가 고아 데이터로 남아
+     통계 수치가 실제와 안 맞게 되므로, 과목 완전삭제와 동일하게 관련 데이터를 먼저 정리한 뒤 기업을 삭제함 */
+  async function deleteCompanyCompletely(companyId){
+    var relatedAssigns = state.assignments.filter(function(a){ return String(a.기업ID)===String(companyId); });
+    var relatedStudents = state.students.filter(function(st){ return String(st.기업ID)===String(companyId); });
+    var warnParts = [];
+    if(relatedAssigns.length>0) warnParts.push('배정된 과목 '+relatedAssigns.length+'건');
+    if(relatedStudents.length>0) warnParts.push('소속 학생 '+relatedStudents.length+'명');
+    var extraWarning = warnParts.length>0 ? ('\n\n※ 이 기업에 연결된 '+warnParts.join(', ')+'도 함께 삭제됩니다.') : '';
+    if(!confirm('정말 이 기업을 삭제하시겠습니까?'+extraWarning)) return;
+
+    for(var i=0;i<relatedAssigns.length;i++){
+      var aOk = await persist('배정', 'delete', {배정ID:relatedAssigns[i].배정ID}, '배정ID');
+      if(!aOk){
+        alert('배정 정보 삭제 중 오류가 발생하여 기업 삭제를 중단했습니다. 일부만 삭제되었을 수 있으니 새로고침 후 다시 시도해주세요.');
+        return;
+      }
+    }
+    for(var j=0;j<relatedStudents.length;j++){
+      var sOk = await persist('학생', 'delete', {학생ID:relatedStudents[j].학생ID}, '학생ID');
+      if(!sOk){
+        alert('학생 정보 삭제 중 오류가 발생하여 기업 삭제를 중단했습니다. 일부만 삭제되었을 수 있으니 새로고침 후 다시 시도해주세요.');
+        return;
+      }
+    }
+    await persist('기업', 'delete', {기업ID:companyId}, '기업ID');
+  }
+
   /* ── 신규 등록 시 사용할 ID 자동 생성 유틸 모음 (기업/학생/과목/문제/배정 ID) ── */
   function nextId(prefix, list, idField){
     var max = 0;
@@ -1942,7 +1970,7 @@
       openModal('기업','edit', c || {}); return;
     }
     var delC = e.target.closest('[data-action="delete-company"]');
-    if(delC){ handleDelete('기업', delC.dataset.id, '이 기업을 삭제하면 연결된 배정·학생 정보는 자동으로 삭제되지 않습니다. 정말 삭제하시겠습니까?'); return; }
+    if(delC){ deleteCompanyCompletely(delC.dataset.id); return; }
 
     var addS = e.target.closest('[data-action="add-subject"]');
     if(addS){ openModal('과목배정','create',{}, {companyId: addS.dataset.companyId}); return; }
@@ -2196,6 +2224,11 @@
       var name = document.getElementById('f_name').value.trim();
       if(!id || !name){ alert('기업ID와 기업명을 모두 입력해주세요'); return; }
       if(m.mode==='create' && state.companies.find(function(c){return String(c.기업ID)===id;})){ alert('이미 존재하는 기업ID입니다'); return; }
+      // 기업명 중복 확인 (자기 자신은 제외, 공백 차이는 무시하고 비교)
+      var dupCompany = state.companies.find(function(c){
+        return String(c.기업ID)!==id && String(c.기업명).trim()===name;
+      });
+      if(dupCompany){ alert('이미 같은 이름의 기업이 등록되어 있습니다: '+dupCompany.기업명+' ('+dupCompany.기업ID+')'); return; }
       payload = {기업ID:id, 기업명:name};
     }
     else if(m.type==='학생'){
@@ -2215,6 +2248,11 @@
       var elements3 = document.getElementById('f_elements').value.trim();
       if(!id3 || !name3){ alert('과목ID와 과목명을 입력해주세요'); return; }
       if(m.mode==='create' && state.subjects.find(function(s){return String(s.과목ID)===id3;})){ alert('이미 존재하는 과목ID입니다'); return; }
+      // 과목명 중복 확인 (자기 자신은 제외, 공백 차이는 무시하고 비교)
+      var dupSubject = state.subjects.find(function(s){
+        return String(s.과목ID)!==id3 && String(s.과목명).trim()===name3;
+      });
+      if(dupSubject){ alert('이미 같은 이름의 과목이 등록되어 있습니다: '+dupSubject.과목명+' ('+dupSubject.과목ID+')'); return; }
       payload = {과목ID:id3, 과목명:name3, 문제유형:type3, 난이도:diff3, 평가시간:time3, 능력단위요소명:elements3};
     }
     else if(m.type==='과목배정'){
