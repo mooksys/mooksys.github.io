@@ -539,7 +539,7 @@
     studentCompanyFilter: '',
     statsSubjectSearch: '',
     error: null,
-    deploy: { companyId: null, subjectIds: [], studentId: '', viewMode: 'student', examDate: todayISO(), questionIds: [] },
+    deploy: { companyId: null, subjectIds: [], studentId: '', viewMode: 'student', examDate: todayISO(), questionIds: [], hintMode: false },
     modal: null,
     authenticated: false,
     fetchedPassword: '',
@@ -1677,8 +1677,8 @@
 
   /* PDF 파일명 생성: "회사명 제N과목 과목명 유형 문제지(or 모범답안지).pdf"
      과목을 2개 이상 선택했을 때는 모든 과목명을 다 담기 어려워 "N개과목"으로 요약함 */
-  function buildExamFileName(company, selectedSubjects, isTeacherView){
-    var docType = isTeacherView ? '모범답안지' : '문제지';
+  function buildExamFileName(company, selectedSubjects, isTeacherView, hintMode){
+    var docType = isTeacherView ? (hintMode ? '힌트지' : '모범답안지') : '문제지';
     var parts;
     if(selectedSubjects.length===1){
       var s = selectedSubjects[0];
@@ -1702,7 +1702,7 @@
     var selectedSubjects = state.subjects.filter(function(s){ return state.deploy.subjectIds.indexOf(String(s.과목ID))>-1; });
     var isTeacherView = state.deploy.viewMode === 'teacher';
     // 브라우저 인쇄창은 파일 확장자를 알아서 붙여주므로 .pdf는 제외한 이름만 사용
-    var fileName = buildExamFileName(company, selectedSubjects, isTeacherView).replace(/\.pdf$/i, '');
+    var fileName = buildExamFileName(company, selectedSubjects, isTeacherView, state.deploy.hintMode).replace(/\.pdf$/i, '');
 
     var originalTitle = document.title;
     document.title = fileName;
@@ -1789,6 +1789,13 @@
           '<button type="button" class="btn btn-sm mode-toggle-btn ' + (isTeacherView?'active':'') + '" data-action="set-view-teacher">🏫 현장교사용 모범답안지</button>' +
         '</div>' : '';
 
+      // 현장교사용 모드일 때만 보이는 하위 토글: 상단 정보표(평가일자/학습근로자명/교과목명/평가자명) 포함 여부 선택
+      var hintToggleHtml = (selectedQuestionCount>0 && isTeacherView) ?
+        '<div style="display:flex;gap:8px;margin:4px 0 4px;flex-wrap:wrap;">' +
+          '<button type="button" class="btn btn-sm mode-toggle-btn ' + (!state.deploy.hintMode?'active':'') + '" data-action="set-hint-off">📋 현장교사 배포용 (정보표 포함)</button>' +
+          '<button type="button" class="btn btn-sm mode-toggle-btn ' + (state.deploy.hintMode?'active':'') + '" data-action="set-hint-on">🎯 학생 배포용 힌트지 (정보표 제외)</button>' +
+        '</div>' : '';
+
       var controlsHtml =
         '<div class="deploy-controls print-hide">' +
           '<div class="section-title">' + escapeHtml(company.기업명) + ' — 배포할 과목 선택 (1~6개)</div>' +
@@ -1803,8 +1810,9 @@
             '<input type="date" id="deployDateInput" class="input" style="width:100%;max-width:200px;" value="'+escapeHtml(state.deploy.examDate)+'">' +
           '</div>' +
           modeToggleHtml +
+          hintToggleHtml +
           (selectedQuestionCount>0 ? '<div style="margin-top:10px;display:flex;gap:8px;flex-wrap:wrap;align-items:center;">' +
-            '<button id="printExamBtn" class="btn btn-primary">🖨️ '+(isTeacherView?'모범답안지':'문제지')+' 인쇄하기</button>' +
+            '<button id="printExamBtn" class="btn btn-primary">🖨️ '+(isTeacherView?(state.deploy.hintMode?'힌트지':'모범답안지'):'문제지')+' 인쇄하기</button>' +
             '<button id="savePdfBtn" class="btn">📄 PDF로 저장</button>' +
             '<span style="font-size:11px;color:var(--text-secondary);width:100%;">💡 PDF로 저장을 누르면 인쇄창이 열려요. 프린터 선택에서 "PDF로 저장"을 골라주세요.</span>' +
           '</div>' : '') +
@@ -1833,13 +1841,15 @@
             block += '</div>';
             return block;
           }).join('');
-          var pageTitle = escapeHtml(company.기업명)+' 능력단위 평가지 — '+(isTeacherView?'현장교사용(모범답안 포함)':'학생용')+' ('+(idx+1)+'/'+selectedSubjects.length+')';
+          var pageTitle = escapeHtml(company.기업명)+' 능력단위 평가지 — '+(isTeacherView?(state.deploy.hintMode?'학생 배포용 힌트지(모범답안 포함)':'현장교사용(모범답안 포함)'):'학생용')+' ('+(idx+1)+'/'+selectedSubjects.length+')';
           return '<div class="exam-subject">' +
             '<div class="exam-subject-pagetitle">'+pageTitle+'</div>' +
             '<div class="exam-subject-label">내부평가 과목 : '+escapeHtml(s.과목명)+'('+escapeHtml(s.문제유형)+')</div>' +
             '<table class="ncs-table">' +
-              '<tr><td class="lbl">평가일자</td><td>'+todayStr+'</td><td class="lbl">학습근로자명</td><td>'+(student?escapeHtml(student.이름):'')+'</td></tr>' +
-              '<tr><td class="lbl">교과목명</td><td>'+escapeHtml(s.과목명)+'</td><td class="lbl">평가자명</td><td style="text-align:right;">(인)</td></tr>' +
+              (isTeacherView && state.deploy.hintMode ? '' :
+                '<tr><td class="lbl">평가일자</td><td>'+todayStr+'</td><td class="lbl">학습근로자명</td><td>'+(student?escapeHtml(student.이름):'')+'</td></tr>' +
+                '<tr><td class="lbl">교과목명</td><td>'+escapeHtml(s.과목명)+'</td><td class="lbl">평가자명</td><td style="text-align:right;">(인)</td></tr>'
+              ) +
               '<tr><td class="lbl">능력단위명</td><td>'+escapeHtml(s.과목명)+'</td><td class="lbl">평가방법</td><td>'+escapeHtml(evalMethod)+'</td></tr>' +
               '<tr><td class="lbl">능력단위요소명</td><td colspan="3" style="white-space:pre-wrap;">'+escapeHtml(s.능력단위요소명||'')+'</td></tr>' +
               '<tr><td class="lbl">난이도</td><td>'+escapeHtml(s.난이도||'-')+'</td><td class="lbl">평가시간</td><td>'+escapeHtml(s.평가시간||'-')+'</td></tr>' +
@@ -2025,6 +2035,16 @@
     }
     if(e.target.closest('[data-action="set-view-teacher"]')){
       state.deploy.viewMode = 'teacher';
+      renderDeploy();
+      return;
+    }
+    if(e.target.closest('[data-action="set-hint-off"]')){
+      state.deploy.hintMode = false;
+      renderDeploy();
+      return;
+    }
+    if(e.target.closest('[data-action="set-hint-on"]')){
+      state.deploy.hintMode = true;
       renderDeploy();
       return;
     }
