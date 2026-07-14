@@ -26,7 +26,7 @@
 
       body { 
         font-family: var(--font); background: var(--bg); color: var(--txt); 
-        min-height: 100vh; padding-bottom: 80px; max-width: 620px; 
+        min-height: 100vh; padding-bottom: 104px; max-width: 620px; 
         margin: 0 auto; position: relative; transition: background 0.3s, color 0.3s;
         -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; line-height: 1.6; letter-spacing: -0.3px;
       }
@@ -68,13 +68,39 @@
       }
       body.dark .user-chip { background: var(--bg2); }
       
-      .sync-bar{display:flex;align-items:center;justify-content:center;gap:8px;padding:10px;font-size:13px;font-weight:600;background:var(--bg2);border-bottom:1px solid var(--bdr); margin-top: -1px;}
-      .sync-bar.ok{background:#EBFBEE;color:#2B8A3E;}
-      .sync-bar.error{background:#FFF5F5;color:var(--err);}
-      body.dark .sync-bar.ok{background:#1B2B1E;color:#8ce99a;}
-      .sd{width:8px;height:8px;border-radius:50%;background:currentColor;}
+      .sync-bar{
+        display:flex;align-items:center;justify-content:center;gap:7px;
+        width:fit-content; margin:12px auto 4px; padding:8px 18px;
+        font-size:12.5px;font-weight:700; letter-spacing:-0.2px;
+        background:var(--bg2); border:1px solid var(--bdr); color:var(--txt2);
+        border-radius:999px; box-shadow:0 2px 10px rgba(0,0,0,0.05);
+        transition:background .35s ease, border-color .35s ease, color .35s ease, transform .2s ease;
+      }
+      .sync-bar.ok{
+        background:linear-gradient(135deg,#EBFBEE,#F1FCF5); border-color:#B2F2BB; color:#2B8A3E;
+      }
+      .sync-bar.error{
+        background:linear-gradient(135deg,#FFF5F5,#FFF0F0); border-color:#FFC9C9; color:var(--err);
+      }
+      body.dark .sync-bar{ background:var(--bg2); border-color:var(--bdr); color:var(--txt2); }
+      body.dark .sync-bar.ok{ background:linear-gradient(135deg,#16261a,#12201a); border-color:#2F6E3F; color:#8ce99a; }
+      body.dark .sync-bar.error{ background:linear-gradient(135deg,#2A1616,#221212); border-color:#7A3030; color:#FF8787; }
+
+      .sd{width:7px;height:7px;border-radius:50%;background:currentColor; flex-shrink:0;}
+      .sync-bar.ok .sd{ animation: pulseDot 2s ease-in-out infinite; }
+      @keyframes pulseDot{
+        0%{box-shadow:0 0 0 0 rgba(43,138,62,0.45);}
+        70%{box-shadow:0 0 0 6px rgba(43,138,62,0);}
+        100%{box-shadow:0 0 0 0 rgba(43,138,62,0);}
+      }
+      body.dark .sync-bar.ok .sd{ animation: pulseDotDark 2s ease-in-out infinite; }
+      @keyframes pulseDotDark{
+        0%{box-shadow:0 0 0 0 rgba(140,233,154,0.45);}
+        70%{box-shadow:0 0 0 6px rgba(140,233,154,0);}
+        100%{box-shadow:0 0 0 0 rgba(140,233,154,0);}
+      }
       @keyframes spin{ 100%{transform:rotate(360deg);} }
-      .sd.spin{ border-radius:50%; border:2px solid currentColor; border-top-color:transparent; background:transparent; animation:spin 1s linear infinite; }
+      .sd.spin{ width:8px;height:8px; border-radius:50%; border:2px solid currentColor; border-top-color:transparent; background:transparent; animation:spin .8s linear infinite; }
       
       .cfg-panel{display:none;background:var(--card);border-bottom:1px solid var(--bdr);padding:20px;}
       .cfg-panel.open{display:block;}
@@ -173,9 +199,28 @@
       .uc-info{flex:1;}
       
       .page{display:none;} .page.on{display:block;}
-      .tab-bar{ position:fixed; bottom:0; left:50%; transform:translateX(-50%); width:100%; max-width:620px; background:var(--card); border-top:1px solid var(--bdr); display:flex; padding-bottom:env(safe-area-inset-bottom); z-index:100; box-shadow: 0 -4px 12px rgba(0,0,0,0.03);}
-      .tab-btn{flex:1;background:none;border:none;padding:16px 0;font-size:22px;color:var(--txt2);cursor:pointer; transition:all 0.2s; font-family:var(--font);}
-      .tab-btn.on{color:var(--p);} .tab-btn span{display:block;font-size:11px;font-weight:800;margin-top:6px; letter-spacing: 0;}
+      .tab-bar{
+        position:fixed; bottom:16px; left:50%; transform:translateX(-50%);
+        width:calc(100% - 28px); max-width:560px;
+        background:rgba(255,255,255,0.85); border:1px solid var(--bdr);
+        border-radius:24px; display:flex; gap:4px; padding:7px;
+        padding-bottom:calc(7px + env(safe-area-inset-bottom));
+        box-shadow:0 10px 28px rgba(0,0,0,0.10), 0 2px 8px rgba(0,0,0,0.04);
+        backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px);
+        z-index:100;
+      }
+      body.dark .tab-bar{ background:rgba(37,37,37,0.85); }
+      .tab-btn{
+        flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+        gap:3px; background:none; border:none; border-radius:17px;
+        padding:9px 0 8px; font-size:19px; line-height:1; color:var(--txt2); cursor:pointer;
+        transition:background .25s ease, color .25s ease, transform .15s ease;
+        font-family:var(--font);
+      }
+      .tab-btn:active{ transform:scale(0.9); }
+      .tab-btn.on{ background:var(--plt); color:var(--p); }
+      body.dark .tab-btn.on{ background:rgba(139,168,142,0.16); color:var(--p); }
+      .tab-btn span{display:block;font-size:10.5px;font-weight:800;margin-top:1px; letter-spacing: 0;}
       
       .toast{position:fixed;bottom:100px;left:50%;transform:translateX(-50%);background:rgba(33,37,41,0.95);color:#fff;padding:14px 28px;border-radius:30px;font-size:14px;font-weight:700;z-index:1000;opacity:0;transition:all 0.3s; pointer-events:none; white-space:nowrap; box-shadow: 0 8px 24px rgba(0,0,0,0.2);}
       .toast.show{opacity:1; bottom:110px;}
@@ -375,6 +420,14 @@
       let me = null, gasUrl = "", gasOk = false, recs = [], adminUsers = [];
       let homeY, homeMo, editId = null, umEditId = null;
       let listY, listMo, listPage = 1; const listPerPage = 5;
+
+      // 🌟 추가: innerHTML에 사용자 입력값을 꽂기 전 HTML 이스케이프 (XSS 방지)
+      function escapeHtml(str) {
+        if (str === null || str === undefined) return "";
+        return String(str).replace(/[&<>"']/g, (m) => ({
+          "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;"
+        }[m]));
+      }
 
       // 🌟 추가된 함수: "6-7" 입력 시 스프레드시트가 날짜로 강제 변환한 데이터를 다시 문자열로 예쁘게 복구
       function formatVerse(v) {
@@ -590,14 +643,14 @@
             <div class="rec-card" id="rec-card-${r.id}">
               <div class="rc-header">
                 <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
-                  <div class="rc-date">🗓️ ${r.date}</div>
-                  <div class="rc-author">🌿 ${authorName}</div>
+                  <div class="rc-date">🗓️ ${escapeHtml(r.date)}</div>
+                  <div class="rc-author">🌿 ${escapeHtml(authorName)}</div>
                 </div>
                 <button class="fav-btn" onclick="toggleFav('${r.id}', ${isFav})">${isFav?'⭐':'☆'}</button>
               </div>
-              <div class="rc-title">${r.book} ${r.chapter}장${cleanVerse ? ` ${cleanVerse}절` : ''}</div>
-              ${r.verseText ? `<div class="rc-verse-band">${r.verseText}</div>` : ''}
-              ${r.meditation ? `<div class="rc-med">${r.meditation}</div>` : ''}
+              <div class="rc-title">${escapeHtml(r.book)} ${escapeHtml(r.chapter)}장${cleanVerse ? ` ${escapeHtml(cleanVerse)}절` : ''}</div>
+              ${r.verseText ? `<div class="rc-verse-band">${escapeHtml(r.verseText)}</div>` : ''}
+              ${r.meditation ? `<div class="rc-med">${escapeHtml(r.meditation)}</div>` : ''}
               <div class="rc-acts" data-html2canvas-ignore="true">
                 <button class="btn-edit" onclick="startEdit('${r.id}')">수정하기</button>
                 <button class="btn-del" onclick="delRecord('${r.id}')">삭제하기</button>
@@ -690,12 +743,12 @@
       function renderAdminUsers() {
         const wrap = $("admUserList"); wrap.innerHTML = "";
         adminUsers.forEach((u) => {
-          const baptismStr = u.baptism ? `<span style="color:#E03131; font-size:15px; margin-left:4px;">(${u.baptism})</span>` : "";
+          const baptismStr = u.baptism ? `<span style="color:#E03131; font-size:15px; margin-left:4px;">(${escapeHtml(u.baptism)})</span>` : "";
           wrap.innerHTML += `
             <div class="user-card">
               <div class="uc-info">
-                <div class="uc-name" style="font-size:18px; font-weight:900; color:var(--p);">${u.name}${baptismStr}<span class="${u.role === "admin" ? "badge-adm" : ""}" style="font-size:11px; padding:3px 8px; border-radius:12px; background:var(--adm); color:#fff; margin-left:6px; font-weight:700; display:${u.role==='admin'?'inline-block':'none'}">${u.role}</span></div>
-                <div class="uc-meta" style="font-size:14px; color:var(--txt2); font-weight:700; margin-top:6px;">ID: <span style="color:#2B8A3E; font-size:15px; text-decoration:underline;">${u.id}</span></div>
+                <div class="uc-name" style="font-size:18px; font-weight:900; color:var(--p);">${escapeHtml(u.name)}${baptismStr}<span class="${u.role === "admin" ? "badge-adm" : ""}" style="font-size:11px; padding:3px 8px; border-radius:12px; background:var(--adm); color:#fff; margin-left:6px; font-weight:700; display:${u.role==='admin'?'inline-block':'none'}">${escapeHtml(u.role)}</span></div>
+                <div class="uc-meta" style="font-size:14px; color:var(--txt2); font-weight:700; margin-top:6px;">ID: <span style="color:#2B8A3E; font-size:15px; text-decoration:underline;">${escapeHtml(u.id)}</span></div>
               </div>
               <div class="uc-acts" style="display:flex; gap:6px;">
                 <button class="bsm bsm-e" style="background:var(--p); color:#fff; border:none; padding:8px 12px; border-radius:8px; font-weight:700; font-size:12px; cursor:pointer;" onclick="openUserModal('${u.id}')">수정</button>
