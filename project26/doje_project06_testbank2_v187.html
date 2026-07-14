@@ -23,6 +23,7 @@
     --essay:#3b82f6;
     --question:#8b5cf6;
     --presentation:#f59e0b;
+    --work:#06b6d4;
     --radius:12px;
   }
     /* 전역 리셋 */
@@ -187,6 +188,7 @@
   .badge-essay{background:linear-gradient(135deg,#60a5fa,var(--essay));}
   .badge-question{background:linear-gradient(135deg,#a78bfa,var(--question));}
   .badge-presentation{background:linear-gradient(135deg,#fbbf24,var(--presentation));}
+  .badge-work{background:linear-gradient(135deg,#22d3ee,var(--work));}
   .badge-default{background:linear-gradient(135deg,#cbd5e1,#9ca3af);}
 
   /* ── 문제 카드 및 모범답안 표시 스타일 ── */
@@ -551,7 +553,29 @@
   var main = document.getElementById('main');
   var ID_FIELD = {'기업':'기업ID','학생':'학생ID','과목':'과목ID','문제':'문제ID','배정':'배정ID'};
   var ARR_KEY = {'기업':'companies','학생':'students','과목':'subjects','문제':'questions','배정':'assignments'};
-  var EVAL_METHOD_MAP = {'서술형':'서술형시험', '질문형':'면접형시험', '발표형':'발표형시험'};
+
+  /* ============================================================
+     문제유형(평가방법) 설정: 여기 배열에 항목을 추가/삭제하면
+     선택 목록, 뱃지 색상/아이콘, 평가방법 표시, 답안지 줄 수까지 전체 화면에 자동 반영됨
+     - id/label: 실제 값(문제유형)이자 화면에 표시될 이름
+     - badgeClass: styles의 .badge-xxx 클래스명 (새 유형 추가 시 CSS도 함께 추가해야 함)
+     - icon: 뱃지 앞에 붙는 아이콘
+     - evalMethod: 시험지 상단 "평가방법" 칸에 표시될 문구
+     - lineCount: 학생용 문제지 답안 작성줄 개수 (인쇄 시 한 과목=한 페이지 기준으로 정해둔 값)
+     ============================================================ */
+  var QUESTION_TYPES = [
+    {id:'서술형', badgeClass:'badge-essay',        icon:'✍️', evalMethod:'서술형시험', lineCount:3},
+    {id:'질문형', badgeClass:'badge-question',      icon:'🎤', evalMethod:'면접형시험', lineCount:2},
+    {id:'발표형', badgeClass:'badge-presentation',  icon:'🎯', evalMethod:'발표형시험', lineCount:2},
+    {id:'작업형', badgeClass:'badge-work',          icon:'🛠️', evalMethod:'작업형평가', lineCount:2}
+  ];
+  /* 문제유형 문자열로 QUESTION_TYPES의 설정 객체를 찾음 (없으면 null) */
+  function getQuestionTypeInfo(type){
+    return QUESTION_TYPES.find(function(t){ return t.id===type; }) || null;
+  }
+  // 기존 코드 호환용: {서술형:'서술형시험', ...} 형태를 QUESTION_TYPES로부터 자동 생성
+  var EVAL_METHOD_MAP = {};
+  QUESTION_TYPES.forEach(function(t){ EVAL_METHOD_MAP[t.id] = t.evalMethod; });
 
   /* ── 공통 유틸 함수 모음 (HTML 이스케이프, 줄바꿈 처리, localStorage 래퍼 등) ── */
   function escapeHtml(str){
@@ -578,9 +602,10 @@
 
   /* 문제유형(서술형/질문형/발표형)에 맞는 뱃지 HTML 생성 */
   function typeBadge(type){
-    var map = {'서술형':'badge-essay','질문형':'badge-question','발표형':'badge-presentation'};
-    var cls = map[type] || 'badge-default';
-    return '<span class="badge ' + cls + '">' + escapeHtml(type || '미정') + '</span>';
+    var info = getQuestionTypeInfo(type);
+    var cls = info ? info.badgeClass : 'badge-default';
+    var icon = info ? info.icon : '❔';
+    return '<span class="badge ' + cls + '">' + icon + ' ' + escapeHtml(type || '미정') + '</span>';
   }
 
   /* ── 기업별 색상 팔레트: 기업ID를 해시하여 색상을 고정 배정 (companyChip에서 사용) ── */
@@ -1104,9 +1129,9 @@
     }
     if(type==='과목'){
       var id3 = data.과목ID || nextSubjectId();
-      var typeOptions = ['서술형','질문형','발표형'].map(function(t){
-        var sel = data.문제유형===t ? 'selected':'';
-        return '<option value="'+t+'" '+sel+'>'+t+'</option>';
+      var typeOptions = QUESTION_TYPES.map(function(t){
+        var sel = data.문제유형===t.id ? 'selected':'';
+        return '<option value="'+t.id+'" '+sel+'>'+t.icon+' '+t.id+'</option>';
       }).join('');
       var diffOptions = ['상','중','하'].map(function(d){
         var sel = (data.난이도||'중')===d ? 'selected':'';
@@ -1138,7 +1163,7 @@
         var usage = subjectUsageCount(s.과목ID);
         return '<option value="'+escapeHtml(s.과목ID)+'">'+escapeHtml(s.과목명)+' ('+escapeHtml(s.문제유형)+') · 현재 '+usage+'개 기업 사용중</option>';
       }).join('');
-      var typeOptions2 = ['서술형','질문형','발표형'].map(function(t){ return '<option value="'+t+'">'+t+'</option>'; }).join('');
+      var typeOptions2 = QUESTION_TYPES.map(function(t){ return '<option value="'+t.id+'">'+t.icon+' '+t.id+'</option>'; }).join('');
       var diffOptions2 = ['상','중','하'].map(function(d){ var sel = d==='중'?'selected':''; return '<option value="'+d+'" '+sel+'>'+d+'</option>'; }).join('');
 
       return '<div style="display:flex;gap:8px;margin-bottom:18px;">' +
@@ -1880,7 +1905,7 @@
               block += (q.모범답안 ? '<div class="ncs-answer"><span class="ncs-answer-label">모범답안</span><span class="ncs-answer-content">'+nl2br(q.모범답안)+'</span></div>' : '');
             } else {
               // 답안줄 높이가 30px로 늘어난 만큼, 과목(최대 5문제) 전체가 인쇄 시 한 페이지를 넘지 않도록 줄 수를 줄여서 균형을 맞춤
-              var lineCount = (s.문제유형==='질문형') ? 2 : (s.문제유형==='발표형' ? 2 : 3);
+              var lineCount = (getQuestionTypeInfo(s.문제유형) || {lineCount:3}).lineCount;
               for(var li=0; li<lineCount; li++){ block += '<div class="answer-line"></div>'; }
             }
             block += '</div>';
