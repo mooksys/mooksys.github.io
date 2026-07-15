@@ -69,6 +69,24 @@
         position: relative;
       }
 
+      .remember-row {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        margin: -8px 0 18px 2px;
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--text-light);
+        cursor: pointer;
+        user-select: none;
+      }
+      .remember-row input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        accent-color: var(--primary);
+        cursor: pointer;
+      }
+
       label {
         display: block;
         font-size: 13px;
@@ -797,33 +815,43 @@
           🎓 성일정보고등학교 도제반 3-12
         </div>
 
-        <div class="input-group">
-          <input
-            type="text"
-            id="userId"
-            placeholder="학번 (교사는 ID)"
-            disabled
-            onblur="verifyId()"
-          />
-          <div id="idWarningMsg" class="msg-error" style="display: none">
-            등록되지 않은 학번입니다. 정확히 입력해주세요.
+        <form id="loginForm" autocomplete="on">
+          <div class="input-group">
+            <input
+              type="text"
+              id="userId"
+              name="username"
+              autocomplete="username"
+              placeholder="학번 (교사는 ID)"
+              disabled
+              onblur="verifyId()"
+            />
+            <div id="idWarningMsg" class="msg-error" style="display: none">
+              등록되지 않은 학번입니다. 정확히 입력해주세요.
+            </div>
           </div>
-        </div>
 
-        <div class="input-group">
-          <input
-            type="password"
-            id="userPw"
-            placeholder="비밀번호"
-            onkeyup="if (event.keyCode === 13) login();"
-            disabled
-          />
-        </div>
+          <div class="input-group">
+            <input
+              type="password"
+              id="userPw"
+              name="password"
+              autocomplete="current-password"
+              placeholder="비밀번호"
+              disabled
+            />
+          </div>
 
-        <button id="loginBtn" class="btn-primary" onclick="login()" disabled>
-          서버 설정 불러오는 중...
-        </button>
-        <div id="loginMsg" class="msg-error"></div>
+          <label class="remember-row">
+            <input type="checkbox" id="rememberId" />
+            아이디 저장
+          </label>
+
+          <button id="loginBtn" type="submit" class="btn-primary" disabled>
+            서버 설정 불러오는 중...
+          </button>
+          <div id="loginMsg" class="msg-error"></div>
+        </form>
       </div>
 
       <!-- ───────── 초기 설정 화면 ───────── -->
@@ -1322,7 +1350,23 @@
       let reportHtmlContent = "";
 
       // ── 초기화 ────────────────────────────────────────────────────────
+      const REMEMBER_ID_KEY = "attendance_remembered_id";
+
       window.onload = async () => {
+        // 폼 submit(엔터 입력 포함)을 login()에 연결 — 실제 페이지 이동은 막음
+        document.getElementById("loginForm").addEventListener("submit", (e) => {
+          e.preventDefault();
+          login();
+        });
+
+        // 저장된 아이디 복원 (비밀번호는 저장하지 않고, 브라우저 자격증명
+        // 관리자가 자동으로 채워주는 것에 맡깁니다)
+        const rememberedId = localStorage.getItem(REMEMBER_ID_KEY);
+        if (rememberedId) {
+          document.getElementById("userId").value = rememberedId;
+          document.getElementById("rememberId").checked = true;
+        }
+
         try {
           const response = await fetch("project26_05_gas_url.json");
           if (!response.ok) throw new Error("config fetch failed");
@@ -1436,6 +1480,28 @@
         btn.disabled = false;
 
         if (res.success) {
+          // 아이디 저장 체크 여부에 따라 로컬에 아이디만 보관 (비밀번호는 절대 저장하지 않음)
+          if (document.getElementById("rememberId").checked) {
+            localStorage.setItem(REMEMBER_ID_KEY, id);
+          } else {
+            localStorage.removeItem(REMEMBER_ID_KEY);
+          }
+
+          // 브라우저 자체 비밀번호 관리자에 저장 요청 (지원 브라우저만 해당,
+          // 우리 코드/서버는 비밀번호를 별도로 저장하지 않습니다)
+          if (window.PasswordCredential) {
+            try {
+              const cred = new PasswordCredential({
+                id,
+                password: pw,
+                name: res.name ? `${res.name} (${id})` : id,
+              });
+              navigator.credentials.store(cred);
+            } catch (_) {
+              // 저장 실패해도 로그인 흐름에는 영향 없음
+            }
+          }
+
           userInfo = res;
           document.getElementById("loginSection").classList.add("hidden");
 
