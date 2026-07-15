@@ -1459,6 +1459,7 @@
       function logout() {
         if (autoRefreshTimer) clearInterval(autoRefreshTimer);
         if (sessionTimeoutTimer) clearTimeout(sessionTimeoutTimer);
+        if (outUnlockTimer) clearInterval(outUnlockTimer);
         // 서버 측 세션 토큰도 즉시 폐기 (실패해도 로그아웃 자체는 진행)
         if (userInfo && userInfo.token) {
           callAPI({ action: "logout", token: userInfo.token }).catch(() => {});
@@ -1658,9 +1659,60 @@
         }
       }
 
+      // ── 퇴실 버튼: 내 기준 입실시간(IN_TIME) + 2시간이 지나야 활성화 ──────
+      let outUnlockTimer = null;
+
+      function getOutUnlockTimeMs() {
+        if (!userInfo || !userInfo.inTime) return null;
+        const parts = userInfo.inTime.toString().split(":");
+        if (parts.length < 2) return null;
+        const h = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10);
+        if (isNaN(h) || isNaN(m)) return null;
+
+        const base = new Date();
+        base.setHours(h, m, 0, 0);
+        return base.getTime() + 2 * 60 * 60 * 1000; // +2시간
+      }
+
+      function applyOutButtonLock(btnOut) {
+        const readyAt = getOutUnlockTimeMs();
+
+        if (readyAt === null || Date.now() >= readyAt) {
+          btnOut.disabled = false;
+          btnOut.classList.remove("btn-done");
+          btnOut.innerText = "👋 퇴실 기록하기";
+          return;
+        }
+
+        const render = () => {
+          const remainMs = readyAt - Date.now();
+          if (remainMs <= 0) {
+            clearInterval(outUnlockTimer);
+            outUnlockTimer = null;
+            btnOut.disabled = false;
+            btnOut.classList.remove("btn-done");
+            btnOut.innerText = "👋 퇴실 기록하기";
+            return;
+          }
+          const remainMin = Math.ceil(remainMs / 60000);
+          btnOut.disabled = true;
+          btnOut.classList.add("btn-done");
+          btnOut.innerText = `⏳ ${userInfo.inTime} 입실 기준 2시간 후 활성화 (약 ${remainMin}분 후)`;
+        };
+
+        render();
+        outUnlockTimer = setInterval(render, 30 * 1000);
+      }
+
       function updateStudentButtons(inDone, outDone) {
         const btnIn = document.getElementById("btnIn");
         const btnOut = document.getElementById("btnOut");
+
+        if (outUnlockTimer) {
+          clearInterval(outUnlockTimer);
+          outUnlockTimer = null;
+        }
 
         if (inDone) {
           btnIn.disabled = true;
@@ -1676,11 +1728,10 @@
           btnOut.disabled = true;
           btnOut.classList.add("btn-done");
           btnOut.innerText = "✅ 오늘 퇴실 완료";
-        } else {
-          btnOut.disabled = false;
-          btnOut.classList.remove("btn-done");
-          btnOut.innerText = "👋 퇴실 기록하기";
+          return;
         }
+
+        applyOutButtonLock(btnOut);
       }
 
       // ── 교사 대시보드 ─────────────────────────────────────────────────
