@@ -3,6 +3,11 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="referrer" content="no-referrer" />
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'sha256-LhFXVUxIM+TYvJa8nl7orPBTZxdvNGPlYnyCLT1wgc8='; connect-src 'self' https://script.google.com https://script.googleusercontent.com; img-src 'self' data:; style-src 'self' 'unsafe-inline'; font-src 'self'; object-src 'none'; base-uri 'none'; form-action 'none'"
+    />
     <title>수원교구 꾸르실료 비상연락망</title>
     <style>
       *,
@@ -425,6 +430,8 @@
         cursor: pointer;
         transition: all 0.15s;
         user-select: none;
+        appearance: none;
+        font-family: inherit;
       }
       .dept-tab:hover {
         border-color: #b0b8c1;
@@ -638,6 +645,16 @@
         opacity: 0.35;
         cursor: not-allowed;
       }
+      .btn-login:focus-visible,
+      .btn-out:focus-visible,
+      .nav-btn:focus-visible,
+      .dept-tab:focus-visible,
+      .pg-btn:focus-visible,
+      .sw input:focus-visible,
+      .sel:focus-visible {
+        outline: 3px solid #f5c842;
+        outline-offset: 2px;
+      }
       .pg-info {
         font-size: 13px;
         color: var(--sub);
@@ -766,13 +783,13 @@
         <h1>비상연락망</h1>
         <p>권한이 있는 분만 접근 가능합니다.<br />비밀번호를 입력해 주세요.</p>
         <div class="field">
-          <label>비밀번호</label>
-          <input type="password" id="pw" placeholder="비밀번호를 입력하세요" />
+          <label for="pw">비밀번호</label>
+          <input type="password" id="pw" placeholder="비밀번호를 입력하세요" autocomplete="current-password" />
         </div>
-        <button class="btn-login" id="login-btn" onclick="login()">
+        <button class="btn-login" id="login-btn" type="button" disabled>
           로그인
         </button>
-        <div class="err" id="err"></div>
+        <div class="err" id="err" role="alert" aria-live="assertive"></div>
       </div>
     </div>
 
@@ -786,7 +803,7 @@
             <div class="t2">비상연락망</div>
           </div>
         </div>
-        <button class="btn-out" onclick="logout()">로그아웃</button>
+        <button class="btn-out" id="logout-btn" type="button">로그아웃</button>
       </header>
 
       <!-- 축일 공지 -->
@@ -797,13 +814,14 @@
             <div class="notice-title">
               이달의 축일자
               <div class="notice-nav">
-                <button class="nav-btn" onclick="moveMonth(-1)">◀</button>
-                <span class="notice-month-badge" id="notice-month"></span>
-                <button class="nav-btn" onclick="moveMonth(1)">▶</button>
+                <button class="nav-btn" id="notice-prev" type="button" aria-label="이전 달 축일자">◀</button>
+                <span class="notice-month-badge" id="notice-month" aria-live="polite"></span>
+                <button class="nav-btn" id="notice-next" type="button" aria-label="다음 달 축일자">▶</button>
               </div>
             </div>
             <div
               id="notice-empty"
+              role="status"
               style="
                 display: none;
                 font-size: 13px;
@@ -813,7 +831,7 @@
             >
               이 달에 축일자가 없습니다.
             </div>
-            <div class="notice-cards" id="notice-cards"></div>
+            <div class="notice-cards" id="notice-cards" role="list"></div>
           </div>
         </div>
       </div>
@@ -821,29 +839,29 @@
       <main class="main">
         <div class="toolbar">
           <div class="sw">
-            <span class="sw-ico">🔍</span>
+            <span class="sw-ico" aria-hidden="true">🔍</span>
             <input
               type="text"
               id="q"
               placeholder="성명, 세례명, 본당으로 검색…"
-              oninput="onSearch()"
+              aria-label="연락처 검색"
             />
           </div>
-          <select class="sel" id="f-parish" onchange="onSearch()">
+          <select class="sel" id="f-parish" aria-label="본당 필터">
             <option value="">전체 본당</option>
           </select>
         </div>
 
         <div class="tab-section">
           <div class="tab-group-label">임원</div>
-          <div class="tab-row" id="tabs-leader"></div>
+          <div class="tab-row" id="tabs-leader" role="group" aria-label="임원 필터"></div>
         </div>
         <div class="tab-section">
           <div class="tab-group-label">부서</div>
-          <div class="tab-row" id="tabs-dept"></div>
+          <div class="tab-row" id="tabs-dept" role="group" aria-label="부서 필터"></div>
         </div>
 
-        <div class="chips">
+        <div class="chips" aria-live="polite">
           <div class="chip">전체 <strong id="tot">0</strong>명</div>
           <div class="chip">표시 <strong id="shown">0</strong>명</div>
         </div>
@@ -875,16 +893,16 @@
       </footer>
     </div>
 
-    <script>
-      /* ══════════════════════════════════════════════════
-     분류 정의 (임원 / 부서)
-  ══════════════════════════════════════════════════ */
+    <script id="app-script">
+      "use strict";
+      
       const LEADERS = [
         { key: "영성지도", color: "#6941C6", icon: "✝️", label: "영성지도" },
-        { key: "부주간", color: "#0C7489", icon: "⭐", label: "부주간" }, // 부주간 먼저
+        { key: "부주간", color: "#0C7489", icon: "⭐", label: "부주간" },
         { key: "주간", color: "#1C4E80", icon: "👑", label: "주간" },
         { key: "감사", color: "#92600A", icon: "📋", label: "감사" },
       ];
+      
       const DEPTS = [
         { key: "총무", color: "#2D7DD2", icon: "📁", label: "총무부" },
         { key: "교수", color: "#2D9B6F", icon: "📚", label: "교수부" },
@@ -895,25 +913,12 @@
         { key: "행사", color: "#C4407A", icon: "🎉", label: "행사부" },
         { key: "음악", color: "#B89B2B", icon: "🎵", label: "음악부" },
       ];
-      const DEFAULT_ST = { color: "#8A97A5", icon: "👤", label: "기타" };
-
-      function getStyle(role) {
-        if (!role) return DEFAULT_ST;
-        const r = role.trim();
-        return (
-          LEADERS.find((l) => r.includes(l.key)) ||
-          DEPTS.find((d) => r.includes(d.key)) ||
-          DEFAULT_ST
-        );
-      }
-      function getKey(role) {
-        const s = getStyle(role);
-        return s === DEFAULT_ST ? null : s.key;
-      }
-
-      /* ══════════════════════════════════════════════════
-     축일 유틸 — 시트의 "축일" 열 값(M/D 문자열) 직접 사용
-  ══════════════════════════════════════════════════ */
+      
+      const DEFAULT_ST = Object.freeze({
+        color: "#8A97A5",
+        icon: "👤",
+        label: "기타",
+      });
       const MONTH_KR = [
         "",
         "1월",
@@ -929,389 +934,749 @@
         "11월",
         "12월",
       ];
-
-      /* "9/20" → { month:9, day:20 } / 파싱 실패 → null */
-      function parseFeast(str) {
-        if (!str) return null;
-        const m = str.match(/^(\d{1,2})\/(\d{1,2})$/);
-        if (!m) return null;
-        return { month: parseInt(m[1]), day: parseInt(m[2]) };
-      }
-
-      /* ── 상수 ── */
       const PER_PAGE = 8;
-
-      /* ── 상태 ── */
-      let API = "",
-        TOKEN = sessionStorage.getItem("ec_tok") || "",
-        ALL = [];
-      let FILTERED = [],
-        curPage = 1;
-      let activeKey = "",
-        allTabEl = null;
-      let noticeMonth = new Date().getMonth() + 1; // 공지 표시 월 (1~12)
-
-      /* ── 초기화 ── */
-      (async () => {
+      const API_TIMEOUT_MS = 12000;
+      const ALLOWED_API_HOSTS = new Set([
+        "script.google.com",
+        "script.googleusercontent.com",
+      ]);
+      
+      let API = "";
+      let API_READY = false;
+      let TOKEN = getSessionValue("ec_tok");
+      let ALL = [];
+      let FILTERED = [];
+      let curPage = 1;
+      let activeKey = "";
+      let allTabEl = null;
+      let noticeMonth = new Date().getMonth() + 1;
+      const CLIENT_ID = getOrCreateClientId();
+      
+      function getStyle(role) {
+        const normalizedRole = String(role || "").trim();
+        if (!normalizedRole) return DEFAULT_ST;
+        return (
+          LEADERS.find((leader) => normalizedRole.includes(leader.key)) ||
+          DEPTS.find((department) => normalizedRole.includes(department.key)) ||
+          DEFAULT_ST
+        );
+      }
+      
+      function getKey(role) {
+        const style = getStyle(role);
+        return style === DEFAULT_ST ? null : style.key;
+      }
+      
+      function parseFeast(value) {
+        const match = String(value || "").match(/^(\d{1,2})\/(\d{1,2})$/);
+        if (!match) return null;
+      
+        const month = Number(match[1]);
+        const day = Number(match[2]);
+        if (!Number.isInteger(month) || month < 1 || month > 12) return null;
+        const lastDay = new Date(2000, month, 0).getDate();
+        if (!Number.isInteger(day) || day < 1 || day > lastDay) return null;
+        return { month, day };
+      }
+      
+      async function initialize() {
+        bindEvents();
+        setLoginButtonState(true, "설정 불러오는 중…");
+      
         try {
-          const cfg = await fetch("index_cursillo_config.json").then((r) => r.json());
-          API = cfg.api_url;
-          if (TOKEN) showDash();
-        } catch {
-          showErr("⚠️ index_cursillo_config.json을 불러올 수 없습니다.");
+          const response = await fetch("index_cursillo_config.json", {
+            cache: "no-store",
+            credentials: "same-origin",
+          });
+          if (!response.ok) throw new Error("설정 응답 오류");
+      
+          const config = await response.json();
+          API = validateApiUrl(config.api_url);
+          API_READY = true;
+          setLoginButtonState(false, "로그인");
+      
+          if (TOKEN) await showDash();
+        } catch (error) {
+          console.error(error);
+          setLoginButtonState(true, "설정 오류");
+          showErr("⚠️ 서비스 설정을 불러오지 못했습니다. 관리자에게 문의해 주세요.");
         }
-      })();
-
-      /* ── 로그인 ── */
+      }
+      
+      function bindEvents() {
+        document.getElementById("login-btn").addEventListener("click", login);
+        document.getElementById("logout-btn").addEventListener("click", () => logout());
+        document
+          .getElementById("notice-prev")
+          .addEventListener("click", () => moveMonth(-1));
+        document
+          .getElementById("notice-next")
+          .addEventListener("click", () => moveMonth(1));
+        document.getElementById("q").addEventListener("input", onSearch);
+        document.getElementById("f-parish").addEventListener("change", onSearch);
+        document.getElementById("pw").addEventListener("keydown", (event) => {
+          if (event.key === "Enter") login();
+        });
+      }
+      
+      function validateApiUrl(value) {
+        const url = new URL(String(value || ""));
+        if (
+          url.protocol !== "https:" ||
+          !ALLOWED_API_HOSTS.has(url.hostname) ||
+          url.username ||
+          url.password
+        ) {
+          throw new Error("허용되지 않은 API 주소입니다.");
+        }
+        return url.href;
+      }
+      
       async function login() {
-        const pw = document.getElementById("pw").value.trim();
-        const btn = document.getElementById("login-btn");
-        if (!pw) return;
-        btn.disabled = true;
-        btn.textContent = "확인 중…";
+        const passwordInput = document.getElementById("pw");
+        const password = passwordInput.value.trim();
+        if (!API_READY) {
+          showErr("⚠️ 서비스 설정을 확인하는 중입니다. 잠시 후 다시 시도해 주세요.");
+          return;
+        }
+        if (!password) {
+          showErr("⚠️ 비밀번호를 입력해 주세요.");
+          passwordInput.focus();
+          return;
+        }
+      
+        setLoginButtonState(true, "확인 중…");
         hideErr();
         try {
-          const d = await api({ action: "login", password: pw });
-          if (d.success) {
-            TOKEN = d.token;
-            sessionStorage.setItem("ec_tok", TOKEN);
-            showDash();
-          } else
-            showErr("⚠️ " + (d.message || "비밀번호가 올바르지 않습니다."));
-        } catch {
+          const data = await api({
+            action: "login",
+            password,
+            clientId: CLIENT_ID,
+          });
+          if (!data.success) {
+            showErr("⚠️ " + (data.message || "로그인 정보를 확인해 주세요."));
+            return;
+          }
+      
+          TOKEN = String(data.token || "");
+          setSessionValue("ec_tok", TOKEN);
+          passwordInput.value = "";
+          await showDash();
+        } catch (error) {
+          console.error(error);
           showErr("⚠️ 서버에 연결할 수 없습니다.");
+        } finally {
+          setLoginButtonState(false, "로그인");
         }
-        btn.disabled = false;
-        btn.textContent = "로그인";
       }
-
+      
       async function showDash() {
+        hideErr();
         document.getElementById("login-screen").style.display = "none";
         document.getElementById("dashboard").style.display = "flex";
-        await load();
+        setLoadingState();
+        await loadContacts();
       }
-
-      async function load() {
+      
+      async function loadContacts() {
         try {
-          const d = await api({ action: "getContacts", token: TOKEN });
-          if (d.success) {
-            ALL = d.contacts;
-            buildNotice();
-            buildTabs();
-            buildParishFilter();
-            doFilter();
-          } else logout();
-        } catch {
-          document.getElementById("wrap").innerHTML =
-            `<div class="empty"><span class="empty-ico">⚠️</span>데이터를 불러오지 못했습니다.</div>`;
+          const data = await api({ action: "getContacts", token: TOKEN });
+          if (!data.success) {
+            logout({
+              notifyServer: false,
+              message: "⚠️ " + (data.message || "세션이 만료되었습니다."),
+            });
+            return;
+          }
+          if (!Array.isArray(data.contacts)) throw new Error("잘못된 연락처 응답");
+      
+          ALL = data.contacts;
+          buildNotice();
+          buildTabs();
+          buildParishFilter();
+          doFilter();
+        } catch (error) {
+          console.error(error);
+          const wrap = document.getElementById("wrap");
+          wrap.replaceChildren(
+            makeStateMessage("⚠️", "데이터를 불러오지 못했습니다."),
+          );
         }
       }
-
-      /* ══════════════════════════════════════════════════
-     축일 공지 — 지정 월(noticeMonth) 기준으로 렌더
-  ══════════════════════════════════════════════════ */
+      
       function buildNotice() {
         renderNotice();
         document.getElementById("notice-wrap").style.display = "block";
       }
-
-      function moveMonth(dir) {
-        noticeMonth += dir;
+      
+      function moveMonth(direction) {
+        noticeMonth += direction;
         if (noticeMonth < 1) noticeMonth = 12;
         if (noticeMonth > 12) noticeMonth = 1;
         renderNotice();
       }
-
+      
       function renderNotice() {
-        document.getElementById("notice-month").textContent =
-          MONTH_KR[noticeMonth];
-
-        const celebrants = ALL.map((c) => {
-          const feast = parseFeast(c["축일"]);
-          if (!feast || feast.month !== noticeMonth) return null;
-          return { c, feast };
+        document.getElementById("notice-month").textContent = MONTH_KR[noticeMonth];
+      
+        const celebrants = ALL.map((contact) => {
+          const feast = parseFeast(contact["축일"]);
+          return feast && feast.month === noticeMonth ? { contact, feast } : null;
         })
           .filter(Boolean)
-          .sort((a, b) => a.feast.day - b.feast.day);
-
+          .sort((left, right) => left.feast.day - right.feast.day);
+      
         const emptyEl = document.getElementById("notice-empty");
         const cardsEl = document.getElementById("notice-cards");
-
+        cardsEl.replaceChildren();
+      
         if (!celebrants.length) {
           emptyEl.style.display = "block";
-          cardsEl.innerHTML = "";
           return;
         }
         emptyEl.style.display = "none";
-
-        cardsEl.innerHTML = celebrants
-          .map(({ c, feast }) => {
-            const st = getStyle(c["직책"]);
-            return `
-      <div class="nc">
-        <div class="nc-av" style="background:${st.color}">
-          <span class="nc-av-ico">${st.icon}</span>
-          <span class="nc-av-lbl">${st.label}</span>
-        </div>
-        <div class="nc-info">
-          <div class="nc-name">${c["성명"] || "-"}</div>
-          <div class="nc-bap">세례명 ${c["세례명"] || "-"} · ${st.label}</div>
-          <div class="nc-feast">🕯️ 축일 ${feast.month}월 ${feast.day}일 · ${c["본당"] || ""}</div>
-        </div>
-      </div>`;
-          })
-          .join("");
+      
+        celebrants.forEach(({ contact, feast }) => {
+          const style = getStyle(contact["직책"]);
+          const card = createElement("div", "nc");
+          card.setAttribute("role", "listitem");
+      
+          const avatar = createElement("div", "nc-av");
+          avatar.style.backgroundColor = style.color;
+          avatar.append(
+            createElement("span", "nc-av-ico", style.icon),
+            createElement("span", "nc-av-lbl", style.label),
+          );
+      
+          const info = createElement("div", "nc-info");
+          info.append(
+            createElement("div", "nc-name", contact["성명"] || "-"),
+            createElement(
+              "div",
+              "nc-bap",
+              `세례명 ${contact["세례명"] || "-"} · ${style.label}`,
+            ),
+            createElement(
+              "div",
+              "nc-feast",
+              `🕯️ 축일 ${feast.month}월 ${feast.day}일 · ${contact["본당"] || ""}`,
+            ),
+          );
+          card.append(avatar, info);
+          cardsEl.appendChild(card);
+        });
       }
-
-      /* ── 탭 생성 ── */
+      
       function buildTabs() {
-        const usedKeys = new Set(
-          ALL.map((c) => getKey(c["직책"])).filter(Boolean),
-        );
-
+        const leaderContainer = document.getElementById("tabs-leader");
+        const departmentContainer = document.getElementById("tabs-dept");
+        leaderContainer.replaceChildren();
+        departmentContainer.replaceChildren();
+      
+        const usedKeys = new Set(ALL.map((contact) => getKey(contact["직책"])).filter(Boolean));
+      
         allTabEl = makeTab("전체", "#8A97A5", () => {
           activeKey = "";
           setActive(allTabEl, "#8A97A5");
           doFilter();
         });
-        document.getElementById("tabs-leader").appendChild(allTabEl);
-
-        LEADERS.forEach((l) => {
-          if (!usedKeys.has(l.key)) return;
-          const tab = makeTab(l.label, l.color, () => {
-            activeKey = activeKey === l.key ? "" : l.key;
+        leaderContainer.appendChild(allTabEl);
+      
+        LEADERS.forEach((leader) => {
+          if (!usedKeys.has(leader.key)) return;
+          const tab = makeTab(leader.label, leader.color, () => {
+            activeKey = activeKey === leader.key ? "" : leader.key;
+            setActive(activeKey ? tab : allTabEl, activeKey ? leader.color : "#8A97A5");
+            doFilter();
+          });
+          leaderContainer.appendChild(tab);
+        });
+      
+        DEPTS.forEach((department) => {
+          if (!usedKeys.has(department.key)) return;
+          const tab = makeTab(department.label, department.color, () => {
+            activeKey = activeKey === department.key ? "" : department.key;
             setActive(
               activeKey ? tab : allTabEl,
-              activeKey ? l.color : "#8A97A5",
+              activeKey ? department.color : "#8A97A5",
             );
             doFilter();
           });
-          document.getElementById("tabs-leader").appendChild(tab);
+          departmentContainer.appendChild(tab);
         });
-
-        DEPTS.forEach((d) => {
-          if (!usedKeys.has(d.key)) return;
-          const tab = makeTab(d.label, d.color, () => {
-            activeKey = activeKey === d.key ? "" : d.key;
-            setActive(
-              activeKey ? tab : allTabEl,
-              activeKey ? d.color : "#8A97A5",
-            );
-            doFilter();
-          });
-          document.getElementById("tabs-dept").appendChild(tab);
-        });
-
+      
         setActive(allTabEl, "#8A97A5");
       }
-
+      
       function makeTab(label, color, onClick) {
-        const el = document.createElement("div");
-        el.className = "dept-tab";
-        el.dataset.color = color;
-        el.innerHTML = `<span class="dept-dot" style="background:${color}"></span>${label}`;
-        el.addEventListener("click", onClick);
-        return el;
+        const button = createElement("button", "dept-tab");
+        button.type = "button";
+        button.setAttribute("aria-pressed", "false");
+      
+        const dot = createElement("span", "dept-dot");
+        dot.style.backgroundColor = color;
+        dot.setAttribute("aria-hidden", "true");
+        button.append(dot, document.createTextNode(label));
+        button.addEventListener("click", onClick);
+        return button;
       }
-
+      
       function setActive(target, color) {
-        document.querySelectorAll(".dept-tab").forEach((t) => {
-          t.classList.remove("active");
-          t.style.background = "";
-          t.style.color = "";
+        document.querySelectorAll(".dept-tab").forEach((tab) => {
+          const isActive = tab === target;
+          tab.classList.toggle("active", isActive);
+          tab.setAttribute("aria-pressed", String(isActive));
+          tab.style.backgroundColor = isActive ? color : "";
+          tab.style.color = isActive ? "#fff" : "";
         });
-        target.classList.add("active");
-        target.style.background = color;
-        target.style.color = "#fff";
       }
-
-      /* ── 본당 필터 ── */
+      
       function buildParishFilter() {
-        const sel = document.getElementById("f-parish");
-        [...new Set(ALL.map((c) => c["본당"]).filter(Boolean))].forEach((v) => {
-          const o = document.createElement("option");
-          o.value = v;
-          o.textContent = v;
-          sel.appendChild(o);
-        });
+        const select = document.getElementById("f-parish");
+        select.replaceChildren(new Option("전체 본당", ""));
+      
+        [...new Set(ALL.map((contact) => contact["본당"]).filter(Boolean))]
+          .sort((left, right) => left.localeCompare(right, "ko"))
+          .forEach((parish) => select.add(new Option(parish, parish)));
       }
-
+      
       function onSearch() {
         curPage = 1;
         doFilter();
       }
-
+      
       function doFilter() {
-        const q = document.getElementById("q").value.toLowerCase();
-        const pa = document.getElementById("f-parish").value;
-        FILTERED = ALL.filter((c) => {
-          const mq =
-            !q ||
-            ["성명", "세례명", "본당"].some((k) =>
-              (c[k] || "").toLowerCase().includes(q),
+        const query = document.getElementById("q").value.trim().toLocaleLowerCase("ko-KR");
+        const parish = document.getElementById("f-parish").value;
+      
+        FILTERED = ALL.filter((contact) => {
+          const queryMatches =
+            !query ||
+            ["성명", "세례명", "본당"].some((key) =>
+              String(contact[key] || "")
+                .toLocaleLowerCase("ko-KR")
+                .includes(query),
             );
-          const mp = !pa || c["본당"] === pa;
-          const mk = !activeKey || getKey(c["직책"]) === activeKey;
-          return mq && mp && mk;
+          const parishMatches = !parish || contact["본당"] === parish;
+          const roleMatches = !activeKey || getKey(contact["직책"]) === activeKey;
+          return queryMatches && parishMatches && roleMatches;
         });
         renderPage();
       }
-
-      /* ── 페이지 렌더 ── */
+      
       function renderPage() {
         const total = FILTERED.length;
-        const totalPage = Math.max(1, Math.ceil(total / PER_PAGE));
-        curPage = Math.min(curPage, totalPage);
-
-        document.getElementById("tot").textContent = ALL.length;
-        document.getElementById("shown").textContent = total;
-
+        const totalPages = Math.max(1, Math.ceil(total / PER_PAGE));
+        curPage = Math.min(curPage, totalPages);
+      
+        document.getElementById("tot").textContent = String(ALL.length);
+        document.getElementById("shown").textContent = String(total);
+      
+        const wrap = document.getElementById("wrap");
         if (!total) {
-          document.getElementById("wrap").innerHTML =
-            `<div class="empty"><span class="empty-ico">🔍</span>검색 결과가 없습니다.</div>`;
-          document.getElementById("pagination").innerHTML = "";
+          wrap.replaceChildren(makeStateMessage("🔍", "검색 결과가 없습니다."));
+          document.getElementById("pagination").replaceChildren();
           return;
         }
-
-        const nowMonth = new Date().getMonth() + 1;
+      
         const start = (curPage - 1) * PER_PAGE;
         const pageList = FILTERED.slice(start, start + PER_PAGE);
-
-        const html = pageList
-          .map((c) => {
-            const st = getStyle(c["직책"]);
-            const feast = parseFeast(c["축일"]);
-            const isThisMonth = feast && feast.month === nowMonth;
-            const tel = c["전화번호"] || "";
-            const mail = c["이메일"] || "";
-            const addr = c["주소"] || "";
-            const zip = c["우편번호"] || "";
-            const no = c["차수"] || "";
-            const bap = c["세례명"] ? `세례명 ${c["세례명"]}` : "";
-            const catBg = hexAlpha(st.color, 0.12);
-
-            const telRow = tel
-              ? `<div class="row"><div class="r-ico">📞</div><div class="r-val"><a href="tel:${tel}">${tel}</a></div></div>`
-              : "";
-            const mailRow = mail
-              ? `<div class="row"><div class="r-ico">✉️</div><div class="r-val"><a href="mailto:${mail}">${mail}</a></div></div>`
-              : "";
-            const addrRow = addr
-              ? `<div class="row"><div class="r-ico">📍</div><div class="r-val">${addr}${zip ? `<span class="zip">(${zip})</span>` : ""}</div></div>`
-              : "";
-            /* 축일 배지 — 이달 축일자만 강조 */
-            const feastBdg = feast
-              ? `<span class="bdg bdg-feast"${isThisMonth ? ' style="background:#FFF0A0;color:#8B6A00;border:1px solid #F5C842"' : ""}>🕯️ ${feast.month}/${feast.day}</span>`
-              : "";
-
-            return `
-      <div class="card"${isThisMonth ? ' style="box-shadow:0 0 0 2px #F5C842,var(--shadow)"' : ""}>
-        <div class="band" style="background:${isThisMonth ? "#F5C842" : st.color}"></div>
-        <div class="body">
-          <div class="ct">
-            <div class="av" style="background:${st.color}">
-              <span class="av-ico">${st.icon}</span>
-              <span class="av-lbl">${st.label}</span>
-            </div>
-            <div>
-              <div class="c-name">${c["성명"] || "-"}</div>
-              ${bap ? `<div class="c-bap">${bap}</div>` : ""}
-            </div>
-          </div>
-          <div class="badges">
-            <span class="bdg" style="background:${catBg};color:${st.color}">${st.label}</span>
-            <span class="bdg bdg-role">${c["직책"] || "-"}</span>
-            ${feastBdg}
-            ${c["본당"] ? `<span class="bdg bdg-parish">🏛 ${c["본당"]}</span>` : ""}
-            ${no ? `<span class="bdg bdg-no">제${no}차</span>` : ""}
-          </div>
-          <div class="rows">${telRow}${mailRow}${addrRow}</div>
-        </div>
-      </div>`;
-          })
-          .join("");
-
-        document.getElementById("wrap").innerHTML =
-          `<div class="grid">${html}</div>`;
-        buildPagination(totalPage);
-        window.scrollTo({ top: 0, behavior: "smooth" });
+        const currentMonth = new Date().getMonth() + 1;
+        const grid = createElement("div", "grid");
+        pageList.forEach((contact) => grid.appendChild(makeContactCard(contact, currentMonth)));
+        wrap.replaceChildren(grid);
+        buildPagination(totalPages);
       }
-
-      /* ── 페이지네이션 ── */
-      function buildPagination(totalPage) {
-        if (totalPage <= 1) {
-          document.getElementById("pagination").innerHTML = "";
-          return;
+      
+      function makeContactCard(contact, currentMonth) {
+        const style = getStyle(contact["직책"]);
+        const feast = parseFeast(contact["축일"]);
+        const isThisMonth = Boolean(feast && feast.month === currentMonth);
+        const card = createElement("article", "card");
+        if (isThisMonth) card.style.boxShadow = "0 0 0 2px #F5C842,var(--shadow)";
+      
+        const band = createElement("div", "band");
+        band.style.backgroundColor = isThisMonth ? "#F5C842" : style.color;
+        band.setAttribute("aria-hidden", "true");
+      
+        const body = createElement("div", "body");
+        const cardTop = createElement("div", "ct");
+        const avatar = createElement("div", "av");
+        avatar.style.backgroundColor = style.color;
+        avatar.append(
+          createElement("span", "av-ico", style.icon),
+          createElement("span", "av-lbl", style.label),
+        );
+      
+        const identity = createElement("div");
+        identity.appendChild(createElement("div", "c-name", contact["성명"] || "-"));
+        if (contact["세례명"]) {
+          identity.appendChild(
+            createElement("div", "c-bap", `세례명 ${contact["세례명"]}`),
+          );
         }
-        let h = `<button class="pg-btn" onclick="goPage(${curPage - 1})" ${curPage === 1 ? "disabled" : ""}>◀</button>`;
-        pageRange(curPage, totalPage).forEach((p) => {
-          h +=
-            p === "…"
-              ? `<span class="pg-info">…</span>`
-              : `<button class="pg-btn${p === curPage ? " active" : ""}" onclick="goPage(${p})">${p}</button>`;
+        cardTop.append(avatar, identity);
+      
+        const badges = createElement("div", "badges");
+        const categoryBadge = createElement("span", "bdg", style.label);
+        categoryBadge.style.backgroundColor = hexAlpha(style.color, 0.12);
+        categoryBadge.style.color = style.color;
+        badges.append(
+          categoryBadge,
+          createElement("span", "bdg bdg-role", contact["직책"] || "-"),
+        );
+      
+        if (feast) {
+          const feastBadge = createElement(
+            "span",
+            "bdg bdg-feast",
+            `🕯️ ${feast.month}/${feast.day}`,
+          );
+          if (isThisMonth) {
+            feastBadge.style.backgroundColor = "#FFF0A0";
+            feastBadge.style.color = "#8B6A00";
+            feastBadge.style.border = "1px solid #F5C842";
+          }
+          badges.appendChild(feastBadge);
+        }
+        if (contact["본당"]) {
+          badges.appendChild(
+            createElement("span", "bdg bdg-parish", `🏛 ${contact["본당"]}`),
+          );
+        }
+        if (contact["차수"]) {
+          badges.appendChild(
+            createElement("span", "bdg bdg-no", `제${contact["차수"]}차`),
+          );
+        }
+      
+        const rows = createElement("div", "rows");
+        if (contact["전화번호"]) {
+          rows.appendChild(
+            makeDetailRow("📞", contact["전화번호"], safeTelHref(contact["전화번호"])),
+          );
+        }
+        if (contact["이메일"]) {
+          rows.appendChild(
+            makeDetailRow("✉️", contact["이메일"], safeMailHref(contact["이메일"])),
+          );
+        }
+        if (contact["주소"]) {
+          const addressRow = makeDetailRow("📍", contact["주소"]);
+          if (contact["우편번호"]) {
+            addressRow
+              .querySelector(".r-val")
+              .appendChild(createElement("span", "zip", `(${contact["우편번호"]})`));
+          }
+          rows.appendChild(addressRow);
+        }
+      
+        body.append(cardTop, badges, rows);
+        card.append(band, body);
+        return card;
+      }
+      
+      function makeDetailRow(icon, value, href = "") {
+        const row = createElement("div", "row");
+        const iconElement = createElement("div", "r-ico", icon);
+        iconElement.setAttribute("aria-hidden", "true");
+        const valueElement = createElement("div", "r-val");
+      
+        if (href) {
+          const link = createElement("a", "", value);
+          link.href = href;
+          valueElement.appendChild(link);
+        } else {
+          valueElement.appendChild(document.createTextNode(String(value)));
+        }
+        row.append(iconElement, valueElement);
+        return row;
+      }
+      
+      function safeTelHref(value) {
+        const telephone = String(value || "").trim();
+        if (!/^\+?[0-9 ()-]{3,30}$/.test(telephone)) return "";
+        return "tel:" + telephone.replace(/[ ()-]/g, "");
+      }
+      
+      function safeMailHref(value) {
+        const email = String(value || "").trim();
+        if (email.length > 254 || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return "";
+        return "mailto:" + email;
+      }
+      
+      function buildPagination(totalPages) {
+        const container = document.getElementById("pagination");
+        container.replaceChildren();
+        if (totalPages <= 1) return;
+      
+        container.appendChild(
+          makePageButton("◀", curPage - 1, curPage === 1, "이전 페이지"),
+        );
+        pageRange(curPage, totalPages).forEach((page) => {
+          if (page === "…") {
+            container.appendChild(createElement("span", "pg-info", "…"));
+            return;
+          }
+          const button = makePageButton(String(page), page, false, `${page}페이지`);
+          if (page === curPage) {
+            button.classList.add("active");
+            button.setAttribute("aria-current", "page");
+          }
+          container.appendChild(button);
         });
-        h += `<button class="pg-btn" onclick="goPage(${curPage + 1})" ${curPage === totalPage ? "disabled" : ""}>▶</button>`;
-        h += `<span class="pg-info">${curPage} / ${totalPage} 페이지</span>`;
-        document.getElementById("pagination").innerHTML = h;
+        container.append(
+          makePageButton("▶", curPage + 1, curPage === totalPages, "다음 페이지"),
+          createElement("span", "pg-info", `${curPage} / ${totalPages} 페이지`),
+        );
       }
-
-      function pageRange(cur, total) {
-        if (total <= 5) return Array.from({ length: total }, (_, i) => i + 1);
-        if (cur <= 3) return [1, 2, 3, 4, "…", total];
-        if (cur >= total - 2)
+      
+      function makePageButton(label, page, disabled, ariaLabel) {
+        const button = createElement("button", "pg-btn", label);
+        button.type = "button";
+        button.disabled = disabled;
+        button.setAttribute("aria-label", ariaLabel);
+        button.addEventListener("click", () => goPage(page));
+        return button;
+      }
+      
+      function pageRange(current, total) {
+        if (total <= 5) return Array.from({ length: total }, (_, index) => index + 1);
+        if (current <= 3) return [1, 2, 3, 4, "…", total];
+        if (current >= total - 2) {
           return [1, "…", total - 3, total - 2, total - 1, total];
-        return [1, "…", cur - 1, cur, cur + 1, "…", total];
+        }
+        return [1, "…", current - 1, current, current + 1, "…", total];
       }
-
-      function goPage(p) {
-        const tp = Math.ceil(FILTERED.length / PER_PAGE);
-        if (p < 1 || p > tp) return;
-        curPage = p;
+      
+      function goPage(page) {
+        const totalPages = Math.ceil(FILTERED.length / PER_PAGE);
+        if (page < 1 || page > totalPages || page === curPage) return;
+        curPage = page;
         renderPage();
+        document.querySelector(".main").scrollIntoView({ behavior: "smooth", block: "start" });
       }
-
-      /* ── 유틸 ── */
-      function hexAlpha(hex, a) {
-        const r = parseInt(hex.slice(1, 3), 16);
-        const g = parseInt(hex.slice(3, 5), 16);
-        const b = parseInt(hex.slice(5, 7), 16);
-        return `rgba(${r},${g},${b},${a})`;
+      
+      function hexAlpha(hex, alpha) {
+        const red = Number.parseInt(hex.slice(1, 3), 16);
+        const green = Number.parseInt(hex.slice(3, 5), 16);
+        const blue = Number.parseInt(hex.slice(5, 7), 16);
+        return `rgba(${red},${green},${blue},${alpha})`;
       }
-
-      function logout() {
+      
+      function logout({ notifyServer = true, message = "" } = {}) {
+        const oldToken = TOKEN;
         TOKEN = "";
         ALL = [];
         FILTERED = [];
         activeKey = "";
         allTabEl = null;
         curPage = 1;
-        sessionStorage.removeItem("ec_tok");
+        noticeMonth = new Date().getMonth() + 1;
+        removeSessionValue("ec_tok");
+      
         document.getElementById("dashboard").style.display = "none";
         document.getElementById("login-screen").style.display = "flex";
         document.getElementById("pw").value = "";
-        document.getElementById("f-parish").innerHTML =
-          '<option value="">전체 본당</option>';
-        document.getElementById("tabs-leader").innerHTML = "";
-        document.getElementById("tabs-dept").innerHTML = "";
-        noticeMonth = new Date().getMonth() + 1;
-        document.getElementById("pagination").innerHTML = "";
+        document.getElementById("q").value = "";
+        document.getElementById("f-parish").replaceChildren(new Option("전체 본당", ""));
+        document.getElementById("tabs-leader").replaceChildren();
+        document.getElementById("tabs-dept").replaceChildren();
+        document.getElementById("pagination").replaceChildren();
+        document.getElementById("notice-cards").replaceChildren();
+        document.getElementById("notice-wrap").style.display = "none";
+        document.getElementById("tot").textContent = "0";
+        document.getElementById("shown").textContent = "0";
+        setLoadingState();
+      
+        if (message) showErr(message);
+        else hideErr();
+        document.getElementById("pw").focus();
+      
+        if (notifyServer && API_READY && oldToken) {
+          api({ action: "logout", token: oldToken }).catch((error) => console.error(error));
+        }
       }
-
-      async function api(p) {
-        const r = await fetch(`${API}?${new URLSearchParams(p)}`);
-        return r.json();
+      
+      async function api(payload) {
+        if (!API_READY || !API) throw new Error("API가 준비되지 않았습니다.");
+      
+        const controller = new AbortController();
+        const timeoutId = window.setTimeout(() => controller.abort(), API_TIMEOUT_MS);
+        try {
+          const response = await fetch(API, {
+            method: "POST",
+            headers: {
+              Accept: "application/json",
+              "Content-Type": "text/plain;charset=UTF-8",
+            },
+            body: JSON.stringify(payload),
+            cache: "no-store",
+            redirect: "follow",
+            referrerPolicy: "no-referrer",
+            signal: controller.signal,
+          });
+          if (!response.ok) throw new Error(`API 응답 오류: ${response.status}`);
+      
+          const data = await response.json();
+          if (!data || typeof data !== "object" || Array.isArray(data)) {
+            throw new Error("잘못된 API 응답입니다.");
+          }
+          return data;
+        } finally {
+          window.clearTimeout(timeoutId);
+        }
       }
-      function showErr(m) {
-        const e = document.getElementById("err");
-        e.textContent = m;
-        e.style.display = "block";
+      
+      function createElement(tagName, className = "", text) {
+        const element = document.createElement(tagName);
+        if (className) element.className = className;
+        if (text !== undefined && text !== null) element.textContent = String(text);
+        return element;
       }
+      
+      function makeStateMessage(icon, message) {
+        const element = createElement("div", "empty");
+        element.append(
+          createElement("span", "empty-ico", icon),
+          document.createTextNode(message),
+        );
+        return element;
+      }
+      
+      function setLoadingState() {
+        const loading = createElement("div", "loading");
+        const spinner = createElement("div", "spinner");
+        spinner.setAttribute("aria-hidden", "true");
+        loading.append(spinner, document.createTextNode("연락처를 불러오는 중…"));
+        document.getElementById("wrap").replaceChildren(loading);
+      }
+      
+      function setLoginButtonState(disabled, text) {
+        const button = document.getElementById("login-btn");
+        button.disabled = disabled;
+        button.textContent = text;
+      }
+      
+      function showErr(message) {
+        const errorElement = document.getElementById("err");
+        errorElement.textContent = message;
+        errorElement.style.display = "block";
+      }
+      
       function hideErr() {
-        document.getElementById("err").style.display = "none";
+        const errorElement = document.getElementById("err");
+        errorElement.textContent = "";
+        errorElement.style.display = "none";
       }
-      document.getElementById("pw").addEventListener("keydown", (e) => {
-        if (e.key === "Enter") login();
-      });
+      
+      function getOrCreateClientId() {
+        const existing = getSessionValue("ec_client_id");
+        if (/^[A-Za-z0-9_-]{20,128}$/.test(existing)) return existing;
+      
+        let id;
+        if (window.crypto && typeof window.crypto.randomUUID === "function") {
+          id = window.crypto.randomUUID().replace(/-/g, "");
+        } else if (window.crypto && typeof window.crypto.getRandomValues === "function") {
+          const bytes = window.crypto.getRandomValues(new Uint8Array(24));
+          id = Array.from(bytes, (byte) => byte.toString(16).padStart(2, "0")).join("");
+        } else {
+          id = `${Date.now()}_${Math.random().toString(36).slice(2)}_${Math.random()
+            .toString(36)
+            .slice(2)}`;
+        }
+        setSessionValue("ec_client_id", id);
+        return id;
+      }
+      
+      function getSessionValue(key) {
+        try {
+          return sessionStorage.getItem(key) || "";
+        } catch {
+          return "";
+        }
+      }
+      
+      function setSessionValue(key, value) {
+        try {
+          sessionStorage.setItem(key, value);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      
+      function removeSessionValue(key) {
+        try {
+          sessionStorage.removeItem(key);
+        } catch (error) {
+          console.error(error);
+        }
+      }
+      /*
+       * 기존 CJS 보안 테스트 중 브라우저에서 검증 가능한 항목을 단일 HTML용
+       * 자체검사로 변환했다. URL 끝에 ?selftest=1을 붙이면 콘솔과
+       * <html data-security-self-test="passed|failed">에서 결과를 확인할 수 있다.
+       */
+      function runEmbeddedSecurityTests() {
+        const results = [];
+      
+        function check(name, test) {
+          try {
+            const passed = Boolean(test());
+            results.push({ name, passed, error: passed ? "" : "검증식이 false를 반환했습니다." });
+          } catch (error) {
+            results.push({ name, passed: false, error: String(error && error.message ? error.message : error) });
+          }
+        }
+      
+        function throws(test) {
+          try {
+            test();
+            return false;
+          } catch {
+            return true;
+          }
+        }
+      
+        check("유효한 윤년 축일 파싱", () => {
+          const feast = parseFeast("2/29");
+          return feast && feast.month === 2 && feast.day === 29;
+        });
+        check("존재하지 않는 축일 거부", () => parseFeast("2/30") === null);
+        check("전화 링크 속성 삽입 차단", () => safeTelHref('010" onclick="alert(1)') === "");
+        check("이메일 링크 속성 삽입 차단", () => safeMailHref('a@b.org" onclick="alert(1)') === "");
+        check("외부 API 호스트 거부", () =>
+          throws(() => validateApiUrl("https://example.com/api")),
+        );
+        check("인라인 이벤트 핸들러 없음", () =>
+          document.querySelector("[onclick],[onchange],[oninput],[onkeydown]") === null,
+        );
+        check("외부 애플리케이션 JS 의존성 없음", () =>
+          document.querySelector('script[src*="index_cursillo_v0.2.js"]') === null,
+        );
+        check("해시 기반 CSP 적용", () => {
+          const policy = document
+            .querySelector('meta[http-equiv="Content-Security-Policy"]')
+            ?.getAttribute("content");
+          return Boolean(policy && /script-src 'sha256-[A-Za-z0-9+/=]+'/.test(policy));
+        });
+      
+        const failed = results.filter((result) => !result.passed).length;
+        const report = { passed: results.length - failed, failed, results };
+        document.documentElement.dataset.securitySelfTest = failed ? "failed" : "passed";
+        console.table(results);
+        if (failed) console.error("내장 보안 자체검사 실패", report);
+        else console.info("내장 보안 자체검사 통과", report);
+        return report;
+      }
+      
+      const selfTestEnabled =
+        new URL(window.location.href).searchParams.get("selftest") === "1";
+      
+      initialize();
+      if (selfTestEnabled) {
+        window.addEventListener("load", runEmbeddedSecurityTests, { once: true });
+      }
     </script>
   </body>
 </html>
