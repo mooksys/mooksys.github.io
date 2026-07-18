@@ -3,29 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>성일정보고 상담일지 시스템</title>
+    <meta name="description" content="연도별 학생 명렬표와 상담 기록을 안전하게 연결하는 성일정보고 교사 상담 워크스페이스">
+    <meta name="theme-color" content="#FFFFFF">
+    <title>상담온 | 성일정보고 상담일지</title>
     
     <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v3.2.1/dist/web/static/pretendard.css" />
     
     <style>
         :root { 
-            --primary-color: #00A99D;
-            --primary-hover: #008f85;
-            --primary-light: #E6F4F1;
-            
-            --secondary-teal: #9CAFAA;
-            --accent-peach: #D6A99D;
-            --accent-peach-hover: #C5988C;
-            
-            --bg-color: #F8FAFB;
+            --primary-color: #2563EB;
+            --primary-hover: #1D4ED8;
+            --primary-light: #EEF4FF;
+             
+            --secondary-teal: #0F9F7A;
+            --accent-peach: #8B5CF6;
+            --accent-peach-hover: #7C3AED;
+             
+            --bg-color: #F6F8FC;
             --card-bg: #FFFFFF;
-            
-            --text-main: #333333;
-            --text-muted: #666666;
-            --border-color: #DDE2E5;
-            
-            --border-radius: 12px;
-            --btn-radius: 30px;
+             
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border-color: #E2E8F0;
+             
+            --border-radius: 20px;
+            --btn-radius: 12px;
+            --surface-soft: #F8FAFC;
+            --mint-light: #EAFBF6;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.05);
+            --shadow-lg: 0 24px 70px rgba(15, 23, 42, 0.14);
         }
         
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -38,7 +44,10 @@
             min-height: 100vh;
             display: flex;
             flex-direction: column;
+            -webkit-font-smoothing: antialiased;
         }
+
+        html { scroll-behavior: smooth; }
         
         input, select, textarea, button {
             font-family: inherit;
@@ -249,10 +258,261 @@
         .app-footer p { margin: 0.3rem 0; font-weight: 500; }
         .app-footer .copyright { font-weight: 700; color: var(--text-muted); }
 
+        /* 랜딩 페이지 */
+        #landingPage { width: 100%; overflow: hidden; background: #fff; }
+        .landing-nav {
+            position: fixed;
+            inset: 0 0 auto;
+            z-index: 300;
+            background: rgba(255, 255, 255, 0.82);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+            backdrop-filter: blur(18px) saturate(160%);
+        }
+        .landing-nav-inner {
+            width: min(1180px, calc(100% - 40px));
+            min-height: 72px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+        .brand { display: inline-flex; align-items: center; gap: 0.7rem; color: var(--text-main); text-decoration: none; font-weight: 850; letter-spacing: -0.03em; }
+        .brand-mark { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: white; background: linear-gradient(135deg, #2563EB, #38BDF8); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25); }
+        .brand-mark svg { width: 18px; height: 18px; }
+        .landing-links { display: flex; align-items: center; gap: 2rem; }
+        .landing-links a { color: #475569; text-decoration: none; font-size: 0.92rem; font-weight: 650; transition: color 0.2s ease; }
+        .landing-links a:hover { color: var(--primary-color); }
+        .nav-cta { display: inline-flex; align-items: center; justify-content: center; padding: 0.7rem 1rem; border: 0; border-radius: 10px; color: #fff !important; background: var(--text-main); font-weight: 750; cursor: pointer; transition: transform 0.2s ease, background 0.2s ease; }
+        .nav-cta:hover { background: var(--primary-color); transform: translateY(-1px); }
+
+        .landing-section { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 112px 0; }
+        .hero-section {
+            width: 100%;
+            min-height: 820px;
+            padding: 160px max(20px, calc((100vw - 1180px) / 2)) 100px;
+            display: grid;
+            grid-template-columns: minmax(0, 0.92fr) minmax(480px, 1.08fr);
+            align-items: center;
+            gap: clamp(3rem, 7vw, 7rem);
+            background:
+                radial-gradient(circle at 82% 18%, rgba(56, 189, 248, 0.17), transparent 30%),
+                radial-gradient(circle at 8% 78%, rgba(52, 211, 153, 0.13), transparent 28%),
+                linear-gradient(180deg, #FFFFFF 0%, #F8FBFF 100%);
+        }
+        .eyebrow { display: inline-flex; align-items: center; gap: 0.55rem; margin-bottom: 1.5rem; padding: 0.42rem 0.72rem; border: 1px solid #DDE8FF; border-radius: 999px; background: rgba(238, 244, 255, 0.78); color: var(--primary-color); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.02em; }
+        .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: #34D399; box-shadow: 0 0 0 5px rgba(52, 211, 153, 0.13); }
+        .hero-copy h1 { max-width: 700px; color: #081225; font-size: clamp(3rem, 5.6vw, 5.65rem); line-height: 1.04; letter-spacing: -0.065em; font-weight: 900; }
+        .hero-copy h1 .gradient-text { display: block; color: transparent; background: linear-gradient(100deg, #2563EB 5%, #0EA5E9 53%, #10B981 100%); background-clip: text; -webkit-background-clip: text; }
+        .hero-copy > p { max-width: 610px; margin-top: 1.8rem; color: #526178; font-size: clamp(1.02rem, 1.4vw, 1.2rem); line-height: 1.8; letter-spacing: -0.015em; }
+        .hero-actions { display: flex; align-items: center; gap: 0.85rem; margin-top: 2.25rem; flex-wrap: wrap; }
+        .primary-cta, .secondary-cta { min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; padding: 0 1.3rem; border-radius: 12px; text-decoration: none; font-weight: 800; transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease; }
+        .primary-cta { color: white; background: var(--primary-color); box-shadow: 0 14px 30px rgba(37, 99, 235, 0.24); }
+        .primary-cta:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 18px 34px rgba(37, 99, 235, 0.3); }
+        .secondary-cta { color: var(--text-main); border: 1px solid var(--border-color); background: rgba(255,255,255,0.85); }
+        .secondary-cta:hover { border-color: #BFDBFE; background: var(--primary-light); transform: translateY(-2px); }
+        .hero-note { display: flex; align-items: center; gap: 1.1rem; margin-top: 2.1rem; color: var(--text-muted); font-size: 0.82rem; font-weight: 650; flex-wrap: wrap; }
+        .hero-note span { display: inline-flex; align-items: center; gap: 0.4rem; }
+        .hero-note svg { width: 16px; height: 16px; color: #10B981; }
+
+        .hero-visual { position: relative; perspective: 1200px; }
+        .hero-visual::before { content: ''; position: absolute; inset: 12% -12% -8% 10%; border-radius: 50%; background: rgba(37, 99, 235, 0.16); filter: blur(70px); }
+        .browser-frame { position: relative; overflow: hidden; border: 1px solid rgba(203, 213, 225, 0.9); border-radius: 24px; background: #fff; box-shadow: var(--shadow-lg); transform: rotateY(-3deg) rotateX(1deg); transition: transform 0.45s ease; }
+        .browser-frame:hover { transform: rotateY(0) rotateX(0) translateY(-5px); }
+        .browser-top { height: 48px; display: flex; align-items: center; gap: 7px; padding: 0 18px; border-bottom: 1px solid var(--border-color); background: #FBFCFE; }
+        .browser-dot { width: 9px; height: 9px; border-radius: 50%; background: #CBD5E1; }
+        .browser-address { width: 44%; height: 18px; margin-left: 10px; border-radius: 6px; background: #EEF2F7; }
+        .demo-shell { display: grid; grid-template-columns: 124px 1fr; min-height: 480px; background: #F8FAFD; }
+        .demo-sidebar { padding: 20px 14px; color: #94A3B8; background: #0F172A; }
+        .demo-side-logo { width: 30px; height: 30px; border-radius: 9px; margin-bottom: 28px; background: linear-gradient(135deg, #2563EB, #38BDF8); }
+        .demo-side-item { height: 8px; margin: 0 4px 16px; border-radius: 8px; background: rgba(255,255,255,0.14); }
+        .demo-side-item.active { width: 72%; background: #60A5FA; }
+        .demo-dashboard { padding: 24px; }
+        .demo-dashboard-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .demo-title-lines span { display: block; height: 9px; border-radius: 8px; background: #CBD5E1; }
+        .demo-title-lines span:first-child { width: 115px; height: 13px; margin-bottom: 8px; background: #1E293B; }
+        .demo-title-lines span:last-child { width: 170px; }
+        .demo-year-pill { padding: 7px 10px; border-radius: 8px; color: #1D4ED8; background: #DBEAFE; font-size: 0.68rem; font-weight: 800; }
+        .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .metric-card { min-height: 94px; padding: 15px; border: 1px solid #E2E8F0; border-radius: 14px; background: #fff; }
+        .metric-label { width: 52px; height: 7px; margin-bottom: 16px; border-radius: 5px; background: #CBD5E1; }
+        .metric-value { font-size: 1.5rem; font-weight: 850; color: #0F172A; }
+        .metric-trend { margin-top: 4px; color: #10B981; font-size: 0.62rem; font-weight: 750; }
+        .demo-chart-card { margin-top: 12px; padding: 18px; border: 1px solid #E2E8F0; border-radius: 14px; background: #fff; }
+        .chart-head { width: 86px; height: 8px; margin-bottom: 22px; border-radius: 5px; background: #94A3B8; }
+        .bar-chart { height: 132px; display: flex; align-items: flex-end; gap: 9px; padding-top: 10px; border-bottom: 1px solid #E2E8F0; }
+        .bar-chart span { flex: 1; min-width: 8px; border-radius: 5px 5px 0 0; background: linear-gradient(180deg, #60A5FA, #2563EB); opacity: 0.85; }
+        .floating-status { position: absolute; right: -24px; bottom: 42px; display: flex; align-items: center; gap: 10px; padding: 14px 16px; border: 1px solid #DDE8FF; border-radius: 14px; background: rgba(255,255,255,0.94); box-shadow: var(--shadow-sm); backdrop-filter: blur(12px); font-size: 0.78rem; font-weight: 780; color: var(--text-main); }
+        .floating-check { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: #047857; background: #D1FAE5; }
+
+        .section-kicker { margin-bottom: 0.8rem; color: var(--primary-color); font-size: 0.78rem; font-weight: 850; letter-spacing: 0.12em; text-transform: uppercase; }
+        .landing-heading { max-width: 760px; font-size: clamp(2.1rem, 4vw, 3.65rem); line-height: 1.14; letter-spacing: -0.05em; font-weight: 880; color: #0B1324; }
+        .landing-heading::before { display: none; }
+        .landing-description { max-width: 640px; margin-top: 1.2rem; color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; }
+        .section-heading-row { display: flex; align-items: end; justify-content: space-between; gap: 3rem; margin-bottom: 3.4rem; }
+
+        .features-wrap { background: #F8FAFD; border-top: 1px solid #EEF2F7; border-bottom: 1px solid #EEF2F7; }
+        .feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+        .feature-card { min-height: 278px; padding: 1.7rem; border: 1px solid var(--border-color); border-radius: 20px; background: rgba(255,255,255,0.9); transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+        .feature-card:hover { transform: translateY(-7px); border-color: #BFDBFE; box-shadow: 0 22px 45px rgba(15, 23, 42, 0.09); }
+        .feature-icon { width: 46px; height: 46px; display: grid; place-items: center; margin-bottom: 2.4rem; border-radius: 13px; color: var(--primary-color); background: var(--primary-light); }
+        .feature-icon.mint { color: #047857; background: #DFF8F0; }
+        .feature-icon.violet { color: #7C3AED; background: #F1EAFE; }
+        .feature-icon.sky { color: #0284C7; background: #E0F2FE; }
+        .feature-icon svg { width: 22px; height: 22px; }
+        .feature-card h3 { margin-bottom: 0.75rem; color: var(--text-main); font-size: 1.12rem; font-weight: 820; letter-spacing: -0.025em; }
+        .feature-card p { color: var(--text-muted); font-size: 0.92rem; line-height: 1.75; }
+
+        .detail-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; align-items: center; gap: clamp(3rem, 8vw, 7rem); }
+        .detail-panel { min-height: 510px; padding: 30px; border: 1px solid #DDE6F2; border-radius: 28px; background: linear-gradient(145deg, #F8FBFF, #EEF6FF); box-shadow: 0 30px 70px rgba(37, 99, 235, 0.12); }
+        .detail-window { height: 100%; overflow: hidden; border: 1px solid #DFE7F0; border-radius: 18px; background: white; box-shadow: var(--shadow-sm); }
+        .detail-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--border-color); }
+        .detail-toolbar strong { font-size: 0.85rem; }
+        .detail-toolbar span { padding: 5px 8px; border-radius: 7px; color: #1D4ED8; background: #EFF6FF; font-size: 0.7rem; font-weight: 800; }
+        .detail-content { padding: 18px; }
+        .detail-card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .mini-log-card { min-height: 126px; padding: 14px; border: 1px solid #E2E8F0; border-radius: 13px; background: #fff; }
+        .mini-log-card .mini-name { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.72rem; font-weight: 820; }
+        .mini-log-card .mini-name span { color: #2563EB; }
+        .mini-line { height: 6px; margin-top: 7px; border-radius: 5px; background: #E2E8F0; }
+        .mini-line.short { width: 62%; }
+        .detail-calendar-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 14px; padding: 14px; border-radius: 13px; background: #F8FAFC; }
+        .detail-calendar-strip span { aspect-ratio: 1; display: grid; place-items: center; border-radius: 7px; color: #64748B; background: #fff; font-size: 0.62rem; font-weight: 750; }
+        .detail-calendar-strip span.active { color: white; background: #2563EB; }
+        .detail-copy-list { display: grid; gap: 1.5rem; margin-top: 2.1rem; }
+        .detail-copy-item { display: grid; grid-template-columns: 34px 1fr; gap: 0.9rem; }
+        .detail-index { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; color: var(--primary-color); background: var(--primary-light); font-size: 0.75rem; font-weight: 850; }
+        .detail-copy-item h3 { margin-bottom: 0.35rem; font-size: 1rem; font-weight: 800; }
+        .detail-copy-item p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; }
+
+        #login-section { height: auto; min-height: 720px; padding: 120px 20px; background: linear-gradient(145deg, #0B1324 0%, #13233F 62%, #123B55 100%); }
+        .login-layout { width: min(980px, 100%); display: grid; grid-template-columns: 1fr 420px; align-items: center; gap: clamp(3rem, 8vw, 7rem); }
+        .login-copy { color: white; }
+        .login-copy .section-kicker { color: #7DD3FC; }
+        .login-copy h2 { max-width: 520px; color: white; font-size: clamp(2.3rem, 4vw, 4rem); line-height: 1.12; letter-spacing: -0.05em; font-weight: 880; }
+        .login-copy h2::before { display: none; }
+        .login-copy p { max-width: 500px; margin-top: 1.2rem; color: #B9C7DB; line-height: 1.8; }
+        .login-point-list { display: grid; gap: 0.8rem; margin-top: 2rem; color: #DCE7F5; font-size: 0.9rem; }
+        .login-point-list span { display: flex; align-items: center; gap: 0.65rem; }
+        .login-point-list i { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; color: #052E2B; background: #6EE7B7; font-style: normal; font-size: 0.7rem; font-weight: 900; }
+        .login-card { max-width: none; padding: 2.2rem; border: 1px solid rgba(255,255,255,0.55); border-radius: 22px; box-shadow: 0 30px 70px rgba(0,0,0,0.28); text-align: left; }
+        .login-card h1 { color: var(--text-main); font-size: 1.5rem; }
+        .login-card p { margin-bottom: 1.7rem; }
+        .login-card label { display: block; margin: 0 0 0.45rem; color: #334155; }
+        .login-card input { min-height: 50px; margin-bottom: 1rem; background: #F8FAFC; }
+        .login-card .submit-btn { min-height: 50px; border-radius: 11px; box-shadow: 0 12px 24px rgba(37,99,235,0.18); }
+
+        .landing-footer { color: #CBD5E1; background: #08101F; }
+        .footer-inner { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 80px 0 32px; }
+        .footer-top { display: grid; grid-template-columns: 1.25fr 0.75fr 1fr; gap: 4rem; padding-bottom: 58px; }
+        .footer-brand .brand { color: white; }
+        .footer-brand p { max-width: 340px; margin-top: 1rem; color: #8291A8; font-size: 0.9rem; line-height: 1.75; }
+        .footer-links h3, .newsletter h3 { margin-bottom: 1rem; color: white; font-size: 0.85rem; }
+        .footer-links { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .footer-link-group { display: grid; align-content: start; gap: 0.75rem; }
+        .footer-link-group a { color: #94A3B8; text-decoration: none; font-size: 0.85rem; transition: color 0.2s ease; }
+        .footer-link-group a:hover { color: white; }
+        .newsletter p { color: #8291A8; font-size: 0.84rem; line-height: 1.6; }
+        .newsletter-form { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        .newsletter-form input { min-width: 0; flex: 1; color: white; border-color: #26364E; background: #111E31; }
+        .newsletter-form input:focus { background: #14243A !important; }
+        .newsletter-form button { padding: 0 1rem; border: 0; border-radius: 10px; color: white; background: var(--primary-color); font-weight: 800; cursor: pointer; transition: background 0.2s ease; }
+        .newsletter-form button:hover { background: #3B82F6; }
+        .form-feedback { min-height: 20px; margin-top: 0.6rem; color: #7DD3FC !important; }
+        .footer-bottom { display: flex; justify-content: space-between; gap: 1rem; padding-top: 24px; border-top: 1px solid #1E2C40; color: #64748B; font-size: 0.78rem; }
+
+        .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.72s cubic-bezier(.2,.7,.2,1), transform 0.72s cubic-bezier(.2,.7,.2,1); }
+        .reveal.is-visible { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.08s; }
+        .reveal-delay-2 { transition-delay: 0.16s; }
+        .reveal-delay-3 { transition-delay: 0.24s; }
+
+        /* 로그인 후 업무 화면 */
+        #main-app { background: var(--bg-color); }
+        .navbar { max-width: 1180px; top: 1rem; border-radius: 18px; border-color: rgba(226,232,240,0.88); box-shadow: var(--shadow-sm); background: rgba(255,255,255,0.88); }
+        .navbar h1 { color: var(--text-main); }
+        .navbar h1::before { content: ''; width: 30px; height: 30px; border-radius: 9px; background: linear-gradient(135deg, #2563EB, #38BDF8); box-shadow: 0 8px 18px rgba(37,99,235,0.2); }
+        .tab-menu, .container, .app-footer { max-width: 1180px; }
+        .tab-menu { padding-top: 2rem; gap: 0.7rem; }
+        .tab-btn { padding: 0.72rem 1.25rem; border-radius: 11px; }
+        .tab-btn.active { box-shadow: 0 8px 20px rgba(37,99,235,0.2); }
+        .section-header { padding: 0.3rem 0 1.2rem; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+        .section-header h2 { font-size: 1.5rem; letter-spacing: -0.03em; }
+        h2::before { content: ''; width: 5px; height: 22px; border-radius: 5px; background: linear-gradient(180deg, #2563EB, #38BDF8); }
+        .content-box { border-color: rgba(226,232,240,0.9); box-shadow: var(--shadow-sm); }
+        input, select, textarea { border-radius: 11px; background: #F8FAFC; }
+        .submit-btn { border-radius: 11px; box-shadow: 0 10px 22px rgba(37,99,235,0.16); }
+        .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 14px 26px rgba(37,99,235,0.22); }
+        .filter-container { border-color: #DDE8FF; background: #F1F6FF; }
+        .log-card { border-color: var(--border-color); border-radius: 18px; box-shadow: 0 1px 2px rgba(15,23,42,0.03); }
+        .log-card::before { width: 4px; background: linear-gradient(180deg, #2563EB, #38BDF8); }
+        .log-card:hover { border-color: #BFDBFE; box-shadow: 0 18px 38px rgba(15,23,42,0.08); }
+        .meta-tag.category { border-color: #DBEAFE; color: #1D4ED8; background: #EFF6FF; }
+        .calendar-day { border-radius: 13px; }
+        .calendar-day:hover { border-color: #93C5FD; box-shadow: 0 10px 24px rgba(37,99,235,0.1); }
+        .student-tag { border-color: #D1FAE5; color: #047857; background: #ECFDF5; }
+        .app-footer { box-shadow: none; }
+
+        @media (max-width: 980px) {
+            .landing-links { display: none; }
+            .hero-section { min-height: auto; grid-template-columns: 1fr; padding-top: 140px; gap: 4rem; }
+            .hero-copy { text-align: center; }
+            .hero-copy h1, .hero-copy > p { margin-left: auto; margin-right: auto; }
+            .hero-actions, .hero-note { justify-content: center; }
+            .hero-visual { width: min(720px, 100%); margin: 0 auto; }
+            .feature-grid { grid-template-columns: 1fr 1fr; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .detail-panel { width: min(680px, 100%); margin: 0 auto; order: 2; }
+            .login-layout { grid-template-columns: 1fr; max-width: 520px; }
+            .login-copy { text-align: center; }
+            .login-point-list { justify-content: center; }
+            .login-point-list span { justify-content: center; }
+            .footer-top { grid-template-columns: 1fr 1fr; }
+            .newsletter { grid-column: 1 / -1; max-width: 540px; }
+        }
+
+        @media (max-width: 650px) {
+            .landing-nav-inner, .landing-section, .footer-inner { width: min(100% - 32px, 1180px); }
+            .brand-label { display: none; }
+            .hero-section { padding: 124px 16px 76px; }
+            .hero-copy h1 { font-size: clamp(2.65rem, 13vw, 4rem); }
+            .hero-copy > p { font-size: 1rem; }
+            .hero-actions { display: grid; }
+            .primary-cta, .secondary-cta { width: 100%; }
+            .hero-note { gap: 0.7rem; }
+            .browser-frame { border-radius: 17px; transform: none; }
+            .demo-shell { grid-template-columns: 72px 1fr; min-height: 390px; }
+            .demo-sidebar { padding: 14px 9px; }
+            .demo-dashboard { padding: 14px; }
+            .metric-grid { grid-template-columns: 1fr 1fr; }
+            .metric-card:last-child { display: none; }
+            .floating-status { right: 8px; bottom: 18px; }
+            .landing-section { padding-top: 82px; padding-bottom: 82px; }
+            .section-heading-row { display: block; margin-bottom: 2.2rem; }
+            .feature-grid { grid-template-columns: 1fr; }
+            .feature-card { min-height: 230px; }
+            .feature-icon { margin-bottom: 1.7rem; }
+            .detail-panel { min-height: 400px; padding: 14px; border-radius: 20px; }
+            .detail-card-row { grid-template-columns: 1fr; }
+            .mini-log-card:nth-child(2) { display: none; }
+            #login-section { padding: 84px 16px; }
+            .login-card { padding: 1.5rem; }
+            .footer-top, .footer-links { grid-template-columns: 1fr; gap: 2.5rem; }
+            .newsletter-form { flex-direction: column; }
+            .newsletter-form button { min-height: 48px; }
+            .footer-bottom { flex-direction: column; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+            .reveal { opacity: 1; transform: none; }
+        }
+
         /* 인쇄 전용 CSS */
         @media print {
             body { background: white !important; color: black !important; font-size: 10pt !important; margin: 0 !important; padding: 0 !important; }
-            .navbar, .tab-menu, .filter-container, .pagination, .card-actions, .section-header, .app-footer { display: none !important; }
+            #landingPage, .navbar, .tab-menu, .filter-container, .pagination, .card-actions, .section-header, .app-footer { display: none !important; }
             .container { margin: 0 auto !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
             .content-box { box-shadow: none !important; padding: 0 !important; background: none !important; border: none !important; }
             .card-container { display: block !important; margin: 0 !important; padding: 0 !important; }
@@ -300,20 +560,206 @@
         <p>시스템 설정 파일을 확인하고 있습니다...</p>
     </div>
 
-    <section id="login-section" class="hidden">
-        <div class="login-card">
-            <h1>상담일지 시스템</h1>
-            <p>선생님 계정으로 로그인해주세요.</p>
-            <form id="loginForm" style="display: block;">
-                <input type="text" id="loginId" placeholder="교사 ID(교번)" required>
-                <input type="password" id="loginPw" placeholder="비밀번호" required>
-                <button type="submit" class="submit-btn" id="loginBtn">로그인</button>
-            </form>
-            <div id="loginLoading" class="loading-container hidden" style="padding: 1rem 0;">
-                <div class="spinner"></div>
+    <div id="landingPage" class="hidden">
+        <header class="landing-nav">
+            <div class="landing-nav-inner">
+                <a href="#home" class="brand" aria-label="상담온 홈">
+                    <span class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 8.5h10M7 12h6M12 21a9 9 0 1 0-8.4-5.8L3 21l5.8-1.3A9 9 0 0 0 12 21Z"/></svg>
+                    </span>
+                    <span class="brand-label">상담온 · Counsel On</span>
+                </a>
+                <nav class="landing-links" aria-label="서비스 소개 메뉴">
+                    <a href="#features">주요 기능</a>
+                    <a href="#demo">서비스 화면</a>
+                    <a href="#contact">문의</a>
+                </nav>
+                <a class="nav-cta" href="#login-section">교사 로그인</a>
             </div>
-        </div>
-    </section>
+        </header>
+
+        <main>
+            <section class="hero-section" id="home">
+                <div class="hero-copy reveal is-visible">
+                    <div class="eyebrow"><span class="eyebrow-dot"></span> 학생 상담을 위한 스마트 워크스페이스</div>
+                    <h1>기록은 더 간결하게,<span class="gradient-text">학생 지원은 더 깊게.</span></h1>
+                    <p>연도별 학생 명렬표부터 상담 기록, 달력, 출력까지 하나의 안전한 흐름으로 연결하세요. 선생님은 기록보다 학생에게 더 집중할 수 있습니다.</p>
+                    <div class="hero-actions">
+                        <a class="primary-cta" href="#login-section">
+                            지금 시작하기
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+                        </a>
+                        <a class="secondary-cta" href="#demo">화면 미리보기</a>
+                    </div>
+                    <div class="hero-note">
+                        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 12 4 4L19 6"/></svg>연도별 자동 분류</span>
+                        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 12 4 4L19 6"/></svg>교사별 접근 제어</span>
+                        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 12 4 4L19 6"/></svg>Google Sheets 연동</span>
+                    </div>
+                </div>
+
+                <div class="hero-visual reveal reveal-delay-1 is-visible" aria-label="상담일지 대시보드 미리보기">
+                    <div class="browser-frame">
+                        <div class="browser-top">
+                            <span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span>
+                            <span class="browser-address"></span>
+                        </div>
+                        <div class="demo-shell">
+                            <aside class="demo-sidebar">
+                                <div class="demo-side-logo"></div>
+                                <div class="demo-side-item active"></div>
+                                <div class="demo-side-item"></div>
+                                <div class="demo-side-item"></div>
+                                <div class="demo-side-item"></div>
+                            </aside>
+                            <div class="demo-dashboard">
+                                <div class="demo-dashboard-head">
+                                    <div class="demo-title-lines"><span></span><span></span></div>
+                                    <div class="demo-year-pill">2027년</div>
+                                </div>
+                                <div class="metric-grid">
+                                    <div class="metric-card"><div class="metric-label"></div><div class="metric-value">24</div><div class="metric-trend">이번 달 +8</div></div>
+                                    <div class="metric-card"><div class="metric-label"></div><div class="metric-value">18</div><div class="metric-trend">학생 18명</div></div>
+                                    <div class="metric-card"><div class="metric-label"></div><div class="metric-value">4</div><div class="metric-trend">상담 분류</div></div>
+                                </div>
+                                <div class="demo-chart-card">
+                                    <div class="chart-head"></div>
+                                    <div class="bar-chart" aria-hidden="true">
+                                        <span style="height:38%"></span><span style="height:62%"></span><span style="height:48%"></span><span style="height:82%"></span><span style="height:58%"></span><span style="height:94%"></span><span style="height:70%"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="floating-status"><span class="floating-check">✓</span><span>Google Sheets<br>자동 동기화 완료</span></div>
+                </div>
+            </section>
+
+            <div class="features-wrap" id="features">
+                <section class="landing-section">
+                    <div class="section-heading-row reveal">
+                        <div>
+                            <div class="section-kicker">Core features</div>
+                            <h2 class="landing-heading">필요한 기능만,<br>명확한 흐름으로.</h2>
+                        </div>
+                        <p class="landing-description">복잡한 메뉴와 반복 작업을 줄이고 상담 업무의 핵심에 맞춘 네 가지 도구를 제공합니다.</p>
+                    </div>
+                    <div class="feature-grid">
+                        <article class="feature-card reveal">
+                            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z"/><path d="M8 15h3v3H8z"/></svg></div>
+                            <h3>연도별 스마트 관리</h3>
+                            <p>기준연도만 선택하면 해당 학생과 상담 기록, 달력이 자동으로 분리되어 다음 학년도에도 그대로 사용할 수 있습니다.</p>
+                        </article>
+                        <article class="feature-card reveal reveal-delay-1">
+                            <div class="feature-icon mint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 8v6M22 11h-6"/></svg></div>
+                            <h3>학생 명렬표 연동</h3>
+                            <p>Google Sheets 학생 명렬표와 연결되어 반과 학생을 빠르게 찾고 정확한 정보로 상담 기록을 시작합니다.</p>
+                        </article>
+                        <article class="feature-card reveal reveal-delay-2">
+                            <div class="feature-icon violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></div>
+                            <h3>빠른 기록과 수정</h3>
+                            <p>상담 분류와 내용을 간결하게 입력하고, 작성자와 관리자 권한에 맞춰 안전하게 수정·삭제할 수 있습니다.</p>
+                        </article>
+                        <article class="feature-card reveal reveal-delay-3">
+                            <div class="feature-icon sky"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5h20v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg></div>
+                            <h3>달력·인쇄 지원</h3>
+                            <p>월별 상담 흐름을 달력에서 확인하고 필요한 기록은 카드형 상담일지로 깔끔하게 인쇄할 수 있습니다.</p>
+                        </article>
+                    </div>
+                </section>
+            </div>
+
+            <section class="landing-section" id="demo">
+                <div class="detail-grid">
+                    <div class="detail-panel reveal">
+                        <div class="detail-window">
+                            <div class="detail-toolbar"><strong>2027년 상담 내역</strong><span>최신순</span></div>
+                            <div class="detail-content">
+                                <div class="detail-card-row">
+                                    <div class="mini-log-card"><div class="mini-name">김○○ <span>진로</span></div><div class="mini-line"></div><div class="mini-line"></div><div class="mini-line short"></div></div>
+                                    <div class="mini-log-card"><div class="mini-name">이○○ <span>학업</span></div><div class="mini-line"></div><div class="mini-line short"></div><div class="mini-line"></div></div>
+                                </div>
+                                <div class="detail-calendar-strip" aria-label="월간 상담 달력 예시">
+                                    <span>1</span><span>2</span><span>3</span><span class="active">4</span><span>5</span><span>6</span><span>7</span>
+                                    <span>8</span><span>9</span><span class="active">10</span><span>11</span><span>12</span><span>13</span><span>14</span>
+                                    <span>15</span><span>16</span><span>17</span><span>18</span><span class="active">19</span><span>20</span><span>21</span>
+                                    <span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="reveal reveal-delay-1">
+                        <div class="section-kicker">Designed for focus</div>
+                        <h2 class="landing-heading">기록의 흐름을<br>한눈에 이해하세요.</h2>
+                        <p class="landing-description">선생님의 실제 업무 순서에 맞춰 학생 선택부터 상담 기록 확인까지 자연스럽게 이어집니다.</p>
+                        <div class="detail-copy-list">
+                            <div class="detail-copy-item"><span class="detail-index">01</span><div><h3>반과 학생을 빠르게 선택</h3><p>연도별 명렬표를 기준으로 담당 반과 학생 정보를 정확하게 불러옵니다.</p></div></div>
+                            <div class="detail-copy-item"><span class="detail-index">02</span><div><h3>내 기록만 안전하게 확인</h3><p>일반 교사는 본인의 기록만, 관리자는 필요한 전체 기록을 확인할 수 있습니다.</p></div></div>
+                            <div class="detail-copy-item"><span class="detail-index">03</span><div><h3>연도가 바뀌어도 그대로 사용</h3><p>새 학년도 학생을 시트에 등록하면 기존 데이터와 섞이지 않고 즉시 사용할 수 있습니다.</p></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="login-section" class="hidden">
+                <div class="login-layout">
+                    <div class="login-copy reveal">
+                        <div class="section-kicker">Secure workspace</div>
+                        <h2>이제 상담 업무를<br>더 선명하게 시작하세요.</h2>
+                        <p>등록된 교사 계정으로 로그인하면 담당 학생과 상담 기록이 안전하게 연결됩니다.</p>
+                        <div class="login-point-list">
+                            <span><i>✓</i>서버 세션 기반 로그인</span>
+                            <span><i>✓</i>교사·관리자 권한 분리</span>
+                            <span><i>✓</i>연도별 데이터 자동 분류</span>
+                        </div>
+                    </div>
+                    <div class="login-card reveal reveal-delay-1">
+                        <h1>교사 로그인</h1>
+                        <p>성일정보고 상담일지 워크스페이스</p>
+                        <form id="loginForm" style="display: block;">
+                            <label for="loginId">교사 ID</label>
+                            <input type="text" id="loginId" placeholder="교번을 입력하세요" autocomplete="username" required>
+                            <label for="loginPw">비밀번호</label>
+                            <input type="password" id="loginPw" placeholder="비밀번호를 입력하세요" autocomplete="current-password" required>
+                            <button type="submit" class="submit-btn" id="loginBtn">워크스페이스 시작하기</button>
+                        </form>
+                        <div id="loginLoading" class="loading-container hidden" style="padding: 1rem 0;">
+                            <div class="spinner"></div>
+                            <p>안전하게 로그인하고 있습니다...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="landing-footer" id="contact">
+            <div class="footer-inner">
+                <div class="footer-top">
+                    <div class="footer-brand">
+                        <a href="#home" class="brand">
+                            <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 8.5h10M7 12h6M12 21a9 9 0 1 0-8.4-5.8L3 21l5.8-1.3A9 9 0 0 0 12 21Z"/></svg></span>
+                            <span>상담온 · Counsel On</span>
+                        </a>
+                        <p>학생을 이해하는 기록, 선생님을 돕는 도구. 성일정보고 상담 업무를 위한 안전한 디지털 워크스페이스입니다.</p>
+                    </div>
+                    <div class="footer-links">
+                        <div class="footer-link-group"><h3>서비스</h3><a href="#features">주요 기능</a><a href="#demo">화면 미리보기</a><a href="#login-section">교사 로그인</a></div>
+                        <div class="footer-link-group"><h3>지원</h3><a href="#contact">사용 문의</a><a href="#contact">Google Sheets 연동</a><a href="#contact">관리자 안내</a></div>
+                    </div>
+                    <div class="newsletter">
+                        <h3>업데이트 소식 받기</h3>
+                        <p>연도 전환과 새 기능 안내를 받을 이메일을 남겨주세요.</p>
+                        <form class="newsletter-form" id="newsletterForm">
+                            <input type="email" id="newsletterEmail" aria-label="이메일 주소" placeholder="teacher@school.kr" required>
+                            <button type="submit">등록</button>
+                        </form>
+                        <p class="form-feedback" id="newsletterFeedback" aria-live="polite"></p>
+                    </div>
+                </div>
+                <div class="footer-bottom"><span>© 2026 성일정보고 상담일지. All rights reserved.</span><span>학생 상담 및 교내 지도를 위한 시스템</span></div>
+            </div>
+        </footer>
+    </div>
 
     <div id="main-app" class="hidden-app">
         <nav class="navbar">
@@ -552,6 +998,7 @@
 
         // ----------------- DOM 요소 -----------------
         const initLoading = document.getElementById('initLoading');
+        const landingPage = document.getElementById('landingPage');
         const loginSection = document.getElementById('login-section');
         const mainApp = document.getElementById('main-app');
         
@@ -683,6 +1130,43 @@
             return result;
         }
 
+        function setupLandingInteractions() {
+            const revealElements = document.querySelectorAll('.reveal');
+            if (!('IntersectionObserver' in window)) {
+                revealElements.forEach(element => element.classList.add('is-visible'));
+            } else {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            entry.target.classList.add('is-visible');
+                            observer.unobserve(entry.target);
+                        }
+                    });
+                }, { threshold: 0.14, rootMargin: '0px 0px -40px 0px' });
+                revealElements.forEach(element => observer.observe(element));
+            }
+
+            const newsletterForm = document.getElementById('newsletterForm');
+            const newsletterEmail = document.getElementById('newsletterEmail');
+            const newsletterFeedback = document.getElementById('newsletterFeedback');
+            try {
+                const savedEmail = localStorage.getItem('counseling_newsletter_email');
+                if (savedEmail) newsletterEmail.value = savedEmail;
+            } catch (error) {
+                // 저장소 사용이 제한된 환경에서도 로그인 기능은 계속 동작한다.
+            }
+
+            newsletterForm.addEventListener('submit', (event) => {
+                event.preventDefault();
+                try {
+                    localStorage.setItem('counseling_newsletter_email', newsletterEmail.value.trim());
+                    newsletterFeedback.textContent = '이 브라우저에 이메일이 저장되었습니다.';
+                } catch (error) {
+                    newsletterFeedback.textContent = '브라우저 저장소를 사용할 수 없습니다.';
+                }
+            });
+        }
+
         // ----------------- 초기화 및 로그인 -----------------
         function syncSystemDate() {
             const today = new Date();
@@ -697,6 +1181,7 @@
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
+            setupLandingInteractions();
             try {
                 const response = await fetch('school_project_02_gas_url.json');
                 const config = await response.json();
@@ -722,6 +1207,7 @@
                     }
                 }
 
+                landingPage.classList.remove('hidden');
                 loginSection.classList.remove('hidden');
             } catch (error) {
                 initLoading.innerHTML = `<p style="color:var(--accent-peach);">초기 설정 파일을 불러오지 못했습니다.</p>`;
@@ -749,7 +1235,7 @@
                     applySessionUser(result.user);
                     
                     loginSection.classList.add('hidden');
-                    startMainApp();
+                    await startMainApp();
                 } else {
                     alert(result.message || "로그인에 실패했습니다.");
                 }
@@ -774,6 +1260,8 @@
 
         // ----------------- 메인 앱 시작 -----------------
         async function startMainApp() {
+            landingPage.classList.add('hidden');
+            loginSection.classList.add('hidden');
             mainApp.classList.remove('hidden-app');
             
             let roleBadgeHtml = currentUserRole === 'admin' 
