@@ -79,6 +79,8 @@
         .navbar h1 { font-size: 1.4rem; font-weight: 800; margin: 0; color: var(--primary-color); letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;}
         .navbar h1::before { content: '🏫'; font-size: 1.5rem; }
         .nav-right { display: flex; align-items: center; gap: 0.8rem; }
+        .year-selector { display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 700; color: var(--text-main); }
+        .year-selector select { min-width: 96px; padding: 0.55rem 0.75rem; border: 1px solid var(--border-color); border-radius: var(--btn-radius); background: white; font-weight: 700; color: var(--text-main); }
         
         /* 선생님 프로필 표시 버튼 스타일 */
         .user-info { 
@@ -284,6 +286,7 @@
             .print-btn { margin-left: 0; width: 100%; } 
             .content-box { padding: 1.5rem; }
             .user-info { font-size: 0.85rem; padding: 0.3rem 0.8rem; }
+            .nav-right { flex-wrap: wrap; justify-content: center; }
             
             /* 모바일 환경 푸터 사이즈 조정 */
             .app-footer { margin: auto 1rem 1rem; width: calc(100% - 2rem); padding: 1.2rem; }
@@ -316,6 +319,10 @@
         <nav class="navbar">
             <h1>성일정보고 상담일지</h1>
             <div class="nav-right">
+                <label class="year-selector" for="schoolYearSelect">
+                    기준연도
+                    <select id="schoolYearSelect" aria-label="기준연도 선택"></select>
+                </label>
                 <span class="user-info" id="displayUserName"></span>
                 <button class="logout-btn" onclick="logout()">로그아웃</button>
             </div>
@@ -395,7 +402,7 @@
 
             <section id="section-calendar" class="section-view">
                 <div class="section-header">
-                    <h2>내 상담 달력</h2>
+                    <h2 id="calendarTitle">내 상담 달력</h2>
                 </div>
                 <div class="content-box">
                     <div id="calendarLoading" class="loading-container hidden">
@@ -419,7 +426,7 @@
 
             <section id="section-logs" class="section-view">
                 <div class="section-header">
-                    <h2>내 상담 내역 (최신순)</h2>
+                    <h2 id="logsTitle">내 상담 내역 (최신순)</h2>
                 </div>
                 
                 <div class="content-box">
@@ -448,6 +455,13 @@
             <section id="section-admin" class="section-view">
                 <div class="section-header">
                     <h2>관리자 패널 - 시스템 사용자 목록</h2>
+                </div>
+
+                <div class="content-box" style="margin-bottom: 1.5rem; padding: 1.5rem;">
+                    <h3 style="margin-bottom: 0.8rem;">연도별 Google 시트 사용 안내</h3>
+                    <p style="margin: 0.35rem 0; color: var(--text-muted);"><strong>학생명렬표</strong>: A열 학생 ID, B열 학생명, C열 연도를 입력하세요. 예: <code>2027</code></p>
+                    <p style="margin: 0.35rem 0; color: var(--text-muted);"><strong>상담내역</strong>: 연도는 J열에 자동 저장되므로 직접 입력할 필요가 없습니다.</p>
+                    <p style="margin: 0.35rem 0; color: var(--text-muted);">기존 연도 값이 없는 학생과 상담 기록은 최초 조회 시 2026년 데이터로 자동 등록됩니다.</p>
                 </div>
 
                 <div id="userEditBox" class="content-box hidden" style="margin-bottom: 1.5rem; border-color: var(--accent-peach);">
@@ -520,6 +534,7 @@
     <script>
         // ----------------- 전역 변수 -----------------
         let SCRIPT_URL = '';
+        let sessionToken = '';
         let currentUser = null; 
         let currentDefaultClass = null;
         let currentUserRole = 'user'; 
@@ -557,9 +572,15 @@
         const paginationDiv = document.getElementById('pagination');
         const fetchLoading = document.getElementById('fetchLoading');
         const logContent = document.getElementById('logContent');
+        const schoolYearSelect = document.getElementById('schoolYearSelect');
 
+        const SCHOOL_START_YEAR = 2026;
+        const savedSelectedYear = Number(sessionStorage.getItem('counseling_selected_year'));
+        let selectedYear = Number.isInteger(savedSelectedYear) && savedSelectedYear >= 2000 && savedSelectedYear <= 2100
+            ? savedSelectedYear
+            : new Date().getFullYear();
         let currentMonth = new Date().getMonth();
-        let currentYear = new Date().getFullYear();
+        let currentYear = selectedYear;
 
         // [보안] XSS 방어
         function escapeHTML(str) {
@@ -572,13 +593,107 @@
                 .replace(/'/g, '&#39;');
         }
 
+        function clearStoredSession() {
+            sessionToken = '';
+            sessionStorage.removeItem('counseling_session_token');
+            // 이전 버전에서 저장하던 신원 정보는 더 이상 인증에 사용하지 않는다.
+            sessionStorage.removeItem('counseling_teacher_name');
+            sessionStorage.removeItem('counseling_teacher_class');
+            sessionStorage.removeItem('counseling_teacher_role');
+        }
+
+        function applySessionUser(user) {
+            if (!user || !user.id || !user.name) {
+                throw new Error('사용자 정보가 올바르지 않습니다.');
+            }
+            currentUser = user.name;
+            currentDefaultClass = user.defaultClass || '';
+            currentUserRole = user.role === 'admin' ? 'admin' : 'user';
+        }
+
+        function initializeYearSelect() {
+            const thisYear = new Date().getFullYear();
+            const firstYear = Math.min(SCHOOL_START_YEAR, selectedYear);
+            const lastYear = Math.max(thisYear + 3, selectedYear);
+            schoolYearSelect.innerHTML = '';
+
+            for (let year = firstYear; year <= lastYear; year++) {
+                const option = document.createElement('option');
+                option.value = String(year);
+                option.textContent = `${year}년`;
+                schoolYearSelect.appendChild(option);
+            }
+            schoolYearSelect.value = String(selectedYear);
+            updateYearLabels();
+        }
+
+        function updateYearLabels() {
+            document.getElementById('calendarTitle').textContent = `${selectedYear}년 내 상담 달력`;
+            document.getElementById('logsTitle').textContent = `${selectedYear}년 내 상담 내역 (최신순)`;
+        }
+
+        async function changeSelectedYear(year) {
+            const parsedYear = Number(year);
+            if (!Number.isInteger(parsedYear) || parsedYear < 2000 || parsedYear > 2100) return;
+            if (parsedYear === selectedYear && allLogs.length > 0) return;
+
+            selectedYear = parsedYear;
+            currentYear = parsedYear;
+            currentMonth = new Date().getMonth();
+            sessionStorage.setItem('counseling_selected_year', String(selectedYear));
+            schoolYearSelect.value = String(selectedYear);
+            schoolYearSelect.disabled = true;
+            updateYearLabels();
+            cancelEdit();
+
+            try {
+                await Promise.all([loadRoster(), fetchLogsData()]);
+                currentPage = 1;
+                renderCards();
+                renderCalendar();
+                syncSystemDate();
+            } finally {
+                schoolYearSelect.disabled = false;
+            }
+        }
+
+        async function apiRequest(action, payload = {}) {
+            if (!SCRIPT_URL) throw new Error('서버 주소가 설정되지 않았습니다.');
+
+            const requestBody = { action, ...payload };
+            if (action !== 'login' && sessionToken) {
+                requestBody.sessionToken = sessionToken;
+            }
+
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(requestBody)
+            });
+            const result = await response.json();
+
+            if (result.code === 'UNAUTHORIZED') {
+                clearStoredSession();
+                if (action !== 'getSession') {
+                    alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+                    location.reload();
+                }
+                throw new Error(result.message || '로그인이 필요합니다.');
+            }
+
+            return result;
+        }
+
         // ----------------- 초기화 및 로그인 -----------------
         function syncSystemDate() {
             const today = new Date();
-            const year = today.getFullYear();
+            const year = selectedYear;
             const month = String(today.getMonth() + 1).padStart(2, '0');
-            const day = String(today.getDate()).padStart(2, '0');
-            document.getElementById('date').value = `${year}-${month}-${day}`;
+            const lastDay = new Date(year, today.getMonth() + 1, 0).getDate();
+            const day = String(Math.min(today.getDate(), lastDay)).padStart(2, '0');
+            const dateInput = document.getElementById('date');
+            dateInput.min = `${year}-01-01`;
+            dateInput.max = `${year}-12-31`;
+            dateInput.value = `${year}-${month}-${day}`;
         }
 
         window.addEventListener('DOMContentLoaded', async () => {
@@ -588,24 +703,33 @@
                 
                 if(!config.url) throw new Error("JSON 파일에 'url' 키가 없습니다.");
                 SCRIPT_URL = config.url;
+                initializeYearSelect();
 
-                const savedUser = sessionStorage.getItem('counseling_teacher_name');
-                const savedClass = sessionStorage.getItem('counseling_teacher_class'); 
-                const savedRole = sessionStorage.getItem('counseling_teacher_role');
+                const savedToken = sessionStorage.getItem('counseling_session_token');
 
                 initLoading.classList.add('hidden');
 
-                if (savedUser) {
-                    currentUser = savedUser;
-                    currentDefaultClass = savedClass || "";
-                    currentUserRole = savedRole || "user";
-                    startMainApp();
-                } else {
-                    loginSection.classList.remove('hidden');
+                if (savedToken) {
+                    sessionToken = savedToken;
+                    try {
+                        const result = await apiRequest('getSession');
+                        if (result.status !== 'success') throw new Error(result.message);
+                        applySessionUser(result.user);
+                        await startMainApp();
+                        return;
+                    } catch (error) {
+                        clearStoredSession();
+                    }
                 }
+
+                loginSection.classList.remove('hidden');
             } catch (error) {
                 initLoading.innerHTML = `<p style="color:var(--accent-peach);">초기 설정 파일을 불러오지 못했습니다.</p>`;
             }
+        });
+
+        schoolYearSelect.addEventListener('change', (event) => {
+            changeSelectedYear(event.target.value);
         });
 
         document.getElementById('loginForm').addEventListener('submit', async (e) => {
@@ -617,20 +741,12 @@
             document.getElementById('loginLoading').classList.remove('hidden');
 
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'login', id: id, password: pw })
-                });
-                const result = await response.json();
+                const result = await apiRequest('login', { id, password: pw });
 
                 if (result.status === 'success') {
-                    currentUser = result.name;
-                    currentDefaultClass = result.defaultClass || ""; 
-                    currentUserRole = result.role || "user";
-
-                    sessionStorage.setItem('counseling_teacher_name', currentUser);
-                    sessionStorage.setItem('counseling_teacher_class', currentDefaultClass);
-                    sessionStorage.setItem('counseling_teacher_role', currentUserRole);
+                    sessionToken = result.sessionToken;
+                    sessionStorage.setItem('counseling_session_token', sessionToken);
+                    applySessionUser(result.user);
                     
                     loginSection.classList.add('hidden');
                     startMainApp();
@@ -645,11 +761,15 @@
             }
         });
 
-        function logout() {
-            sessionStorage.removeItem('counseling_teacher_name');
-            sessionStorage.removeItem('counseling_teacher_class');
-            sessionStorage.removeItem('counseling_teacher_role');
-            location.reload(); 
+        async function logout() {
+            try {
+                if (sessionToken) await apiRequest('logout');
+            } catch (error) {
+                // 서버 연결에 실패해도 브라우저의 세션은 즉시 제거한다.
+            } finally {
+                clearStoredSession();
+                location.reload();
+            }
         }
 
         // ----------------- 메인 앱 시작 -----------------
@@ -686,10 +806,11 @@
             } else if (tabName === 'calendar') {
                 document.getElementById('calendarContent').classList.add('hidden');
                 document.getElementById('calendarLoading').classList.remove('hidden');
-                await fetchLogsData(); 
+                const loaded = await fetchLogsData(); 
                 document.getElementById('calendarLoading').classList.add('hidden');
                 document.getElementById('calendarContent').classList.remove('hidden');
                 renderCalendar();
+                if (!loaded) alert(`${selectedYear}년 상담 내역을 불러오지 못했습니다.`);
             } else if (tabName === 'write') {
                 if (options.reset) {
                     cancelEdit(); 
@@ -710,11 +831,7 @@
             fetchLoading.classList.remove('hidden');
 
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'getUsers' })
-                });
-                const result = await response.json();
+                const result = await apiRequest('getUsers');
                 
                 if (result.status === 'success' && result.data) {
                     allUsers = result.data;
@@ -754,14 +871,16 @@
                     <td>${escapeHTML(user.id) || '-'}</td>
                     <td style="font-weight: 700;">${escapeHTML(user.name) || '-'}</td>
                     <td><span class="${badgeClass}">${roleName}</span></td>
-                    <td>${escapeHTML(user.defaultClass) || '-'}</td>
-                    <td>
-                        <div class="card-actions" style="justify-content: center;">
-                            <button class="card-btn btn-edit" onclick="editUser('${escapeHTML(user.id)}')">수정</button>
-                            <button class="card-btn btn-delete" onclick="deleteUser('${escapeHTML(user.id)}')">삭제</button>
-                        </div>
-                    </td>
-                `;
+                        <td>${escapeHTML(user.defaultClass) || '-'}</td>
+                        <td>
+                            <div class="card-actions" style="justify-content: center;">
+                            <button type="button" class="card-btn btn-edit">수정</button>
+                            <button type="button" class="card-btn btn-delete">삭제</button>
+                            </div>
+                        </td>
+                    `;
+                tr.querySelector('.btn-edit').addEventListener('click', () => editUser(String(user.id)));
+                tr.querySelector('.btn-delete').addEventListener('click', () => deleteUser(String(user.id)));
                 tableBody.appendChild(tr);
             });
 
@@ -832,16 +951,10 @@
             };
 
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'updateUser',
-                        targetId: editingUserId,
-                        userData: userData,
-                        requesterRole: currentUserRole 
-                    })
+                const result = await apiRequest('updateUser', {
+                    targetId: editingUserId,
+                    userData: userData
                 });
-                const result = await response.json();
 
                 if (result.status === 'success') {
                     alert('교사 정보가 안전하게 수정되었습니다.');
@@ -859,15 +972,7 @@
             if (!confirm(`정말 ID [${id}] 교사 정보를 삭제하시겠습니까?\n삭제 시 해당 계정으로 로그인이 불가능합니다.`)) return;
 
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({
-                        action: 'deleteUser',
-                        targetId: id,
-                        requesterRole: currentUserRole 
-                    })
-                });
-                const result = await response.json();
+                const result = await apiRequest('deleteUser', { targetId: id });
 
                 if (result.status === 'success') {
                     alert('교사 정보가 성공적으로 삭제되었습니다.');
@@ -884,12 +989,10 @@
         // ----------------- 학생 명렬표 & 드롭다운 -----------------
         async function loadRoster() {
             if (!SCRIPT_URL) return;
+            rosterData = [];
+            studentSelect.disabled = true;
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'getRoster' })
-                });
-                const result = await response.json();
+                const result = await apiRequest('getRoster', { year: selectedYear });
                 
                 if (result.status === 'success') {
                     rosterData = result.data.map(student => {
@@ -901,6 +1004,13 @@
                         }
                         return { ...student, className };
                     });
+
+                    if (rosterData.length === 0) {
+                        classSelect.innerHTML = `<option value="">${selectedYear}년 학생 명렬표가 없습니다</option>`;
+                        studentSelect.innerHTML = '<option value="">학생 명렬표를 먼저 등록하세요</option>';
+                        studentSelect.disabled = true;
+                        return;
+                    }
 
                     const uniqueClasses = [...new Set(rosterData.map(s => s.className))].sort();
                     
@@ -921,9 +1031,15 @@
                         classSelect.value = currentDefaultClass;
                         classSelect.dispatchEvent(new Event('change')); 
                     }
+                } else {
+                    throw new Error(result.message || '학생 명렬표를 불러오지 못했습니다.');
                 }
             } catch (error) {
                 classSelect.innerHTML = '<option value="">명렬표 로드 실패</option>';
+                studentSelect.innerHTML = '<option value="">명렬표 로드 실패</option>';
+                studentSelect.disabled = true;
+                studentNameInput.value = '';
+                gradeClassInput.value = '';
             }
         }
 
@@ -976,21 +1092,12 @@
 
             const actionType = editingLogId ? 'updateLog' : 'saveLog';
             
-            const requestBody = { 
-                action: actionType, 
-                data: logData,
-                requesterName: currentUser,
-                requesterRole: currentUserRole
-            };
+            const requestBody = { data: logData, year: selectedYear };
             
             if (editingLogId) requestBody.id = editingLogId;
 
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify(requestBody)
-                });
-                const result = await response.json();
+                const result = await apiRequest(actionType, requestBody);
 
                 if (result.status === 'success') {
                     alert(editingLogId ? '성공적으로 수정되었습니다.' : '성공적으로 저장되었습니다.');
@@ -1061,16 +1168,7 @@
             fetchLoading.querySelector('p').innerText = "기록을 삭제 중입니다...";
 
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ 
-                        action: 'deleteLog', 
-                        id: id,
-                        requesterName: currentUser,
-                        requesterRole: currentUserRole
-                    })
-                });
-                const result = await response.json();
+                const result = await apiRequest('deleteLog', { id });
 
                 if (result.status === 'success') {
                     alert('삭제가 완료되었습니다.');
@@ -1090,23 +1188,20 @@
 
         // ----------------- 상담 기록 불러오기 및 UI 표시 -----------------
         async function fetchLogsData() {
-            if (!SCRIPT_URL || !currentUser) return;
+            if (!SCRIPT_URL || !currentUser) return false;
             try {
-                const response = await fetch(SCRIPT_URL, {
-                    method: 'POST',
-                    body: JSON.stringify({ action: 'getLogs' })
-                });
-                const result = await response.json();
+                const result = await apiRequest('getLogs', { year: selectedYear });
                 if (result.status === 'success') {
-                    let filteredByRole = result.data;
-                    if (currentUserRole !== 'admin') {
-                        filteredByRole = result.data.filter(log => log.teacherName === currentUser);
-                    }
-                    allLogs = filteredByRole.sort((a, b) => b.date.localeCompare(a.date));
+                    allLogs = result.data.sort((a, b) => b.date.localeCompare(a.date));
                     updateFilterOptions(); 
+                    return true;
                 }
+                throw new Error(result.message || '상담 내역을 불러오지 못했습니다.');
             } catch (error) {
+                allLogs = [];
+                updateFilterOptions();
                 console.error("데이터 로드 실패: ", error);
+                return false;
             }
         }
 
@@ -1114,9 +1209,9 @@
             logContent.classList.add('hidden');
             fetchLoading.classList.remove('hidden');
 
-            await fetchLogsData(); 
+            const loaded = await fetchLogsData(); 
             
-            if(allLogs) {
+            if(loaded) {
                 currentPage = 1; 
                 renderCards();
             } else {
@@ -1156,8 +1251,8 @@
             if (log.teacherName === currentUser || currentUserRole === 'admin') {
                 actionsHtml = `
                     <div class="card-actions">
-                        <button class="card-btn btn-edit" onclick="editLog('${log.id}')">수정</button>
-                        <button class="card-btn btn-delete" onclick="deleteLog('${log.id}')">삭제</button>
+                        <button type="button" class="card-btn btn-edit">수정</button>
+                        <button type="button" class="card-btn btn-delete">삭제</button>
                     </div>
                 `;
             }
@@ -1179,6 +1274,11 @@
                     ${actionsHtml}
                 </div>
             `;
+
+            const editButton = card.querySelector('.btn-edit');
+            const deleteButton = card.querySelector('.btn-delete');
+            if (editButton) editButton.addEventListener('click', () => editLog(String(log.id)));
+            if (deleteButton) deleteButton.addEventListener('click', () => deleteLog(String(log.id)));
             return card;
         }
 
@@ -1201,7 +1301,7 @@
             if (printMode) {
                 const CARDS_PER_PAGE = 6;
                 const totalPages = Math.ceil(filteredLogs.length / CARDS_PER_PAGE);
-                const currentYearStr = new Date().getFullYear();
+                const currentYearStr = selectedYear;
 
                 for (let i = 0; i < totalPages; i++) {
                     const pageChunk = filteredLogs.slice(i * CARDS_PER_PAGE, (i + 1) * CARDS_PER_PAGE);
@@ -1282,11 +1382,14 @@
             const daysContainer = document.getElementById('calendarDays');
             const monthYear = document.getElementById('monthYear');
             daysContainer.innerHTML = '';
+            currentYear = selectedYear;
 
             const firstDay = new Date(currentYear, currentMonth, 1).getDay();
             const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
 
             monthYear.innerText = `${currentYear}년 ${currentMonth + 1}월`;
+            document.getElementById('prevMonth').disabled = currentMonth === 0;
+            document.getElementById('nextMonth').disabled = currentMonth === 11;
 
             for (let i = 0; i < firstDay; i++) {
                 const emptyDiv = document.createElement('div');
@@ -1342,8 +1445,14 @@
             }
         }
 
-        document.getElementById('prevMonth').addEventListener('click', () => { currentMonth--; if (currentMonth < 0) { currentMonth = 11; currentYear--; } renderCalendar(); });
-        document.getElementById('nextMonth').addEventListener('click', () => { currentMonth++; if (currentMonth > 11) { currentMonth = 0; currentYear++; } renderCalendar(); });
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            if (currentMonth > 0) currentMonth--;
+            renderCalendar();
+        });
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            if (currentMonth < 11) currentMonth++;
+            renderCalendar();
+        });
 
     </script>
 </body>
