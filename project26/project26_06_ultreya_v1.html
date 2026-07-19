@@ -3,6 +3,9 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="description" content="광교1동성당 울뜨레야 단원 명단을 안전하게 조회하고 관리하는 웹 서비스" />
+    <meta name="theme-color" content="#f6f7fb" />
+    <meta name="color-scheme" content="light" />
     <title>광교1동성당 울뜨레야 명단</title>
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
@@ -174,7 +177,8 @@
         letter-spacing: 0.08em;
         text-transform: uppercase;
       }
-      .input-group input {
+      .input-group input,
+      .input-group select {
         width: 100%;
         padding: 12px 14px;
         border: 1.5px solid var(--border);
@@ -188,7 +192,8 @@
           box-shadow 0.2s;
         outline: none;
       }
-      .input-group input:focus {
+      .input-group input:focus,
+      .input-group select:focus {
         border-color: var(--navy-light);
         box-shadow: 0 0 0 3px rgba(44, 62, 107, 0.12);
         background: #fff;
@@ -308,7 +313,8 @@
         align-items: center;
         flex-shrink: 0;
       }
-      .btn-logout {
+      .btn-logout,
+      .btn-admin {
         padding: 8px 18px;
         background: rgba(255, 255, 255, 0.1);
         color: rgba(255, 255, 255, 0.9);
@@ -323,10 +329,121 @@
           border-color 0.2s;
         backdrop-filter: blur(4px);
       }
-      .btn-logout:hover {
+      .btn-logout:hover,
+      .btn-admin:hover {
         background: rgba(255, 255, 255, 0.18);
         border-color: rgba(255, 255, 255, 0.4);
       }
+      .btn-admin {
+        background: rgba(200, 169, 110, 0.22);
+        border-color: rgba(223, 192, 138, 0.55);
+      }
+
+      /* 관리자 비밀번호 변경 모달 */
+      .modal-backdrop {
+        display: none;
+        position: fixed;
+        inset: 0;
+        z-index: 1000;
+        padding: 20px;
+        background: rgba(18, 27, 49, 0.68);
+        align-items: center;
+        justify-content: center;
+        backdrop-filter: blur(4px);
+      }
+      .modal-backdrop.open {
+        display: flex;
+      }
+      .modal-card {
+        width: 100%;
+        max-width: 420px;
+        padding: 30px;
+        border-radius: 18px;
+        background: var(--card-bg);
+        box-shadow: 0 18px 60px rgba(16, 25, 48, 0.35);
+        border-top: 5px solid var(--gold);
+      }
+      .modal-card h2 {
+        margin: 0 0 8px;
+        color: var(--navy);
+        font-family: var(--font-display);
+        font-size: 1.3rem;
+      }
+      .modal-description {
+        margin: 0 0 22px;
+        color: var(--text-muted);
+        font-size: 0.9rem;
+        line-height: 1.6;
+      }
+      .modal-card .input-group {
+        margin-bottom: 14px;
+        text-align: left;
+      }
+      .modal-actions {
+        display: flex;
+        justify-content: flex-end;
+        gap: 10px;
+        margin-top: 22px;
+      }
+      .btn-secondary {
+        padding: 10px 18px;
+        border: 1px solid var(--border);
+        border-radius: var(--radius-sm);
+        background: #fff;
+        color: var(--text-muted);
+        cursor: pointer;
+        font-family: var(--font-body);
+        font-weight: 600;
+      }
+      .modal-actions .btn-primary {
+        width: auto;
+        padding: 10px 20px;
+      }
+      .password-change-message {
+        display: none;
+        margin-top: 10px;
+        padding: 10px 12px;
+        border-radius: var(--radius-sm);
+        font-size: 0.86rem;
+        font-weight: 600;
+      }
+      .password-change-message.error {
+        display: block;
+        color: #7a1a1a;
+        background: #fdf0f0;
+      }
+      .admin-only { display: none !important; }
+      body.admin-mode .admin-only { display: flex !important; }
+      .mode-indicator {
+        display: inline-flex; align-items: center; padding: 5px 10px;
+        border-radius: 20px; background: rgba(255,255,255,.12);
+        color: #fff; font-size: .75rem; font-weight: 700;
+      }
+      body.admin-mode .mode-indicator { background: var(--gold); color: var(--navy-dark); }
+      .admin-toolbar {
+        align-items: center; justify-content: space-between; gap: 12px;
+        margin-bottom: 16px; padding: 12px 16px;
+        border: 1px solid rgba(200,169,110,.5); border-radius: var(--radius);
+        background: #fff9ec; color: var(--navy); box-shadow: var(--shadow);
+        font-size: .9rem; font-weight: 600;
+      }
+      .btn-add-member {
+        border: 0; border-radius: var(--radius-sm); padding: 10px 16px;
+        background: var(--navy); color: #fff; cursor: pointer;
+        font-family: var(--font-body); font-weight: 700;
+      }
+      .card-admin-actions {
+        gap: 8px; justify-content: flex-end; margin-top: 14px; padding-top: 12px;
+        border-top: 1px dashed var(--border); position: relative; z-index: 2;
+      }
+      .btn-card-edit, .btn-card-delete {
+        border-radius: 6px; padding: 6px 12px; cursor: pointer;
+        font-family: var(--font-body); font-size: .78rem; font-weight: 700;
+      }
+      .btn-card-edit { border: 1px solid var(--navy); background: #fff; color: var(--navy); }
+      .btn-card-delete { border: 1px solid #d9a5a5; background: #fdf0f0; color: var(--crimson); }
+      .member-form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+      .member-form-grid .full-width { grid-column: 1 / -1; }
 
       /* 통계 카드 */
       #stats-card {
@@ -575,7 +692,8 @@
       .feast-ribbon {
         position: absolute;
         top: 10px;
-        right: 10px;
+        left: 50%;
+        transform: translateX(-50%);
         font-size: 0.68rem;
         font-weight: 700;
         background: var(--gold);
@@ -859,6 +977,19 @@
         .header-card h1 {
           font-size: 1.1rem;
         }
+        .header-right {
+          width: 100%;
+        }
+        .btn-admin,
+        .btn-logout {
+          flex: 1;
+        }
+        .modal-card {
+          padding: 24px 20px;
+        }
+        .member-form-grid { grid-template-columns: 1fr; }
+        .member-form-grid .full-width { grid-column: auto; }
+        .admin-toolbar { align-items: stretch; flex-direction: column; }
       }
 
       /* ── 진입 애니메이션 ── */
@@ -875,10 +1006,362 @@
       .card {
         animation: fadeUp 0.3s ease both;
       }
+
+      /* ═══════════════════════════════════════════════════════════
+         SaaS UI System · 2026
+         Mobile-first / reusable surfaces / accessible interaction
+      ═══════════════════════════════════════════════════════════ */
+      :root {
+        --navy: #18181b;
+        --navy-dark: #09090b;
+        --navy-light: #27272a;
+        --cream: #fafafa;
+        --cream-dark: #f4f4f5;
+        --gold: #7c5cff;
+        --gold-light: #9b87f5;
+        --gold-dark: #6842ed;
+        --sage: #10b981;
+        --crimson: #ef4444;
+        --primary: #18181b;
+        --primary-dark: #09090b;
+        --primary-light: #3f3f46;
+        --accent: #7c5cff;
+        --bg: #f6f7fb;
+        --bg-alt: #fafafa;
+        --card-bg: rgba(255, 255, 255, 0.88);
+        --text: #18181b;
+        --text-muted: #71717a;
+        --border: rgba(24, 24, 27, 0.09);
+        --danger: #e5484d;
+        --success: #0f9f6e;
+        --radius: 20px;
+        --radius-sm: 12px;
+        --shadow: 0 1px 2px rgba(9, 9, 11, 0.03), 0 12px 32px rgba(9, 9, 11, 0.05);
+        --shadow-hover: 0 2px 4px rgba(9, 9, 11, 0.04), 0 24px 60px rgba(9, 9, 11, 0.1);
+        --font-body: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --font-display: "Noto Sans KR", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+      }
+
+      html { scroll-behavior: smooth; }
+      body {
+        padding: 16px 14px 56px;
+        background:
+          radial-gradient(circle at 10% -10%, rgba(124, 92, 255, 0.12), transparent 28rem),
+          radial-gradient(circle at 110% 20%, rgba(79, 209, 197, 0.08), transparent 24rem),
+          var(--bg);
+        color: var(--text);
+        line-height: 1.5;
+        letter-spacing: -0.012em;
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+      }
+      button, input, select { -webkit-tap-highlight-color: transparent; }
+      button:focus-visible, input:focus-visible, select:focus-visible, [tabindex]:focus-visible {
+        outline: 3px solid rgba(124, 92, 255, 0.28);
+        outline-offset: 2px;
+      }
+      .skip-link {
+        position: fixed; top: 10px; left: 10px; z-index: 2000;
+        padding: 10px 14px; border-radius: 10px; background: #18181b; color: #fff;
+        transform: translateY(-150%); transition: transform 0.2s ease;
+      }
+      .skip-link:focus { transform: translateY(0); }
+      .wrap { width: 100%; max-width: 1180px; }
+
+      #error-banner {
+        position: sticky; top: 12px; z-index: 900; max-width: 760px; margin: 0 auto 16px;
+        padding: 13px 16px; border: 1px solid rgba(229, 72, 77, 0.18);
+        border-left: 0; border-radius: 14px; background: rgba(255, 247, 247, 0.92);
+        color: #b4232c; box-shadow: var(--shadow); backdrop-filter: blur(18px);
+      }
+
+      #login-view { min-height: calc(100svh - 32px); padding: 24px 0; }
+      .login-card {
+        max-width: 440px; padding: 40px 28px 30px; border: 1px solid rgba(255,255,255,.8);
+        border-top: 1px solid rgba(255,255,255,.8); border-radius: 28px;
+        background: rgba(255,255,255,.82); box-shadow: 0 32px 100px rgba(24,24,27,.12);
+        backdrop-filter: blur(28px) saturate(140%); overflow: visible;
+        animation: loginEnter 0.7s var(--ease-out) both;
+      }
+      .login-card::before {
+        top: -1px; left: 22%; right: 22%; height: 2px; border-radius: 99px;
+        background: linear-gradient(90deg, transparent, #7c5cff, transparent);
+      }
+      .login-cross {
+        display: grid; place-items: center; width: 48px; height: 48px; margin: 0 auto 22px;
+        border: 1px solid rgba(124,92,255,.16); border-radius: 15px;
+        background: linear-gradient(145deg, #fff, #f3f0ff); color: #6941e8;
+        font-size: 1.35rem; box-shadow: 0 10px 30px rgba(124,92,255,.14);
+      }
+      .login-logo { margin-bottom: 10px; color: #8b5cf6; font-size: .7rem; letter-spacing: .14em; }
+      .login-card h2 { margin-bottom: 10px; font-size: clamp(1.65rem, 6vw, 2rem); letter-spacing: -.045em; }
+      .login-card p { margin-bottom: 28px; color: #71717a; font-size: .88rem; }
+      .login-mode-switch {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 4px;
+        margin-bottom: 20px;
+        padding: 4px;
+        border: 1px solid #e4e4e7;
+        border-radius: 13px;
+        background: #f4f4f5;
+      }
+      .login-mode-switch input { position: absolute; opacity: 0; pointer-events: none; }
+      .login-mode-switch label {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 40px;
+        border-radius: 9px;
+        color: #71717a;
+        cursor: pointer;
+        font-size: .8rem;
+        font-weight: 700;
+        transition: background .18s ease, color .18s ease, box-shadow .18s ease;
+      }
+      .login-mode-switch input:checked + label {
+        background: #fff;
+        color: #18181b;
+        box-shadow: 0 1px 3px rgba(9,9,11,.08), 0 6px 16px rgba(9,9,11,.05);
+      }
+      .login-mode-switch input:focus-visible + label {
+        outline: 3px solid rgba(124,92,255,.28);
+        outline-offset: 1px;
+      }
+
+      .input-group label { color: #52525b; font-size: .72rem; letter-spacing: .02em; text-transform: none; }
+      .input-group input, .input-group select {
+        min-height: 48px; padding: 12px 14px; border: 1px solid #e4e4e7; border-radius: 12px;
+        background: rgba(250,250,250,.8); color: #18181b; font-size: .93rem;
+        transition: border-color .18s ease, box-shadow .18s ease, background .18s ease;
+      }
+      .input-group input:hover, .input-group select:hover { border-color: #d4d4d8; }
+      .input-group input:focus, .input-group select:focus {
+        border-color: #8b5cf6; background: #fff; box-shadow: 0 0 0 4px rgba(124,92,255,.1);
+      }
+      .btn-primary {
+        min-height: 48px; border-radius: 12px; background: #18181b; box-shadow: 0 8px 20px rgba(24,24,27,.12);
+        font-size: .9rem; letter-spacing: -.01em; transition: transform .18s var(--ease-out), box-shadow .18s ease, background .18s ease;
+      }
+      .btn-primary::after { display: none; }
+      .btn-primary:hover:not(:disabled) { background: #27272a; box-shadow: 0 12px 30px rgba(24,24,27,.18); transform: translateY(-1px); }
+
+      #main-view { padding-top: 4px; }
+      .header-card {
+        position: sticky; top: 12px; z-index: 100; display: flex; align-items: center;
+        margin-bottom: 20px; padding: 14px 14px 14px 18px; border: 1px solid rgba(255,255,255,.85);
+        border-radius: 20px; background: rgba(255,255,255,.78); color: var(--text);
+        box-shadow: 0 12px 40px rgba(9,9,11,.07); backdrop-filter: blur(24px) saturate(150%);
+      }
+      .header-card::before { display: none; }
+      .header-left { min-width: 0; }
+      .header-subtitle { margin-bottom: 3px; color: #8b5cf6; font-size: .62rem; letter-spacing: .1em; }
+      .header-card h1 { color: #18181b; font-size: clamp(1rem, 4vw, 1.25rem); letter-spacing: -.035em; text-shadow: none; white-space: nowrap; }
+      .header-right { gap: 6px; }
+      .mode-indicator { padding: 6px 9px; background: #f4f4f5; color: #52525b; font-size: .68rem; }
+      body.admin-mode .mode-indicator { background: #eee9ff; color: #6842ed; }
+      .btn-admin, .btn-logout {
+        min-height: 36px; padding: 7px 11px; border: 1px solid #e4e4e7; border-radius: 10px;
+        background: rgba(255,255,255,.7); color: #52525b; font-size: .75rem; backdrop-filter: none;
+      }
+      .btn-admin:hover, .btn-logout:hover { background: #f4f4f5; border-color: #d4d4d8; color: #18181b; }
+
+      .admin-toolbar {
+        margin-bottom: 20px; padding: 14px 16px; border: 1px solid rgba(124,92,255,.16);
+        border-radius: 16px; background: rgba(247,245,255,.8); color: #5b43bd; box-shadow: none;
+        backdrop-filter: blur(16px);
+      }
+      .btn-add-member { min-height: 40px; border-radius: 10px; background: #6842ed; box-shadow: 0 8px 20px rgba(104,66,237,.2); }
+
+      #feast-banner {
+        margin-bottom: 20px; padding: 15px 18px; border: 1px solid rgba(124,92,255,.15);
+        border-left: 1px solid rgba(124,92,255,.15); border-radius: 16px;
+        background: linear-gradient(110deg, rgba(246,243,255,.96), rgba(255,255,255,.86));
+        color: #5b3fc4; box-shadow: var(--shadow); font-size: .84rem;
+      }
+      #feast-banner:hover { transform: translateY(-1px); box-shadow: var(--shadow-hover); }
+
+      #stats-card { margin-bottom: 20px; }
+      .stats-row { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+      .stat-box {
+        min-width: 0; padding: 18px 16px; border: 1px solid var(--border); border-top: 1px solid var(--border);
+        border-radius: 18px; background: var(--card-bg); box-shadow: var(--shadow);
+        backdrop-filter: blur(18px); transition: transform .25s var(--ease-out), box-shadow .25s ease;
+      }
+      .stat-box:hover { transform: translateY(-2px); box-shadow: var(--shadow-hover); }
+      .stat-box::before { width: 38px; height: 38px; opacity: .05; }
+      .stat-title { margin-bottom: 9px; color: #71717a; font-size: .73rem; font-weight: 600; }
+      .stat-number { color: #18181b !important; font-size: clamp(1.45rem, 6vw, 1.9rem); letter-spacing: -.055em; }
+
+      .filter-bar {
+        position: relative; display: grid; gap: 10px; margin-bottom: 18px; padding: 12px;
+        border: 1px solid var(--border); border-top: 1px solid var(--border); border-radius: 18px;
+        background: rgba(255,255,255,.82); box-shadow: var(--shadow); backdrop-filter: blur(18px);
+      }
+      .search-wrap { min-width: 0; flex: auto; }
+      .search-icon { left: 14px; opacity: .5; font-size: .85rem; }
+      .search-wrap input, .filter-selects select {
+        min-height: 44px; border: 1px solid #e4e4e7; border-radius: 11px; background: #fafafa;
+        color: #27272a; font-size: .82rem; transition: all .18s ease;
+      }
+      .search-wrap input { padding-left: 40px; }
+      .search-wrap input:focus, .filter-selects select:focus { border-color: #a78bfa; background: #fff; box-shadow: 0 0 0 4px rgba(124,92,255,.08); }
+      .filter-selects { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+      .filter-selects select { width: 100%; }
+      .filter-count { padding: 2px 3px 0; color: #a1a1aa; font-size: .72rem; text-align: right; }
+
+      .card-grid { grid-template-columns: 1fr; gap: 12px; }
+      .card {
+        padding: 18px; border: 1px solid var(--border); border-top: 1px solid var(--border);
+        border-radius: 18px; background: var(--card-bg); box-shadow: var(--shadow); overflow: visible;
+        backdrop-filter: blur(18px); transition: transform .3s var(--ease-out), box-shadow .3s ease, border-color .3s ease;
+      }
+      .card::after { display: none; }
+      .card:hover { transform: translateY(-3px); border-color: rgba(124,92,255,.16); box-shadow: var(--shadow-hover); }
+      .card.feast-this-month { outline: 0; border-color: rgba(124,92,255,.22); background: linear-gradient(145deg, rgba(250,248,255,.94), rgba(255,255,255,.92)); }
+      .feast-ribbon {
+        top: -10px; left: 50%; z-index: 3; padding: 4px 10px; border: 1px solid rgba(124,92,255,.16);
+        background: #f0ebff; color: #6842ed; box-shadow: 0 6px 16px rgba(124,92,255,.12);
+        font-size: .62rem;
+      }
+      .card-header { align-items: center; margin-bottom: 14px; padding-bottom: 14px; border-color: #f0f0f2; }
+      .name { color: #18181b; font-size: 1.05rem; letter-spacing: -.035em; }
+      .baptismal-name { color: #8b8b94; font-size: .74rem; }
+      .role-badge { padding: 5px 9px; border: 0; border-radius: 8px; background: #f4f4f5; color: #52525b; font-size: .65rem; }
+      .card-gansa .role-badge,
+      .card-bugansa .role-badge,
+      .card-hoegye .role-badge,
+      .card-seogi .role-badge {
+        padding: 7px 12px;
+        border-radius: 10px;
+        font-size: 0.85rem;
+        line-height: 1;
+      }
+      .card-gansa .role-badge { background: #fff0f1; color: #c33c45; }
+      .card-bugansa .role-badge { background: #fff5e8; color: #a85d13; }
+      .card-seogi .role-badge { background: #eafaf4; color: #087a58; }
+      .card-hoegye .role-badge { background: #f2efff; color: #654ac7; }
+      .info-row { min-height: 30px; gap: 9px; color: #52525b; }
+      .info-icon { width: 24px; opacity: .62; filter: grayscale(.25); }
+      .info-label { width: 52px; color: #a1a1aa; font-size: .68rem; }
+      .info-value { color: #3f3f46; font-size: .78rem; font-weight: 500; word-break: keep-all; }
+      .info-value a { color: #5b43bd; text-underline-offset: 3px; }
+      .feast-tag { padding: 3px 8px; border: 0; border-radius: 7px; background: #f4f4f5; color: #52525b; }
+      .feast-tag.this-month { background: #eee9ff; color: #6842ed; }
+      .card-admin-actions { border-color: #ececf0; }
+      .btn-card-edit, .btn-card-delete { min-height: 34px; border-radius: 9px; }
+
+      #loading-area, #empty-state { border-radius: 18px; }
+      .skeleton-card { border: 1px solid var(--border); border-radius: 18px; background: rgba(255,255,255,.76); box-shadow: var(--shadow); }
+      .skeleton-line { background: linear-gradient(90deg, #f2f2f4 25%, #fafafa 50%, #f2f2f4 75%); background-size: 200% 100%; }
+      #empty-state { padding: 60px 20px; border: 1px dashed #d4d4d8; background: rgba(255,255,255,.5); color: #71717a; }
+
+      .pagination { gap: 6px; margin-top: 24px; }
+      .page-btn { min-width: 38px; height: 38px; border: 1px solid #e4e4e7; border-radius: 10px; background: rgba(255,255,255,.8); color: #71717a; }
+      .page-btn:hover:not(:disabled) { border-color: #c4b5fd; color: #6842ed; transform: translateY(-1px); }
+      .page-btn.active { border-color: #18181b; background: #18181b; color: #fff; box-shadow: 0 8px 18px rgba(24,24,27,.16); }
+      .footer-card {
+        position: relative; display: flex; flex-direction: column; align-items: center; gap: 18px;
+        margin-top: 36px; padding: 24px; overflow: hidden;
+        border: 1px solid rgba(255,255,255,.9); border-radius: 22px;
+        background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(247,245,255,.78));
+        box-shadow: var(--shadow); color: #71717a; text-align: center; backdrop-filter: blur(20px);
+      }
+      .footer-card::before {
+        content: ""; position: absolute; top: 0; left: 18%; right: 18%; height: 2px;
+        background: linear-gradient(90deg, transparent, #8b5cf6, transparent);
+      }
+      .footer-brand { display: flex; align-items: center; gap: 12px; text-align: left; }
+      .footer-symbol {
+        display: grid; place-items: center; flex: 0 0 auto; width: 42px; height: 42px;
+        border: 1px solid rgba(124,92,255,.15); border-radius: 13px;
+        background: linear-gradient(145deg, #fff, #f1edff); color: #6842ed;
+        box-shadow: 0 8px 20px rgba(124,92,255,.12); font-size: 1.1rem;
+      }
+      .footer-title { margin: 0; color: #27272a; font-size: .9rem; font-weight: 800; letter-spacing: -.025em; }
+      .footer-subtitle { margin: 3px 0 0; color: #a1a1aa; font-size: .67rem; letter-spacing: .04em; }
+      .footer-meta { display: flex; flex-wrap: wrap; align-items: center; justify-content: center; gap: 8px 14px; font-size: .68rem; }
+      .footer-status { display: inline-flex; align-items: center; gap: 6px; color: #687076; }
+      .footer-status::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: #10b981; box-shadow: 0 0 0 4px rgba(16,185,129,.1); }
+      .footer-divider { width: 1px; height: 12px; background: #e4e4e7; }
+
+      .modal-backdrop { padding: 16px; background: rgba(9,9,11,.52); backdrop-filter: blur(10px); }
+      .modal-card {
+        max-height: min(88svh, 760px); overflow-y: auto; padding: 26px 22px; border: 1px solid rgba(255,255,255,.8);
+        border-top: 1px solid rgba(255,255,255,.8); border-radius: 24px; background: rgba(255,255,255,.95);
+        box-shadow: 0 32px 100px rgba(9,9,11,.28); animation: modalEnter .35s var(--ease-out) both;
+      }
+      .modal-card h2 { color: #18181b; font-size: 1.25rem; letter-spacing: -.035em; }
+      .modal-description { color: #71717a; }
+      .modal-actions { position: sticky; bottom: -26px; margin: 20px -22px -26px; padding: 14px 22px 18px; background: rgba(255,255,255,.94); backdrop-filter: blur(12px); }
+      .btn-secondary { min-height: 44px; border-color: #e4e4e7; border-radius: 11px; background: #fff; }
+      .modal-actions .btn-primary { min-height: 44px; margin-top: 0; border-radius: 11px; }
+      .mode-switch-card { max-width: 400px; text-align: center; overflow: hidden; }
+      .mode-switch-visual {
+        position: relative; display: grid; place-items: center; width: 68px; height: 68px;
+        margin: 0 auto 18px; border: 1px solid rgba(124,92,255,.16); border-radius: 21px;
+        background: linear-gradient(145deg, #fff, #eee9ff); color: #6842ed;
+        box-shadow: 0 16px 36px rgba(124,92,255,.16); font-size: 1.55rem;
+      }
+      .mode-switch-visual::after {
+        content: ""; position: absolute; right: 4px; bottom: 4px; width: 10px; height: 10px;
+        border: 3px solid #fff; border-radius: 50%; background: #10b981;
+      }
+      .mode-switch-card h2 { margin-bottom: 8px; font-size: 1.35rem; }
+      .mode-switch-card .modal-description { max-width: 300px; margin: 0 auto 22px; }
+      .mode-security-note {
+        display: flex; align-items: flex-start; gap: 10px; margin: 4px 0 18px; padding: 12px 13px;
+        border: 1px solid rgba(124,92,255,.12); border-radius: 12px;
+        background: #f8f6ff; color: #625b71; text-align: left; font-size: .72rem; line-height: 1.55;
+      }
+      .mode-security-icon { flex: 0 0 auto; color: #7c5cff; font-size: .85rem; }
+      .mode-pin-input { text-align: center; letter-spacing: .55em; font-size: 1.15rem !important; font-weight: 800; }
+      .mode-switch-card .modal-actions { justify-content: stretch; }
+      .mode-switch-card .modal-actions button { flex: 1; }
+
+      @keyframes loginEnter { from { opacity: 0; transform: translateY(16px) scale(.985); } to { opacity: 1; transform: none; } }
+      @keyframes modalEnter { from { opacity: 0; transform: translateY(14px) scale(.98); } to { opacity: 1; transform: none; } }
+
+      @media (max-width: 639px) {
+        .header-card { gap: 14px; }
+        .header-card h1 { white-space: normal; }
+        .header-right { flex-wrap: wrap; }
+        .mode-indicator { flex-basis: 100%; justify-content: center; }
+        .btn-admin, .btn-logout { flex: 1 1 30%; white-space: nowrap; }
+      }
+      @media (min-width: 640px) {
+        body { padding: 22px 20px 72px; }
+        .login-card { padding: 48px 42px 38px; }
+        .header-card { padding: 15px 16px 15px 22px; }
+        .stats-row { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+        .filter-bar { grid-template-columns: minmax(220px, 1fr) auto; align-items: center; padding: 10px; }
+        .filter-selects { display: flex; }
+        .filter-selects select { width: auto; min-width: 118px; }
+        .filter-count { grid-column: 1 / -1; }
+        .card-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 16px; }
+        .modal-card { padding: 30px; }
+        .modal-actions { bottom: -30px; margin: 22px -30px -30px; padding: 14px 30px 20px; }
+        .footer-card { flex-direction: row; justify-content: space-between; padding: 22px 26px; text-align: left; }
+        .footer-meta { justify-content: flex-end; }
+      }
+      @media (min-width: 1024px) {
+        body { padding-top: 28px; }
+        .header-card { top: 18px; margin-bottom: 26px; }
+        #stats-card, #feast-banner { margin-bottom: 24px; }
+        .filter-bar { grid-template-columns: minmax(260px, 1fr) auto auto; margin-bottom: 24px; }
+        .filter-count { grid-column: auto; min-width: 90px; }
+        .card-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 18px; }
+        .card { padding: 20px; }
+      }
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      }
     </style>
   </head>
 
   <body>
+    <a class="skip-link" href="#main-view">본문으로 바로가기</a>
     <!-- 에러 배너 -->
     <div id="error-banner" role="alert">
       ⚠️ 설정 파일(json)을 불러올 수 없습니다. 브라우저 보안 또는 파일 경로를
@@ -893,19 +1376,28 @@
         <span class="login-cross">✞</span>
         <div class="login-logo">Gwanggyo Cathedral · Ultreya</div>
         <h2>울뜨레야 명단</h2>
-        <p>개인정보 보호를 위해<br />비밀번호를 입력해 주세요</p>
+        <p>접속할 모드를 선택하고<br />비밀번호를 입력해 주세요</p>
+        <div class="login-mode-switch" role="radiogroup" aria-label="로그인 모드 선택">
+          <input type="radio" id="login-mode-user" name="login-mode" value="user" checked onchange="updateLoginModeUI()" />
+          <label for="login-mode-user">사용자 모드</label>
+          <input type="radio" id="login-mode-admin" name="login-mode" value="admin" onchange="updateLoginModeUI()" />
+          <label for="login-mode-admin">관리자 모드</label>
+        </div>
         <div class="input-group">
-          <label for="userpw">비밀번호</label>
+          <label for="userpw" id="login-password-label">사용자 비밀번호</label>
           <input
             type="password"
             id="userpw"
             placeholder="비밀번호 입력"
+            inputmode="numeric"
+            maxlength="4"
+            pattern="[0-9]{4}"
             autocomplete="current-password"
           />
         </div>
         <div class="login-error" id="login-error" role="alert"></div>
         <button class="btn-primary" id="login-btn" onclick="login()">
-          로그인
+          사용자 모드 로그인
         </button>
       </div>
     </div>
@@ -913,7 +1405,7 @@
     <!-- ══════════════════════════════
          메인 화면
     ══════════════════════════════ -->
-    <div id="main-view" class="wrap">
+    <main id="main-view" class="wrap" tabindex="-1">
       <!-- 헤더 -->
       <div class="header-card">
         <div class="header-left">
@@ -921,8 +1413,16 @@
           <h1>광교1동성당 울뜨레야 명단</h1>
         </div>
         <div class="header-right">
+          <span id="mode-indicator" class="mode-indicator">사용자 모드</span>
+          <button id="mode-toggle-btn" class="btn-admin" onclick="toggleAdminMode()">관리자 모드</button>
+          <button class="btn-admin admin-only" onclick="openAdminModal()">비밀번호 변경</button>
           <button class="btn-logout" onclick="logout()">로그아웃</button>
         </div>
+      </div>
+
+      <div class="admin-toolbar admin-only" aria-label="관리자 명단 도구">
+        <span>관리자 모드: 명단을 추가하거나 카드에서 수정·삭제할 수 있습니다.</span>
+        <button class="btn-add-member" type="button" onclick="openMemberModal()">＋ 단원 추가</button>
       </div>
 
       <!-- 축일 배너 (클릭 시 이번 달 축일 필터) -->
@@ -1037,7 +1537,127 @@
       ></div>
 
       <!-- 푸터 -->
-      <div class="footer-card">† 광교1동성당 울뜨레야</div>
+      <footer class="footer-card" aria-label="사이트 정보">
+        <div class="footer-brand">
+          <span class="footer-symbol" aria-hidden="true">†</span>
+          <div>
+            <p class="footer-title">광교1동성당 울뜨레야</p>
+            <p class="footer-subtitle">GWANGGYO CATHEDRAL · ULTREYA</p>
+          </div>
+        </div>
+        <div class="footer-meta">
+          <span class="footer-status">안전하게 연결됨</span>
+          <span class="footer-divider" aria-hidden="true"></span>
+          <span>© <span id="footer-year">2026</span> Ultreya</span>
+        </div>
+      </footer>
+    </main>
+
+    <div id="mode-switch-modal" class="modal-backdrop" role="dialog" aria-modal="true"
+      aria-labelledby="mode-switch-title" onclick="if (event.target === this) closeModeSwitchModal();">
+      <div class="modal-card mode-switch-card">
+        <div class="mode-switch-visual" aria-hidden="true">⌘</div>
+        <h2 id="mode-switch-title">관리자 모드로 전환</h2>
+        <p class="modal-description">명단 추가·수정·삭제 권한을 사용하려면 관리자 PIN을 입력해 주세요.</p>
+        <div class="mode-security-note">
+          <span class="mode-security-icon" aria-hidden="true">●</span>
+          <span>관리자 인증은 암호화된 연결을 통해 확인되며, 사용자 모드로 돌아가면 관리자 권한이 즉시 해제됩니다.</span>
+        </div>
+        <div class="input-group">
+          <label for="mode-admin-password">관리자 PIN</label>
+          <input class="mode-pin-input" type="password" id="mode-admin-password" inputmode="numeric"
+            maxlength="4" pattern="[0-9]{4}" autocomplete="current-password" placeholder="••••" />
+        </div>
+        <div id="mode-switch-error" class="password-change-message" role="alert"></div>
+        <div class="modal-actions">
+          <button class="btn-secondary" type="button" onclick="closeModeSwitchModal()">취소</button>
+          <button class="btn-primary" id="confirm-admin-mode-btn" type="button" onclick="confirmAdminMode()">관리자 모드 시작</button>
+        </div>
+      </div>
+    </div>
+
+    <div
+      id="admin-modal"
+      class="modal-backdrop"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="admin-modal-title"
+      onclick="if (event.target === this) closeAdminModal();"
+    >
+      <div class="modal-card">
+        <h2 id="admin-modal-title">비밀번호 변경</h2>
+        <p class="modal-description">
+          변경할 비밀번호 종류를 선택하고 숫자 4자리의 새 비밀번호를 입력해 주세요.
+        </p>
+        <div class="input-group">
+          <label for="password-type">변경 대상</label>
+          <select id="password-type">
+            <option value="user">사용자 모드 비밀번호</option>
+            <option value="admin">관리자 모드 비밀번호</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label for="new-admin-password">새 비밀번호</label>
+          <input
+            type="password"
+            id="new-admin-password"
+            minlength="4"
+            maxlength="4"
+            inputmode="numeric"
+            pattern="[0-9]{4}"
+            autocomplete="new-password"
+            placeholder="숫자 4자리"
+          />
+        </div>
+        <div class="input-group">
+          <label for="confirm-admin-password">새 비밀번호 확인</label>
+          <input
+            type="password"
+            id="confirm-admin-password"
+            minlength="4"
+            maxlength="4"
+            inputmode="numeric"
+            pattern="[0-9]{4}"
+            autocomplete="new-password"
+            placeholder="한 번 더 입력"
+          />
+        </div>
+        <div id="password-change-message" class="password-change-message" role="alert"></div>
+        <div class="modal-actions">
+          <button class="btn-secondary" type="button" onclick="closeAdminModal()">취소</button>
+          <button
+            class="btn-primary"
+            id="change-password-btn"
+            type="button"
+            onclick="changePassword()"
+          >
+            비밀번호 변경
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="member-modal" class="modal-backdrop" role="dialog" aria-modal="true"
+      aria-labelledby="member-modal-title" onclick="if (event.target === this) closeMemberModal();">
+      <div class="modal-card">
+        <h2 id="member-modal-title">단원 추가</h2>
+        <p class="modal-description">명단에 저장할 정보를 입력해 주세요.</p>
+        <input type="hidden" id="member-row-id" />
+        <div class="member-form-grid">
+          <div class="input-group"><label for="member-name">이름 *</label><input id="member-name" maxlength="50" autocomplete="off" /></div>
+          <div class="input-group"><label for="member-baptismal">세례명</label><input id="member-baptismal" maxlength="50" autocomplete="off" /></div>
+          <div class="input-group"><label for="member-role">구분</label><select id="member-role"><option value="단원">단원</option><option value="간사">간사</option><option value="부간사">부간사</option><option value="서기">서기</option><option value="회계">회계</option></select></div>
+          <div class="input-group"><label for="member-gender">성별</label><select id="member-gender"><option value="">선택 안 함</option><option value="남">형제</option><option value="여">자매</option></select></div>
+          <div class="input-group full-width"><label for="member-phone">전화번호</label><input id="member-phone" maxlength="30" inputmode="tel" autocomplete="off" /></div>
+          <div class="input-group"><label for="member-feast">축일</label><input id="member-feast" maxlength="30" placeholder="예: 6월 24일" autocomplete="off" /></div>
+          <div class="input-group"><label for="member-cohort">체험 차수</label><input id="member-cohort" maxlength="30" placeholder="예: 1차" autocomplete="off" /></div>
+        </div>
+        <div id="member-form-message" class="password-change-message" role="alert"></div>
+        <div class="modal-actions">
+          <button class="btn-secondary" type="button" onclick="closeMemberModal()">취소</button>
+          <button class="btn-primary" id="save-member-btn" type="button" onclick="saveMember()">저장</button>
+        </div>
+      </div>
     </div>
 
     <script>
@@ -1050,7 +1670,8 @@
         currentPage: 1,
         itemsPerPage: 9,
         apiUrl: "",
-        authHash: null,
+        authToken: null,
+        adminMode: false,
         currentMonth: new Date().getMonth() + 1,
       };
 
@@ -1062,6 +1683,17 @@
         if (s === "남" || s === "남자") return "남";
         if (s === "여" || s === "여자") return "여";
         return "";
+      }
+
+      function formatCohort(gender, rawCohort) {
+        const raw = String(rawCohort || "").trim();
+        if (!raw) return "-";
+        const genderLabel = gender === "남" ? "남성" : gender === "여" ? "여성" : "";
+        const numberMatch = raw.match(/\d+/);
+        const cohortLabel = numberMatch
+          ? `제${numberMatch[0].padStart(2, "0")}차`
+          : raw;
+        return ["수원교구", genderLabel, cohortLabel].filter(Boolean).join(" ");
       }
 
       function parseFeastDay(raw) {
@@ -1122,16 +1754,33 @@
       ══════════════════════════════ */
       document.addEventListener("DOMContentLoaded", () => {
         buildSkeleton();
+        document.getElementById("footer-year").textContent = new Date().getFullYear();
 
         fetch("./project26_06_gas_url.json")
           .then((r) => {
             if (!r.ok) throw new Error("JSON 파일 오류");
             return r.json();
           })
-          .then((cfg) => {
+          .then(async (cfg) => {
             state.apiUrl = cfg.api_url;
-            if (sessionStorage.getItem("ul_auth") === "true") {
-              showMain();
+            state.authToken = sessionStorage.getItem("ul_token");
+            if (state.authToken) {
+              try {
+                const response = await apiPost({
+                  action: "exitAdminMode",
+                  token: state.authToken,
+                });
+                if (response.ok) {
+                  state.authToken = response.token;
+                  sessionStorage.setItem("ul_token", response.token);
+                  showMain();
+                  return;
+                }
+              } catch {
+                // 복원 실패 시 로그인 화면에서 다시 인증합니다.
+              }
+                sessionStorage.removeItem("ul_token");
+                state.authToken = null;
             }
           })
           .catch(() => {
@@ -1143,8 +1792,21 @@
 
         // Enter 키 로그인
         document.addEventListener("keydown", (e) => {
+          if (e.key === "Escape") {
+            closeModeSwitchModal();
+            closeAdminModal();
+            closeMemberModal();
+          }
           if (
             e.key === "Enter" &&
+            document.getElementById("mode-switch-modal").classList.contains("open")
+          ) {
+            confirmAdminMode();
+            return;
+          }
+          if (
+            e.key === "Enter" &&
+            !document.getElementById("admin-modal").classList.contains("open") &&
             document.getElementById("login-view").style.display !== "none"
           ) {
             login();
@@ -1176,17 +1838,38 @@
       /* ══════════════════════════════
          로그인 / 로그아웃
       ══════════════════════════════ */
-      async function sha256Hex(message) {
-        const encoded = new TextEncoder().encode(message);
-        const buffer = await crypto.subtle.digest("SHA-256", encoded);
-        return Array.from(new Uint8Array(buffer))
-          .map((b) => b.toString(16).padStart(2, "0"))
-          .join("");
+      async function apiPost(payload) {
+        const res = await fetch(state.apiUrl, {
+          method: "POST",
+          headers: { "Content-Type": "text/plain;charset=utf-8" },
+          body: JSON.stringify(payload),
+          redirect: "follow",
+        });
+        if (!res.ok) throw new Error("서버 응답 오류");
+        return res.json();
+      }
+
+      function getSelectedLoginMode() {
+        const selected = document.querySelector('input[name="login-mode"]:checked');
+        return selected ? selected.value : "user";
+      }
+
+      function updateLoginModeUI() {
+        const mode = getSelectedLoginMode();
+        const isAdmin = mode === "admin";
+        document.getElementById("login-password-label").textContent =
+          isAdmin ? "관리자 비밀번호" : "사용자 비밀번호";
+        document.getElementById("login-btn").textContent =
+          isAdmin ? "관리자 모드 로그인" : "사용자 모드 로그인";
+        document.getElementById("userpw").value = "";
+        document.getElementById("login-error").style.display = "none";
+        document.getElementById("userpw").focus();
       }
 
       async function login() {
         const pw = document.getElementById("userpw").value.trim();
         const btn = document.getElementById("login-btn");
+        const loginMode = getSelectedLoginMode();
 
         document.getElementById("login-error").style.display = "none";
 
@@ -1199,58 +1882,22 @@
         btn.disabled = true;
 
         try {
-          // 1단계: 신규 verifyAdmin (GAS에 구현된 경우)
-          const pwHash = await sha256Hex(pw);
-          const url = new URL(state.apiUrl);
-          url.searchParams.set("action", "verifyAdmin");
-          url.searchParams.set("pw", pwHash);
-
-          let usedLegacy = false;
-          let data;
-          try {
-            const res = await fetch(url);
-            data = await res.json();
-          } catch {
-            usedLegacy = true;
-          }
-
-          if (!usedLegacy && data && data.success === true) {
-            // 신규 방식 성공
-            state.authHash = pwHash;
-            sessionStorage.setItem("ul_auth", "true");
+          const data = await apiPost({ action: "login", password: pw, loginMode });
+          if (data.ok === true && data.token) {
+            state.authToken = data.token;
+            sessionStorage.setItem("ul_token", data.token);
+            document.getElementById("userpw").value = "";
+            applyAdminMode(data.adminMode === true);
             showMain();
           } else {
-            // 2단계: 레거시 폴백 (GAS에 verifyAdmin 없는 경우)
-            await loginLegacy(pw);
+            showLoginError(data.message || "로그인에 실패했습니다.");
           }
         } catch {
           showLoginError("서버 연결 실패. 인터넷 연결을 확인해 주세요.");
         } finally {
-          btn.textContent = "로그인";
           btn.disabled = false;
-        }
-      }
-
-      // 레거시: GAS getAdmin 액션으로 비밀번호 검증
-      async function loginLegacy(pw) {
-        try {
-          const url = new URL(state.apiUrl);
-          url.searchParams.set("action", "getAdmin");
-          const res = await fetch(url);
-          const admin = await res.json();
-          if (admin.error) {
-            showLoginError(`서버 오류: ${admin.error}`);
-            return;
-          }
-          if (pw === admin.password) {
-            state.authHash = null; // 레거시는 해시 없음
-            sessionStorage.setItem("ul_auth", "true");
-            showMain();
-          } else {
-            showLoginError("비밀번호가 올바르지 않습니다.");
-          }
-        } catch {
-          showLoginError("서버 연결 실패. 인터넷 연결을 확인하세요.");
+          btn.textContent =
+            loginMode === "admin" ? "관리자 모드 로그인" : "사용자 모드 로그인";
         }
       }
 
@@ -1261,18 +1908,311 @@
       }
 
       function showMain() {
+        document.getElementById("error-banner").style.display = "none";
         document.getElementById("login-view").style.display = "none";
         document.getElementById("main-view").style.display = "block";
         loadData();
       }
 
-      function logout() {
+      function applyAdminMode(enabled) {
+        state.adminMode = enabled;
+        document.body.classList.toggle("admin-mode", enabled);
+        document.getElementById("mode-indicator").textContent =
+          enabled ? "관리자 모드" : "사용자 모드";
+        document.getElementById("mode-toggle-btn").textContent =
+          enabled ? "사용자 모드" : "관리자 모드";
+        renderPage();
+      }
+
+      function openModeSwitchModal() {
+        const modal = document.getElementById("mode-switch-modal");
+        const input = document.getElementById("mode-admin-password");
+        const error = document.getElementById("mode-switch-error");
+        input.value = "";
+        error.textContent = "";
+        error.className = "password-change-message";
+        modal.classList.add("open");
+        document.body.style.overflow = "hidden";
+        setTimeout(() => input.focus(), 0);
+      }
+
+      function closeModeSwitchModal() {
+        const modal = document.getElementById("mode-switch-modal");
+        if (!modal) return;
+        modal.classList.remove("open");
+        document.body.style.overflow = "";
+      }
+
+      function showModeSwitchError(message) {
+        const error = document.getElementById("mode-switch-error");
+        error.textContent = message;
+        error.className = "password-change-message error";
+      }
+
+      async function confirmAdminMode() {
+        const password = document.getElementById("mode-admin-password").value.trim();
+        const button = document.getElementById("confirm-admin-mode-btn");
+        if (!/^\d{4}$/.test(password)) {
+          showModeSwitchError("관리자 PIN 숫자 4자리를 입력해 주세요.");
+          return;
+        }
+        button.disabled = true;
+        button.textContent = "인증 중…";
+        try {
+          const response = await apiPost({
+            action: "enterAdminMode",
+            token: state.authToken,
+            password,
+          });
+          if (!response.ok) {
+            if (response.error === "UNAUTHORIZED") {
+              closeModeSwitchModal();
+              return expireSession(response.message);
+            }
+            showModeSwitchError(response.message || "관리자 모드로 전환하지 못했습니다.");
+            return;
+          }
+          state.authToken = response.token;
+          sessionStorage.setItem("ul_token", response.token);
+          closeModeSwitchModal();
+          applyAdminMode(true);
+        } catch {
+          showModeSwitchError("서버 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+        } finally {
+          button.disabled = false;
+          button.textContent = "관리자 모드 시작";
+        }
+      }
+
+      async function toggleAdminMode() {
+        const button = document.getElementById("mode-toggle-btn");
+        if (!state.adminMode) {
+          openModeSwitchModal();
+          return;
+        }
+
+        button.disabled = true;
+        try {
+          const response = await apiPost({ action: "exitAdminMode", token: state.authToken });
+          if (!response.ok) return expireSession(response.message);
+          state.authToken = response.token;
+          sessionStorage.setItem("ul_token", response.token);
+          applyAdminMode(false);
+        } catch {
+          alert("사용자 모드 전환에 실패했습니다.");
+        } finally {
+          button.disabled = false;
+        }
+      }
+
+      function openAdminModal() {
+        const modal = document.getElementById("admin-modal");
+        document.getElementById("password-type").value = "user";
+        document.getElementById("new-admin-password").value = "";
+        document.getElementById("confirm-admin-password").value = "";
+        const message = document.getElementById("password-change-message");
+        message.textContent = "";
+        message.className = "password-change-message";
+        modal.classList.add("open");
+        document.body.style.overflow = "hidden";
+        setTimeout(() => document.getElementById("new-admin-password").focus(), 0);
+      }
+
+      function closeAdminModal() {
+        const modal = document.getElementById("admin-modal");
+        if (!modal) return;
+        modal.classList.remove("open");
+        document.body.style.overflow = "";
+      }
+
+      function showPasswordChangeError(message) {
+        const el = document.getElementById("password-change-message");
+        el.textContent = message;
+        el.className = "password-change-message error";
+      }
+
+      async function changePassword() {
+        const passwordType = document.getElementById("password-type").value;
+        const newPassword = document.getElementById("new-admin-password").value;
+        const confirmation = document.getElementById("confirm-admin-password").value;
+        const button = document.getElementById("change-password-btn");
+
+        if (!/^\d{4}$/.test(newPassword)) {
+          showPasswordChangeError("비밀번호는 숫자 4자리여야 합니다.");
+          return;
+        }
+        if (newPassword !== confirmation) {
+          showPasswordChangeError("새 비밀번호가 서로 일치하지 않습니다.");
+          return;
+        }
+
+        button.disabled = true;
+        button.textContent = "변경 중…";
+        try {
+          const response = await apiPost({
+            action: "changePassword",
+            token: state.authToken,
+            passwordType,
+            newPassword,
+          });
+          if (!response.ok) {
+            if (response.error === "UNAUTHORIZED") {
+              sessionStorage.removeItem("ul_token");
+              state.authToken = null;
+              closeAdminModal();
+              document.getElementById("main-view").style.display = "none";
+              document.getElementById("login-view").style.display = "flex";
+              showLoginError(response.message || "로그인이 만료되었습니다.");
+              return;
+            }
+            showPasswordChangeError(response.message || "비밀번호를 변경하지 못했습니다.");
+            return;
+          }
+
+          state.authToken = response.token;
+          sessionStorage.setItem("ul_token", response.token);
+          closeAdminModal();
+          const label = passwordType === "admin" ? "관리자 모드" : "사용자 모드";
+          alert(`${label} 비밀번호가 변경되었습니다. 다른 기기의 로그인은 모두 만료되었습니다.`);
+        } catch {
+          showPasswordChangeError("서버 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+        } finally {
+          button.disabled = false;
+          button.textContent = "비밀번호 변경";
+        }
+      }
+
+      function openMemberModal(member = null) {
+        if (!state.adminMode) return;
+        const editing = Boolean(member);
+        document.getElementById("member-modal-title").textContent = editing ? "단원 수정" : "단원 추가";
+        document.getElementById("member-row-id").value = editing ? member.rowId : "";
+        document.getElementById("member-name").value = editing ? member.name : "";
+        document.getElementById("member-baptismal").value = editing ? member.baptismal : "";
+        document.getElementById("member-role").value = editing ? member.role : "단원";
+        document.getElementById("member-gender").value = editing ? member.gender : "";
+        document.getElementById("member-phone").value = editing && member.phone !== "-" ? member.phone : "";
+        document.getElementById("member-feast").value = editing && member.feast.text !== "-" ? member.feast.text : "";
+        document.getElementById("member-cohort").value = editing ? member.cohortRaw : "";
+        const message = document.getElementById("member-form-message");
+        message.textContent = "";
+        message.className = "password-change-message";
+        document.getElementById("member-modal").classList.add("open");
+        document.body.style.overflow = "hidden";
+        setTimeout(() => document.getElementById("member-name").focus(), 0);
+      }
+
+      function closeMemberModal() {
+        const modal = document.getElementById("member-modal");
+        if (!modal) return;
+        modal.classList.remove("open");
+        if (!document.getElementById("admin-modal").classList.contains("open")) {
+          document.body.style.overflow = "";
+        }
+      }
+
+      function showMemberFormError(message) {
+        const el = document.getElementById("member-form-message");
+        el.textContent = message;
+        el.className = "password-change-message error";
+      }
+
+      async function saveMember() {
+        if (!state.adminMode) return;
+        const rowId = Number(document.getElementById("member-row-id").value) || null;
+        const member = {
+          name: document.getElementById("member-name").value.trim(),
+          baptismal: document.getElementById("member-baptismal").value.trim(),
+          role: document.getElementById("member-role").value,
+          gender: document.getElementById("member-gender").value,
+          phone: document.getElementById("member-phone").value.trim(),
+          feast: document.getElementById("member-feast").value.trim(),
+          cohort: document.getElementById("member-cohort").value.trim(),
+        };
+        if (!member.name) {
+          showMemberFormError("이름을 입력해 주세요.");
+          return;
+        }
+
+        const button = document.getElementById("save-member-btn");
+        button.disabled = true;
+        button.textContent = "저장 중…";
+        try {
+          const response = await apiPost({
+            action: rowId ? "updateMember" : "createMember",
+            token: state.authToken,
+            rowId,
+            member,
+          });
+          if (!response.ok) {
+            if (response.error === "UNAUTHORIZED") return expireSession(response.message);
+            showMemberFormError(response.message || "저장하지 못했습니다.");
+            return;
+          }
+          closeMemberModal();
+          await loadData();
+        } catch {
+          showMemberFormError("서버 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+        } finally {
+          button.disabled = false;
+          button.textContent = "저장";
+        }
+      }
+
+      async function deleteMember(member) {
+        if (!state.adminMode) return;
+        if (!confirm(`${member.name} 단원을 명단에서 삭제하시겠습니까?`)) return;
+        try {
+          const response = await apiPost({
+            action: "deleteMember",
+            token: state.authToken,
+            rowId: member.rowId,
+          });
+          if (!response.ok) {
+            if (response.error === "UNAUTHORIZED") return expireSession(response.message);
+            alert(response.message || "삭제하지 못했습니다.");
+            return;
+          }
+          await loadData();
+        } catch {
+          alert("서버 연결에 실패했습니다. 잠시 후 다시 시도해 주세요.");
+        }
+      }
+
+      function expireSession(message) {
+        sessionStorage.removeItem("ul_token");
+        state.authToken = null;
+        state.adminMode = false;
+        document.body.classList.remove("admin-mode");
+        closeModeSwitchModal();
+        closeAdminModal();
+        closeMemberModal();
+        document.getElementById("main-view").style.display = "none";
+        document.getElementById("login-view").style.display = "flex";
+        showLoginError(message || "로그인이 만료되었습니다.");
+      }
+
+      async function logout() {
         if (!confirm("로그아웃 하시겠습니까?")) return;
-        sessionStorage.removeItem("ul_auth");
+        const token = state.authToken;
+        sessionStorage.removeItem("ul_token");
+        state.authToken = null;
+        state.adminMode = false;
+        document.body.classList.remove("admin-mode");
+        closeModeSwitchModal();
+        closeAdminModal();
+        closeMemberModal();
+        if (token) {
+          apiPost({ action: "logout", token }).catch(() => {});
+        }
         document.getElementById("userpw").value = "";
         document.getElementById("login-error").style.display = "none";
         document.getElementById("main-view").style.display = "none";
         document.getElementById("login-view").style.display = "flex";
+        document.getElementById("login-mode-user").checked = true;
+        document.getElementById("login-mode-admin").checked = false;
+        document.getElementById("login-password-label").textContent = "사용자 비밀번호";
+        document.getElementById("login-btn").textContent = "사용자 모드 로그인";
         /* ✅ 개선 #5: 로그아웃 시 카드 그리드 + 상태 완전 초기화 */
         document.getElementById("card-grid").innerHTML = "";
         document.getElementById("pagination").innerHTML = "";
@@ -1281,12 +2221,11 @@
         state.allMembers = [];
         state.filtered = [];
         state.currentPage = 1;
-        state.authHash = null;
       }
 
       /* ══════════════════════════════
          데이터 로드
-         ✅ 개선 #2: 매 요청마다 pw 해시 필수 전송
+         모든 요청에 서버가 발급한 세션 토큰 전송
       ══════════════════════════════ */
       async function loadData() {
         document.getElementById("loading-area").style.display = "block";
@@ -1294,27 +2233,41 @@
         document.getElementById("empty-state").style.display = "none";
 
         try {
-          const fetchUrl = new URL(state.apiUrl);
-          if (state.authHash) {
-            fetchUrl.searchParams.set("action", "getMembers");
-            fetchUrl.searchParams.set("pw", state.authHash);
+          if (!state.authToken) throw new Error("로그인이 필요합니다.");
+          const response = await apiPost({
+            action: "getMembers",
+            token: state.authToken,
+          });
+          if (!response.ok) {
+            if (response.error === "UNAUTHORIZED") {
+              sessionStorage.removeItem("ul_token");
+              state.authToken = null;
+              document.getElementById("main-view").style.display = "none";
+              document.getElementById("login-view").style.display = "flex";
+              showLoginError(response.message || "로그인이 만료되었습니다.");
+            }
+            throw new Error(response.message || "데이터를 불러오지 못했습니다.");
           }
-          // authHash 없음(레거시 로그인) → action 없이 기본 URL 호출
+          const raw = response.members;
+          if (!Array.isArray(raw)) throw new Error("잘못된 서버 응답입니다.");
 
-          const res = await fetch(fetchUrl);
-          if (!res.ok) throw new Error("서버 응답 오류");
-          const raw = await res.json();
-          if (raw.error) throw new Error(raw.error);
-
-          state.allMembers = raw.map((m) => ({
-            name: String(m["이름"] || "-"),
-            baptismal: String(m["세례명"] || ""),
-            role: String(m["구분"] || "단원"),
-            phone: String(m["전화번호"] || "-"),
-            gender: normalizeGender(m["성별"]),
-            feast: parseFeastDay(m["축일"]),
-            cohort: String(m["체험 차수"] || "-"),
-          }));
+          state.allMembers = raw.map((m) => {
+            const gender = normalizeGender(m.gender || m["성별"]);
+            const cohortRaw = String(
+              m.cohort || m["체험 차수"] || m["체험차수"] || "",
+            );
+            return {
+              rowId: Number(m._row),
+              name: String(m.name || m["이름"] || "-"),
+              baptismal: String(m.baptismal || m["세례명"] || ""),
+              role: String(m.role || m["구분"] || "단원"),
+              phone: String(m.phone || m["전화번호"] || "-"),
+              gender,
+              feast: parseFeastDay(m.feast || m["축일"]),
+              cohortRaw,
+              cohort: formatCohort(gender, cohortRaw),
+            };
+          });
 
           // 통계 계산
           let male = 0,
@@ -1358,9 +2311,10 @@
           applyFilters();
         } catch (err) {
           document.getElementById("loading-area").style.display = "none";
+          if (!state.authToken) return;
           /* ✅ 개선 #10: 에러 시 전용 에러 배너 사용 */
           const banner = document.getElementById("error-banner");
-          banner.textContent = `⚠️ 데이터 로딩 실패: ${sanitize(err.message)}`;
+          banner.textContent = `⚠️ 데이터 로딩 실패: ${err.message}`;
           banner.style.display = "block";
           document.getElementById("card-grid").style.display = "grid";
         }
@@ -1512,6 +2466,22 @@
 
           body.append(rowPhone, rowFeast, rowCohort);
           card.append(header, body);
+          if (state.adminMode) {
+            const actions = document.createElement("div");
+            actions.className = "card-admin-actions admin-only";
+            const editButton = document.createElement("button");
+            editButton.className = "btn-card-edit";
+            editButton.type = "button";
+            editButton.textContent = "수정";
+            editButton.onclick = () => openMemberModal(m);
+            const deleteButton = document.createElement("button");
+            deleteButton.className = "btn-card-delete";
+            deleteButton.type = "button";
+            deleteButton.textContent = "삭제";
+            deleteButton.onclick = () => deleteMember(m);
+            actions.append(editButton, deleteButton);
+            card.appendChild(actions);
+          }
           frag.appendChild(card);
         });
 
