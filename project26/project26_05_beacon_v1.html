@@ -622,6 +622,83 @@
         display: block;
       }
 
+      /* ── 학생 관리 ─────────────────────────────────────────────── */
+      .student-form-card {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 18px;
+        margin-bottom: 18px;
+      }
+      .student-form-card h3 {
+        margin: 0 0 14px;
+        font-size: 16px;
+      }
+      .student-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .student-form-grid .input-group {
+        margin-bottom: 0;
+      }
+      .student-form-actions {
+        display: flex;
+        gap: 8px;
+        margin-top: 14px;
+      }
+      .student-form-actions button {
+        padding: 12px;
+        font-size: 14px;
+        margin-bottom: 0;
+      }
+      .student-list-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0 2px 10px;
+        font-size: 13px;
+        color: var(--text-light);
+      }
+      .student-action-group {
+        display: flex;
+        justify-content: center;
+        gap: 5px;
+      }
+      .student-action-btn {
+        width: auto;
+        padding: 7px 9px;
+        border-radius: 8px;
+        font-size: 11px;
+        box-shadow: none;
+        white-space: nowrap;
+      }
+      .student-action-btn.edit {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+      .student-action-btn.reset {
+        background: #fef3c7;
+        color: #b45309;
+      }
+      .student-action-btn.delete {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      @media (max-width: 540px) {
+        .tab-bar {
+          overflow-x: auto;
+        }
+        .tab-btn {
+          min-width: 90px;
+          white-space: nowrap;
+        }
+        .student-form-grid {
+          grid-template-columns: 1fr;
+        }
+      }
+
       /* ── 날짜 차단 캘린더 ──────────────────────────────────────── */
       .bc-month-nav {
         display: flex;
@@ -930,6 +1007,9 @@
           <button class="tab-btn active" onclick="switchTab('tab-dashboard')">
             📋 출석 현황
           </button>
+          <button class="tab-btn" onclick="switchTab('tab-students')">
+            👥 학생 관리
+          </button>
           <button class="tab-btn" onclick="switchTab('tab-block')">
             🚫 날짜 차단
           </button>
@@ -1093,7 +1173,85 @@
           <div id="paginationControls"></div>
         </div>
 
-        <!-- ── 탭 2: 날짜 차단 ── -->
+        <!-- ── 탭 2: 학생 관리 ── -->
+        <div id="tab-students" class="tab-panel">
+          <div class="student-form-card">
+            <h3 id="studentFormTitle">➕ 학생 등록</h3>
+            <div class="student-form-grid">
+              <div class="input-group">
+                <label for="manageStudentId">학번</label>
+                <input
+                  type="text"
+                  id="manageStudentId"
+                  maxlength="30"
+                  placeholder="예: 31201"
+                />
+              </div>
+              <div class="input-group">
+                <label for="manageStudentName">이름</label>
+                <input
+                  type="text"
+                  id="manageStudentName"
+                  maxlength="20"
+                  placeholder="학생 이름"
+                />
+              </div>
+              <div class="input-group">
+                <label for="manageStudentInTime">입실 기준시간</label>
+                <input type="time" id="manageStudentInTime" value="09:00" />
+              </div>
+              <div class="input-group">
+                <label for="manageStudentOutTime">퇴실 기준시간</label>
+                <input type="time" id="manageStudentOutTime" value="18:00" />
+              </div>
+            </div>
+            <div class="student-form-actions">
+              <button
+                class="btn-primary"
+                id="saveStudentBtn"
+                onclick="saveStudent()"
+              >
+                학생 등록
+              </button>
+              <button
+                class="btn-secondary hidden"
+                id="cancelStudentEditBtn"
+                onclick="cancelStudentEdit()"
+              >
+                수정 취소
+              </button>
+            </div>
+            <div id="studentManageMsg" class="msg-error"></div>
+          </div>
+
+          <div class="student-list-head">
+            <strong>등록 학생 목록</strong>
+            <span id="studentManageCount">0명</span>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>학번</th>
+                  <th>이름</th>
+                  <th>기준시간</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="studentManageContent">
+                <tr>
+                  <td colspan="4">데이터를 불러오는 중...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <p style="font-size: 12px; color: #64748b; line-height: 1.6">
+            학번은 출결 이력 식별키이므로 등록 후 변경할 수 없습니다. 학생
+            삭제 시 기존 출결 기록은 보존됩니다.
+          </p>
+        </div>
+
+        <!-- ── 탭 3: 날짜 차단 ── -->
         <div id="tab-block" class="tab-panel">
           <div class="bc-month-nav">
             <button class="nav-btn" onclick="blockCalPrev()">
@@ -1226,7 +1384,7 @@
           <div style="margin-top: 14px" id="blockedListSummary"></div>
         </div>
 
-        <!-- ── 탭 3: 월간 레포트 ── -->
+        <!-- ── 탭 4: 월간 레포트 ── -->
         <div id="tab-report" class="tab-panel">
           <div class="report-panel">
             <h3>📄 월간 출석 레포트</h3>
@@ -1342,6 +1500,7 @@
       let currentFilteredData = [];
       let currentPage = 1;
       let sessionTimeoutTimer;
+      let editingStudentId = null;
       // 날짜 차단 캘린더 상태
       let bcYear = new Date().getFullYear();
       let bcMonth = new Date().getMonth(); // 0-based
@@ -1693,7 +1852,6 @@
       }
 
       async function submitAttend(type) {
-        const stdTime = type === "입실" ? userInfo.inTime : userInfo.outTime;
         const btn =
           type === "입실"
             ? document.getElementById("btnIn")
@@ -1706,7 +1864,6 @@
           action: "recordAttendance",
           id: userInfo.id,
           type,
-          stdTime,
         });
 
         if (res.success) {
@@ -1848,8 +2005,14 @@
           .forEach((b) => b.classList.remove("active"));
         document.getElementById(tabId).classList.add("active");
         // 해당 탭 버튼 활성화
-        const idx = ["tab-dashboard", "tab-block", "tab-report"].indexOf(tabId);
-        document.querySelectorAll(".tab-btn")[idx].classList.add("active");
+        const idx = [
+          "tab-dashboard",
+          "tab-students",
+          "tab-block",
+          "tab-report",
+        ].indexOf(tabId);
+        if (idx >= 0)
+          document.querySelectorAll(".tab-btn")[idx].classList.add("active");
       }
 
       // ✅ 자동 새로고침 함수 분리
@@ -1888,6 +2051,7 @@
           allStudents = res.data.students;
           allBlockedDates = res.data.blockedDates || [];
           renderDashboard();
+          renderStudentManager();
           renderBlockCalendar();
         } else {
           if (!isSilent) {
@@ -1900,6 +2064,184 @@
           btn.innerText = "🔄 데이터 새로고침";
           btn.disabled = false;
         }
+      }
+
+      // ── 학생 관리 ────────────────────────────────────────────────────
+      function setStudentManageMessage(message, isSuccess = false) {
+        const msg = document.getElementById("studentManageMsg");
+        msg.className = isSuccess ? "msg-success" : "msg-error";
+        msg.textContent = message || "";
+      }
+
+      function clearStudentForm(clearMessage = true) {
+        editingStudentId = null;
+        const idInput = document.getElementById("manageStudentId");
+        idInput.value = "";
+        idInput.disabled = false;
+        document.getElementById("manageStudentName").value = "";
+        document.getElementById("manageStudentInTime").value = "09:00";
+        document.getElementById("manageStudentOutTime").value = "18:00";
+        document.getElementById("studentFormTitle").textContent =
+          "➕ 학생 등록";
+        document.getElementById("saveStudentBtn").textContent = "학생 등록";
+        document
+          .getElementById("cancelStudentEditBtn")
+          .classList.add("hidden");
+        if (clearMessage) setStudentManageMessage("");
+      }
+
+      function cancelStudentEdit() {
+        clearStudentForm(true);
+      }
+
+      function beginEditStudent(studentId) {
+        const student = allStudents.find((item) => item.id === studentId);
+        if (!student) {
+          setStudentManageMessage("학생 정보를 찾을 수 없습니다.");
+          return;
+        }
+
+        editingStudentId = student.id;
+        const idInput = document.getElementById("manageStudentId");
+        idInput.value = student.id;
+        idInput.disabled = true;
+        document.getElementById("manageStudentName").value = student.name;
+        document.getElementById("manageStudentInTime").value =
+          student.inTime || "09:00";
+        document.getElementById("manageStudentOutTime").value =
+          student.outTime || "18:00";
+        document.getElementById("studentFormTitle").textContent =
+          `✏️ ${student.name} 학생 수정`;
+        document.getElementById("saveStudentBtn").textContent = "수정 저장";
+        document
+          .getElementById("cancelStudentEditBtn")
+          .classList.remove("hidden");
+        setStudentManageMessage("");
+        document.querySelector("#tab-students .student-form-card").scrollIntoView({
+          behavior: "smooth",
+          block: "start",
+        });
+      }
+
+      function renderStudentManager() {
+        const tbody = document.getElementById("studentManageContent");
+        if (!tbody) return;
+
+        document.getElementById("studentManageCount").textContent =
+          `${allStudents.length}명`;
+
+        if (allStudents.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="4" style="padding:24px;color:#94a3b8;">등록된 학생이 없습니다.</td></tr>';
+          return;
+        }
+
+        tbody.innerHTML = allStudents
+          .map(
+            (student) => `<tr>
+              <td><strong>${esc(student.id)}</strong></td>
+              <td>${esc(student.name)}</td>
+              <td>${esc(student.inTime || "-")}<br><span style="color:#94a3b8;">~ ${esc(student.outTime || "-")}</span></td>
+              <td>
+                <div class="student-action-group">
+                  <button class="student-action-btn edit" data-id="${esc(student.id)}" onclick="beginEditStudent(this.dataset.id)">수정</button>
+                  <button class="student-action-btn reset" data-id="${esc(student.id)}" onclick="resetStudentPasswordForAdmin(this.dataset.id)">PW 초기화</button>
+                  <button class="student-action-btn delete" data-id="${esc(student.id)}" onclick="deleteStudentFromAdmin(this.dataset.id)">삭제</button>
+                </div>
+              </td>
+            </tr>`,
+          )
+          .join("");
+      }
+
+      async function saveStudent() {
+        const id = (
+          editingStudentId ||
+          document.getElementById("manageStudentId").value
+        ).trim();
+        const name = document.getElementById("manageStudentName").value.trim();
+        const inTime = document.getElementById("manageStudentInTime").value;
+        const outTime = document.getElementById("manageStudentOutTime").value;
+
+        if (!id || !name || !inTime || !outTime) {
+          setStudentManageMessage("학번, 이름, 기준시간을 모두 입력해주세요.");
+          return;
+        }
+        if (outTime <= inTime) {
+          setStudentManageMessage(
+            "퇴실 기준시간은 입실 기준시간보다 늦어야 합니다.",
+          );
+          return;
+        }
+
+        const btn = document.getElementById("saveStudentBtn");
+        const originalText = btn.textContent;
+        btn.disabled = true;
+        btn.textContent = "처리 중...";
+        setStudentManageMessage("");
+
+        const res = await callAPI({
+          action: editingStudentId ? "updateStudent" : "addStudent",
+          id: userInfo.id,
+          studentId: id,
+          name,
+          inTime,
+          outTime,
+        });
+
+        btn.disabled = false;
+        btn.textContent = originalText;
+        if (!res.success) {
+          setStudentManageMessage(res.msg);
+          return;
+        }
+
+        clearStudentForm(false);
+        setStudentManageMessage(res.msg, true);
+        await fetchAdminData(true);
+      }
+
+      async function resetStudentPasswordForAdmin(studentId) {
+        const student = allStudents.find((item) => item.id === studentId);
+        if (!student) return;
+        if (
+          !confirm(
+            `${student.name} 학생의 비밀번호를 0000으로 초기화할까요?\n현재 로그인된 세션은 모두 종료됩니다.`,
+          )
+        )
+          return;
+
+        setStudentManageMessage("비밀번호 초기화 중...");
+        const res = await callAPI({
+          action: "resetStudentPassword",
+          id: userInfo.id,
+          studentId,
+        });
+        setStudentManageMessage(res.msg, res.success);
+        if (res.success) await fetchAdminData(true);
+      }
+
+      async function deleteStudentFromAdmin(studentId) {
+        const student = allStudents.find((item) => item.id === studentId);
+        if (!student) return;
+        if (
+          !confirm(
+            `${student.name} 학생 계정을 삭제할까요?\n과거 출결 기록은 삭제되지 않습니다.`,
+          )
+        )
+          return;
+
+        setStudentManageMessage("학생 계정 삭제 중...");
+        const res = await callAPI({
+          action: "deleteStudent",
+          id: userInfo.id,
+          studentId,
+        });
+        if (res.success && editingStudentId === studentId) {
+          clearStudentForm(false);
+        }
+        setStudentManageMessage(res.msg, res.success);
+        if (res.success) await fetchAdminData(true);
       }
 
       function renderDashboard() {
@@ -2307,7 +2649,7 @@
           actions.dataset.fileName = res.fileName;
 
           msg.style.color = "#10b981";
-          msg.textContent = `✅ ${res.fileName} 생성 완료 — 아래 버튼으로 PDF 저장`;
+          msg.textContent = `✅ ${res.fileName} 생성 완료 — 집계 대상 실습일 ${res.scheduledDays ?? 0}일`;
         } else {
           document.getElementById("reportPreviewArea").innerHTML =
             `<div class="report-placeholder" style="color:#ef4444;">❌ ${esc(res.msg)}</div>`;
