@@ -545,7 +545,7 @@
     deploy: { companyId: null, subjectIds: [], studentId: '', viewMode: 'student', examDate: todayISO(), questionIds: [], hintMode: false },
     modal: null,
     authenticated: false,
-    fetchedPassword: '',
+    sessionToken: '',
     loginError: null
   };
 
@@ -598,6 +598,18 @@
   }
   function localRemove(key){
     try{ localStorage.removeItem(key); }catch(e){}
+  }
+  function sessionGet(key){
+    try{ return sessionStorage.getItem(key); }catch(e){ return null; }
+  }
+  function sessionSet(key, value){
+    try{ sessionStorage.setItem(key, value); }catch(e){}
+  }
+  function sessionRemove(key){
+    try{ sessionStorage.removeItem(key); }catch(e){}
+  }
+  function authSessionKey(url){
+    return 'problem-bank-auth-token:' + String(url || '');
   }
 
   /* 문제유형(서술형/질문형/발표형)에 맞는 뱃지 HTML 생성 */
@@ -715,36 +727,19 @@
     var moved = assigns.splice(idx,1)[0];
     assigns.splice(targetIdx,0,moved);
 
-    // 실패 시 되돌릴 수 있도록 변경 전 순서를 기억해둠
-    var prevOrders7 = {};
-    state.assignments.forEach(function(a){ prevOrders7[a.배정ID] = a.순서; });
-
-    // state.assignments의 순서 값 직접 업데이트
-    assigns.forEach(function(a,i){
-      var orig = state.assignments.find(function(x){ return String(x.배정ID)===String(a.배정ID); });
-      if(orig) orig.순서 = i+1;
-    });
-
     if(state.url){
       assignReorderBusy = true;
       setStatus('loading');
       setOrderButtonsBusy(true); // 저장 중인 동안 버튼을 눈에 띄게 비활성화
-      var stepOk = true;
-      for(var i=0;i<assigns.length;i++){
-        var orig = state.assignments.find(function(x){ return String(x.배정ID)===String(assigns[i].배정ID); });
-        if(orig){
-          var writeOk7 = await writeData('배정','update', Object.assign({},orig));
-          if(!writeOk7){ stepOk = false; break; } // writeData가 이미 alert로 실패를 안내함
-        }
-      }
-      if(!stepOk){
-        // 실패한 만큼은 변경 전 순서로 되돌림
-        state.assignments.forEach(function(a){ if(prevOrders7[a.배정ID]!==undefined) a.순서 = prevOrders7[a.배정ID]; });
-      }
+      var stepOk = await writeDomainAction('reorderAssignments', {
+        companyId:companyId,
+        assignmentIds:assigns.map(function(a){ return a.배정ID; })
+      });
       assignReorderBusy = false;
       setOrderButtonsBusy(false);
-      await fetchData(state.url); // 성공/실패 관계없이 서버 최신 상태로 재동기화
+      if(stepOk) await fetchData(state.url);
     } else {
+      assigns.forEach(function(a,i){ a.순서 = i+1; });
       render();
     }
   }
@@ -791,28 +786,17 @@
 
     if(state.url){
       assignReorderBusy = true;
-      // 실패 시 되돌릴 수 있도록 변경 전 순서를 기억해둠
-      var prevOrders5 = {};
-      state.assignments.forEach(function(a){ prevOrders5[a.배정ID] = a.순서; });
-      var reorderOk = true;
-      for(var i=0; i<list.length; i++){
-        var assign = state.assignments.find(function(a){ return String(a.배정ID)===String(list[i].assignmentId); });
-        if(assign){
-          assign.순서 = i+1;
-          var writeOk5 = await writeData('배정','update', Object.assign({}, assign));
-          if(!writeOk5){ reorderOk = false; break; } // writeData가 이미 alert로 실패를 안내함
-        }
-      }
+      var reorderOk = await writeDomainAction('reorderAssignments', {
+        companyId:reorderState.companyId,
+        assignmentIds:list.map(function(item){ return item.assignmentId; })
+      });
       assignReorderBusy = false;
       if(reorderOk){
         state.modal = null;
         reorderState.companyId = null;
         closeModal();
-      } else {
-        // 실패한 만큼은 되돌리고, 모달은 열어둔 채 사용자가 재시도할 수 있게 함
-        state.assignments.forEach(function(a){ if(prevOrders5[a.배정ID]!==undefined) a.순서 = prevOrders5[a.배정ID]; });
+        await fetchData(state.url);
       }
-      await fetchData(state.url); // 성공/실패 관계없이 서버 최신 상태로 재동기화
     } else {
       list.forEach(function(item, i){
         var assign = state.assignments.find(function(a){ return String(a.배정ID)===String(item.assignmentId); });
@@ -930,28 +914,76 @@
      데이터 통신 (GAS 웹앱 fetch/write/persist)
      fetchData : 초기 로드 및 새로고침 시 GAS 웹앱에서 전체 데이터를 가져옴
      ============================================================ */
+  function clearServerData(){
+    state.students = [];
+    state.companies = [];
+    state.subjects = [];
+    state.questions = [];
+    state.assignments = [];
+    state.selectedCompanyId = null;
+    state.selectedSubjectId = null;
+    state.deploy.companyId = null;
+    state.deploy.subjectIds = [];
+    state.deploy.studentId = '';
+    state.deploy.questionIds = [];
+  }
+
+  function applyServerData(data){
+    if(!data || typeof data !== 'object') throw new Error('서버 데이터 형식이 올바르지 않습니다');
+    state.students = Array.isArray(data.students) ? data.students : [];
+    state.companies = Array.isArray(data.companies) ? data.companies : [];
+    state.subjects = Array.isArray(data.subjects) ? data.subjects : [];
+    state.questions = Array.isArray(data.questions) ? data.questions : [];
+    state.assignments = Array.isArray(data.assignments) ? data.assignments : [];
+  }
+
+  async function postApi(url, payload){
+    var res = await fetch(url, {
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify(payload)
+    });
+    if(!res.ok) throw new Error('HTTP ' + res.status);
+    var result = await res.json();
+    if(!result || typeof result !== 'object') throw new Error('서버 응답 형식이 올바르지 않습니다');
+    return result;
+  }
+
   async function fetchData(url){
+    var inMemoryToken = state.url === url ? state.sessionToken : '';
     state.url = url;
     state.error = null;
     setStatus('loading');
     render();
     try{
-      var res = await fetch(url);
-      if(!res.ok) throw new Error('HTTP ' + res.status);
-      var data = await res.json();
-      state.students = Array.isArray(data.students) ? data.students : [];
-      state.companies = Array.isArray(data.companies) ? data.companies : [];
-      state.subjects = Array.isArray(data.subjects) ? data.subjects : [];
-      state.questions = Array.isArray(data.questions) ? data.questions : [];
-      state.assignments = Array.isArray(data.assignments) ? data.assignments : [];
-      state.fetchedPassword = data.password || '';
-      if(!state.fetchedPassword){
-        state.authenticated = true;
-      } else {
-        var savedAuth = localGet('auth-pw');
-        if(savedAuth && String(savedAuth).trim() === String(state.fetchedPassword).trim()){
+      var token = inMemoryToken || sessionGet(authSessionKey(url));
+      if(token){
+        var readResult = await postApi(url, {action:'read', token:token});
+        if(readResult.success && readResult.authenticated && readResult.data){
+          state.sessionToken = token;
           state.authenticated = true;
+          state.loginError = null;
+          applyServerData(readResult.data);
+        } else if(readResult.code === 'UNAUTHORIZED'){
+          sessionRemove(authSessionKey(url));
+          state.sessionToken = '';
+          state.authenticated = false;
+          state.loginError = '로그인 세션이 만료되었습니다. 다시 로그인해주세요.';
+          clearServerData();
+        } else {
+          throw new Error(readResult.error || '데이터 조회에 실패했습니다');
         }
+      } else {
+        var res = await fetch(url);
+        if(!res.ok) throw new Error('HTTP ' + res.status);
+        var statusResult = await res.json();
+        if(!statusResult || !statusResult.success){
+          throw new Error((statusResult && statusResult.error) || '서버 인증 상태를 확인하지 못했습니다');
+        }
+        state.sessionToken = '';
+        state.authenticated = false;
+        state.loginError = null;
+        clearServerData();
       }
       state.loaded = true;
       setStatus('on');
@@ -965,13 +997,65 @@
 
   /* GAS 웹앱에 생성/수정/삭제(create/update/delete) 요청을 raw fetch로 전송 */
   async function writeData(sheetName, action, data){
+    if(!state.sessionToken){
+      alert('로그인이 필요합니다. 다시 로그인해주세요.');
+      state.authenticated = false;
+      clearServerData();
+      render();
+      return false;
+    }
     try{
-      var res = await fetch(state.url, {
-        method:'POST',
-        headers:{'Content-Type':'text/plain;charset=utf-8'},
-        body: JSON.stringify({sheet:sheetName, action:action, data:data})
+      var result = await postApi(state.url, {
+        sheet:sheetName,
+        action:action,
+        data:data,
+        token:state.sessionToken
       });
-      var result = await res.json();
+      if(result.code === 'UNAUTHORIZED'){
+        sessionRemove(authSessionKey(state.url));
+        state.sessionToken = '';
+        state.authenticated = false;
+        state.loginError = '로그인 세션이 만료되었습니다. 다시 로그인해주세요.';
+        clearServerData();
+        setStatus('on');
+        render();
+        alert(state.loginError);
+        return false;
+      }
+      if(!result.success) throw new Error(result.error || '알 수 없는 오류');
+      return true;
+    }catch(err){
+      alert('저장에 실패했습니다: ' + err.message);
+      return false;
+    }
+  }
+
+  /* 연쇄 삭제·과목 생성+배정·순서 변경처럼 서버에서 한 번에 처리해야 하는 도메인 작업 */
+  async function writeDomainAction(action, data){
+    if(!state.sessionToken){
+      alert('로그인이 필요합니다. 다시 로그인해주세요.');
+      state.authenticated = false;
+      clearServerData();
+      render();
+      return false;
+    }
+    try{
+      var result = await postApi(state.url, {
+        action:action,
+        data:data,
+        token:state.sessionToken
+      });
+      if(result.code === 'UNAUTHORIZED'){
+        sessionRemove(authSessionKey(state.url));
+        state.sessionToken = '';
+        state.authenticated = false;
+        state.loginError = '로그인 세션이 만료되었습니다. 다시 로그인해주세요.';
+        clearServerData();
+        setStatus('on');
+        render();
+        alert(state.loginError);
+        return false;
+      }
       if(!result.success) throw new Error(result.error || '알 수 없는 오류');
       return true;
     }catch(err){
@@ -1013,21 +1097,25 @@
 
   async function handleUnassign(companyId, subjectId){
     if(!confirm('이 기업에서 과목 배정을 해제하시겠습니까? (과목 자체와 등록된 문제는 삭제되지 않습니다)')) return;
-    var assignId = companyId + '_' + subjectId;
-    await persist('배정', 'delete', {배정ID:assignId}, '배정ID');
+    var assignment = state.assignments.find(function(a){
+      return String(a.기업ID)===String(companyId) && String(a.과목ID)===String(subjectId);
+    });
+    if(!assignment){ alert('삭제할 배정 정보를 찾을 수 없습니다.'); return; }
+    await persist('배정', 'delete', {배정ID:assignment.배정ID}, '배정ID');
   }
 
   async function deleteSubjectCompletely(subjectId){
-    if(!confirm('정말 이 과목을 완전히 삭제하시겠습니까? 등록된 문제도 함께 삭제됩니다.')) return;
-    var relatedQuestions = state.questions.filter(function(q){ return String(q.과목ID)===String(subjectId); });
-    for(var i=0;i<relatedQuestions.length;i++){
-      var qOk = await persist('문제', 'delete', {문제ID:relatedQuestions[i].문제ID}, '문제ID');
-      if(!qOk){
-        alert('문제 삭제 중 오류가 발생하여 과목 삭제를 중단했습니다. 일부 문제만 삭제되었을 수 있으니 새로고침 후 다시 시도해주세요.');
-        return;
-      }
+    if(!confirm('정말 이 과목을 완전히 삭제하시겠습니까? 등록된 문제와 모든 기업의 과목 배정도 함께 삭제됩니다.')) return;
+    if(state.url){
+      var subjectDeleteOk = await writeDomainAction('deleteSubjectCascade', {subjectId:subjectId});
+      if(subjectDeleteOk) await fetchData(state.url);
+    } else {
+      state.questions = state.questions.filter(function(q){ return String(q.과목ID)!==String(subjectId); });
+      state.assignments = state.assignments.filter(function(a){ return String(a.과목ID)!==String(subjectId); });
+      state.subjects = state.subjects.filter(function(s){ return String(s.과목ID)!==String(subjectId); });
+      if(String(state.selectedSubjectId)===String(subjectId)) state.selectedSubjectId = null;
+      render();
     }
-    await persist('과목', 'delete', {과목ID:subjectId}, '과목ID');
   }
 
   /* 기업 완전 삭제: 그냥 기업만 지우면 연결된 배정(과목 배정)·소속 학생 정보가 고아 데이터로 남아
@@ -1041,21 +1129,19 @@
     var extraWarning = warnParts.length>0 ? ('\n\n※ 이 기업에 연결된 '+warnParts.join(', ')+'도 함께 삭제됩니다.') : '';
     if(!confirm('정말 이 기업을 삭제하시겠습니까?'+extraWarning)) return;
 
-    for(var i=0;i<relatedAssigns.length;i++){
-      var aOk = await persist('배정', 'delete', {배정ID:relatedAssigns[i].배정ID}, '배정ID');
-      if(!aOk){
-        alert('배정 정보 삭제 중 오류가 발생하여 기업 삭제를 중단했습니다. 일부만 삭제되었을 수 있으니 새로고침 후 다시 시도해주세요.');
-        return;
+    if(state.url){
+      var companyDeleteOk = await writeDomainAction('deleteCompanyCascade', {companyId:companyId});
+      if(companyDeleteOk) await fetchData(state.url);
+    } else {
+      state.assignments = state.assignments.filter(function(a){ return String(a.기업ID)!==String(companyId); });
+      state.students = state.students.filter(function(st){ return String(st.기업ID)!==String(companyId); });
+      state.companies = state.companies.filter(function(c){ return String(c.기업ID)!==String(companyId); });
+      if(String(state.selectedCompanyId)===String(companyId)){
+        state.selectedCompanyId = null;
+        state.selectedSubjectId = null;
       }
+      render();
     }
-    for(var j=0;j<relatedStudents.length;j++){
-      var sOk = await persist('학생', 'delete', {학생ID:relatedStudents[j].학생ID}, '학생ID');
-      if(!sOk){
-        alert('학생 정보 삭제 중 오류가 발생하여 기업 삭제를 중단했습니다. 일부만 삭제되었을 수 있으니 새로고침 후 다시 시도해주세요.');
-        return;
-      }
-    }
-    await persist('기업', 'delete', {기업ID:companyId}, '기업ID');
   }
 
   /* ── 신규 등록 시 사용할 ID 자동 생성 유틸 모음 (기업/학생/과목/문제/배정 ID) ── */
@@ -1217,7 +1303,7 @@
   function updateAuthUI(){
     var logoutBtn = document.getElementById('logoutBtn');
     if(!logoutBtn) return;
-    var shouldShow = !!(state.loaded && state.fetchedPassword && state.authenticated);
+    var shouldShow = !!(state.loaded && state.authenticated && state.sessionToken);
     logoutBtn.style.display = shouldShow ? '' : 'none';
   }
 
@@ -1245,15 +1331,47 @@
 
   async function checkPassword(){
     var pwInput = document.getElementById('passwordInput');
-    var entered = pwInput ? pwInput.value.trim() : '';
-    var expected = String(state.fetchedPassword).trim();
-    if(expected && entered === expected){
+    var loginBtn = document.getElementById('loginBtn');
+    var entered = pwInput ? pwInput.value : '';
+    if(!entered){
+      state.loginError = '비밀번호를 입력해주세요';
+      render();
+      return;
+    }
+    if(!state.url){
+      state.loginError = '연결된 서버가 없습니다';
+      render();
+      return;
+    }
+
+    if(loginBtn){ loginBtn.disabled = true; loginBtn.textContent = '로그인 중...'; }
+    setStatus('loading');
+    try{
+      var result = await postApi(state.url, {action:'login', password:entered});
+      if(!result.success){
+        throw new Error(result.error || '로그인에 실패했습니다');
+      }
+      if(!result.token || !result.data){
+        throw new Error('서버 로그인 응답 형식이 올바르지 않습니다');
+      }
+
+      state.sessionToken = result.token;
       state.authenticated = true;
       state.loginError = null;
-      localSet('auth-pw', expected);
+      state.error = null;
+      state.loaded = true;
+      applyServerData(result.data);
+      sessionSet(authSessionKey(state.url), result.token);
+      localRemove('auth-pw'); // 이전 버전에서 저장한 평문 비밀번호 제거
+      setStatus('on');
       render();
-    } else {
-      state.loginError = '비밀번호가 올바르지 않습니다';
+    }catch(err){
+      state.authenticated = false;
+      state.sessionToken = '';
+      sessionRemove(authSessionKey(state.url));
+      clearServerData();
+      state.loginError = err.message;
+      setStatus('error');
       render();
     }
   }
@@ -1964,11 +2082,19 @@
   });
 
   /* 로그아웃: 저장해둔 인증 정보를 지우고 로그인 화면으로 되돌림 (연결된 URL 자체는 유지) */
-  document.getElementById('logoutBtn').addEventListener('click', function(){
-    localRemove('auth-pw');
+  document.getElementById('logoutBtn').addEventListener('click', async function(){
+    var logoutUrl = state.url;
+    var logoutToken = state.sessionToken;
+    sessionRemove(authSessionKey(logoutUrl));
+    localRemove('auth-pw'); // 이전 버전에서 저장한 평문 비밀번호 제거
+    state.sessionToken = '';
     state.authenticated = false;
     state.loginError = null;
+    clearServerData();
     render();
+    if(logoutUrl && logoutToken){
+      try{ await postApi(logoutUrl, {action:'logout', token:logoutToken}); }catch(e){}
+    }
   });
 
   document.getElementById('tabs').addEventListener('click', function(e){
@@ -2057,19 +2183,23 @@
 
     // ---- 기존 동작 ----
     if(e.target.closest('#sampleBtn')){
+      if(state.url) sessionRemove(authSessionKey(state.url));
       var sample = getSampleData();
       state.companies = sample.companies;
       state.subjects = sample.subjects;
       state.questions = sample.questions;
       state.students = sample.students;
-      var assignments = getSampleData().assignments;
+      var assignments = sample.assignments;
       assignments.forEach(function(a,i){
         var compAssigns = assignments.filter(function(x){ return x.기업ID===a.기업ID; });
         a.순서 = compAssigns.indexOf(a)+1;
       });
       state.assignments = assignments;
+      state.url = '';
+      state.sessionToken = '';
       state.loaded = true;
       state.error = null;
+      state.loginError = null;
       state.authenticated = true;
       render();
       return;
@@ -2331,15 +2461,24 @@
         if(existingCompanyCount6>=6){ alert('이 기업에는 이미 6개 과목이 배정되어 있습니다'); return; }
         saveBtn.disabled = true; saveBtn.textContent = '저장 중...';
         var subjPayload = {과목ID:id6, 과목명:name6, 문제유형:type6, 난이도:diff6, 평가시간:time6, 능력단위요소명:elements6};
-        var ok6b = await persist('과목', 'create', subjPayload, '과목ID');
-        if(ok6b){
-          var assignId6b = nextAssignmentId(companyId6, id6);
-          var ok6c = await persist('배정', 'create', {배정ID:assignId6b, 기업ID:companyId6, 과목ID:id6}, '배정ID');
-          saveBtn.disabled = false; saveBtn.textContent = '저장';
-          if(ok6c) closeModal();
+        var assignId6b = nextAssignmentId(companyId6, id6);
+        var assignmentPayload6 = {배정ID:assignId6b, 기업ID:companyId6, 과목ID:id6};
+        var ok6b;
+        if(state.url){
+          ok6b = await writeDomainAction('createSubjectAndAssign', {
+            subject:subjPayload,
+            assignment:assignmentPayload6
+          });
+          if(ok6b) await fetchData(state.url);
         } else {
-          saveBtn.disabled = false; saveBtn.textContent = '저장';
+          assignmentPayload6.순서 = existingCompanyCount6 + 1;
+          state.subjects.push(subjPayload);
+          state.assignments.push(assignmentPayload6);
+          render();
+          ok6b = true;
         }
+        saveBtn.disabled = false; saveBtn.textContent = '저장';
+        if(ok6b) closeModal();
       }
       return;
     }
@@ -2389,6 +2528,7 @@
 
   /* 앱 진입점: 설정파일 URL → localStorage 저장 URL 순으로 확인 후 데이터 로드, 없으면 초기 화면만 렌더링 */
   async function init(){
+    localRemove('auth-pw'); // 토큰 방식 이전 버전에서 저장한 평문 비밀번호를 즉시 정리
     var configUrl = await loadGasUrlFromConfig();
     if(configUrl){
       document.getElementById('urlInput').value = configUrl;
@@ -2472,36 +2612,19 @@
     var moved = assigns.splice(fromIdx,1)[0];
     assigns.splice(toIdx,0,moved);
 
-    // 실패 시 되돌릴 수 있도록 변경 전 순서를 기억해둠
-    var prevOrders6 = {};
-    state.assignments.forEach(function(a){ prevOrders6[a.배정ID] = a.순서; });
-
-    // state.assignments의 순서 값 직접 업데이트
-    assigns.forEach(function(a,i){
-      var orig = state.assignments.find(function(x){ return String(x.배정ID)===String(a.배정ID); });
-      if(orig) orig.순서 = i+1;
-    });
-
     if(state.url){
       assignReorderBusy = true;
       setStatus('loading');
       setOrderButtonsBusy(true);
-      var dropOk = true;
-      for(var i=0;i<assigns.length;i++){
-        var orig = state.assignments.find(function(x){ return String(x.배정ID)===String(assigns[i].배정ID); });
-        if(orig){
-          var writeOk6 = await writeData('배정','update', Object.assign({},orig));
-          if(!writeOk6){ dropOk = false; break; } // writeData가 이미 alert로 실패를 안내함
-        }
-      }
-      if(!dropOk){
-        // 실패한 만큼은 변경 전 순서로 되돌림
-        state.assignments.forEach(function(a){ if(prevOrders6[a.배정ID]!==undefined) a.순서 = prevOrders6[a.배정ID]; });
-      }
+      var dropOk = await writeDomainAction('reorderAssignments', {
+        companyId:companyId,
+        assignmentIds:assigns.map(function(a){ return a.배정ID; })
+      });
       assignReorderBusy = false;
       setOrderButtonsBusy(false);
-      await fetchData(state.url); // 성공/실패 관계없이 서버 최신 상태로 재동기화
+      if(dropOk) await fetchData(state.url);
     } else {
+      assigns.forEach(function(a,i){ a.순서 = i+1; });
       render();
     }
   });
