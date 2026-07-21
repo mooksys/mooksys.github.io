@@ -131,7 +131,7 @@
         <div class="subnav no-scrollbar" role="tablist" aria-label="데이터 관리 메뉴">
           <button type="button" onclick="switchSubTab('manage-student')" id="subtab-student" class="bg-ch-secondary text-white" role="tab" aria-selected="true">학생 관리</button>
           <button type="button" onclick="switchSubTab('manage-task')" id="subtab-task" role="tab" aria-selected="false">과제 관리</button>
-          <button type="button" onclick="switchSubTab('manage-class')" id="subtab-class" role="tab" aria-selected="false">반 관리</button>
+          <button type="button" onclick="switchSubTab('manage-class')" id="subtab-class" role="tab" aria-selected="false">주제 관리</button>
         </div>
 
         <div id="manage-student-area">
@@ -148,8 +148,8 @@
         </div>
 
         <div id="manage-class-area" class="hidden">
-          <section class="panel panel-pad" aria-labelledby="class-form-title"><h3 id="class-form-title" class="panel-title">새 반 생성</h3><p class="panel-description">반은 독립된 Google Sheet로 생성되며 즉시 전환할 수 있습니다.</p><div class="form-grid"><div class="sm:col-span-2"><label class="field-label" for="add-class-name">반 이름</label><input class="field-input" type="text" id="add-class-name" placeholder="예: 1학년 1반" maxlength="50"></div><div class="form-action"><button type="button" onclick="apiAction('add_sheet')" class="button-base button-primary">반 생성</button></div></div></section>
-          <div class="panel mt-4 overflow-hidden"><ul id="manage-class-list" class="divide-y divide-gray-100 text-sm" aria-label="등록된 반 목록"></ul></div>
+          <section class="panel panel-pad" aria-labelledby="class-form-title"><h3 id="class-form-title" class="panel-title">새 주제 생성</h3><p class="panel-description">반은 독립된 Google Sheet로 생성되며 즉시 전환할 수 있습니다.</p><div class="form-grid"><div class="sm:col-span-2"><label class="field-label" for="add-class-name">반 이름</label><input class="field-input" type="text" id="add-class-name" placeholder="예: 1학년 1반" maxlength="50"></div><div class="form-action"><button type="button" onclick="apiAction('add_sheet')" class="button-base button-primary">반 생성</button></div></div></section>
+          <div class="panel mt-4 overflow-hidden"><ul id="manage-class-list" class="divide-y divide-gray-100 text-sm" aria-label="등록된 주제 목록"></ul></div>
         </div>
       </main>
 
