@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <meta name="description" content="반별 학생 과제 제출 현황을 빠르고 안전하게 관리하는 성일정보고 도제 체크 시스템입니다.">
+  <meta name="theme-color" content="#f7f8fb">
+  <meta name="color-scheme" content="light">
+  <meta name="robots" content="noindex, nofollow">
+  <meta property="og:title" content="ClassFlow · 과제 체크 시스템">
+  <meta property="og:description" content="반별 학생 과제 제출 현황을 한눈에 관리하세요.">
+  <meta property="og:type" content="website">
+  <title>ClassFlow · 과제 체크 시스템</title>
+
+  <link rel="stylesheet" href="tailwind.generated.css">
+  <link rel="stylesheet" href="styles.css">
+  <script defer src="vendor/html-to-image-1.11.11.min.js"></script>
+  <script defer src="vendor/xlsx-0.18.5.full.min.js"></script>
+</head>
+<body>
+  <a class="skip-link" href="#primary-content">본문으로 바로가기</a>
+
+  <section id="login-section" class="login-shell" aria-labelledby="login-title">
+    <div class="login-card glass-surface">
+      <div class="login-brand">
+        <span class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 24 24" fill="none"><path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v11a2.5 2.5 0 0 1-2.5 2h-9A2.5 2.5 0 0 1 5 17.5v-11Z" stroke="currentColor" stroke-width="1.8"/><path d="m8.5 12 2.1 2.1 4.9-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </span>
+        <div><div class="login-brand-name">ClassFlow</div><div class="login-brand-meta">성일정보고 · 도제 3-12</div></div>
+      </div>
+      <div class="login-intro">
+        <span class="eyebrow">Secure workspace</span>
+        <h1 id="login-title" class="display-title">반갑습니다.<br>오늘의 진행을 확인해볼까요?</h1>
+        <p>주제 과제 현황을 한눈에 살펴보고, 학생별 진행 상태를 안전하게 관리하세요.</p>
+      </div>
+      <div class="login-form">
+        <div>
+          <label class="field-label" for="login-password">관리자 비밀번호</label>
+          <input class="field-input" type="password" id="login-password" placeholder="비밀번호를 입력하세요" autocomplete="current-password" maxlength="256" onkeypress="if(event.key === 'Enter') attemptLogin()">
+        </div>
+        <button type="button" id="login-btn" onclick="attemptLogin()" class="button-base button-primary">
+          워크스페이스 열기
+          <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M5 12h14m-5-5 5 5-5 5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </button>
+      </div>
+      <div class="login-security">
+        <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M7 10V8a5 5 0 0 1 10 0v2m-9 0h8a2 2 0 0 1 2 2v6H6v-6a2 2 0 0 1 2-2Z" stroke="currentColor" stroke-width="1.8"/></svg>
+        8시간 암호화 세션 · Google Sheets 자동 연동
+      </div>
+    </div>
+  </section>
+
+  <div id="main-app" class="hidden app-shell">
+    <header class="app-header no-print">
+      <div class="topbar glass-surface">
+        <div class="topbar-brand">
+          <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none"><path d="M5 6.5A2.5 2.5 0 0 1 7.5 4h9A2.5 2.5 0 0 1 19 6.5v11a2.5 2.5 0 0 1-2.5 2h-9A2.5 2.5 0 0 1 5 17.5v-11Z" stroke="currentColor" stroke-width="1.8"/><path d="m8.5 12 2.1 2.1 4.9-5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></span>
+          <div class="min-w-0"><div class="topbar-title">ClassFlow</div><div class="topbar-caption">성일정보고 도제 3-12 과제 워크스페이스</div></div>
+        </div>
+        <div class="flex items-center gap-1 sm:gap-2">
+          <span class="live-status">실시간 연동</span>
+          <button type="button" onclick="logout()" class="button-base button-quiet" aria-label="로그아웃">
+            <svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M10 5H6a2 2 0 0 0-2 2v10a2 2 0 0 0 2 2h4m5-4 3-3-3-3m3 3H9" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="hidden sm:inline">로그아웃</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="workspace-bar">
+        <div class="selector-surface glass-surface">
+          <button type="button" id="class-menu-button" class="task-menu-button" onclick="toggleMobileClassMenu()" aria-expanded="false" aria-controls="class-selector" aria-haspopup="menu">
+            <svg class="task-menu-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M4 7.5h16M7 4v3.5M17 4v3.5M6 11h4v4H6v-4Z" stroke="currentColor" stroke-width="1.7" stroke-linecap="round"/></svg>
+            <span class="task-menu-copy"><small>주제 선택</small><strong id="current-class-mobile-label">주제 로딩 중</strong></span>
+            <svg class="task-menu-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="m8 10 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </button>
+          <div id="class-selector" class="hidden no-scrollbar task-menu-popover" role="menu" aria-label="주제 선택"></div>
+        </div>
+        <nav id="main-nav" class="nav-shell glass-surface no-scrollbar" aria-label="주요 메뉴" role="tablist">
+          <button type="button" onclick="switchTab('check'); closeMobileMenu()" id="tab-check" class="tab-active" role="tab" aria-selected="true" aria-controls="check-section">체크</button>
+          <button type="button" onclick="switchTab('view'); closeMobileMenu()" id="tab-view" role="tab" aria-selected="false" aria-controls="view-section">현황</button>
+          <button type="button" onclick="switchTab('manage'); closeMobileMenu()" id="tab-manage" role="tab" aria-selected="false" aria-controls="manage-section">데이터</button>
+          <button type="button" onclick="switchTab('print'); closeMobileMenu()" id="tab-print" role="tab" aria-selected="false" aria-controls="print-section">출력</button>
+        </nav>
+      </div>
+    </header>
+
+    <div id="loader" class="hidden loader-overlay fixed inset-0 z-[150] flex-col items-center justify-center" role="status" aria-live="polite">
+      <div class="loader-card"><div class="loader-spinner" aria-hidden="true"></div><p class="mt-3 mb-0 text-sm font-semibold">작업을 처리하고 있어요</p></div>
+    </div>
+
+    <div id="primary-content">
+      <main id="check-section" class="main-section block no-print" role="tabpanel" aria-labelledby="tab-check">
+        <div class="section-heading">
+          <div class="section-heading-copy"><span class="eyebrow">Daily workflow</span><h2 class="section-title">과제 체크</h2><p class="section-copy">학생 카드를 눌러 완료 · 해당없음 상태를 빠르게 기록하세요.</p></div>
+        </div>
+        <div id="save-bar" class="hidden save-banner">
+          <span class="save-banner-copy"><span class="save-banner-dot"></span>저장하지 않은 변경이 있어요.</span>
+          <button type="button" onclick="saveChanges()" class="button-base button-primary w-full sm:w-auto">변경사항 저장</button>
+        </div>
+        <div class="task-toolbar">
+          <div class="task-selector-panel glass-surface">
+            <button type="button" id="task-menu-button" class="task-menu-button" onclick="toggleMobileTaskMenu()" aria-expanded="false" aria-controls="task-selector" aria-haspopup="menu">
+              <svg class="task-menu-icon" aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M5 7h14M5 12h14M5 17h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+              <span class="task-menu-copy"><small>과제 선택</small><strong id="current-task-mobile-label">과제 로딩 중</strong></span>
+              <svg class="task-menu-chevron" aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="m8 10 4 4 4-4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            </button>
+            <div id="task-selector" class="hidden task-menu-popover" role="menu" aria-label="과제 선택"></div>
+          </div>
+          <div id="task-action-buttons" class="hidden action-panel">
+            <div class="segmented-actions no-scrollbar">
+              <button type="button" onclick="toggleAll('완료')" class="button-base button-secondary">전체 완료</button>
+              <button type="button" onclick="toggleAll('')" class="button-base button-secondary">전체 초기화</button>
+              <button type="button" onclick="toggleAll('해당없음')" class="button-base button-secondary">전체 제외</button>
+            </div>
+            <button type="button" onclick="saveChecklistAs169Image()" class="button-base button-secondary w-full sm:w-auto"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M4 7h4l1.2-2h5.6L16 7h4v12H4V7Zm8 9a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>16:9 캡처</button>
+          </div>
+        </div>
+        <div id="capture-area" class="panel check-panel">
+          <div class="check-panel-head"><div class="check-panel-title"><span id="current-class-badge" class="bg-ch-secondary text-white"></span><h3 id="current-task-title" class="font-bold text-ch-dark truncate">과제를 선택해주세요</h3></div><span class="school-chip">성일정보고 · 도제 3-12</span></div>
+          <div id="check-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 xl:grid-cols-6"></div>
+        </div>
+      </main>
+
+      <main id="view-section" class="hidden main-section no-print" role="tabpanel" aria-labelledby="tab-view">
+        <div class="section-heading"><div class="section-heading-copy"><span class="eyebrow">Progress intelligence</span><h2 class="section-title">제출 현황</h2><p class="section-copy">과제별 달성률과 미제출 학생을 한눈에 확인하세요.</p></div><span class="count-chip" id="view-total-students">총 0명</span></div>
+        <div id="task-status-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-4 lg:gap-5"></div>
+      </main>
+
+      <main id="manage-section" class="hidden main-section no-print" role="tabpanel" aria-labelledby="tab-manage">
+        <div class="section-heading"><div class="section-heading-copy"><span class="eyebrow">Workspace settings</span><h2 class="section-title">데이터 관리</h2><p class="section-copy">학생, 과제, 반 정보를 하나의 워크스페이스에서 관리하세요.</p></div></div>
+        <div class="subnav no-scrollbar" role="tablist" aria-label="데이터 관리 메뉴">
+          <button type="button" onclick="switchSubTab('manage-student')" id="subtab-student" class="bg-ch-secondary text-white" role="tab" aria-selected="true">학생 관리</button>
+          <button type="button" onclick="switchSubTab('manage-task')" id="subtab-task" role="tab" aria-selected="false">과제 관리</button>
+          <button type="button" onclick="switchSubTab('manage-class')" id="subtab-class" role="tab" aria-selected="false">반 관리</button>
+        </div>
+
+        <div id="manage-student-area">
+          <section class="panel panel-pad" aria-labelledby="student-form-title"><h3 id="student-form-title" class="panel-title">새 학생 등록</h3><p class="panel-description">학번은 중복될 수 없으며, 등록 후 바로 체크 목록에 반영됩니다.</p>
+            <div class="form-grid"><div><label class="field-label" for="add-sid">학번</label><input class="field-input" type="text" id="add-sid" placeholder="예: 10101" maxlength="40" inputmode="numeric"></div><div><label class="field-label" for="add-sname">이름</label><input class="field-input" type="text" id="add-sname" placeholder="예: 홍길동" maxlength="80" autocomplete="off"></div><div class="form-action"><button type="button" onclick="apiAction('add_student')" class="button-base button-primary">학생 등록</button></div></div>
+          </section>
+          <div class="list-heading"><h3>등록된 학생</h3><span class="count-chip"><span id="manage-student-count">0</span>명</span></div>
+          <div id="manage-student-grid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-3"></div>
+        </div>
+
+        <div id="manage-task-area" class="hidden">
+          <section class="panel panel-pad" aria-labelledby="task-form-title"><h3 id="task-form-title" class="panel-title">새 과제 생성</h3><p class="panel-description">명확하고 간결한 과제명은 현황판의 가독성을 높여줍니다.</p><div class="form-grid"><div class="sm:col-span-2"><label class="field-label" for="add-topic">과제명</label><input class="field-input" type="text" id="add-topic" placeholder="예: 정보처리 필기 취득" maxlength="100"></div><div class="form-action"><button type="button" onclick="apiAction('add_topic')" class="button-base button-primary">과제 추가</button></div></div></section>
+          <div class="panel mt-4 overflow-hidden"><div class="overflow-x-auto"><table class="w-full text-left border-collapse"><thead class="bg-gray-50/70 border-b border-gray-100 text-[11px] text-gray-500 uppercase tracking-wider"><tr><th scope="col" class="px-5 py-4">과제명</th><th scope="col" class="px-5 py-4 text-right">관리</th></tr></thead><tbody id="manage-task-tbody" class="divide-y divide-gray-100 text-sm"></tbody></table></div></div>
+        </div>
+
+        <div id="manage-class-area" class="hidden">
+          <section class="panel panel-pad" aria-labelledby="class-form-title"><h3 id="class-form-title" class="panel-title">새 반 생성</h3><p class="panel-description">반은 독립된 Google Sheet로 생성되며 즉시 전환할 수 있습니다.</p><div class="form-grid"><div class="sm:col-span-2"><label class="field-label" for="add-class-name">반 이름</label><input class="field-input" type="text" id="add-class-name" placeholder="예: 1학년 1반" maxlength="50"></div><div class="form-action"><button type="button" onclick="apiAction('add_sheet')" class="button-base button-primary">반 생성</button></div></div></section>
+          <div class="panel mt-4 overflow-hidden"><ul id="manage-class-list" class="divide-y divide-gray-100 text-sm" aria-label="등록된 반 목록"></ul></div>
+        </div>
+      </main>
+
+      <main id="print-section" class="hidden main-section" role="tabpanel" aria-labelledby="tab-print">
+        <div class="section-heading no-print"><div class="section-heading-copy"><span class="eyebrow">Export & archive</span><h2 class="section-title">출력 및 보관</h2><p class="section-copy">현재 반의 체크 현황을 Excel, PDF 또는 인쇄물로 보관하세요.</p></div><div class="flex flex-wrap gap-2"><button type="button" onclick="exportToExcel()" class="button-base button-success"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0 4-4m-4 4-4-4M5 19h14" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>Excel</button><button type="button" onclick="window.print()" class="button-base button-primary"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M7 9V4h10v5M7 17H5a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2m-10-4h10v7H7v-7Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>PDF / 인쇄</button></div></div>
+        <div id="print-container" class="panel p-2 md:p-7 no-print-bg"></div>
+      </main>
+    </div>
+  </div>
+
+  <script>
+    let API_URL = "";
+    
+    function showToast(message, type = 'info') {
+      const existingToast = document.getElementById('ch-toast');
+      if (existingToast) existingToast.remove();
+
+      let bgClass = 'bg-ch-secondary';
+      if (type === 'error') bgClass = 'bg-red-500';
+      if (type === 'success') bgClass = 'bg-ch-success';
+
+      const toast = document.createElement('div');
+      toast.id = 'ch-toast';
+      toast.setAttribute('role', type === 'error' ? 'alert' : 'status');
+      toast.setAttribute('aria-live', type === 'error' ? 'assertive' : 'polite');
+      toast.className = `fixed bottom-8 left-1/2 transform -translate-x-1/2 px-6 py-3 rounded-full text-white text-xs md:text-sm font-bold shadow-xl transition-all duration-300 translate-y-10 opacity-0 z-[200] ${bgClass}`;
+      toast.innerText = message;
+      
+      document.body.appendChild(toast);
+      
+      setTimeout(() => toast.classList.remove('translate-y-10', 'opacity-0'), 10);
+      setTimeout(() => {
+        toast.classList.add('translate-y-10', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    function getClientId() {
+      let clientId = localStorage.getItem('vibe_client_id');
+      if (!clientId) {
+        const randomBytes = new Uint8Array(24);
+        crypto.getRandomValues(randomBytes);
+        clientId = Array.from(randomBytes, b => b.toString(16).padStart(2, '0')).join('');
+        localStorage.setItem('vibe_client_id', clientId);
+      }
+      return clientId;
+    }
+
+    function saveSession(token, expireAt) {
+      localStorage.setItem('vibe_session_token', token);
+      localStorage.setItem('vibe_session_expire', String(expireAt));
+    }
+    function loadSession() {
+      const token = localStorage.getItem('vibe_session_token');
+      const expireAt = Number(localStorage.getItem('vibe_session_expire') || '0');
+      if (!token || Date.now() > expireAt) { clearSession(); return null; }
+      return token;
+    }
+    function clearSession() {
+      localStorage.removeItem('vibe_session_token');
+      localStorage.removeItem('vibe_session_expire');
+    }
+    function buildBody(action, extra = {}) {
+      return { action, sessionToken: loadSession(), ...extra };
+    }
+
+    let sheetNames = [];
+    let currentSheetName = "";
+    let sheetData = { headers: [], students: [] };
+    let currentSelectedTask = "";
+    let pendingUpdates = new Map();
+
+    const colorThemes = [
+      { dark: '#18181b', secondary: '#52525b', primary: '#635bff', hover: '#5147e5', lightBg: '#eeecff', border: '#d8d4ff', light: '#f4f4f5', bg: '#f7f8fb' },
+      { dark: '#172033', secondary: '#526079', primary: '#0f83fd', hover: '#0872df', lightBg: '#eaf4ff', border: '#c9e3ff', light: '#f3f6fa', bg: '#f6f8fb' },
+      { dark: '#17221d', secondary: '#506158', primary: '#0d9f6e', hover: '#087f58', lightBg: '#e7f8f1', border: '#c0eadb', light: '#f2f7f5', bg: '#f6f9f8' }
+    ];
+
+    function applyThemeForClass(sheetName) {
+      if (!sheetNames || sheetNames.length === 0) return;
+      const index = sheetNames.indexOf(sheetName) % colorThemes.length;
+      const t = colorThemes[index >= 0 ? index : 0];
+      const root = document.documentElement;
+      root.style.setProperty('--ch-dark', t.dark); root.style.setProperty('--ch-secondary', t.secondary); root.style.setProperty('--ch-primary', t.primary);
+      root.style.setProperty('--ch-primary-hover', t.hover); root.style.setProperty('--ch-primary-light', t.lightBg); root.style.setProperty('--ch-primary-border', t.border); root.style.setProperty('--ch-light', t.light); root.style.setProperty('--ch-bg', t.bg);
+    }
+
+    function escapeHtml(unsafe) {
+      if (unsafe === null || unsafe === undefined) return "";
+      return String(unsafe).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+    }
+
+    function toggleMobileMenu() {
+      const nav = document.getElementById('main-nav');
+      nav.classList.toggle('hidden'); nav.classList.toggle('flex');
+    }
+    function closeMobileMenu() {
+      if (window.innerWidth < 768) { document.getElementById('main-nav').classList.add('hidden'); document.getElementById('main-nav').classList.remove('flex'); }
+    }
+    function toggleMobileClassMenu() {
+      const el = document.getElementById('class-selector');
+      const button = document.getElementById('class-menu-button');
+      const panel = button.closest('.selector-surface');
+      const willOpen = el.classList.contains('hidden');
+      el.classList.toggle('hidden', !willOpen);
+      button.setAttribute('aria-expanded', String(willOpen));
+      panel.classList.toggle('menu-open', willOpen);
+    }
+    function closeMobileClassMenu() {
+      const el = document.getElementById('class-selector');
+      const button = document.getElementById('class-menu-button');
+      el.classList.add('hidden');
+      button.setAttribute('aria-expanded', 'false');
+      button.closest('.selector-surface').classList.remove('menu-open');
+    }
+    function toggleMobileTaskMenu() {
+      const el = document.getElementById('task-selector');
+      const button = document.getElementById('task-menu-button');
+      const panel = button.closest('.task-selector-panel');
+      const willOpen = el.classList.contains('hidden');
+      el.classList.toggle('hidden', !willOpen);
+      button.setAttribute('aria-expanded', String(willOpen));
+      panel.classList.toggle('menu-open', willOpen);
+    }
+    function closeMobileTaskMenu() {
+      const el = document.getElementById('task-selector');
+      const button = document.getElementById('task-menu-button');
+      el.classList.add('hidden');
+      button.setAttribute('aria-expanded', 'false');
+      button.closest('.task-selector-panel').classList.remove('menu-open');
+    }
+
+    async function initConfig() {
+      try {
+        const res = await fetch('school_project_01_check_gas_url.json');
+        const config = await res.json();
+        API_URL = config.webAppUrl;
+        checkLoginState();
+      } catch (e) {
+        showToast("gas_url.json 파일 로드 실패!", "error");
+      }
+    }
+
+    async function checkLoginState() {
+      if (loadSession()) {
+        document.getElementById('login-section').classList.add('hidden');
+        document.getElementById('main-app').classList.remove('hidden');
+        await refresh("");
+      }
+    }
+
+    async function attemptLogin() {
+      const pwd = document.getElementById('login-password').value;
+      if (!pwd) return showToast("비밀번호를 입력해주세요.", "error");
+
+      const btn = document.getElementById('login-btn');
+      btn.innerText = "확인 중..."; btn.disabled = true;
+
+      try {
+        const res = await fetch(API_URL, {
+          method: 'POST',
+          body: JSON.stringify({ action: 'verify_password', password: pwd, clientId: getClientId() })
+        });
+        const result = await res.json();
+
+        if (result.status === "성공") {
+          saveSession(result.sessionToken, result.expireAt);
+          document.getElementById('login-section').classList.add('hidden');
+          document.getElementById('main-app').classList.remove('hidden');
+          showToast("로그인 성공!", "success");
+          await refresh("");
+        } else {
+          showToast(result.message || "비밀번호가 틀렸습니다.", "error");
+          document.getElementById('login-password').value = '';
+          btn.innerText = "입장하기"; btn.disabled = false;
+        }
+      } catch (e) {
+        showToast("서버 오류가 발생했습니다.", "error");
+        btn.innerText = "입장하기"; btn.disabled = false;
+      }
+    }
+
+    async function logout() {
+      if (pendingUpdates.size > 0 && !confirm("저장하지 않은 변경사항이 있습니다. 로그아웃 하시겠습니까?")) return;
+      const token = loadSession();
+      if (token) {
+        try {
+          await fetch(API_URL, { method: 'POST', body: JSON.stringify({ action: 'logout', sessionToken: token }) });
+        } catch (e) {
+          // Local logout must still complete if the network is unavailable.
+        }
+      }
+      clearSession();
+      location.reload();
+    }
+
+    async function refresh(targetSheet = "") {
+      document.getElementById('loader').style.display = 'flex';
+      try {
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(buildBody('get_data', { sheetName: targetSheet || currentSheetName })) });
+        const data = await res.json();
+        if (data.status === "거부") {
+          clearSession();
+          showToast("세션이 만료되었습니다. 다시 로그인해주세요.", "error");
+          setTimeout(()=> location.reload(), 1500);
+          return;
+        }
+        if (data.status === "성공") {
+          sheetNames = data.sheetNames || [];
+          currentSheetName = data.currentSheetName;
+          sheetData.headers = data.headers || [];
+          sheetData.students = data.students || [];
+          applyThemeForClass(currentSheetName);
+          
+          const tasks = sheetData.headers.slice(2);
+          if (tasks.length > 0 && !tasks.includes(currentSelectedTask)) currentSelectedTask = tasks[0];
+          else if (tasks.length === 0) currentSelectedTask = "";
+          
+          renderAll();
+        } else {
+          showToast("데이터 로드 실패: " + data.message, "error");
+        }
+      } catch (e) {
+        showToast("서버와 통신 중 오류가 발생했습니다.", "error");
+      } finally {
+        document.getElementById('loader').style.display = 'none';
+      }
+    }
+
+    function renderAll() {
+      if(sheetData.headers.length < 2) return;
+      document.getElementById('current-class-badge').innerText = currentSheetName;
+      document.getElementById('current-class-mobile-label').innerText = currentSheetName;
+      renderClassSelector();
+      renderTaskSelector();
+      renderCheckGrid();
+      renderViewGrid();
+      renderManageGrid();
+      renderPrintView();
+    }
+
+    function renderClassSelector() {
+      const container = document.getElementById('class-selector');
+      container.innerHTML = sheetNames.map((name, index) => {
+        const safeName = escapeHtml(name);
+        const isActive = (name === currentSheetName);
+        const btnClass = isActive ? 'bg-ch-primary text-white shadow-md font-bold' : 'bg-ch-light text-ch-secondary hover:bg-gray-200 font-medium';
+        return `<button type="button" role="menuitemradio" data-class-index="${index}" aria-checked="${isActive}" class="px-5 py-2.5 rounded-xl text-sm transition-all whitespace-nowrap text-left md:text-center w-full md:w-auto ${btnClass}">${safeName}</button>`;
+      }).join('');
+      container.querySelectorAll('[data-class-index]').forEach(button => {
+        button.addEventListener('click', () => changeClass(sheetNames[Number(button.dataset.classIndex)]));
+      });
+    }
+
+    async function changeClass(newSheetName) {
+      if (newSheetName === currentSheetName) { closeMobileClassMenu(); return; }
+      if (pendingUpdates.size > 0) {
+        if (!confirm("저장하지 않은 데이터가 있습니다. 무시하고 반을 변경하시겠습니까?")) return;
+        pendingUpdates = new Map(); document.getElementById('save-bar').classList.add('hidden');
+      }
+      currentSelectedTask = ""; closeMobileClassMenu();
+      await refresh(newSheetName);
+    }
+
+    function renderTaskSelector() {
+      const tasks = sheetData.headers.slice(2);
+      const container = document.getElementById('task-selector');
+      const btnArea = document.getElementById('task-action-buttons');
+      
+      if(tasks.length === 0) {
+        container.innerHTML = '<span class="text-sm text-gray-400">등록된 과제가 없습니다.</span>';
+        document.getElementById('current-task-title').innerText = "과제를 등록해주세요.";
+        document.getElementById('current-task-mobile-label').innerText = "과제 없음";
+        btnArea.classList.add('hidden');
+        return;
+      }
+      btnArea.classList.remove('hidden');
+      document.getElementById('current-task-mobile-label').innerText = currentSelectedTask;
+      document.getElementById('current-task-title').innerText = currentSelectedTask;
+      
+      container.innerHTML = tasks.map((t, index) => {
+        const safe = escapeHtml(t);
+        const isActive = (t === currentSelectedTask);
+        const btnClass = isActive ? 'bg-ch-secondary text-white font-bold' : 'bg-white border border-gray-200 text-gray-600 hover:bg-gray-50';
+        return `<button type="button" role="menuitemradio" data-task-index="${index}" aria-checked="${isActive}" class="px-4 py-2 rounded-xl text-sm transition-all whitespace-nowrap ${btnClass}">${safe}</button>`;
+      }).join('');
+      container.querySelectorAll('[data-task-index]').forEach(button => {
+        button.addEventListener('click', () => changeTask(tasks[Number(button.dataset.taskIndex)]));
+      });
+    }
+
+    function changeTask(taskName) {
+      if(taskName === currentSelectedTask) { closeMobileTaskMenu(); return; }
+      if (pendingUpdates.size > 0) {
+        if (!confirm("저장하지 않은 데이터가 있습니다. 무시하고 과제를 변경하시겠습니까?")) return;
+        pendingUpdates = new Map(); document.getElementById('save-bar').classList.add('hidden');
+      }
+      currentSelectedTask = taskName;
+      renderTaskSelector();
+      renderCheckGrid();
+      closeMobileTaskMenu();
+    }
+
+    /* 🛠️ [2/3 높이 다이어트 완료] h-[5rem] -> h-14(3.5rem)로 줄이고, 내부 요소를 가로 배치(flex-row)로 변경 */
+    function renderCheckGrid() {
+      const grid = document.getElementById('check-grid');
+      if(!currentSelectedTask) { grid.innerHTML = ''; return; }
+      
+      const idCol = sheetData.headers[0];
+      const nameCol = sheetData.headers[1];
+
+      grid.innerHTML = sheetData.students.map((std, index) => {
+        const rawSid = String(std[idCol] ?? '');
+        const sid = escapeHtml(rawSid);
+        const name = escapeHtml(std[nameCol]);
+        const val = pendingUpdates.has(rawSid) ? pendingUpdates.get(rawSid) : (std[currentSelectedTask] || '');
+        
+        let cardStyle = "";
+        let badgeHtml = "";
+        let nameColor = "";
+        let numColor = "";
+
+        if (val === '완료') {
+          cardStyle = "bg-gradient-to-br from-ch-primary to-[#00939A] border-transparent shadow-md hover:shadow-lg transform hover:-translate-y-0.5 active:scale-95";
+          badgeHtml = `<div class="bg-white/20 text-white text-[10px] px-2 py-0.5 rounded-full font-black backdrop-blur-sm border border-white/30 whitespace-nowrap">완료 ✔</div>`;
+          nameColor = "text-white";
+          numColor = "text-ch-primary-light opacity-90";
+        } else if (val === '해당없음') {
+          cardStyle = "bg-gray-100 border-gray-200 shadow-inner opacity-75 hover:opacity-100 active:scale-95";
+          badgeHtml = `<div class="bg-gray-200 text-gray-500 text-[10px] px-2 py-0.5 rounded-full font-bold whitespace-nowrap">제외</div>`;
+          nameColor = "text-gray-500 line-through decoration-gray-400 decoration-2";
+          numColor = "text-gray-400";
+        } else {
+          cardStyle = "bg-white border-gray-200 hover:border-ch-primary hover:bg-ch-primary-light/30 shadow-sm hover:shadow active:scale-95";
+          badgeHtml = `<div class="bg-gray-50 text-gray-400 text-[10px] px-2 py-0.5 rounded-full font-medium border border-gray-100 whitespace-nowrap">미완료</div>`;
+          nameColor = "text-ch-dark";
+          numColor = "text-gray-400";
+        }
+        
+        return `
+          <button type="button" data-student-index="${index}" aria-label="${name}, ${val || '미완료'}. 상태 변경"
+                  class="w-full text-left relative overflow-hidden rounded-2xl border-2 transition-all duration-200 flex flex-row items-center justify-between p-3 h-14 group ${cardStyle}">
+            <div class="flex flex-col truncate mr-2">
+              <span class="text-[10px] font-bold tracking-tight ${numColor} mb-0.5">${sid}</span>
+              <span class="text-sm md:text-base font-extrabold tracking-tight truncate ${nameColor}" style="white-space: nowrap; word-break: keep-all;">${name}</span>
+            </div>
+            <div class="flex-shrink-0">${badgeHtml}</div>
+          </button>
+        `;
+      }).join('');
+      grid.querySelectorAll('[data-student-index]').forEach(button => {
+        button.addEventListener('click', () => {
+          const student = sheetData.students[Number(button.dataset.studentIndex)];
+          const sid = String(student[idCol] ?? '');
+          const value = pendingUpdates.has(sid) ? pendingUpdates.get(sid) : (student[currentSelectedTask] || '');
+          toggleStatus(sid, value);
+        });
+      });
+    }
+
+    function toggleStatus(sid, currentVal) {
+      let newVal = '';
+      if(currentVal === '') newVal = '완료';
+      else if(currentVal === '완료') newVal = '해당없음';
+      
+      pendingUpdates.set(String(sid), newVal);
+      document.getElementById('save-bar').classList.remove('hidden');
+      renderCheckGrid();
+    }
+
+    function toggleAll(status) {
+      const idCol = sheetData.headers[0];
+      sheetData.students.forEach(std => pendingUpdates.set(String(std[idCol] ?? ''), status));
+      document.getElementById('save-bar').classList.remove('hidden');
+      renderCheckGrid();
+      showToast(`전체 상태가 '${status || '미완료'}'(으)로 변경되었습니다. (저장 필요)`, "info");
+    }
+
+    async function saveChanges() {
+      if(pendingUpdates.size === 0) return;
+      document.getElementById('loader').style.display = 'flex';
+      try {
+        const updates = Object.fromEntries(pendingUpdates);
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(buildBody('batch_update', { sheetName: currentSheetName, taskTitle: currentSelectedTask, updates }))});
+        const data = await res.json();
+        if(data.status === '성공') {
+          showToast("성공적으로 저장되었습니다.", "success");
+          pendingUpdates = new Map(); document.getElementById('save-bar').classList.add('hidden');
+          await refresh();
+        } else showToast("저장 실패: " + data.message, "error");
+      } catch(e) {
+        showToast("저장 중 오류 발생", "error");
+      } finally { document.getElementById('loader').style.display = 'none'; }
+    }
+
+    function renderViewGrid() {
+      const container = document.getElementById('task-status-container');
+      const tasks = sheetData.headers.slice(2);
+      const nameCol = sheetData.headers[1];
+
+      document.getElementById('view-total-students').innerText = `총 ${sheetData.students.length}명`;
+      
+      container.innerHTML = tasks.map((t, index) => {
+        const completed = sheetData.students.filter(s => s[t] === '완료').length;
+        const exemptCount = sheetData.students.filter(s => s[t] === '해당없음').length;
+        
+        const targetStudents = sheetData.students.length - exemptCount;
+        const pct = targetStudents === 0 ? 0 : Math.round((completed / targetStudents) * 100);
+        
+        const missingStudents = sheetData.students.filter(s => s[t] !== '완료' && s[t] !== '해당없음');
+        const missingNames = missingStudents.map(s => escapeHtml(s[nameCol])).join(', ') || '전원 제출 완료🎉';
+        
+        const cardId = `progress-card-${index}`;
+        const safeTitle = escapeHtml(t);
+
+        return `
+          <div id="${cardId}" class="bg-white rounded-3xl border-2 border-gray-100 shadow-lg flex flex-col relative overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl">
+            <div class="p-6 flex-1 flex flex-col">
+              <div class="flex justify-between items-start gap-3 mb-5 min-h-[3.5rem]">
+                <h4 class="font-bold text-ch-dark text-lg leading-snug break-all flex-1">${safeTitle}</h4>
+                <button type="button" data-capture-task-index="${index}" class="text-xs font-bold bg-gray-100 hover:bg-gray-200 border border-gray-200 text-gray-600 px-3 py-1.5 rounded-xl transition-all no-print whitespace-nowrap flex items-center gap-1 shadow-sm h-fit">📸 캡처</button>
+              </div>
+              
+              <div class="flex justify-between items-end mb-2 gap-2">
+                <span class="text-sm font-bold text-gray-400 tracking-tight flex-shrink-0">달성률</span>
+                <span class="text-3xl font-black text-ch-primary tracking-tighter truncate">${pct}%</span>
+              </div>
+
+              <div class="w-full bg-gray-100 rounded-full h-4 mb-4 shadow-inner overflow-hidden border border-gray-200">
+                <div class="bg-gradient-to-r from-ch-primary to-[#20c9d3] h-full rounded-full transition-all duration-700 ease-out relative" style="width: ${pct}%"></div>
+              </div>
+              
+              <div class="flex justify-between items-center mt-3 bg-ch-bg p-3 rounded-xl border border-gray-100 shadow-sm w-full">
+                <div class="text-left">
+                  ${exemptCount > 0 ? `<span class="text-[11px] text-gray-500 font-bold bg-white px-2 py-1 rounded-md border border-gray-200 whitespace-nowrap">제외: ${exemptCount}명</span>` : '<span class="text-[11px] text-gray-400 font-medium whitespace-nowrap">제외 없음</span>'}
+                </div>
+                <div class="text-right text-sm font-bold text-ch-dark whitespace-nowrap">
+                  제출: <span class="font-black text-ch-primary text-base">${completed}</span> / ${targetStudents}명
+                </div>
+              </div>
+            </div>
+            
+            <div class="bg-gray-50 border-t-2 border-dashed border-gray-100 px-6 py-5">
+              <span class="text-[12px] font-black text-ch-danger flex items-center gap-1.5 mb-2.5 whitespace-nowrap">
+                🚨 미제출 명단 (${missingStudents.length}명)
+              </span>
+              <p class="text-[14px] font-medium text-gray-600 leading-relaxed break-words bg-white p-3.5 rounded-xl border border-gray-100 shadow-sm" style="word-break: keep-all;">${missingNames}</p>
+            </div>
+
+            <div class="h-2.5 w-full bg-ch-primary opacity-90"></div>
+          </div>
+        `;
+      }).join('');
+      container.querySelectorAll('[data-capture-task-index]').forEach(button => {
+        button.addEventListener('click', () => {
+          const index = Number(button.dataset.captureTaskIndex);
+          saveCardAsImage(`progress-card-${index}`, tasks[index]);
+        });
+      });
+    }
+
+    function renderManageGrid() {
+      const sGrid = document.getElementById('manage-student-grid');
+      document.getElementById('manage-student-count').innerText = sheetData.students.length;
+      
+      const idCol = sheetData.headers[0];
+      const nameCol = sheetData.headers[1];
+
+      sGrid.innerHTML = sheetData.students.map((s, index) => `
+        <div class="flex justify-between items-center p-4 border-2 border-gray-100 rounded-2xl bg-white shadow-sm hover:shadow-md hover:border-ch-primary/30 transition-all duration-200">
+          <div class="flex flex-col truncate">
+            <span class="text-[11px] font-bold text-gray-400 tracking-tight truncate">${escapeHtml(s[idCol])}</span>
+            <span class="text-base font-extrabold text-ch-dark truncate">${escapeHtml(s[nameCol])}</span>
+          </div>
+          <div class="flex gap-2 flex-shrink-0">
+            <button type="button" data-edit-student-index="${index}" class="text-ch-primary hover:text-white hover:bg-ch-primary text-xs font-bold bg-ch-primary-light px-3.5 py-2 rounded-xl transition-colors active:scale-95">수정</button>
+            <button type="button" data-delete-student-index="${index}" class="text-red-500 hover:text-white hover:bg-red-500 text-xs font-bold bg-red-50 px-3.5 py-2 rounded-xl transition-colors active:scale-95">삭제</button>
+          </div>
+        </div>
+      `).join('');
+
+      const tasks = sheetData.headers.slice(2);
+      document.getElementById('manage-task-tbody').innerHTML = tasks.map((t, index) => `
+        <tr><td class="px-6 py-4 font-semibold text-ch-dark break-all">${escapeHtml(t)}</td><td class="px-6 py-4 text-right">
+          <button type="button" data-delete-topic-index="${index}" class="text-red-400 hover:text-red-600 text-sm font-bold bg-white px-3 py-1.5 border rounded-lg shadow-sm active:scale-95">삭제</button>
+        </td></tr>
+      `).join('');
+
+      document.getElementById('manage-class-list').innerHTML = sheetNames.map((c, index) => `
+        <li class="flex justify-between items-center px-6 py-4">
+          <span class="font-bold text-ch-dark truncate">${escapeHtml(c)}</span>
+          ${sheetNames.length > 1 ? `<button type="button" data-delete-class-index="${index}" class="text-red-400 hover:text-red-600 text-sm font-bold bg-white px-3 py-1.5 border rounded-lg shadow-sm active:scale-95 flex-shrink-0">삭제</button>` : ''}
+        </li>
+      `).join('');
+
+      sGrid.querySelectorAll('[data-edit-student-index]').forEach(button => {
+        button.addEventListener('click', () => {
+          const student = sheetData.students[Number(button.dataset.editStudentIndex)];
+          promptEditStudent(String(student[idCol] ?? ''), String(student[nameCol] ?? ''));
+        });
+      });
+      sGrid.querySelectorAll('[data-delete-student-index]').forEach(button => {
+        button.addEventListener('click', () => {
+          const student = sheetData.students[Number(button.dataset.deleteStudentIndex)];
+          apiAction('delete_student', { id: String(student[idCol] ?? '') });
+        });
+      });
+      document.getElementById('manage-task-tbody').querySelectorAll('[data-delete-topic-index]').forEach(button => {
+        button.addEventListener('click', () => apiAction('delete_topic', { topicName: tasks[Number(button.dataset.deleteTopicIndex)] }));
+      });
+      document.getElementById('manage-class-list').querySelectorAll('[data-delete-class-index]').forEach(button => {
+        button.addEventListener('click', () => apiAction('delete_sheet', { sheetToDelete: sheetNames[Number(button.dataset.deleteClassIndex)] }));
+      });
+    }
+
+    function promptEditStudent(oldId, oldName) {
+      const newId = prompt("수정할 학번을 입력하세요:", oldId);
+      if (newId === null) return; 
+      
+      const newName = prompt("수정할 이름을 입력하세요:", oldName);
+      if (newName === null) return; 
+      
+      if (!newId.trim() || !newName.trim()) {
+        return showToast("학번과 이름을 모두 입력해야 합니다.", "error");
+      }
+      if (newId === oldId && newName === oldName) return; 
+      
+      apiAction('edit_student', { oldId: oldId, newId: newId.trim(), newName: newName.trim() });
+    }
+
+    function renderPrintView() {
+      const container = document.getElementById('print-container');
+      const idCol = sheetData.headers[0];
+      const nameCol = sheetData.headers[1];
+      const allTasks = sheetData.headers.slice(2);
+      
+      const chunkSize = 4;
+      const taskChunks = [];
+      for (let i = 0; i < allTasks.length; i += chunkSize) {
+        taskChunks.push(allTasks.slice(i, i + chunkSize));
+      }
+
+      if (taskChunks.length === 0) taskChunks.push([]);
+
+      let html = '';
+
+      taskChunks.forEach((tasks, chunkIndex) => {
+        const pageNumStr = chunkIndex === 0 ? '' : ` (${chunkIndex + 1}페이지)`;
+        const pageTitle = `${currentSheetName} 과제 체크표${pageNumStr}`;
+
+        html += `
+          <div class="bg-white p-4 print-page mb-10 shadow-sm border border-gray-100 md:border-none md:shadow-none overflow-x-auto">
+            <h2 class="text-center font-bold text-2xl mb-6 text-ch-dark">${escapeHtml(pageTitle)}</h2>
+            
+            <table class="w-full text-sm border-collapse table-fixed min-w-[600px]">
+              <thead>
+                <tr>
+                  <th class="border border-gray-300 p-2 w-[16%] bg-gray-50 text-center font-bold">${escapeHtml(idCol)}</th>
+                  <th class="border border-gray-300 p-2 w-[20%] bg-gray-50 text-center font-bold">${escapeHtml(nameCol)}</th>
+        `;
+
+        tasks.forEach(t => {
+          html += `<th class="border border-gray-300 p-2 w-[16%] truncate px-1 bg-gray-50 text-center font-bold">${escapeHtml(t)}</th>`;
+        });
+
+        const emptyCols = chunkSize - tasks.length;
+        for (let i = 0; i < emptyCols; i++) {
+          html += `<th class="border border-gray-300 p-2 w-[16%] bg-gray-50"></th>`;
+        }
+
+        html += `</tr></thead><tbody>`;
+
+        sheetData.students.forEach(s => {
+          html += `
+            <tr>
+              <td class="border border-gray-300 p-2 text-center whitespace-nowrap text-gray-500">${escapeHtml(s[idCol])}</td>
+              <td class="border border-gray-300 p-2 text-center font-bold whitespace-nowrap text-ch-dark">${escapeHtml(s[nameCol])}</td>
+          `;
+          
+          tasks.forEach(t => {
+            const val = s[t];
+            let icon = "";
+            let textClass = "";
+            if (val === '완료') {
+              icon = "O";
+              textClass = "text-blue-600 font-extrabold";
+            } else if (val === '해당없음') {
+              icon = "-";
+              textClass = "text-gray-300 font-medium";
+            }
+            html += `<td class="border border-gray-300 p-2 text-center ${textClass}">${icon}</td>`;
+          });
+
+          for (let i = 0; i < emptyCols; i++) {
+            html += `<td class="border border-gray-300 p-2"></td>`;
+          }
+
+          html += `</tr>`;
+        });
+        
+        html += `</tbody></table></div>`;
+      });
+
+      container.innerHTML = html;
+    }
+
+    async function apiAction(action, extraParams = {}) {
+      let bodyData = { sheetName: currentSheetName, ...extraParams };
+      
+      if (action === 'add_student') {
+        bodyData.id = document.getElementById('add-sid').value;
+        bodyData.name = document.getElementById('add-sname').value;
+        if(!bodyData.id || !bodyData.name) return showToast("학번 and 이름을 모두 입력하세요.", "error");
+      } else if (action === 'add_topic') {
+        bodyData.topicName = document.getElementById('add-topic').value;
+        if(!bodyData.topicName) return showToast("과제 명칭을 입력하세요.", "error");
+      } else if (action === 'add_sheet') {
+        bodyData.newSheetName = document.getElementById('add-class-name').value;
+        if(!bodyData.newSheetName) return showToast("생성할 반 이름을 입력하세요.", "error");
+      } else if (action === 'delete_student' || action === 'delete_topic' || action === 'delete_sheet') {
+        if(!confirm("정말 삭제하시겠습니까? (이 작업은 되돌릴 수 없습니다.)")) return;
+      }
+
+      document.getElementById('loader').style.display = 'flex';
+      try {
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify(buildBody(action, bodyData)) });
+        const data = await res.json();
+        if(data.status === '성공') {
+          showToast("성공적으로 처리되었습니다.", "success");
+          if(document.getElementById('add-sid')) document.getElementById('add-sid').value = '';
+          if(document.getElementById('add-sname')) document.getElementById('add-sname').value = '';
+          if(document.getElementById('add-topic')) document.getElementById('add-topic').value = '';
+          if(document.getElementById('add-class-name')) document.getElementById('add-class-name').value = '';
+          await refresh();
+        } else {
+          showToast("처리 실패: " + data.message, "error");
+        }
+      } catch (e) {
+        showToast("네트워크 통신 오류가 발생했습니다.", "error");
+      } finally {
+        document.getElementById('loader').style.display = 'none';
+      }
+    }
+
+    function switchTab(name) {
+      closeMobileTaskMenu();
+      ['check', 'view', 'manage', 'print'].forEach(t => {
+        document.getElementById(`${t}-section`).classList.add('hidden');
+        document.getElementById(`tab-${t}`).classList.remove('tab-active', 'text-gray-500');
+        if(t !== name) document.getElementById(`tab-${t}`).classList.add('text-gray-500');
+        document.getElementById(`tab-${t}`).setAttribute('aria-selected', String(t === name));
+      });
+      document.getElementById(`${name}-section`).classList.remove('hidden');
+      document.getElementById(`tab-${name}`).classList.add('tab-active');
+    }
+
+    function switchSubTab(areaName) {
+      ['manage-student', 'manage-task', 'manage-class'].forEach(a => document.getElementById(`${a}-area`).classList.add('hidden'));
+      document.getElementById(`${areaName}-area`).classList.remove('hidden');
+      ['subtab-student', 'subtab-task', 'subtab-class'].forEach(b => {
+        document.getElementById(b).className = "px-5 py-2.5 rounded-full text-sm font-bold text-gray-500 hover:bg-gray-100 transition-all border border-transparent w-full md:w-auto";
+        document.getElementById(b).setAttribute('aria-selected', 'false');
+      });
+      document.getElementById('subtab-class').classList.add('md:ml-auto', 'border-gray-200');
+      const targetBtn = areaName.split('-')[1];
+      document.getElementById(`subtab-${targetBtn}`).className = "px-5 py-2.5 rounded-full text-sm font-bold transition-all bg-ch-secondary text-white shadow-md w-full md:w-auto" + (targetBtn==='class' ? ' md:ml-auto' : '');
+      document.getElementById(`subtab-${targetBtn}`).setAttribute('aria-selected', 'true');
+    }
+
+    /* 📸 [16:9 캡처] 축소된 카드 비율에 맞추어 높이를 h-[64px] 가로형 배치로 통일 */
+    function saveChecklistAs169Image() {
+      if(!currentSelectedTask) return showToast("선택된 과제가 없습니다.", "error");
+      
+      document.getElementById('loader').style.display = 'flex';
+      showToast("고화질 16:9 와이드 이미지를 생성하고 있습니다...", "info");
+
+      const studio = document.createElement('div');
+      studio.style.position = 'fixed';
+      studio.style.top = '0';
+      studio.style.left = '0';
+      studio.style.width = '1920px';
+      studio.style.height = '1080px';
+      studio.style.zIndex = '-9999';
+      studio.style.backgroundColor = '#F0F4F8'; 
+      studio.style.display = 'flex';
+      studio.style.flexDirection = 'column';
+      studio.style.justifyContent = 'space-between';
+      studio.style.padding = '50px';
+      studio.style.boxSizing = 'border-box';
+      
+      const headerHtml = `
+        <div class="flex justify-between items-center w-full border-b-2 border-gray-200 pb-5 mb-5">
+          <div class="flex items-center gap-4">
+            <span class="bg-[#393E46] text-white text-sm font-black px-4 py-1.5 rounded-xl shadow-sm whitespace-nowrap">${escapeHtml(currentSheetName)}</span>
+            <h3 class="font-extrabold text-[#222831] text-3xl select-none truncate">${escapeHtml(currentSelectedTask)} 과제 체크표</h3>
+          </div>
+          <div class="text-gray-400 font-bold text-sm tracking-wider whitespace-nowrap">성일정보고 도제(3-12)</div>
+        </div>
+      `;
+      
+      const idCol = sheetData.headers[0];
+      const nameCol = sheetData.headers[1];
+      
+      const cardsHtml = sheetData.students.map(std => {
+        const rawSid = String(std[idCol] ?? '');
+        const sid = escapeHtml(rawSid);
+        const name = escapeHtml(std[nameCol]);
+        const val = pendingUpdates.has(rawSid) ? pendingUpdates.get(rawSid) : (std[currentSelectedTask] || '');
+        
+        let cardBg = "bg-white border-gray-200";
+        let badge = `<div class="bg-gray-50 text-gray-400 text-[11px] px-2.5 py-1 rounded-full font-medium border border-gray-100 whitespace-nowrap">미완료</div>`;
+        let nameStyle = "text-[#222831]";
+        let numStyle = "text-gray-400";
+        
+        if (val === '완료') {
+          cardBg = "bg-gradient-to-br from-[#00ADB5] to-[#00939A] border-transparent shadow-md";
+          badge = `<div class="bg-white/20 text-white text-[11px] px-2.5 py-1 rounded-full font-black border border-white/30 whitespace-nowrap">완료 ✔</div>`;
+          nameStyle = "text-white";
+          numStyle = "text-cyan-100 opacity-90";
+        } else if (val === '해당없음') {
+          cardBg = "bg-gray-100 border-gray-200 opacity-70 shadow-inner";
+          badge = `<div class="bg-gray-200 text-gray-500 text-[11px] px-2.5 py-1 rounded-full font-bold whitespace-nowrap">제외</div>`;
+          nameStyle = "text-gray-500 line-through decoration-gray-400 decoration-2";
+          numStyle = "text-gray-400";
+        }
+        
+        return `
+          <div class="rounded-2xl border-2 px-4 py-3 h-[64px] flex flex-row items-center justify-between shadow-sm ${cardBg}">
+            <div class="flex flex-col truncate mr-2">
+              <span class="text-[11px] font-bold tracking-tight ${numStyle} mb-0.5">${sid}</span>
+              <div class="text-lg font-extrabold truncate ${nameStyle}" style="white-space: nowrap; word-break: keep-all;">${name}</div>
+            </div>
+            <div class="flex-shrink-0">${badge}</div>
+          </div>
+        `;
+      }).join('');
+      
+      const gridHtml = `
+        <div class="grid grid-cols-5 gap-x-5 gap-y-4 w-full flex-1 overflow-hidden align-content-start">
+          ${cardsHtml}
+        </div>
+      `;
+      
+      const footerHtml = `
+        <div class="flex justify-center w-full pt-4 mt-2">
+          <div class="bg-white border-2 border-gray-300 rounded-full shadow-xl px-8 py-3 flex items-center gap-3">
+            <span class="text-2xl">👨‍🏫</span>
+            <div class="flex flex-col text-left">
+              <span class="text-xs font-bold text-gray-500 tracking-tight whitespace-nowrap">도제3-12 담임</span>
+              <span class="text-lg font-black text-gray-800 leading-none mt-1 whitespace-nowrap">이상호</span>
+            </div>
+          </div>
+        </div>
+      `;
+      
+      studio.innerHTML = `
+        <div class="w-full h-full bg-white rounded-[32px] p-8 shadow-2xl flex flex-col justify-between border border-gray-100">
+          ${headerHtml}
+          ${gridHtml}
+          ${footerHtml}
+        </div>
+      `;
+      
+      document.body.appendChild(studio);
+      
+      setTimeout(() => {
+        htmlToImage.toPng(studio, {
+          width: 1920,
+          height: 1080,
+          pixelRatio: 2, 
+          style: { transform: 'none', left: '0', top: '0', position: 'static' }
+        })
+        .then(function (dataUrl) {
+          const link = document.createElement('a');
+          link.download = `${currentSheetName}_${currentSelectedTask}_체크표_169.png`;
+          link.href = dataUrl;
+          link.click();
+          showToast("완벽한 16:9 비율 이미지로 저장되었습니다.", "success");
+        })
+        .catch(function (error) {
+          console.error('16:9 캡처 에러:', error);
+          showToast("캡처 처리 도중 렌더링 결함이 발생했습니다.", "error");
+        })
+        .finally(() => {
+          document.body.removeChild(studio);
+          document.getElementById('loader').style.display = 'none';
+        });
+      }, 300);
+    }
+
+    function saveCardAsImage(cardId, title) {
+      document.getElementById('loader').style.display = 'flex';
+      showToast("베젤 프레임을 포함한 고해상도 이미지를 생성 중입니다...", "info");
+
+      const originalCard = document.getElementById(cardId);
+      const clonedCard = originalCard.cloneNode(true);
+      
+      const btnInClone = clonedCard.querySelector('button');
+      if(btnInClone) btnInClone.remove();
+
+      const frameContainer = document.createElement('div');
+      frameContainer.style.position = 'fixed';
+      frameContainer.style.top = '0';
+      frameContainer.style.left = '0';
+      frameContainer.style.width = '480px'; 
+      frameContainer.style.zIndex = '-9999';
+      frameContainer.style.backgroundColor = '#0f172a'; 
+      frameContainer.style.padding = '35px 28px 28px 28px'; 
+      frameContainer.style.borderRadius = '32px'; 
+      frameContainer.style.boxShadow = '0 30px 60px rgba(0, 0, 0, 0.5)';
+      frameContainer.style.boxSizing = 'border-box';
+      frameContainer.style.display = 'flex';
+      frameContainer.style.flexDirection = 'column';
+      frameContainer.style.gap = '20px';
+
+      const frameHeader = document.createElement('div');
+      frameHeader.className = "flex justify-between items-center w-full pb-1 border-b border-slate-700/50";
+      frameHeader.innerHTML = `
+        <div class="flex items-center gap-2">
+          <span class="bg-[#00ADB5] text-white text-[10px] font-black px-2.5 py-0.5 rounded-md shadow-sm">${escapeHtml(currentSheetName)}</span>
+          <span class="text-slate-400 font-bold text-xs">{현황 브리핑}</span>
+        </div>
+        <div class="text-slate-500 font-bold text-[10px] tracking-wider">성일정보고 도제(3-12)</div>
+      `;
+
+      clonedCard.style.width = '100%';
+      clonedCard.style.boxShadow = 'none';
+      clonedCard.style.border = '1px solid rgba(226, 232, 240, 0.8)';
+      clonedCard.classList.remove('hover:-translate-y-1', 'hover:shadow-2xl');
+      
+      const missingNameBlock = clonedCard.querySelector('p');
+      if (missingNameBlock) {
+        missingNameBlock.style.whiteSpace = 'normal';
+        missingNameBlock.style.wordBreak = 'keep-all';
+      }
+
+      frameContainer.appendChild(frameHeader);
+      frameContainer.appendChild(clonedCard);
+      document.body.appendChild(frameContainer);
+
+      setTimeout(() => {
+        htmlToImage.toPng(frameContainer, { 
+          backgroundColor: '#0f172a', 
+          pixelRatio: 3 
+        })
+        .then(function (dataUrl) {
+          const link = document.createElement('a');
+          link.download = `${currentSheetName}_${title}_현황.png`;
+          link.href = dataUrl;
+          link.click();
+          showToast("멋진 베젤이 포함된 고화질 카드가 다운로드되었습니다.", "success");
+        })
+        .catch(function (error) {
+          console.error('카드 베젤 캡처 에러:', error);
+          showToast("카드 현황 캡처 중 기술적 오류가 발생했습니다.", "error");
+        })
+        .finally(() => {
+          document.body.removeChild(frameContainer);
+          document.getElementById('loader').style.display = 'none';
+        });
+      }, 250);
+    }
+
+    function exportToExcel() {
+      const ws_data = [sheetData.headers];
+      sheetData.students.forEach(s => ws_data.push(sheetData.headers.map(h => s[h] || '')));
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      const wb = XLSX.utils.book_new();
+      XLSX.utils.book_append_sheet(wb, ws, currentSheetName);
+      XLSX.writeFile(wb, `${currentSheetName}_명렬표.xlsx`);
+      showToast("엑셀 파일로 다운로드되었습니다.", "success");
+    }
+
+    window.attemptLogin = attemptLogin;
+    window.logout = logout;
+    window.changeClass = changeClass;
+    window.changeTask = changeTask;
+    window.toggleStatus = toggleStatus;
+    window.toggleAll = toggleAll;
+    window.saveChanges = saveChanges;
+    window.promptEditStudent = promptEditStudent;
+    window.apiAction = apiAction;
+    window.switchTab = switchTab;
+    window.switchSubTab = switchSubTab;
+    window.saveChecklistAs169Image = saveChecklistAs169Image;
+    window.saveCardAsImage = saveCardAsImage;
+    window.exportToExcel = exportToExcel;
+    window.toggleMobileMenu = toggleMobileMenu;
+    window.closeMobileMenu = closeMobileMenu;
+    window.toggleMobileClassMenu = toggleMobileClassMenu;
+    window.closeMobileClassMenu = closeMobileClassMenu;
+    window.toggleMobileTaskMenu = toggleMobileTaskMenu;
+    window.closeMobileTaskMenu = closeMobileTaskMenu;
+
+    document.addEventListener('click', event => {
+      if (!event.target.closest('.selector-surface')) closeMobileClassMenu();
+      if (!event.target.closest('.task-selector-panel')) closeMobileTaskMenu();
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape') {
+        const openButton = document.querySelector('[aria-expanded="true"]');
+        closeMobileClassMenu();
+        closeMobileTaskMenu();
+        if (openButton) openButton.focus();
+      }
+    });
+
+    window.onload = initConfig;
+  </script>
+</body>
+</html>
