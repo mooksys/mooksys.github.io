@@ -77,7 +77,6 @@ const els = {
   statTotal: byId("stat-total"),
   statMonth: byId("stat-month"),
   statToday: byId("stat-today"),
-  statTodaySub: byId("stat-today-sub"),
   previewCard: byId("live-preview-card"),
   previewDate: byId("preview-date"),
   previewTheme: byId("preview-theme"),
@@ -485,6 +484,12 @@ function formatKoreanDate(dateString, options = {}) {
   return `${prefix}${parsed.month}월 ${parsed.day}일${suffix}`;
 }
 
+function formatCompactDate(dateString) {
+  const parsed = parseCalendarDate(dateString);
+  if (!parsed) return String(dateString || "—");
+  return `${parsed.year}.${String(parsed.month).padStart(2, "0")}.${String(parsed.day).padStart(2, "0")}`;
+}
+
 function millisecondsUntilNextKoreanDay(date = new Date()) {
   const parsed = parseCalendarDate(getTodayDateString(date));
   if (!parsed) return 60 * 60 * 1000;
@@ -627,15 +632,13 @@ async function deletePost(id) {
 function updateStats() {
   const today = getTodayDateString();
   const currentMonth = today.slice(0, 7);
-  const todayHasPost = state.allData.some(item => String(item.날짜 || "") === today);
-  const parsedToday = parseCalendarDate(today);
-  const todayStatus = todayHasPost ? "오늘 기록이 있어요" : "작성 준비 완료";
+  const fullTodayLabel = formatKoreanDate(today, { includeYear: true, includeWeekday: true });
   els.statTotal.textContent = state.allData.length.toLocaleString("ko-KR");
   els.statMonth.textContent = state.allData.filter(item => String(item.날짜 || "").startsWith(currentMonth)).length.toLocaleString("ko-KR");
-  els.statToday.textContent = formatKoreanDate(today, { includeYear: true });
+  els.statToday.textContent = formatCompactDate(today);
   els.statToday.dataset.date = today;
-  els.statToday.setAttribute("aria-label", formatKoreanDate(today, { includeYear: true, includeWeekday: true }));
-  els.statTodaySub.textContent = `${parsedToday ? parsedToday.weekday : ""} · ${todayStatus}`;
+  els.statToday.title = fullTodayLabel;
+  els.statToday.setAttribute("aria-label", fullTodayLabel);
   els.tabCount.textContent = state.allData.length.toLocaleString("ko-KR");
 }
 
@@ -796,11 +799,11 @@ async function downloadAnnouncementImage(item) {
 }
 
 function renderAnnouncementCanvas(item) {
-  const width = 1200;
-  const cardX = 60;
-  const cardY = 54;
-  const cardWidth = 1080;
-  const contentWidth = 920;
+  const width = 1100;
+  const cardX = 55;
+  const cardY = 50;
+  const cardWidth = 990;
+  const contentWidth = 840;
   const fontFamily = APPLE_CANVAS_FONT_STACK;
   const themeValue = String(item.테마 || "기본 테마");
   const theme = THEME_OPTIONS.find(option => option.value === themeValue);
@@ -818,7 +821,7 @@ function renderAnnouncementCanvas(item) {
   const lines = layoutCanvasContent(measureContext, String(item.내용 || ""), contentWidth, typography);
   const contentHeight = Math.max(170, lines.length * typography.lineHeight);
   const cardHeight = 174 + contentHeight + 132;
-  const height = Math.min(12000, Math.max(675, cardHeight + 108));
+  const height = Math.min(12000, Math.max(620, cardHeight + 100));
 
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -831,13 +834,13 @@ function renderAnnouncementCanvas(item) {
   context.shadowColor = "rgba(31, 37, 57, 0.14)";
   context.shadowBlur = 34;
   context.shadowOffsetY = 12;
-  roundedRect(context, cardX, cardY, cardWidth, height - 108, 30);
+  roundedRect(context, cardX, cardY, cardWidth, height - 100, 30);
   context.fillStyle = "#ffffff";
   context.fill();
   context.restore();
 
   context.save();
-  roundedRect(context, cardX, cardY, 14, height - 108, 7);
+  roundedRect(context, cardX, cardY, 14, height - 100, 7);
   context.fillStyle = accent;
   context.fill();
   context.restore();
