@@ -112,7 +112,7 @@
               <button type="button" onclick="toggleAll('')" class="button-base button-secondary">전체 초기화</button>
               <button type="button" onclick="toggleAll('해당없음')" class="button-base button-secondary">전체 제외</button>
             </div>
-            <button type="button" onclick="saveChecklistAs169Image()" class="button-base button-secondary w-full sm:w-auto"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M4 7h4l1.2-2h5.6L16 7h4v12H4V7Zm8 9a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>16:9 캡처</button>
+            <button type="button" onclick="saveChecklistAs169Image()" class="button-base button-secondary w-full sm:w-auto"><svg aria-hidden="true" viewBox="0 0 24 24" fill="none"><path d="M4 7h4l1.2-2h5.6L16 7h4v12H4V7Zm8 9a3.5 3.5 0 1 0 0-7 3.5 3.5 0 0 0 0 7Z" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"/></svg>이미지 저장</button>
           </div>
         </div>
         <div id="capture-area" class="panel check-panel">
@@ -149,7 +149,7 @@
 
         <div id="manage-class-area" class="hidden">
           <section class="panel panel-pad" aria-labelledby="class-form-title"><h3 id="class-form-title" class="panel-title">새 주제 생성</h3><p class="panel-description">반은 독립된 Google Sheet로 생성되며 즉시 전환할 수 있습니다.</p><div class="form-grid"><div class="sm:col-span-2"><label class="field-label" for="add-class-name">반 이름</label><input class="field-input" type="text" id="add-class-name" placeholder="예: 1학년 1반" maxlength="50"></div><div class="form-action"><button type="button" onclick="apiAction('add_sheet')" class="button-base button-primary">반 생성</button></div></div></section>
-          <div class="panel mt-4 overflow-hidden"><ul id="manage-class-list" class="divide-y divide-gray-100 text-sm" aria-label="등록된 주제 목록"></ul></div>
+          <div class="panel mt-4 overflow-hidden"><ul id="manage-class-list" class="divide-y divide-gray-100 text-sm" aria-label="등록된 반 목록"></ul></div>
         </div>
       </main>
 
@@ -819,125 +819,32 @@
       document.getElementById(`subtab-${targetBtn}`).setAttribute('aria-selected', 'true');
     }
 
-    /* 📸 [16:9 캡처] 축소된 카드 비율에 맞추어 높이를 h-[64px] 가로형 배치로 통일 */
     function saveChecklistAs169Image() {
       if(!currentSelectedTask) return showToast("선택된 과제가 없습니다.", "error");
-      
-      document.getElementById('loader').style.display = 'flex';
-      showToast("고화질 16:9 와이드 이미지를 생성하고 있습니다...", "info");
+      const captureArea = document.getElementById('capture-area');
+      if (!captureArea) return showToast("캡처할 영역을 찾을 수 없습니다.", "error");
 
-      const studio = document.createElement('div');
-      studio.style.position = 'fixed';
-      studio.style.top = '0';
-      studio.style.left = '0';
-      studio.style.width = '1920px';
-      studio.style.height = '1080px';
-      studio.style.zIndex = '-9999';
-      studio.style.backgroundColor = '#F0F4F8'; 
-      studio.style.display = 'flex';
-      studio.style.flexDirection = 'column';
-      studio.style.justifyContent = 'space-between';
-      studio.style.padding = '50px';
-      studio.style.boxSizing = 'border-box';
-      
-      const headerHtml = `
-        <div class="flex justify-between items-center w-full border-b-2 border-gray-200 pb-5 mb-5">
-          <div class="flex items-center gap-4">
-            <span class="bg-[#393E46] text-white text-sm font-black px-4 py-1.5 rounded-xl shadow-sm whitespace-nowrap">${escapeHtml(currentSheetName)}</span>
-            <h3 class="font-extrabold text-[#222831] text-3xl select-none truncate">${escapeHtml(currentSelectedTask)} 과제 체크표</h3>
-          </div>
-          <div class="text-gray-400 font-bold text-sm tracking-wider whitespace-nowrap">성일정보고 도제(3-12)</div>
-        </div>
-      `;
-      
-      const idCol = sheetData.headers[0];
-      const nameCol = sheetData.headers[1];
-      
-      const cardsHtml = sheetData.students.map(std => {
-        const rawSid = String(std[idCol] ?? '');
-        const sid = escapeHtml(rawSid);
-        const name = escapeHtml(std[nameCol]);
-        const val = pendingUpdates.has(rawSid) ? pendingUpdates.get(rawSid) : (std[currentSelectedTask] || '');
-        
-        let cardBg = "bg-white border-gray-200";
-        let badge = `<div class="bg-gray-50 text-gray-400 text-[11px] px-2.5 py-1 rounded-full font-medium border border-gray-100 whitespace-nowrap">미완료</div>`;
-        let nameStyle = "text-[#222831]";
-        let numStyle = "text-gray-400";
-        
-        if (val === '완료') {
-          cardBg = "bg-gradient-to-br from-[#00ADB5] to-[#00939A] border-transparent shadow-md";
-          badge = `<div class="bg-white/20 text-white text-[11px] px-2.5 py-1 rounded-full font-black border border-white/30 whitespace-nowrap">완료 ✔</div>`;
-          nameStyle = "text-white";
-          numStyle = "text-cyan-100 opacity-90";
-        } else if (val === '해당없음') {
-          cardBg = "bg-gray-100 border-gray-200 opacity-70 shadow-inner";
-          badge = `<div class="bg-gray-200 text-gray-500 text-[11px] px-2.5 py-1 rounded-full font-bold whitespace-nowrap">제외</div>`;
-          nameStyle = "text-gray-500 line-through decoration-gray-400 decoration-2";
-          numStyle = "text-gray-400";
-        }
-        
-        return `
-          <div class="rounded-2xl border-2 px-4 py-3 h-[64px] flex flex-row items-center justify-between shadow-sm ${cardBg}">
-            <div class="flex flex-col truncate mr-2">
-              <span class="text-[11px] font-bold tracking-tight ${numStyle} mb-0.5">${sid}</span>
-              <div class="text-lg font-extrabold truncate ${nameStyle}" style="white-space: nowrap; word-break: keep-all;">${name}</div>
-            </div>
-            <div class="flex-shrink-0">${badge}</div>
-          </div>
-        `;
-      }).join('');
-      
-      const gridHtml = `
-        <div class="grid grid-cols-5 gap-x-5 gap-y-4 w-full flex-1 overflow-hidden align-content-start">
-          ${cardsHtml}
-        </div>
-      `;
-      
-      const footerHtml = `
-        <div class="flex justify-center w-full pt-4 mt-2">
-          <div class="bg-white border-2 border-gray-300 rounded-full shadow-xl px-8 py-3 flex items-center gap-3">
-            <span class="text-2xl">👨‍🏫</span>
-            <div class="flex flex-col text-left">
-              <span class="text-xs font-bold text-gray-500 tracking-tight whitespace-nowrap">도제3-12 담임</span>
-              <span class="text-lg font-black text-gray-800 leading-none mt-1 whitespace-nowrap">이상호</span>
-            </div>
-          </div>
-        </div>
-      `;
-      
-      studio.innerHTML = `
-        <div class="w-full h-full bg-white rounded-[32px] p-8 shadow-2xl flex flex-col justify-between border border-gray-100">
-          ${headerHtml}
-          ${gridHtml}
-          ${footerHtml}
-        </div>
-      `;
-      
-      document.body.appendChild(studio);
-      
-      setTimeout(() => {
-        htmlToImage.toPng(studio, {
-          width: 1920,
-          height: 1080,
-          pixelRatio: 2, 
-          style: { transform: 'none', left: '0', top: '0', position: 'static' }
-        })
-        .then(function (dataUrl) {
-          const link = document.createElement('a');
-          link.download = `${currentSheetName}_${currentSelectedTask}_체크표_169.png`;
-          link.href = dataUrl;
-          link.click();
-          showToast("완벽한 16:9 비율 이미지로 저장되었습니다.", "success");
-        })
-        .catch(function (error) {
-          console.error('16:9 캡처 에러:', error);
-          showToast("캡처 처리 도중 렌더링 결함이 발생했습니다.", "error");
-        })
-        .finally(() => {
-          document.body.removeChild(studio);
-          document.getElementById('loader').style.display = 'none';
-        });
-      }, 300);
+      document.getElementById('loader').style.display = 'flex';
+      showToast("현재 체크표 화면을 이미지로 저장하고 있습니다...", "info");
+
+      htmlToImage.toPng(captureArea, {
+        pixelRatio: 2,
+        cacheBust: true
+      })
+      .then(function (dataUrl) {
+        const link = document.createElement('a');
+        link.download = `${currentSheetName}_${currentSelectedTask}_체크표.png`;
+        link.href = dataUrl;
+        link.click();
+        showToast("현재 체크표 화면이 이미지로 저장되었습니다.", "success");
+      })
+      .catch(function (error) {
+        console.error('체크표 캡처 에러:', error);
+        showToast("캡처 처리 도중 오류가 발생했습니다.", "error");
+      })
+      .finally(() => {
+        document.getElementById('loader').style.display = 'none';
+      });
     }
 
     function saveCardAsImage(cardId, title) {
