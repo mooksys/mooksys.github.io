@@ -439,7 +439,7 @@
           <form id="processForm">
             <input type="hidden" id="proc_id">
             <div class="card p-3 mb-3 border-0 shadow-sm" style="border-radius: 12px;">
-              <div class="mb-3"><label class="form-label fw-bold text-muted small">실습 기업 대상</label><select id="proc_comp" class="form-select" onchange="onProcessCompanyChange()" required></select></div>
+              <div class="mb-3"><label class="form-label fw-bold text-muted small">실습 기업 대상</label><select id="proc_comp" class="form-select" required></select></div>
               <div class="mb-3"><label class="form-label fw-bold text-muted small">운영 학기</label><select id="proc_semester" class="form-select" required></select></div>
               <div class="mb-3"><label class="form-label fw-bold text-muted small">평가 과목</label><select id="proc_subject" class="form-select" required></select></div>
               <div class="mb-1">
@@ -476,6 +476,7 @@
     let currentSubjectTab = 1; 
     let currentGlobalYear = ""; 
     let doughnutChartInstance = null; 
+    const CLIENT_ID_STORAGE_KEY = 'doje_client_id';
 
     const _escapeHTML = function(val) {
       if (val === null || val === undefined) return '';
@@ -497,6 +498,8 @@
       bootstrapProcessModal = new bootstrap.Modal(document.getElementById('processModal'));
       
       buildDynamicYears();
+      registerTableEventHandlers();
+      document.getElementById('proc_comp').addEventListener('change', function() { onProcessCompanyChange(); });
       loadLocalConfiguration();
     });
 
@@ -532,23 +535,42 @@
       document.getElementById('stud_year').innerHTML = standardHTML;
     }
 
+    function getClientId() {
+      let clientId = localStorage.getItem(CLIENT_ID_STORAGE_KEY);
+      if (clientId) return clientId;
+
+      if (window.crypto && window.crypto.getRandomValues) {
+        const bytes = new Uint32Array(4);
+        window.crypto.getRandomValues(bytes);
+        clientId = 'client_' + Date.now().toString(36) + '_' + Array.from(bytes).map(value => value.toString(36)).join('_');
+      } else {
+        clientId = 'client_' + Date.now().toString(36) + '_' + Math.random().toString(36).slice(2) + Math.random().toString(36).slice(2);
+      }
+      localStorage.setItem(CLIENT_ID_STORAGE_KEY, clientId);
+      return clientId;
+    }
+
+    function showDashboard() {
+      document.getElementById('loginSection').style.display = 'none';
+      document.getElementById('dashboardSection').style.display = 'block';
+    }
+
     function loadLocalConfiguration() {
       showLoading(true, "시스템 초기화 중...");
       fetch('doje_project05_gas.json', { cache: 'no-store' })
         .then(function(res) { if (!res.ok) throw new Error("설정 파일 로딩 실패"); return res.json(); })
-        .then(function(json) { 
-          configData = json; 
+        .then(function(json) {
+          configData = json;
           showLoading(false);
           if (sessionStorage.getItem('doje_token')) {
-            document.getElementById('loginSection').style.display = 'none';
-            document.getElementById('dashboardSection').style.display = 'block';
+            showDashboard();
             refreshAllSystemData();
           }
         })
-        .catch(function(err) { showLoading(false); console.error("초기화 오류:", err); });
+        .catch(function(err) { showLoading(false); handleApiError(err); });
     }
 
-    function attemptLogin() {
+    async function attemptLogin() {
       const pwd = document.getElementById('adminPassword').value;
       if (!pwd) {
         document.getElementById('loginError').innerText = "⚠️ 패스워드를 입력해 주세요.";
@@ -556,66 +578,95 @@
         return;
       }
       showLoading(true, "보안 인증 확인 중...");
-      callGasApi("verifyLogin", { password: pwd }, function(res) {
-        showLoading(false);
+      try {
+        const res = await callGasApi("verifyLogin", { password: pwd });
         if (res && res.isValid) {
-          const secureToken = res.token || 'sec_' + Math.random().toString(36).substring(2);
-          sessionStorage.setItem('doje_token', secureToken);
-          document.getElementById('loginSection').style.display = 'none';
-          document.getElementById('dashboardSection').style.display = 'block';
-          document.getElementById('adminPassword').value = ''; 
+          if (!res.token || res.token.length < 64) throw new Error('유효하지 않은 로그인 응답입니다.');
+          sessionStorage.setItem('doje_token', res.token);
+          showDashboard();
+          document.getElementById('adminPassword').value = '';
           document.getElementById('loginError').style.display = 'none';
-          refreshAllSystemData();
-          showToast("시스템에 안전하게 접속되었습니다.");
+          if (await refreshAllSystemData()) showToast("시스템에 안전하게 접속되었습니다.");
         } else {
           document.getElementById('loginError').innerText = "⚠️ 패스워드가 올바르지 않습니다.";
           document.getElementById('loginError').style.display = 'block';
         }
-      });
+      } catch (err) {
+        document.getElementById('loginError').innerText = err.message || "로그인 처리 중 오류가 발생했습니다.";
+        document.getElementById('loginError').style.display = 'block';
+      } finally {
+        showLoading(false);
+      }
     }
 
-    function logout() {
+    function logout(isAutomatic = false) {
       sessionStorage.removeItem('doje_token');
       document.getElementById('adminPassword').value = '';
       document.getElementById('loginSection').style.display = 'flex';
       document.getElementById('dashboardSection').style.display = 'none';
-      showToast("안전하게 로그아웃 되었습니다.");
+      if (!isAutomatic) showToast("안전하게 로그아웃 되었습니다.");
     }
 
-    function callGasApi(actionName, payloadData, successCallback, customMessage = null) {
-      if (!configData || !configData.gasUrl) {
-        showLoading(false); alert("통신 오류: GAS URL이 설정되지 않았습니다."); return;
+    async function callGasApi(actionName, payloadData) {
+      if (!configData || !configData.gasUrl) throw new Error("통신 오류: GAS URL이 설정되지 않았습니다.");
+
+      const response = await fetch(configData.gasUrl, {
+        method: 'POST',
+        mode: 'cors',
+        body: JSON.stringify({
+          action: actionName,
+          token: sessionStorage.getItem('doje_token') || '',
+          clientId: getClientId(),
+          data: payloadData
+        })
+      });
+      if (!response.ok) throw new Error("서버 통신에 실패했습니다.");
+
+      let result;
+      try {
+        result = await response.json();
+      } catch (error) {
+        throw new Error("서버 응답을 해석할 수 없습니다.");
       }
-      const sessionToken = sessionStorage.getItem('doje_token') || '';
-      fetch(configData.gasUrl, { 
-        method: 'POST', mode: 'cors', 
-        body: JSON.stringify({ action: actionName, token: sessionToken, data: payloadData }) 
-      })
-      .then(function(res) { return res.json(); })
-      .then(function(data) {
-        if(customMessage) showToast(customMessage);
-        successCallback(data);
-      })
-      .catch(function(err) { showLoading(false); showToast("통신 장애 발생: " + err, true); });
+      if (!result || result.status !== 'success') {
+        const requestError = new Error(result && result.message ? result.message : "요청 처리에 실패했습니다.");
+        requestError.code = result && result.code;
+        throw requestError;
+      }
+      return result;
     }
 
-    function refreshAllSystemData() {
+    function handleApiError(error) {
+      console.error("API 오류:", error);
+      if (error && error.code === 'AUTH_REQUIRED') logout(true);
+      showToast(error && error.message ? error.message : "요청 처리 중 오류가 발생했습니다.", true);
+    }
+
+    async function refreshAllSystemData() {
       showLoading(true, "데이터 원격 동기화 중...");
       document.getElementById('batchActionWrapper').style.display = 'none';
       document.getElementById('checkAllProcess').checked = false;
 
-      callGasApi("getAllData", {}, function(fetchedData) {
-        systemData = fetchedData;
+      try {
+        const fetchedData = await callGasApi("getAllData", {});
+        systemData = {
+          companies: Array.isArray(fetchedData.companies) ? fetchedData.companies : [],
+          students: Array.isArray(fetchedData.students) ? fetchedData.students : [],
+          process: Array.isArray(fetchedData.process) ? fetchedData.process : []
+        };
         updateDashboard();
         renderCompanyTable();
         renderStudentTable();
-        
         autoSelectSubjectTab();
-        
         populateDropdowns();
-        populateReportSelect(); 
+        populateReportSelect();
+        return true;
+      } catch (error) {
+        handleApiError(error);
+        return false;
+      } finally {
         showLoading(false);
-      });
+      }
     }
 
     function changeGlobalYear() {
@@ -623,61 +674,76 @@
       refreshAllSystemData();
     }
 
+    function getProcessYear(process) {
+      const match = /^(\d{4})학년도/.exec(String(process.Semester || ''));
+      return match ? match[1] : '';
+    }
+
+    function getCompanyForYear(companyName, year) {
+      return systemData.companies.find(company =>
+        String(company.CompanyName) === String(companyName) && String(company.Year) === String(year)
+      );
+    }
+
+    function getStudentKey(student) {
+      return JSON.stringify([String(student.Year || ''), String(student.StudentID || '')]);
+    }
+
+    function getStudentFromKey(studentKey) {
+      try {
+        const [year, studentId] = JSON.parse(studentKey);
+        return systemData.students.find(student =>
+          String(student.Year) === String(year) && String(student.StudentID) === String(studentId)
+        );
+      } catch (error) {
+        return null;
+      }
+    }
+
     function autoSelectSubjectTab() {
       let targetTab = 1;
-      
       for (let tab = 1; tab <= 6; tab++) {
-        const processesForTab = systemData.process.filter(p => {
-          if (currentGlobalYear !== '' && (!p.Semester || !p.Semester.includes(currentGlobalYear))) return false;
-          const comp = systemData.companies.find(c => c.CompanyName === p.CompanyName);
-          if (!comp) return false;
-          return p.SubjectName && comp['Sub' + tab] && p.SubjectName === comp['Sub' + tab];
+        const processesForTab = systemData.process.filter(process => {
+          const processYear = getProcessYear(process);
+          if (currentGlobalYear !== '' && processYear !== currentGlobalYear) return false;
+          const company = getCompanyForYear(process.CompanyName, processYear);
+          return company && process.SubjectName && company['Sub' + tab] && process.SubjectName === company['Sub' + tab];
         });
 
-        if (processesForTab.length > 0) {
-          const allCompleted = processesForTab.every(p => {
-            const s1 = (p.Step1_Created || '').trim();
-            const s2 = (p.Step2_Sent || '').trim();
-            const s3 = (p.Step3_Scanned || '').trim();
-            return s1 === '완료' && s2 === '완료' && s3 === '완료';
-          });
-
-          if (!allCompleted) {
-            targetTab = tab; 
-            break;
-          } else {
-            targetTab = tab < 6 ? tab + 1 : 6; 
-          }
-        } else {
+        if (processesForTab.length === 0) {
           targetTab = tab;
           break;
         }
+        if (!processesForTab.every(process =>
+          String(process.Step1_Created || '').trim() === '완료' &&
+          String(process.Step2_Sent || '').trim() === '완료' &&
+          String(process.Step3_Scanned || '').trim() === '완료'
+        )) {
+          targetTab = tab;
+          break;
+        }
+        targetTab = tab < 6 ? tab + 1 : 6;
       }
       changeSubjectTab(targetTab);
     }
 
     function updateDashboard() {
-      let activeProcs = systemData.process;
-      if (currentGlobalYear !== '') {
-        activeProcs = activeProcs.filter(p => p.Semester && p.Semester.includes(currentGlobalYear));
-      }
-      
-      const totalSubj = activeProcs.length;
-      const completedSubj = activeProcs.filter(p => p.Step3_Scanned === '완료').length;
-      const waitingSubj = totalSubj - completedSubj;
-
-      const activeStudents = new Set();
-      activeProcs.forEach(p => {
-        const students = systemData.students.filter(s => s.CompanyName === p.CompanyName);
-        students.forEach(s => activeStudents.add(s.StudentID));
-      });
+      const activeProcesses = systemData.process.filter(process =>
+        currentGlobalYear === '' || getProcessYear(process) === currentGlobalYear
+      );
+      const totalSubj = activeProcesses.length;
+      const completedSubj = activeProcesses.filter(process => process.Step3_Scanned === '완료').length;
+      const activeCompanyYears = new Set(activeProcesses.map(process => `${getProcessYear(process)}\u001F${process.CompanyName}`));
+      const activeStudents = new Set(
+        systemData.students
+          .filter(student => activeCompanyYears.has(`${student.Year}\u001F${student.CompanyName}`))
+          .map(getStudentKey)
+      );
 
       document.getElementById('dash_total_students').innerText = activeStudents.size + " 명";
       document.getElementById('dash_completed_subj').innerText = completedSubj + " 개";
-      document.getElementById('dash_waiting_subj').innerText = waitingSubj + " 개";
-      
-      const yearLabel = currentGlobalYear === '' ? "전체 누적 공정" : currentGlobalYear + "학년도 기준";
-      document.getElementById('dash_year_label').innerText = yearLabel;
+      document.getElementById('dash_waiting_subj').innerText = (totalSubj - completedSubj) + " 개";
+      document.getElementById('dash_year_label').innerText = currentGlobalYear === '' ? "전체 누적 공정" : currentGlobalYear + "학년도 기준";
 
       if(doughnutChartInstance) { doughnutChartInstance.destroy(); }
       const ctx = document.getElementById('dashboardDoughnutChart').getContext('2d');
@@ -685,7 +751,7 @@
         type: 'doughnut',
         data: {
           labels: ['평가 완료', '진행 대기'],
-          datasets: [{ data: [completedSubj, waitingSubj], backgroundColor: ['#10B981', '#f59e0b'], borderWidth: 2, borderColor: '#ffffff' }]
+          datasets: [{ data: [completedSubj, totalSubj - completedSubj], backgroundColor: ['#10B981', '#f59e0b'], borderWidth: 2, borderColor: '#ffffff' }]
         },
         options: {
           responsive: true, maintainAspectRatio: false, cutout: '70%',
@@ -706,36 +772,66 @@
       renderProcessTable();
     }
 
-    function populateDropdowns() {
-      const sSelect = document.getElementById('stud_comp');
-      const pSelect = document.getElementById('proc_comp');
-      sSelect.innerHTML = ''; pSelect.innerHTML = '';
-      
-      const filteredCompanies = systemData.companies.filter(c => currentGlobalYear === '' || c.Year == currentGlobalYear);
-      filteredCompanies.forEach(function(c) {
-        const safeName = _escapeHTML(c.CompanyName);
-        const opt = `<option value="${safeName}">${safeName}</option>`;
-        sSelect.insertAdjacentHTML('beforeend', opt); pSelect.insertAdjacentHTML('beforeend', opt);
+    function populateCompanyOptions(year, selectedCompanyName = '') {
+      const studentSelect = document.getElementById('stud_comp');
+      const processSelect = document.getElementById('proc_comp');
+      studentSelect.replaceChildren();
+      processSelect.replaceChildren();
+
+      const companies = systemData.companies.filter(company => String(company.Year) === String(year));
+      companies.forEach(company => {
+        studentSelect.add(new Option(company.CompanyName, company.CompanyName));
+        processSelect.add(new Option(company.CompanyName, company.CompanyName));
       });
-      if(filteredCompanies.length > 0) onProcessCompanyChange();
-    }
-
-    function onProcessCompanyChange() {
-      const selected = document.getElementById('proc_comp').value;
-      const subSelect = document.getElementById('proc_subject');
-      subSelect.innerHTML = '';
-      const comp = systemData.companies.find(function(c) { return c.CompanyName === selected; });
-      if(comp) {
-        [comp.Sub1, comp.Sub2, comp.Sub3, comp.Sub4, comp.Sub5, comp.Sub6].forEach(function(s) {
-          if(s) { const safeSub = _escapeHTML(s); subSelect.insertAdjacentHTML('beforeend', `<option value="${safeSub}">${safeSub}</option>`); }
-        });
+      if (selectedCompanyName && companies.some(company => company.CompanyName === selectedCompanyName)) {
+        studentSelect.value = selectedCompanyName;
+        processSelect.value = selectedCompanyName;
       }
+      onProcessCompanyChange(year);
     }
 
-    function getCompanyColor(companyName) {
+    function populateDropdowns() {
+      const targetYear = currentGlobalYear || new Date().getFullYear().toString();
+      populateCompanyOptions(targetYear);
+    }
+
+    function onProcessCompanyChange(year = '') {
+      const selectedCompany = document.getElementById('proc_comp').value;
+      const selectedSemester = document.getElementById('proc_semester').value;
+      const targetYear = year || getProcessYear({ Semester: selectedSemester }) || currentGlobalYear || new Date().getFullYear().toString();
+      const subjectSelect = document.getElementById('proc_subject');
+      subjectSelect.replaceChildren();
+      const company = getCompanyForYear(selectedCompany, targetYear);
+      if (!company) return;
+
+      [company.Sub1, company.Sub2, company.Sub3, company.Sub4, company.Sub5, company.Sub6]
+        .filter(Boolean)
+        .forEach(subject => subjectSelect.add(new Option(subject, subject)));
+    }
+
+    function getCompanyColor(companyName, year = '') {
       const palette = ['#1e293b', '#10B981', '#f59e0b', '#8b5cf6', '#ec4899', '#0ea5e9', '#ef4444', '#14b8a6', '#f97316', '#6366f1'];
-      const index = systemData.companies.findIndex(c => c.CompanyName === companyName);
+      const index = systemData.companies.findIndex(c => c.CompanyName === companyName && (!year || String(c.Year) === String(year)));
       return index !== -1 ? palette[index % palette.length] : '#64748b'; 
+    }
+
+    function registerTableEventHandlers() {
+      document.getElementById('companyTableBody').addEventListener('click', function(event) {
+        const button = event.target.closest('[data-action="edit-company"]');
+        if (button) editCompany(button.dataset.id);
+      });
+      document.getElementById('studentTableBody').addEventListener('click', function(event) {
+        const button = event.target.closest('[data-action="edit-student"]');
+        if (button) editStudent(button.dataset.studentId, button.dataset.year);
+      });
+      const processTable = document.getElementById('processTableBody');
+      processTable.addEventListener('click', function(event) {
+        const button = event.target.closest('[data-action="edit-process"]');
+        if (button) editProcess(button.dataset.id);
+      });
+      processTable.addEventListener('change', function(event) {
+        if (event.target.matches('.proc-row-checkbox')) onRowCheckboxChecked();
+      });
     }
 
     function renderCompanyTable() {
@@ -751,7 +847,7 @@
           else parsedSubs.push(s.trim());
         });
         let subsHTML = parsedSubs.filter(Boolean).map(sub => `<span class="subject-badge me-1 mb-1">${_escapeHTML(sub)}</span>`).join('');
-        const bgColor = getCompanyColor(c.CompanyName);
+        const bgColor = getCompanyColor(c.CompanyName, c.Year);
         const yearBadge = currentGlobalYear === '' ? `<span class="badge bg-secondary mb-1" style="font-size:8pt;">${_escapeHTML(c.Year) || '연도미상'}</span><br>` : '';
 
         tbody.insertAdjacentHTML('beforeend', `
@@ -763,7 +859,7 @@
               <div class="teacher-item t-email"><span>✉️</span> <span>이메일: ${_escapeHTML(c.Email) || '-'}</span></div>
             </td>
             <td class="text-start align-middle"><div class="d-flex flex-wrap align-items-center" style="gap: 5px;">${subsHTML}</div></td>
-            <td class="align-middle text-center no-print"><button class="btn btn-sm btn-outline-primary px-3 py-1 shadow-sm" style="border-radius:6px; font-size: 9.5pt; white-space: nowrap;" onclick="editCompany('${c.ID}')">수정</button></td>
+            <td class="align-middle text-center no-print"><button class="btn btn-sm btn-outline-primary px-3 py-1 shadow-sm" style="border-radius:6px; font-size: 9.5pt; white-space: nowrap;" data-action="edit-company" data-id="${_escapeHTML(c.ID)}">수정</button></td>
           </tr>
         `);
       });
@@ -775,14 +871,14 @@
       if(filteredStudents.length === 0) { tbody.innerHTML = `<tr><td colspan="4" class="text-muted p-4 text-center">선택된 연도에 등록된 데이터가 없습니다.</td></tr>`; return; }
       
       filteredStudents.forEach(function(s) {
-        const bgColor = getCompanyColor(s.CompanyName);
+        const bgColor = getCompanyColor(s.CompanyName, s.Year);
         const yearBadge = currentGlobalYear === '' ? `<span class="badge bg-secondary me-2">${_escapeHTML(s.Year) || '연도미상'}</span>` : '';
         tbody.insertAdjacentHTML('beforeend', `
           <tr>
             <td class="fw-bold align-middle" style="color:#64748b;">${yearBadge}${_escapeHTML(s.StudentID)}</td>
             <td class="fw-bold align-middle" style="font-size: 11.5pt;">${_escapeHTML(s.StudentName)}</td>
             <td class="align-middle"><span class="company-badge" style="background-color: ${bgColor}; font-size: 10pt;">${_escapeHTML(s.CompanyName)}</span></td>
-            <td class="align-middle text-center"><button class="btn btn-sm btn-outline-primary px-3 py-1 shadow-sm fw-bold" style="border-radius:6px; font-size: 9.5pt; white-space: nowrap;" onclick="editStudent('${s.StudentID}')">변경</button></td>
+            <td class="align-middle text-center"><button class="btn btn-sm btn-outline-primary px-3 py-1 shadow-sm fw-bold" style="border-radius:6px; font-size: 9.5pt; white-space: nowrap;" data-action="edit-student" data-year="${_escapeHTML(s.Year)}" data-student-id="${_escapeHTML(s.StudentID)}">변경</button></td>
           </tr>
         `);
       });
@@ -791,9 +887,10 @@
     function renderProcessTable() {
       const tbody = document.getElementById('processTableBody'); tbody.innerHTML = '';
       const filteredProcess = systemData.process.filter(function(p) {
-        if (currentGlobalYear !== '' && (!p.Semester || !p.Semester.includes(currentGlobalYear))) return false;
-        const comp = systemData.companies.find(c => c.CompanyName === p.CompanyName); if (!comp) return false;
-        return p.SubjectName === comp['Sub' + currentSubjectTab];
+        const processYear = getProcessYear(p);
+        if (currentGlobalYear !== '' && processYear !== currentGlobalYear) return false;
+        const comp = getCompanyForYear(p.CompanyName, processYear);
+        return comp && p.SubjectName === comp['Sub' + currentSubjectTab];
       });
 
       // 🚨 [신규 기능] 3단계 미완료 기업 현황 알림 카드 로직
@@ -810,10 +907,10 @@
         incompleteCard.style.display = 'block';
         incompleteTitle.innerText = `제${currentSubjectTab}과목 3단계(스캔) 미완료 기업 - 총 ${incompleteProcs.length}건`;
         
-        const uniqueComps = [...new Set(incompleteProcs.map(p => p.CompanyName))];
-        incompleteList.innerHTML = uniqueComps.map(compName => {
-          const bgColor = getCompanyColor(compName);
-          return `<span class="company-badge shadow-sm" style="background-color: ${bgColor}; font-size: 9.5pt; padding: 5px 10px;">${_escapeHTML(compName)}</span>`;
+        const uniqueComps = [...new Map(incompleteProcs.map(p => [`${getProcessYear(p)}\u001F${p.CompanyName}`, p])).values()];
+        incompleteList.innerHTML = uniqueComps.map(process => {
+          const bgColor = getCompanyColor(process.CompanyName, getProcessYear(process));
+          return `<span class="company-badge shadow-sm" style="background-color: ${bgColor}; font-size: 9.5pt; padding: 5px 10px;">${_escapeHTML(process.CompanyName)}</span>`;
         }).join('');
       } else {
         incompleteCard.style.display = 'none';
@@ -830,7 +927,8 @@
       };
 
       filteredProcess.forEach(function(p) {
-        const matchingStudents = systemData.students.filter(s => s.CompanyName === p.CompanyName);
+        const processYear = getProcessYear(p);
+        const matchingStudents = systemData.students.filter(s => s.CompanyName === p.CompanyName && String(s.Year) === processYear);
         let studentButtonsHTML = matchingStudents.length === 0 ? '<span class="text-muted small">배정 없음</span>' : matchingStudents.map(s => `<span class="bg-white text-dark border fw-bold student-btn-badge">🎓 ${_escapeHTML(s.StudentID)} ${_escapeHTML(s.StudentName)}</span>`).join('');
 
         let methodBtnHTML = ''; const m = p.Method ? String(p.Method).trim() : '서술형'; 
@@ -843,11 +941,11 @@
         const b1 = s1 === '완료' ? 'badge-success' : 'badge-ready';
         const b2 = s2 === '완료' ? 'badge-success' : 'badge-ready';
         const b3 = s3 === '완료' ? 'badge-success' : 'badge-ready';
-        const bgColor = getCompanyColor(p.CompanyName);
+        const bgColor = getCompanyColor(p.CompanyName, processYear);
 
         tbody.insertAdjacentHTML('beforeend', `
           <tr>
-            <td class="no-print text-center align-middle"><input type="checkbox" class="form-check-input form-check-input-custom proc-row-checkbox" value="${p.ID}" onclick="onRowCheckboxChecked()"></td>
+            <td class="no-print text-center align-middle"><input type="checkbox" class="form-check-input form-check-input-custom proc-row-checkbox" data-process-id="${_escapeHTML(p.ID)}"></td>
             <td class="text-center px-1"><span class="company-badge" style="background-color: ${bgColor}; width: 100%; margin: 0 auto;">${_escapeHTML(p.CompanyName)}</span></td>
             <td><div class="d-flex flex-column align-items-center justify-content-center" style="gap: 4px;">${studentButtonsHTML}</div></td>
             <td class="text-center text-muted fw-bold" style="font-size:9.5pt;">${_escapeHTML(p.Semester || '미지정')}</td>
@@ -856,7 +954,7 @@
             <td class="px-1"><span class="badge ${b1} d-block p-2 w-100">${s1}</span></td>
             <td class="px-1"><span class="badge ${b2} d-block p-2 w-100">${s2}</span></td>
             <td class="px-1"><span class="badge ${b3} d-block p-2 w-100">${s3}</span></td>
-            <td class="no-print text-center align-middle"><button class="btn btn-sm px-3 py-1 shadow-sm" style="background-color:var(--main-navy); color:white; border-radius: 6px; font-size: 9.5pt; white-space: nowrap;" onclick="editProcess('${p.ID}')">제어</button></td>
+            <td class="no-print text-center align-middle"><button class="btn btn-sm px-3 py-1 shadow-sm" style="background-color:var(--main-navy); color:white; border-radius: 6px; font-size: 9.5pt; white-space: nowrap;" data-action="edit-process" data-id="${_escapeHTML(p.ID)}">제어</button></td>
           </tr>
         `);
       });
@@ -882,54 +980,58 @@
 
       const targetStep = document.getElementById('batchTargetStep').value;
       const targetValue = document.getElementById('batchTargetValue').value;
-      const idsToUpdate = Array.from(checkedBoxes).map(cb => cb.value);
+      const idsToUpdate = Array.from(checkedBoxes).map(checkbox => checkbox.dataset.processId);
+      const records = idsToUpdate.map(id => systemData.process.find(process => process.ID === id)).filter(Boolean).map(process => ({
+        ID: process.ID,
+        CompanyName: process.CompanyName,
+        Semester: process.Semester,
+        SubjectName: process.SubjectName,
+        Method: process.Method ? String(process.Method).trim() : '서술형',
+        Step1_Created: process.Step1_Created,
+        Step2_Sent: process.Step2_Sent,
+        Step3_Scanned: process.Step3_Scanned,
+        [targetStep]: targetValue
+      }));
+      if (records.length !== idsToUpdate.length) {
+        showToast("선택한 공정 정보를 찾을 수 없습니다. 데이터를 새로고침해 주세요.", true);
+        return;
+      }
 
       showLoading(true, "행정 명령 일괄 동기화 시작...");
       try {
-        for (let i = 0; i < idsToUpdate.length; i++) {
-          const currentId = idsToUpdate[i];
-          showLoading(true, `구글 서버 반영 중... (${i + 1}/${idsToUpdate.length})`);
-          const orig = systemData.process.find(item => item.ID === currentId);
-          if (orig) {
-            const payload = {
-              ID: orig.ID, CompanyName: orig.CompanyName, Semester: orig.Semester,
-              SubjectName: orig.SubjectName, Method: orig.Method ? String(orig.Method).trim() : '서술형',
-              Step1_Created: orig.Step1_Created, Step2_Sent: orig.Step2_Sent, Step3_Scanned: orig.Step3_Scanned
-            };
-            payload[targetStep] = targetValue;
-            await new Promise((resolve) => { callGasApi("saveProcess", payload, function() { resolve(); }); });
-          }
-        }
-        showToast(`${idsToUpdate.length}개 항목의 내부평가 공정이 일괄 성공 업데이트 되었습니다.`);
-        refreshAllSystemData();
-      } catch (err) {
-        showLoading(false); showToast("일괄 변경 도중 실패: " + err, true);
+        await callGasApi("saveProcesses", { records });
+        if (await refreshAllSystemData()) showToast(`${records.length}개 항목의 내부평가 공정이 업데이트되었습니다.`);
+      } catch (error) {
+        handleApiError(error);
+      } finally {
+        showLoading(false);
       }
     }
 
     function populateReportSelect() {
       const select = document.getElementById('reportStudentSelect');
-      select.innerHTML = '<option value="">-- 조회할 학생을 선택하세요 --</option>';
+      select.replaceChildren(new Option('-- 조회할 학생을 선택하세요 --', ''));
       const filteredStudents = systemData.students.filter(s => currentGlobalYear === '' || s.Year == currentGlobalYear);
-      filteredStudents.forEach(function(s) {
-        const yearPrefix = currentGlobalYear === '' ? `[${_escapeHTML(s.Year)||'연도미상'}] ` : '';
-        select.insertAdjacentHTML('beforeend', `<option value="${_escapeHTML(s.StudentID)}">${yearPrefix}[${_escapeHTML(s.CompanyName)}] ${_escapeHTML(s.StudentID)} ${_escapeHTML(s.StudentName)}</option>`);
+      filteredStudents.forEach(function(student) {
+        const yearPrefix = currentGlobalYear === '' ? `[${student.Year || '연도미상'}] ` : '';
+        select.add(new Option(`${yearPrefix}[${student.CompanyName}] ${student.StudentID} ${student.StudentName}`, getStudentKey(student)));
       });
     }
 
     function generateReport() {
-      const studentId = document.getElementById('reportStudentSelect').value;
+      const studentKey = document.getElementById('reportStudentSelect').value;
       const placeholder = document.getElementById('reportPlaceholder');
       const container = document.getElementById('reportContainer');
       const actionBtns = document.getElementById('reportActionButtons');
-      if (!studentId) { placeholder.style.display = 'block'; container.style.display = 'none'; actionBtns.style.display = 'none'; return; }
+      if (!studentKey) { placeholder.style.display = 'block'; container.style.display = 'none'; actionBtns.style.display = 'none'; return; }
 
-      const student = systemData.students.find(s => String(s.StudentID) === String(studentId)); if (!student) return;
-      const company = systemData.companies.find(c => c && c.CompanyName === student.CompanyName);
-      const bgColor = getCompanyColor(student.CompanyName);
+      const student = getStudentFromKey(studentKey); if (!student) return;
+      const company = getCompanyForYear(student.CompanyName, student.Year);
+      const bgColor = getCompanyColor(student.CompanyName, student.Year);
       
-      let compProcesses = systemData.process.filter(p => p && p.CompanyName === student.CompanyName);
-      if (currentGlobalYear !== '') { compProcesses = compProcesses.filter(p => p.Semester && p.Semester.includes(currentGlobalYear)); }
+      const compProcesses = systemData.process.filter(process =>
+        process && process.CompanyName === student.CompanyName && getProcessYear(process) === String(student.Year)
+      );
 
       const processesBySemester = {};
       if (compProcesses.length === 0) { processesBySemester['학기 정보 없음'] = []; } 
@@ -1029,20 +1131,26 @@
       showLoading(true, "인쇄용 고해상도 이미지 스캔 중...");
       const selBox = document.getElementById('reportStudentSelect');
       const studentName = selBox.options[selBox.selectedIndex].text.split(' ').pop();
-      html2canvas(document.getElementById('reportContainer'), { scale: 2, useCORS: true }).then(canvas => {
-        const link = document.createElement("a");
-        link.download = `내부평가진도현황_${studentName}_${currentGlobalYear || '전체'}.png`;
-        link.href = canvas.toDataURL("image/png"); link.click(); showLoading(false);
-      });
+      html2canvas(document.getElementById('reportContainer'), { scale: 2, useCORS: true })
+        .then(canvas => {
+          const link = document.createElement("a");
+          link.download = `내부평가진도현황_${studentName}_${currentGlobalYear || '전체'}.png`;
+          link.href = canvas.toDataURL("image/png");
+          link.click();
+        })
+        .catch(error => handleApiError(error))
+        .finally(() => showLoading(false));
     }
 
     function openCompanyModal(isEdit) { 
+      const yearSelect = document.getElementById('comp_year');
       if(!isEdit){ 
         document.getElementById('companyForm').reset(); document.getElementById('comp_id').value=''; 
-        let targetYear = currentGlobalYear === '' ? new Date().getFullYear().toString() : currentGlobalYear;
-        document.getElementById('comp_year').value = targetYear;
+        const targetYear = currentGlobalYear === '' ? new Date().getFullYear().toString() : currentGlobalYear;
+        yearSelect.value = targetYear;
+        yearSelect.disabled = false;
         document.getElementById('companyModalTitle').innerText="신규 학습기업 등록"; 
-      } 
+      } else yearSelect.disabled = true;
       bootstrapCompanyModal.show(); 
     }
     
@@ -1058,61 +1166,86 @@
       document.getElementById('companyModalTitle').innerText = "학습기업 정보 수정"; openCompanyModal(true);
     }
     
-    function openStudentModal() { 
-      document.getElementById('studentForm').reset(); document.getElementById('stud_id').disabled = false; 
-      let targetYear = currentGlobalYear === '' ? new Date().getFullYear().toString() : currentGlobalYear;
-      document.getElementById('stud_year').value = targetYear; bootstrapStudentModal.show(); 
+    function openStudentModal() {
+      const targetYear = currentGlobalYear === '' ? new Date().getFullYear().toString() : currentGlobalYear;
+      document.getElementById('studentForm').reset();
+      document.getElementById('stud_id').disabled = false;
+      document.getElementById('stud_year').disabled = false;
+      document.getElementById('stud_year').value = targetYear;
+      populateCompanyOptions(targetYear);
+      bootstrapStudentModal.show();
     }
     
-    function editStudent(id) { 
-      const s = systemData.students.find(item => item.StudentID === id); if(!s) return;
-      document.getElementById('stud_year').value = s.Year || currentGlobalYear || new Date().getFullYear().toString();
-      document.getElementById('stud_id').value = s.StudentID; document.getElementById('stud_id').disabled = true; 
-      document.getElementById('stud_name').value = s.StudentName; document.getElementById('stud_comp').value = s.CompanyName; 
-      bootstrapStudentModal.show(); 
+    function editStudent(id, year) {
+      const student = systemData.students.find(item => String(item.StudentID) === String(id) && String(item.Year) === String(year));
+      if(!student) return;
+      populateCompanyOptions(student.Year, student.CompanyName);
+      document.getElementById('stud_year').value = student.Year;
+      document.getElementById('stud_year').disabled = true;
+      document.getElementById('stud_id').value = student.StudentID;
+      document.getElementById('stud_id').disabled = true;
+      document.getElementById('stud_name').value = student.StudentName;
+      document.getElementById('stud_comp').value = student.CompanyName;
+      bootstrapStudentModal.show();
+    }
+
+    function setSemesterOptions(year, selectedSemester = '') {
+      const semesterSelect = document.getElementById('proc_semester');
+      semesterSelect.replaceChildren(
+        new Option(`${year}학년도 1학기`, `${year}학년도 1학기`),
+        new Option(`${year}학년도 2학기`, `${year}학년도 2학기`)
+      );
+      if (selectedSemester && !Array.from(semesterSelect.options).some(option => option.value === selectedSemester)) {
+        semesterSelect.add(new Option(selectedSemester, selectedSemester));
+      }
+      semesterSelect.value = selectedSemester || `${year}학년도 1학기`;
     }
     
-    function openProcessModal() { 
-      document.getElementById('processForm').reset(); document.getElementById('proc_id').value = ''; 
-      if(systemData.companies.length > 0) onProcessCompanyChange(); 
-      const semSelect = document.getElementById('proc_semester');
-      let targetYear = currentGlobalYear === '' ? new Date().getFullYear().toString() : currentGlobalYear;
-      semSelect.innerHTML = `<option value="${targetYear}학년도 1학기">${targetYear}학년도 1학기</option><option value="${targetYear}학년도 2학기">${targetYear}학년도 2학기</option>`;
-      bootstrapProcessModal.show(); 
+    function openProcessModal() {
+      const targetYear = currentGlobalYear === '' ? new Date().getFullYear().toString() : currentGlobalYear;
+      document.getElementById('processForm').reset();
+      document.getElementById('proc_id').value = '';
+      setSemesterOptions(targetYear);
+      populateCompanyOptions(targetYear);
+      bootstrapProcessModal.show();
     }
     
     function editProcess(id) {
-      const p = systemData.process.find(item => item.ID === id); if(!p) return;
-      document.getElementById('proc_id').value = p.ID; 
-      document.getElementById('proc_comp').value = p.CompanyName; 
-      onProcessCompanyChange();
-      
-      const semSelect = document.getElementById('proc_semester');
-      if (p.Semester && !Array.from(semSelect.options).some(opt => opt.value === p.Semester)) {
-        semSelect.insertAdjacentHTML('beforeend', `<option value="${_escapeHTML(p.Semester)}">${_escapeHTML(p.Semester)}</option>`);
-      }
-      document.getElementById('proc_semester').value = p.Semester; 
-      document.getElementById('proc_subject').value = p.SubjectName; 
-
-      const methodSelect = document.getElementById('proc_method');
-      let methodVal = p.Method ? String(p.Method).trim() : '서술형'; 
-      if (!Array.from(methodSelect.options).some(opt => opt.value === methodVal)) {
-        methodSelect.insertAdjacentHTML('beforeend', `<option value="${_escapeHTML(methodVal)}">${_escapeHTML(methodVal)}</option>`);
-      }
-      methodSelect.value = methodVal;
+      const process = systemData.process.find(item => item.ID === id); if(!process) return;
+      const processYear = getProcessYear(process);
+      setSemesterOptions(processYear, process.Semester);
+      populateCompanyOptions(processYear, process.CompanyName);
+      document.getElementById('proc_id').value = process.ID;
+      document.getElementById('proc_comp').value = process.CompanyName;
+      onProcessCompanyChange(processYear);
+      document.getElementById('proc_subject').value = process.SubjectName;
+      document.getElementById('proc_method').value = ['서술형', '면접형', '발표형'].includes(String(process.Method).trim()) ? String(process.Method).trim() : '서술형';
 
       const cleanStepValue = function(val) {
         if (val === null || val === undefined) return "대기";
         const strVal = String(val).trim();
         return (strVal === "undefined" || strVal === "null" || strVal === "") ? "대기" : strVal;
       };
-      document.getElementById('proc_step1').value = cleanStepValue(p.Step1_Created); 
-      document.getElementById('proc_step2').value = cleanStepValue(p.Step2_Sent); 
-      document.getElementById('proc_step3').value = cleanStepValue(p.Step3_Scanned);
+      document.getElementById('proc_step1').value = cleanStepValue(process.Step1_Created); 
+      document.getElementById('proc_step2').value = cleanStepValue(process.Step2_Sent); 
+      document.getElementById('proc_step3').value = cleanStepValue(process.Step3_Scanned);
       bootstrapProcessModal.show();
     }
 
-    document.getElementById('companyForm').addEventListener('submit', function(e) {
+    async function saveRecord(action, payload, modal, successMessage) {
+      showLoading(true, "데이터 동기화 중...");
+      try {
+        await callGasApi(action, payload);
+        modal.hide();
+        if (await refreshAllSystemData()) showToast(successMessage);
+      } catch (error) {
+        handleApiError(error);
+      } finally {
+        showLoading(false);
+      }
+    }
+
+    document.getElementById('companyForm').addEventListener('submit', async function(e) {
       e.preventDefault(); if (document.activeElement) document.activeElement.blur();
       const payload = { 
         ID: document.getElementById('comp_id').value, Year: document.getElementById('comp_year').value,
@@ -1123,21 +1256,19 @@
         Sub4: document.getElementById('comp_sub4').value, Sub5: document.getElementById('comp_sub5').value, 
         Sub6: document.getElementById('comp_sub6').value 
       };
-      bootstrapCompanyModal.hide(); showLoading(true, "데이터 동기화 중..."); 
-      callGasApi("saveCompany", payload, refreshAllSystemData, "학습기업 정보가 안전하게 저장되었습니다.");
+      await saveRecord("saveCompany", payload, bootstrapCompanyModal, "학습기업 정보가 안전하게 저장되었습니다.");
     });
 
-    document.getElementById('studentForm').addEventListener('submit', function(e) {
+    document.getElementById('studentForm').addEventListener('submit', async function(e) {
       e.preventDefault(); if (document.activeElement) document.activeElement.blur();
       const payload = { 
         Year: document.getElementById('stud_year').value, StudentID: document.getElementById('stud_id').value, 
         StudentName: document.getElementById('stud_name').value, CompanyName: document.getElementById('stud_comp').value 
       };
-      bootstrapStudentModal.hide(); showLoading(true, "데이터 동기화 중..."); 
-      callGasApi("saveStudent", payload, refreshAllSystemData, "도제 학생 배정 정보가 저장되었습니다.");
+      await saveRecord("saveStudent", payload, bootstrapStudentModal, "도제 학생 배정 정보가 저장되었습니다.");
     });
 
-    document.getElementById('processForm').addEventListener('submit', function(e) {
+    document.getElementById('processForm').addEventListener('submit', async function(e) {
       e.preventDefault(); if (document.activeElement) document.activeElement.blur();
       const payload = { 
         ID: document.getElementById('proc_id').value, CompanyName: document.getElementById('proc_comp').value, 
@@ -1145,8 +1276,7 @@
         Method: document.getElementById('proc_method').value, Step1_Created: document.getElementById('proc_step1').value, 
         Step2_Sent: document.getElementById('proc_step2').value, Step3_Scanned: document.getElementById('proc_step3').value 
       };
-      bootstrapProcessModal.hide(); showLoading(true, "데이터 동기화 중..."); 
-      callGasApi("saveProcess", payload, refreshAllSystemData, "공정 제어 상태가 업데이트되었습니다.");
+      await saveRecord("saveProcess", payload, bootstrapProcessModal, "공정 제어 상태가 업데이트되었습니다.");
     });
     
     document.querySelectorAll('.modal').forEach(function(modalElement) {
