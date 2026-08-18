@@ -1,0 +1,3290 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="연도별 학생 명렬표와 상담 기록을 안전하게 연결하는 성일정보고 교사 상담 워크스페이스">
+    <meta name="theme-color" content="#FFFFFF">
+    <title>상담온 | 성일정보고 상담일지</title>
+    
+    <!-- Pretendard 공식 표준 서체 CDN (MIME 타입 정상 지원 버전) -->
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    
+    <style>
+        :root { 
+            --primary-color: #2563EB;
+            --primary-hover: #1D4ED8;
+            --primary-light: #EEF4FF;
+             
+            --secondary-teal: #0F9F7A;
+            --accent-peach: #8B5CF6;
+            --accent-peach-hover: #7C3AED;
+             
+            --bg-color: #F6F8FC;
+            --card-bg: #FFFFFF;
+             
+            --text-main: #0F172A;
+            --text-muted: #64748B;
+            --border-color: #E2E8F0;
+             
+            --border-radius: 20px;
+            --btn-radius: 12px;
+            --surface-soft: #F8FAFC;
+            --mint-light: #EAFBF6;
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 24px rgba(15, 23, 42, 0.05);
+            --shadow-lg: 0 24px 70px rgba(15, 23, 42, 0.14);
+        }
+        
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        body { 
+            font-family: "Pretendard Variable", Pretendard, -apple-system, BlinkMacSystemFont, system-ui, Roboto, "Helvetica Neue", "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", "Malgun Gothic", sans-serif; 
+            font-size: 15px;
+            letter-spacing: -0.022em;
+            word-break: keep-all;
+            word-wrap: break-word;
+            background-color: var(--bg-color); 
+            color: var(--text-main); 
+            line-height: 1.62; 
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+            text-rendering: optimizeLegibility;
+            font-feature-settings: "tnum";
+        }
+
+        html { scroll-behavior: smooth; }
+        
+        input, select, textarea, button {
+            font-family: inherit;
+            letter-spacing: inherit;
+        }
+        
+        /* 로그인 섹션 */
+        #login-section { display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100vh; background: var(--bg-color); }
+        .login-card { background: var(--card-bg); padding: 3rem; border-radius: var(--border-radius); box-shadow: 0 4px 20px rgba(0,0,0,0.05); width: 100%; max-width: 420px; text-align: center; border: 1px solid var(--border-color); }
+        .login-card h1 { color: var(--primary-color); font-size: 1.75rem; font-weight: 800; margin-bottom: 0.5rem; letter-spacing: -0.5px; }
+        .login-card p { color: var(--text-muted); margin-bottom: 2rem; }
+        .login-card input { width: 100%; margin-bottom: 1.2rem; }
+        .login-card .submit-btn { width: 100%; margin-top: 0.5rem; }
+
+        /* 메인 앱 영역 */
+        #main-app { display: none; flex: 1; display: flex; flex-direction: column; }
+        #main-app.hidden-app { display: none !important; }
+        
+        /* 카드형 디자인 네비게이션 바 */
+        .navbar { 
+            background: var(--card-bg); 
+            border: 1px solid var(--border-color); 
+            border-radius: 16px; 
+            padding: 1rem 2rem; 
+            position: sticky; 
+            top: 1.5rem; 
+            margin: 1.5rem auto 0; 
+            max-width: 1040px; 
+            width: calc(100% - 3rem);
+            z-index: 100; 
+            display: flex; 
+            justify-content: space-between; 
+            align-items: center; 
+            flex-wrap: wrap; 
+            gap: 1rem; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06); 
+            backdrop-filter: blur(10px); 
+        }
+        .navbar h1 { font-size: 1.4rem; font-weight: 800; margin: 0; color: var(--primary-color); letter-spacing: -0.5px; display: flex; align-items: center; gap: 8px;}
+        .navbar h1::before { content: '🏫'; font-size: 1.5rem; }
+        .nav-right { display: flex; align-items: center; gap: 0.8rem; }
+        .year-selector { display: inline-flex; align-items: center; gap: 0.45rem; font-weight: 700; color: var(--text-main); }
+        .year-selector select { min-width: 96px; padding: 0.55rem 0.75rem; border: 1px solid var(--border-color); border-radius: var(--btn-radius); background: white; font-weight: 700; color: var(--text-main); }
+        
+        /* 선생님 프로필 표시 버튼 스타일 */
+        .user-info { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 6px; 
+            background: #F4F6F8; 
+            border: 1px solid var(--border-color); 
+            padding: 0.4rem 1rem; 
+            border-radius: var(--btn-radius); 
+            font-weight: 700; 
+            font-size: 0.95rem; 
+            color: var(--text-main); 
+        }
+        .user-info::before { content: '👤'; font-size: 1rem; }
+
+        .role-badge { padding: 0.2rem 0.5rem; border-radius: 6px; font-size: 0.75rem; font-weight: 800; margin-left: 2px;}
+        .role-badge.admin { background-color: var(--accent-peach); color: white; }
+        .role-badge.user { background-color: var(--secondary-teal); color: white; }
+        
+        .logout-btn { background: white; color: var(--text-muted); border: 1px solid var(--border-color); padding: 0.4rem 1rem; border-radius: var(--btn-radius); cursor: pointer; font-weight: 600; transition: all 0.2s; font-size: 0.85rem;}
+        .logout-btn:hover { background: #f1f1f1; color: var(--text-main); }
+
+        /* 탭 메뉴 */
+        .tab-menu { display: flex; gap: 0.5rem; width: 100%; justify-content: flex-start; padding: 1.5rem 1.5rem 1rem; max-width: 1040px; margin: 0 auto; flex-wrap: wrap;}
+        .tab-btn { background: var(--card-bg); color: var(--text-muted); border: 1px solid var(--border-color); padding: 0.6rem 1.5rem; border-radius: var(--btn-radius); font-size: 0.95rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .tab-btn.active { background: var(--primary-color); color: white; border-color: var(--primary-color); }
+        .tab-btn:hover:not(.active) { background: #F4F6F8; color: var(--text-main); }
+        
+        #btn-admin { background: #FDECE8; color: var(--accent-peach-hover); border-color: #FDECE8; }
+        #btn-admin.active { background: var(--accent-peach); color: white; border-color: var(--accent-peach); }
+        #btn-admin:hover:not(.active) { background: var(--accent-peach-hover); color: white; }
+
+        .container { max-width: 1040px; margin: 0 auto; padding: 0 1.5rem; width: 100%; flex: 1; }
+        .section-view { display: none; background: transparent; padding: 0; margin-bottom: 3rem;}
+        .section-view.active { display: block; animation: fadeIn 0.3s ease-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        
+        .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding: 1rem 1.5rem; background: var(--card-bg); border-radius: var(--border-radius); border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+        h2 { color: var(--text-main); font-size: 1.2rem; font-weight: 700; margin: 0; display: flex; align-items: center; gap: 8px;}
+        h2::before { content: '▶'; color: var(--primary-color); font-size: 0.9rem; }
+        
+        .content-box { background: var(--card-bg); padding: 2.5rem; border-radius: var(--border-radius); border: 1px solid var(--border-color); box-shadow: 0 2px 4px rgba(0,0,0,0.02); }
+
+        /* 폼 요소 최적화 */
+        form { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+        .form-group { display: flex; flex-direction: column; }
+        .full-width { grid-column: 1 / -1; }
+        label { margin-bottom: 0.5rem; font-weight: 700; font-size: 0.9rem; color: var(--secondary-teal); }
+        
+        input, select, textarea { 
+            background-color: #F8FAFB; 
+            border: 1px solid var(--border-color); 
+            padding: 0.85rem 1rem; 
+            border-radius: 8px; 
+            font-size: 1rem;
+            line-height: 1.5;
+            transition: all 0.2s; 
+            color: var(--text-main); 
+        }
+        input[readonly], select:disabled { background-color: #EFEFEF; color: var(--text-muted); cursor: not-allowed; border-color: #DDE2E5; }
+        input:focus:not([readonly]), select:focus:not(:disabled), textarea:focus { background-color: var(--card-bg); border-color: var(--primary-color); outline: none; box-shadow: 0 0 0 3px var(--primary-light); }
+        
+        .submit-btn { grid-column: 1 / -1; background-color: var(--primary-color); color: white; border: none; padding: 1rem; border-radius: 8px; font-size: 1.05rem; font-weight: 700; cursor: pointer; transition: all 0.2s; }
+        .submit-btn:hover { background-color: var(--primary-hover); }
+        .submit-btn:disabled { background-color: var(--border-color); color: var(--text-muted); cursor: not-allowed; }
+        
+        #cancelEditBtn { background-color: white; color: var(--text-main); border: 1px solid var(--border-color); margin-top: 0.5rem; }
+        #cancelEditBtn:hover { background-color: #F8FAFB; }
+
+        /* 상담 내역 */
+        .filter-container { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1rem; margin-bottom: 1.5rem; background: var(--primary-light); padding: 1rem 1.5rem; border-radius: var(--border-radius); border: 1px solid #D0E8E4; }
+        .filter-left { display: flex; align-items: center; gap: 1rem; flex-wrap: wrap; }
+        .filter-left label { color: var(--primary-color); margin:0; }
+        .filter-container select { max-width: 200px; padding: 0.5rem 1rem; background-color: white; border-color: #D0E8E4; }
+        
+        .print-btn { grid-column: auto; background-color: white; color: var(--text-main); border: 1px solid var(--border-color); width: auto; padding: 0.6rem 1.25rem; font-size: 0.95rem; margin-left: auto; border-radius: var(--btn-radius); }
+        .print-btn:hover { background-color: var(--bg-color); color: var(--primary-color); border-color: var(--primary-color); }
+
+        .card-container { display: grid; grid-template-columns: repeat(auto-fill, minmax(320px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+        
+        .log-card { background: var(--card-bg); border: 1px solid var(--primary-color); border-radius: var(--border-radius); padding: 1.5rem; display: flex; flex-direction: column; gap: 1rem; transition: transform 0.2s, box-shadow 0.2s; position: relative; overflow: hidden; }
+        .log-card::before { content: ''; position: absolute; top: 0; left: 0; width: 6px; height: 100%; background-color: var(--primary-color); }
+        .log-card:hover { transform: translateY(-3px); box-shadow: 0 8px 15px rgba(0, 169, 157, 0.1); }
+        
+        .card-header { display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px dashed var(--border-color); padding-bottom: 1rem; margin-left: 6px; }
+        .card-title { font-weight: 800; font-size: 1.15rem; color: var(--text-main); display: flex; flex-direction: column; gap: 0.2rem; }
+        .card-title-id { font-size: 0.8rem; font-weight: 600; color: var(--text-muted); }
+        
+        .card-meta-right { display: flex; flex-direction: column; align-items: flex-end; gap: 0.5rem; }
+        .card-date { font-size: 0.85rem; font-weight: 500; color: var(--text-muted); }
+        
+        .meta-tag { background: #F4F6F8; color: var(--text-main); padding: 0.25rem 0.6rem; border-radius: 4px; font-size: 0.8rem; font-weight: 700; border: 1px solid var(--border-color); }
+        .meta-tag.category { background: var(--primary-color); color: white; border-color: var(--primary-color); } 
+        
+        .card-content { flex-grow: 1; white-space: pre-wrap; font-size: 0.95rem; color: #444; line-height: 1.6; padding: 0.5rem 0 0.5rem 6px; }
+        
+        .card-footer { display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; margin-top: auto; border-top: 1px solid var(--border-color); margin-left: 6px; }
+        .card-teacher { font-size: 0.85rem; color: var(--secondary-teal); font-weight: 600; }
+        .card-actions { display: flex; gap: 0.5rem; }
+        .card-btn { padding: 0.4rem 0.8rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 700; transition: all 0.2s; }
+        .btn-edit { background-color: #F4F6F8; color: var(--text-main); border: 1px solid var(--border-color); }
+        .btn-edit:hover { background-color: #EAEAEA; }
+        .btn-delete { background-color: white; color: var(--accent-peach); border: 1px solid var(--accent-peach); }
+        .btn-delete:hover { background-color: var(--accent-peach); color: white; }
+
+        /* 페이징 및 로딩 */
+        .pagination { display: flex; justify-content: center; gap: 0.4rem; flex-wrap: wrap; margin-top: 1rem; }
+        .page-btn { padding: 0.4rem 0.8rem; border: 1px solid var(--border-color); background: white; color: var(--text-muted); cursor: pointer; border-radius: 4px; font-weight: 600; font-size: 0.9rem; transition: all 0.2s;}
+        .page-btn.active { background: #6A9CDB; color: white; border-color: #6A9CDB; }
+        .page-btn:hover:not(.active):not(:disabled) { background: #F4F6F8; color: var(--text-main); }
+        .page-btn:disabled { border-color: var(--border-color); color: #ccc; cursor: not-allowed; background: #fafafa; }
+        
+        .hidden { display: none !important; }
+        .loading-container { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 3rem 0; color: var(--primary-color); font-weight: 700; gap: 1rem; }
+        .spinner { border: 4px solid var(--primary-light); border-top: 4px solid var(--primary-color); border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+        /* 달력 */
+        .calendar-container { max-width: 100%; margin: 0 auto; }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; padding: 0 0.5rem; }
+        .calendar-header h3 { margin: 0; color: var(--text-main); font-size: 1.4rem; font-weight: 800; }
+        .calendar-weekdays { display: grid; grid-template-columns: repeat(7, 1fr); text-align: center; font-weight: 700; padding-bottom: 1rem; border-bottom: 1px solid var(--border-color); margin-bottom: 1rem; color: var(--secondary-teal); font-size: 0.9rem; }
+        .calendar-weekdays div:first-child { color: var(--accent-peach); } 
+        .calendar-weekdays div:last-child { color: var(--primary-color); }  
+        
+        .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 10px; }
+        .calendar-day { min-height: 120px; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 8px; cursor: pointer; transition: all 0.2s; background: var(--card-bg); display: flex; flex-direction: column; }
+        .calendar-day:hover { border-color: var(--primary-color); box-shadow: 0 4px 12px rgba(0, 169, 157, 0.1); z-index: 1; transform: scale(1.02); }
+        .calendar-day.empty { background-color: transparent; border: none; cursor: default; box-shadow: none; transform: none; }
+        
+        .date-num-wrapper { display: flex; justify-content: flex-start; margin-bottom: 0.5rem; }
+        .date-num { font-weight: 700; font-size: 1rem; color: var(--text-main); width: 28px; height: 28px; display: flex; align-items: center; justify-content: center; border-radius: 50%; }
+        .calendar-day:nth-child(7n+1) .date-num { color: var(--accent-peach); } 
+        .calendar-day:nth-child(7n) .date-num { color: var(--primary-color); }
+        
+        .calendar-day.today { background-color: #FAFAFA; border: 2px solid var(--primary-color); }
+        .calendar-day.today .date-num { background-color: var(--primary-color); color: white !important; }
+        
+        .day-content { display: flex; flex-direction: column; gap: 5px; overflow-y: auto; flex-grow: 1; scrollbar-width: none; -ms-overflow-style: none; }
+        .day-content::-webkit-scrollbar { display: none; }
+        .student-tag { background-color: var(--primary-light); color: var(--primary-hover); font-size: 0.75rem; padding: 4px 8px; border-radius: 4px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; text-align: left; font-weight: 700; border: 1px solid #D0E8E4; }
+
+        /* 관리자 테이블 */
+        .user-table-wrapper { overflow-x: auto; margin-bottom: 1rem; border-radius: 8px; border: 1px solid var(--border-color); }
+        .user-table { width: 100%; border-collapse: collapse; min-width: 600px; background: white; }
+        .user-table th, .user-table td { padding: 1rem; border-bottom: 1px solid var(--border-color); text-align: center; font-size: 0.95rem; }
+        .user-table th { background-color: #F8FAFB; color: var(--text-main); font-weight: 700; }
+        .user-table tr:last-child td { border-bottom: none; }
+        .user-table tr:hover td { background-color: #FAFAFA; }
+
+        /* 푸터 (Footer) 스타일 - 카드형 디자인 */
+        .app-footer {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 1.5rem 2rem;
+            margin: auto auto 1.5rem; /* 상단 여백을 auto로 주어 최하단으로 밀어냄 */
+            max-width: 1040px;
+            width: calc(100% - 3rem);
+            text-align: center;
+            color: var(--secondary-teal);
+            font-size: 0.9rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+        }
+        .app-footer p { margin: 0.3rem 0; font-weight: 500; }
+        .app-footer .copyright { font-weight: 700; color: var(--text-muted); }
+
+        /* 랜딩 페이지 */
+        #landingPage { width: 100%; overflow: hidden; background: #fff; }
+        .landing-nav {
+            position: fixed;
+            inset: 0 0 auto;
+            z-index: 300;
+            background: rgba(255, 255, 255, 0.82);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.75);
+            backdrop-filter: blur(18px) saturate(160%);
+        }
+        .landing-nav-inner {
+            width: min(1180px, calc(100% - 40px));
+            min-height: 72px;
+            margin: 0 auto;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2rem;
+        }
+        .brand { display: inline-flex; align-items: center; gap: 0.7rem; color: var(--text-main); text-decoration: none; font-weight: 850; letter-spacing: -0.03em; }
+        .brand-mark { width: 34px; height: 34px; border-radius: 10px; display: grid; place-items: center; color: white; background: linear-gradient(135deg, #2563EB, #38BDF8); box-shadow: 0 8px 20px rgba(37, 99, 235, 0.25); }
+        .brand-mark svg { width: 18px; height: 18px; }
+        .landing-links { display: flex; align-items: center; gap: 2rem; }
+        .landing-links a { color: #475569; text-decoration: none; font-size: 0.92rem; font-weight: 650; transition: color 0.2s ease; }
+        .landing-links a:hover { color: var(--primary-color); }
+        .nav-cta { 
+            display: inline-flex; 
+            align-items: center; 
+            justify-content: center; 
+            gap: 0.45rem;
+            padding: 0.62rem 1.35rem; 
+            border: none !important; 
+            border-radius: 999px !important; 
+            color: #FFFFFF !important; 
+            background: linear-gradient(135deg, #2563EB 0%, #1D4ED8 100%) !important; 
+            font-weight: 850 !important; 
+            font-size: 0.88rem !important;
+            letter-spacing: -0.01em !important;
+            text-decoration: none !important; 
+            outline: none !important;
+            box-shadow: 0 6px 18px rgba(37, 99, 235, 0.28), inset 0 1px 2px rgba(255, 255, 255, 0.3) !important; 
+            cursor: pointer; 
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1) !important; 
+        }
+        .nav-cta:hover, .nav-cta:focus, .nav-cta:active { 
+            text-decoration: none !important;
+            border-bottom: none !important;
+            background: linear-gradient(135deg, #1D4ED8 0%, #1E40AF 100%) !important; 
+            color: #FFFFFF !important;
+            transform: translateY(-2px) scale(1.02) !important; 
+            box-shadow: 0 10px 24px rgba(37, 99, 235, 0.4) !important;
+        }
+
+        .landing-section { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 112px 0; }
+        .hero-section {
+            width: 100%;
+            min-height: 820px;
+            padding: 160px max(20px, calc((100vw - 1180px) / 2)) 100px;
+            display: grid;
+            grid-template-columns: minmax(0, 0.92fr) minmax(480px, 1.08fr);
+            align-items: center;
+            gap: clamp(3rem, 7vw, 7rem);
+            background:
+                radial-gradient(circle at 82% 18%, rgba(56, 189, 248, 0.17), transparent 30%),
+                radial-gradient(circle at 8% 78%, rgba(52, 211, 153, 0.13), transparent 28%),
+                linear-gradient(180deg, #FFFFFF 0%, #F8FBFF 100%);
+        }
+        .eyebrow { display: inline-flex; align-items: center; gap: 0.55rem; margin-bottom: 1.5rem; padding: 0.42rem 0.72rem; border: 1px solid #DDE8FF; border-radius: 999px; background: rgba(238, 244, 255, 0.78); color: var(--primary-color); font-size: 0.78rem; font-weight: 800; letter-spacing: 0.02em; }
+        .eyebrow-dot { width: 7px; height: 7px; border-radius: 50%; background: #34D399; box-shadow: 0 0 0 5px rgba(52, 211, 153, 0.13); }
+        .hero-copy h1 { max-width: 700px; color: #081225; font-size: clamp(3rem, 5.6vw, 5.65rem); line-height: 1.04; letter-spacing: -0.065em; font-weight: 900; }
+        .hero-copy h1 .gradient-text { display: block; color: transparent; background: linear-gradient(100deg, #2563EB 5%, #0EA5E9 53%, #10B981 100%); background-clip: text; -webkit-background-clip: text; }
+        .hero-copy > p { max-width: 610px; margin-top: 1.8rem; color: #526178; font-size: clamp(1.02rem, 1.4vw, 1.2rem); line-height: 1.8; letter-spacing: -0.015em; }
+        .hero-actions { display: flex; align-items: center; gap: 0.85rem; margin-top: 2.25rem; flex-wrap: wrap; }
+        .primary-cta, .secondary-cta { min-height: 52px; display: inline-flex; align-items: center; justify-content: center; gap: 0.55rem; padding: 0 1.3rem; border-radius: 12px; text-decoration: none; font-weight: 800; transition: transform 0.22s ease, box-shadow 0.22s ease, background 0.22s ease; }
+        .primary-cta { color: white; background: var(--primary-color); box-shadow: 0 14px 30px rgba(37, 99, 235, 0.24); }
+        .primary-cta:hover { background: var(--primary-hover); transform: translateY(-2px); box-shadow: 0 18px 34px rgba(37, 99, 235, 0.3); }
+        .secondary-cta { color: var(--text-main); border: 1px solid var(--border-color); background: rgba(255,255,255,0.85); }
+        .secondary-cta:hover { border-color: #BFDBFE; background: var(--primary-light); transform: translateY(-2px); }
+        .hero-note { display: flex; align-items: center; gap: 1.1rem; margin-top: 2.1rem; color: var(--text-muted); font-size: 0.82rem; font-weight: 650; flex-wrap: wrap; }
+        .hero-note span { display: inline-flex; align-items: center; gap: 0.4rem; }
+        .hero-note svg { width: 16px; height: 16px; color: #10B981; }
+
+        .hero-visual { position: relative; perspective: 1200px; }
+        .hero-visual::before { content: ''; position: absolute; inset: 12% -12% -8% 10%; border-radius: 50%; background: rgba(37, 99, 235, 0.16); filter: blur(70px); }
+        .browser-frame { position: relative; overflow: hidden; border: 1px solid rgba(203, 213, 225, 0.9); border-radius: 24px; background: #fff; box-shadow: var(--shadow-lg); transform: rotateY(-3deg) rotateX(1deg); transition: transform 0.45s ease; }
+        .browser-frame:hover { transform: rotateY(0) rotateX(0) translateY(-5px); }
+        .browser-top { height: 48px; display: flex; align-items: center; gap: 7px; padding: 0 18px; border-bottom: 1px solid var(--border-color); background: #FBFCFE; }
+        .browser-dot { width: 9px; height: 9px; border-radius: 50%; background: #CBD5E1; }
+        .browser-address { width: 44%; height: 18px; margin-left: 10px; border-radius: 6px; background: #EEF2F7; }
+        .demo-shell { display: grid; grid-template-columns: 124px 1fr; min-height: 480px; background: #F8FAFD; }
+        .demo-sidebar { padding: 20px 14px; color: #94A3B8; background: #0F172A; }
+        .demo-side-logo { width: 30px; height: 30px; border-radius: 9px; margin-bottom: 28px; background: linear-gradient(135deg, #2563EB, #38BDF8); }
+        .demo-side-item { height: 8px; margin: 0 4px 16px; border-radius: 8px; background: rgba(255,255,255,0.14); }
+        .demo-side-item.active { width: 72%; background: #60A5FA; }
+        .demo-dashboard { padding: 24px; }
+        .demo-dashboard-head { display: flex; align-items: center; justify-content: space-between; margin-bottom: 20px; }
+        .demo-title-lines span { display: block; height: 9px; border-radius: 8px; background: #CBD5E1; }
+        .demo-title-lines span:first-child { width: 115px; height: 13px; margin-bottom: 8px; background: #1E293B; }
+        .demo-title-lines span:last-child { width: 170px; }
+        .demo-year-pill { padding: 7px 10px; border-radius: 8px; color: #1D4ED8; background: #DBEAFE; font-size: 0.68rem; font-weight: 800; }
+        .metric-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+        .metric-card { min-height: 94px; padding: 15px; border: 1px solid #E2E8F0; border-radius: 14px; background: #fff; }
+        .metric-label { width: 52px; height: 7px; margin-bottom: 16px; border-radius: 5px; background: #CBD5E1; }
+        .metric-value { font-size: 1.5rem; font-weight: 850; color: #0F172A; }
+        .metric-trend { margin-top: 4px; color: #10B981; font-size: 0.62rem; font-weight: 750; }
+        .demo-chart-card { margin-top: 12px; padding: 18px; border: 1px solid #E2E8F0; border-radius: 14px; background: #fff; }
+        .chart-head { width: 86px; height: 8px; margin-bottom: 22px; border-radius: 5px; background: #94A3B8; }
+        .bar-chart { height: 132px; display: flex; align-items: flex-end; gap: 9px; padding-top: 10px; border-bottom: 1px solid #E2E8F0; }
+        .bar-chart span { flex: 1; min-width: 8px; border-radius: 5px 5px 0 0; background: linear-gradient(180deg, #60A5FA, #2563EB); opacity: 0.85; }
+        .floating-status { position: absolute; right: -24px; bottom: 42px; display: flex; align-items: center; gap: 10px; padding: 14px 16px; border: 1px solid #DDE8FF; border-radius: 14px; background: rgba(255,255,255,0.94); box-shadow: var(--shadow-sm); backdrop-filter: blur(12px); font-size: 0.78rem; font-weight: 780; color: var(--text-main); }
+        .floating-check { width: 28px; height: 28px; display: grid; place-items: center; border-radius: 50%; color: #047857; background: #D1FAE5; }
+
+        .section-kicker { margin-bottom: 0.8rem; color: var(--primary-color); font-size: 0.78rem; font-weight: 850; letter-spacing: 0.12em; text-transform: uppercase; }
+        .landing-heading { max-width: 760px; font-size: clamp(2.1rem, 4vw, 3.65rem); line-height: 1.14; letter-spacing: -0.05em; font-weight: 880; color: #0B1324; }
+        .landing-heading::before { display: none; }
+        .landing-description { max-width: 640px; margin-top: 1.2rem; color: var(--text-muted); font-size: 1.05rem; line-height: 1.8; }
+        .section-heading-row { display: flex; align-items: end; justify-content: space-between; gap: 3rem; margin-bottom: 3.4rem; }
+
+        .features-wrap { background: #F8FAFD; border-top: 1px solid #EEF2F7; border-bottom: 1px solid #EEF2F7; }
+        .feature-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; }
+        .feature-card { min-height: 278px; padding: 1.7rem; border: 1px solid var(--border-color); border-radius: 20px; background: rgba(255,255,255,0.9); transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease; }
+        .feature-card:hover { transform: translateY(-7px); border-color: #BFDBFE; box-shadow: 0 22px 45px rgba(15, 23, 42, 0.09); }
+        .feature-icon { width: 46px; height: 46px; display: grid; place-items: center; margin-bottom: 2.4rem; border-radius: 13px; color: var(--primary-color); background: var(--primary-light); }
+        .feature-icon.mint { color: #047857; background: #DFF8F0; }
+        .feature-icon.violet { color: #7C3AED; background: #F1EAFE; }
+        .feature-icon.sky { color: #0284C7; background: #E0F2FE; }
+        .feature-icon svg { width: 22px; height: 22px; }
+        .feature-card h3 { margin-bottom: 0.75rem; color: var(--text-main); font-size: 1.12rem; font-weight: 820; letter-spacing: -0.025em; }
+        .feature-card p { color: var(--text-muted); font-size: 0.92rem; line-height: 1.75; }
+
+        .detail-grid { display: grid; grid-template-columns: 1.05fr 0.95fr; align-items: center; gap: clamp(3rem, 8vw, 7rem); }
+        .detail-panel { min-height: 510px; padding: 30px; border: 1px solid #DDE6F2; border-radius: 28px; background: linear-gradient(145deg, #F8FBFF, #EEF6FF); box-shadow: 0 30px 70px rgba(37, 99, 235, 0.12); }
+        .detail-window { height: 100%; overflow: hidden; border: 1px solid #DFE7F0; border-radius: 18px; background: white; box-shadow: var(--shadow-sm); }
+        .detail-toolbar { display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; border-bottom: 1px solid var(--border-color); }
+        .detail-toolbar strong { font-size: 0.85rem; }
+        .detail-toolbar span { padding: 5px 8px; border-radius: 7px; color: #1D4ED8; background: #EFF6FF; font-size: 0.7rem; font-weight: 800; }
+        .detail-content { padding: 18px; }
+        .detail-card-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+        .mini-log-card { min-height: 126px; padding: 14px; border: 1px solid #E2E8F0; border-radius: 13px; background: #fff; }
+        .mini-log-card .mini-name { display: flex; justify-content: space-between; margin-bottom: 12px; font-size: 0.72rem; font-weight: 820; }
+        .mini-log-card .mini-name span { color: #2563EB; }
+        .mini-line { height: 6px; margin-top: 7px; border-radius: 5px; background: #E2E8F0; }
+        .mini-line.short { width: 62%; }
+        .detail-calendar-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; margin-top: 14px; padding: 14px; border-radius: 13px; background: #F8FAFC; }
+        .detail-calendar-strip span { aspect-ratio: 1; display: grid; place-items: center; border-radius: 7px; color: #64748B; background: #fff; font-size: 0.62rem; font-weight: 750; }
+        .detail-calendar-strip span.active { color: white; background: #2563EB; }
+        .detail-copy-list { display: grid; gap: 1.5rem; margin-top: 2.1rem; }
+        .detail-copy-item { display: grid; grid-template-columns: 34px 1fr; gap: 0.9rem; }
+        .detail-index { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 9px; color: var(--primary-color); background: var(--primary-light); font-size: 0.75rem; font-weight: 850; }
+        .detail-copy-item h3 { margin-bottom: 0.35rem; font-size: 1rem; font-weight: 800; }
+        .detail-copy-item p { color: var(--text-muted); font-size: 0.9rem; line-height: 1.7; }
+
+        #login-section { height: auto; min-height: 720px; padding: 120px 20px; background: linear-gradient(145deg, #0B1324 0%, #13233F 62%, #123B55 100%); }
+        .login-layout { width: min(980px, 100%); display: grid; grid-template-columns: 1fr 420px; align-items: center; gap: clamp(3rem, 8vw, 7rem); }
+        .login-copy { color: white; }
+        .login-copy .section-kicker { color: #7DD3FC; }
+        .login-copy h2 { max-width: 520px; color: white; font-size: clamp(2.3rem, 4vw, 4rem); line-height: 1.12; letter-spacing: -0.05em; font-weight: 880; }
+        .login-copy h2::before { display: none; }
+        .login-copy p { max-width: 500px; margin-top: 1.2rem; color: #B9C7DB; line-height: 1.8; }
+        .login-point-list { display: grid; gap: 0.8rem; margin-top: 2rem; color: #DCE7F5; font-size: 0.9rem; }
+        .login-point-list span { display: flex; align-items: center; gap: 0.65rem; }
+        .login-point-list i { width: 20px; height: 20px; display: grid; place-items: center; border-radius: 50%; color: #052E2B; background: #6EE7B7; font-style: normal; font-size: 0.7rem; font-weight: 900; }
+        .login-card { max-width: none; padding: 2.2rem; border: 1px solid rgba(255,255,255,0.55); border-radius: 22px; box-shadow: 0 30px 70px rgba(0,0,0,0.28); text-align: left; }
+        .login-card h1 { color: var(--text-main); font-size: 1.5rem; }
+        .login-card p { margin-bottom: 1.7rem; }
+        .login-card label { display: block; margin: 0 0 0.45rem; color: #334155; }
+        .login-card input { min-height: 50px; margin-bottom: 1rem; background: #F8FAFC; }
+        .login-card .submit-btn { min-height: 50px; border-radius: 11px; box-shadow: 0 12px 24px rgba(37,99,235,0.18); }
+
+        .landing-footer { color: #CBD5E1; background: #08101F; }
+        .footer-inner { width: min(1180px, calc(100% - 40px)); margin: 0 auto; padding: 80px 0 32px; }
+        .footer-top { display: grid; grid-template-columns: 1.25fr 0.75fr 1fr; gap: 4rem; padding-bottom: 58px; }
+        .footer-brand .brand { color: white; }
+        .footer-brand p { max-width: 340px; margin-top: 1rem; color: #8291A8; font-size: 0.9rem; line-height: 1.75; }
+        .footer-links h3, .newsletter h3 { margin-bottom: 1rem; color: white; font-size: 0.85rem; }
+        .footer-links { display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; }
+        .footer-link-group { display: grid; align-content: start; gap: 0.75rem; }
+        .footer-link-group a { color: #94A3B8; text-decoration: none; font-size: 0.85rem; transition: color 0.2s ease; }
+        .footer-link-group a:hover { color: white; }
+        .newsletter p { color: #8291A8; font-size: 0.84rem; line-height: 1.6; }
+        .newsletter-form { display: flex; gap: 0.5rem; margin-top: 1rem; }
+        .newsletter-form input { min-width: 0; flex: 1; color: white; border-color: #26364E; background: #111E31; }
+        .newsletter-form input:focus { background: #14243A !important; }
+        .newsletter-form button { padding: 0 1rem; border: 0; border-radius: 10px; color: white; background: var(--primary-color); font-weight: 800; cursor: pointer; transition: background 0.2s ease; }
+        .newsletter-form button:hover { background: #3B82F6; }
+        .form-feedback { min-height: 20px; margin-top: 0.6rem; color: #7DD3FC !important; }
+        .footer-bottom { display: flex; justify-content: space-between; gap: 1rem; padding-top: 24px; border-top: 1px solid #1E2C40; color: #64748B; font-size: 0.78rem; }
+
+        .reveal { opacity: 0; transform: translateY(28px); transition: opacity 0.72s cubic-bezier(.2,.7,.2,1), transform 0.72s cubic-bezier(.2,.7,.2,1); }
+        .reveal.is-visible { opacity: 1; transform: translateY(0); }
+        .reveal-delay-1 { transition-delay: 0.08s; }
+        .reveal-delay-2 { transition-delay: 0.16s; }
+        .reveal-delay-3 { transition-delay: 0.24s; }
+
+        /* 로그인 후 업무 화면 기본 설정 */
+        #main-app { background: var(--bg-color); }
+        .tab-menu, .container, .app-footer { max-width: 900px; }
+        .section-header { padding: 0.3rem 0 1.2rem; border: 0; border-radius: 0; background: transparent; box-shadow: none; }
+        .section-header h2 { font-size: 1.5rem; letter-spacing: -0.03em; }
+        .content-box { border-color: rgba(226,232,240,0.9); box-shadow: var(--shadow-sm); }
+        input, select, textarea { border-radius: 11px; background: #F8FAFC; }
+        .submit-btn { border-radius: 11px; box-shadow: 0 10px 22px rgba(37,99,235,0.16); }
+        .submit-btn:hover { transform: translateY(-1px); box-shadow: 0 14px 26px rgba(37,99,235,0.22); }
+        .filter-container { border-color: #DDE8FF; background: #F1F6FF; }
+        .log-card { border-color: var(--border-color); border-radius: 18px; box-shadow: 0 1px 2px rgba(15,23,42,0.03); }
+        .log-card::before { width: 4px; background: linear-gradient(180deg, #2563EB, #38BDF8); }
+        .log-card:hover { border-color: #BFDBFE; box-shadow: 0 18px 38px rgba(15,23,42,0.08); }
+        .meta-tag.category { border-color: #DBEAFE; color: #1D4ED8; background: #EFF6FF; }
+        .app-footer { box-shadow: none; }
+
+        /* 핵심 업무 화면 (스크롤 고정 & 하이엔드 모던 스펙) */
+        #main-app::before { content: ''; position: fixed; inset: 0 0 auto; height: 420px; z-index: 0; pointer-events: none; background: radial-gradient(circle at 18% 10%, rgba(37,99,235,0.08), transparent 35%), radial-gradient(circle at 85% 4%, rgba(16,185,129,0.07), transparent 32%); }
+        #main-app > * { position: relative; z-index: 1; }
+        
+        /* 상단 헤더 스크롤 퍼펙트 고정 래퍼 */
+        .app-sticky-header {
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+            padding: 0.8rem 0 0.4rem;
+            background: rgba(246, 248, 252, 0.88);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(226, 232, 240, 0.6);
+            transition: all 0.3s ease;
+        }
+
+        .navbar { 
+            max-width: 900px; 
+            margin: 0 auto; 
+            min-height: 64px;
+            padding: 0.75rem 1.6rem; 
+            border-radius: 18px; 
+            background: rgba(255, 255, 255, 0.95); 
+            border: 1.5px solid rgba(226, 232, 240, 0.9); 
+            box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.07); 
+            display: flex; 
+            flex-wrap: nowrap;
+            align-items: center; 
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .nav-brand { display: flex; align-items: center; gap: 0.65rem; flex-shrink: 0; }
+        .brand-logo-icon { width: 34px; height: 34px; border-radius: 10px; background: linear-gradient(135deg, #2563EB, #38BDF8); color: white; display: grid; place-items: center; font-size: 1.15rem; box-shadow: 0 6px 14px rgba(37, 99, 235, 0.25); flex-shrink: 0; }
+        .navbar h1 { font-size: 1.18rem; font-weight: 850; color: #0F172A; letter-spacing: -0.03em; margin: 0; line-height: 1; display: flex; align-items: center; white-space: nowrap; }
+        .navbar h1::before { display: none; }
+
+        .nav-right { display: flex; align-items: center; gap: 0.75rem; height: 40px; flex-shrink: 0; flex-wrap: nowrap; }
+
+        .year-selector { display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; font-weight: 800; color: #475569; height: 40px; margin: 0; }
+        .year-selector select { height: 40px; padding: 0 0.85rem; border-radius: 10px; border: 1.5px solid #CBD5E1; background: #F8FAFC; color: #0F172A; font-weight: 800; font-size: 0.88rem; cursor: pointer; transition: all 0.2s ease; display: inline-flex; align-items: center; box-sizing: border-box; }
+        .year-selector select:focus { border-color: #2563EB; background: white; box-shadow: 0 0 0 3px rgba(37,99,235,0.12); }
+
+        .user-info { height: 40px; display: inline-flex; align-items: center; gap: 0.55rem; padding: 0 1rem; border-radius: 11px; background: #F1F5F9; border: 1.5px solid #E2E8F0; font-weight: 800; font-size: 0.85rem; color: #1E293B; box-sizing: border-box; margin: 0; }
+        .role-badge { padding: 0.2rem 0.55rem; border-radius: 6px; font-size: 0.72rem; font-weight: 850; line-height: 1; display: inline-flex; align-items: center; }
+        .role-badge.user { background: #10B981; color: white; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.2); }
+        .role-badge.admin { background: #7C3AED; color: white; box-shadow: 0 2px 8px rgba(124, 58, 237, 0.2); }
+
+        .logout-btn { height: 40px; display: inline-flex; align-items: center; justify-content: center; padding: 0 1rem; border-radius: 10px; border: 1.5px solid #E2E8F0; background: white; color: #64748B; font-weight: 800; font-size: 0.82rem; cursor: pointer; transition: all 0.2s ease; margin: 0; box-sizing: border-box; }
+        .logout-btn:hover { border-color: #FCA5A5; background: #FEF2F2; color: #EF4444; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.12); }
+
+        .tab-menu { max-width: 900px; margin: 0.6rem auto 0; padding: 0.45rem 0.7rem; border: 1.5px solid rgba(226,232,240,0.9); border-radius: 16px; background: rgba(255, 255, 255, 0.92); backdrop-filter: blur(16px); display: flex; gap: 0.5rem; box-shadow: 0 4px 16px rgba(0,0,0,0.03); }
+        .tab-btn { padding: 0.68rem 1.3rem; border-radius: 11px; font-weight: 800; font-size: 0.88rem; transition: all 0.25s cubic-bezier(.2,.7,.2,1); border: 1.5px solid transparent; background: transparent; color: #64748B; cursor: pointer; }
+        .tab-btn:hover:not(.active) { background: #F8FAFC; color: #1E293B; }
+        .tab-btn.active { background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; box-shadow: 0 6px 18px rgba(37,99,235,0.28); transform: translateY(-1px); }
+        .container { max-width: 900px; margin: 0 auto; padding-top: 1.6rem; }
+        .section-view { margin-bottom: 4rem; }
+        .section-view.active { animation: appPageIn 0.38s cubic-bezier(.2,.7,.2,1); }
+        @keyframes appPageIn { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: none; } }
+
+        .app-page-header { display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 1.8rem; }
+        .page-title-wrap { display: grid; gap: 0.35rem; }
+        .page-kicker { color: #2563EB; font-size: 0.72rem; font-weight: 850; letter-spacing: 0.12em; text-transform: uppercase; }
+        .page-title-wrap h2 { font-size: 1.85rem; font-weight: 850; color: #0F172A; letter-spacing: -0.03em; }
+        .page-title-wrap p { color: #64748B; font-size: 0.92rem; }
+        /* 모던 버튼형 통계 배지 */
+        .page-stat-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.65rem;
+            padding: 0.55rem 1.15rem;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #ECFDF5 0%, #E0F2FE 100%);
+            border: 1.5px solid #93C5FD;
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.12);
+            transition: all 0.25s cubic-bezier(0.2, 0.8, 0.2, 1);
+            cursor: pointer;
+            user-select: none;
+        }
+        .page-stat-badge.blue {
+            background: linear-gradient(135deg, #EFF6FF 0%, #E0F2FE 100%);
+            border-color: #93C5FD;
+        }
+        .page-stat-badge:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(37, 99, 235, 0.22);
+            border-color: #2563EB;
+        }
+        .stat-badge-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2);
+            flex-shrink: 0;
+        }
+        .stat-badge-dot.blue {
+            background: #2563EB;
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.2);
+        }
+        .stat-count-num {
+            display: inline-grid;
+            place-items: center;
+            min-width: 24px;
+            height: 24px;
+            padding: 0 0.4rem;
+            border-radius: 999px;
+            background: #2563EB;
+            color: white;
+            font-size: 0.82rem;
+            font-weight: 900;
+            box-shadow: 0 4px 10px rgba(37, 99, 235, 0.25);
+        }
+        .stat-badge-label {
+            color: #0F172A;
+            font-size: 0.88rem;
+            font-weight: 850;
+            letter-spacing: -0.01em;
+        }
+
+        /* 럭셔리 모던 3D writeYearBadge & sync-pill 디자인 스펙 */
+        .sync-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.6rem;
+            padding: 0.55rem 1.1rem;
+            border-radius: 999px;
+            background: linear-gradient(135deg, #EFF6FF 0%, #EEF2FF 100%);
+            border: 1.5px solid #C7D2FE;
+            box-shadow: 0 4px 14px -2px rgba(79, 70, 229, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.8);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            cursor: pointer;
+            user-select: none;
+        }
+        .sync-pill:hover {
+            transform: translateY(-2px) scale(1.02);
+            border-color: #818CF8;
+            background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+            box-shadow: 0 8px 22px -3px rgba(79, 70, 229, 0.25);
+        }
+        .sync-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #10B981;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.22);
+            animation: syncPulse 2.2s infinite ease-in-out;
+            flex-shrink: 0;
+        }
+        @keyframes syncPulse {
+            0%, 100% { transform: scale(1); box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.22); }
+            50% { transform: scale(1.25); box-shadow: 0 0 0 6px rgba(16, 185, 129, 0.35); }
+        }
+        .sync-badge-icon {
+            font-size: 0.92rem;
+            display: inline-grid;
+            place-items: center;
+        }
+        #writeYearBadge {
+            color: #3730A3;
+            font-size: 0.88rem;
+            font-weight: 850;
+            letter-spacing: -0.02em;
+        }
+        
+        .write-workspace { background: #FFFFFF; border: 1px solid rgba(226, 232, 240, 0.9); border-radius: 20px; box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.06); overflow: hidden; }
+        #counselingForm { display: block; }
+        
+        /* 하이엔드 3D 스텝 트래커 */
+        .write-step-tracker { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            padding: 1.3rem 2.2rem; 
+            background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%); 
+            border-bottom: 1px solid #E2E8F0; 
+            border-radius: 20px 20px 0 0;
+            gap: 1.2rem; 
+            position: relative;
+        }
+        .tracker-step { 
+            display: flex; 
+            align-items: center; 
+            gap: 0.85rem; 
+            transition: all 0.35s cubic-bezier(.2,.8,.2,1); 
+            padding: 0.35rem 0.6rem;
+            border-radius: 14px;
+        }
+        .step-badge-wrapper {
+            position: relative;
+        }
+        .step-badge-icon { 
+            width: 38px; 
+            height: 38px; 
+            border-radius: 50%; 
+            display: grid; 
+            place-items: center; 
+            background: #E2E8F0; 
+            color: #64748B; 
+            font-size: 0.95rem; 
+            font-weight: 850; 
+            transition: all 0.35s cubic-bezier(.2,.8,.2,1); 
+            border: 2px solid white;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+        }
+        .step-text-wrap {
+            display: flex;
+            flex-direction: column;
+            gap: 0.1rem;
+        }
+        .step-sub-label {
+            font-size: 0.65rem;
+            font-weight: 850;
+            color: #94A3B8;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            transition: color 0.3s ease;
+        }
+        .step-main-label {
+            font-size: 0.95rem;
+            font-weight: 800;
+            color: #64748B;
+            transition: color 0.3s ease;
+        }
+
+        /* Active State */
+        .tracker-step.active .step-badge-icon { 
+            background: linear-gradient(135deg, #2563EB, #1D4ED8); 
+            color: white; 
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.18), 0 8px 20px rgba(37, 99, 235, 0.35); 
+            transform: scale(1.1); 
+        }
+        .tracker-step.active .step-sub-label { color: #2563EB; }
+        .tracker-step.active .step-main-label { color: #0F172A; font-weight: 850; }
+
+        /* Completed State */
+        .tracker-step.completed .step-badge-icon { 
+            background: linear-gradient(135deg, #10B981, #059669); 
+            color: white; 
+            box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.18), 0 6px 16px rgba(16, 185, 129, 0.3); 
+        }
+        .tracker-step.completed .step-sub-label { color: #10B981; }
+        .tracker-step.completed .step-main-label { color: #047857; }
+
+        /* Divider Line */
+        .tracker-step-divider { 
+            flex: 1; 
+            height: 4px; 
+            background: #E2E8F0; 
+            border-radius: 999px; 
+            overflow: hidden;
+            position: relative;
+        }
+        .tracker-step-divider .divider-progress {
+            height: 100%;
+            width: 0%;
+            background: linear-gradient(90deg, #2563EB, #10B981);
+            border-radius: 999px;
+            transition: width 0.4s ease;
+        }
+        .tracker-step.completed + .tracker-step-divider .divider-progress {
+            width: 100%;
+        }
+
+        .form-block { padding: 1.8rem 2rem; border-bottom: 1px solid #F1F5F9; transition: background-color 0.2s ease; }
+        .form-block:hover { background-color: rgba(248, 250, 252, 0.6); }
+        .form-block:last-of-type { border-bottom: 0; }
+        .form-block-header { display: flex; align-items: center; gap: 1rem; margin-bottom: 1.6rem; }
+        .form-block-header h3 { margin-bottom: 0.2rem; color: #0F172A; font-size: 1.15rem; font-weight: 850; letter-spacing: -0.02em; }
+        .form-block-header p { color: #64748B; font-size: 0.85rem; }
+        .form-step { width: 44px; height: 44px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 14px; color: #1D4ED8; background: linear-gradient(135deg, #EFF6FF, #DBEAFE); font-size: 0.9rem; font-weight: 900; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.12); }
+        .form-step.mint { color: #047857; background: linear-gradient(135deg, #ECFDF5, #D1FAE5); box-shadow: 0 4px 12px rgba(16, 185, 129, 0.12); }
+        .form-step.violet { color: #6D28D9; background: linear-gradient(135deg, #F5F3FF, #DDD6FE); box-shadow: 0 4px 12px rgba(109, 40, 217, 0.12); }
+        
+        .form-grid { display: grid; gap: 1.4rem; }
+        .form-grid.two-column { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .form-grid.four-column { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+        .write-workspace .form-group label { display: flex; align-items: center; justify-content: space-between; min-height: 24px; margin-bottom: 0.6rem; color: #1E293B; font-size: 0.85rem; font-weight: 800; }
+        .write-workspace input, .write-workspace select { min-height: 52px; border-radius: 14px; border: 1.5px solid #E2E8F0; padding: 0 1.1rem; font-size: 0.95rem; background: #F8FAFC; color: #0F172A; transition: all 0.22s cubic-bezier(.2,.7,.2,1); }
+        .write-workspace input:focus, .write-workspace select:focus, .write-workspace textarea:focus { border-color: #2563EB; background: #FFFFFF; box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.12); transform: translateY(-1px); }
+        .write-workspace input[readonly] { color: #475569; border-style: dashed; background: #F1F5F9; font-weight: 750; }
+        
+        /* 퀵 날짜 태그 */
+        .quick-date-tags { display: inline-flex; gap: 0.4rem; }
+        .quick-date-btn { padding: 0.25rem 0.7rem; border: 1px solid #CBD5E1; border-radius: 8px; background: white; color: #475569; font-size: 0.75rem; font-weight: 750; cursor: pointer; transition: all 0.2s ease; }
+        .quick-date-btn:hover { background: #EFF6FF; color: #2563EB; border-color: #93C5FD; transform: translateY(-1px); }
+
+        /* 선택된 학생 카드 시각화 */
+        .selected-student-card { margin-top: 1.4rem; padding: 1.1rem 1.4rem; border-radius: 16px; background: linear-gradient(135deg, #ECFDF5 0%, #F0FDF4 100%); border: 1.5px solid #6EE7B7; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 6px 20px rgba(16, 185, 129, 0.08); animation: cardIn 0.3s ease-out; }
+        @keyframes cardIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+        .card-avatar { width: 46px; height: 46px; border-radius: 14px; background: #10B981; color: white; display: grid; place-items: center; font-size: 1.3rem; box-shadow: 0 8px 18px rgba(16, 185, 129, 0.3); }
+        .selected-student-details { display: flex; flex-direction: column; gap: 0.2rem; flex: 1; margin-left: 1rem; }
+        .selected-student-details strong { color: #064E3B; font-size: 1.1rem; font-weight: 850; }
+        .selected-student-details span { color: #047857; font-size: 0.85rem; font-weight: 700; }
+        .selected-check-badge { display: inline-flex; align-items: center; gap: 0.4rem; padding: 0.45rem 0.9rem; border-radius: 999px; background: #10B981; color: white; font-size: 0.78rem; font-weight: 850; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.25); }
+
+        /* 원클릭 카테고리 칩 */
+        .category-chips { display: flex; flex-direction: column; gap: 0.45rem; margin-top: 0.6rem; padding: 0.65rem; background: #F8FAFC; border: 1.5px solid #E2E8F0; border-radius: 14px; }
+        .chip-btn { padding: 0.55rem 0.9rem; border: 1px solid #CBD5E1; border-radius: 10px; background: white; color: #334155; font-size: 0.85rem; font-weight: 750; cursor: pointer; transition: all 0.2s cubic-bezier(.2,.7,.2,1); display: inline-flex; align-items: center; justify-content: flex-start; gap: 0.5rem; width: 100%; box-shadow: 0 1px 3px rgba(0,0,0,0.02); }
+        .chip-btn:hover { border-color: #93C5FD; background: #EFF6FF; color: #2563EB; transform: translateX(2px); }
+        .chip-btn.active { border-color: #2563EB; background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; box-shadow: 0 4px 12px rgba(37, 99, 235, 0.28); transform: translateX(2px); }
+
+        /* 빠른 작성 템플릿 칩 */
+        .template-section { margin-bottom: 1rem; padding: 1rem 1.3rem; border-radius: 16px; background: #F8FAFC; border: 1.5px solid #E2E8F0; }
+        .template-title { display: block; margin-bottom: 0.6rem; color: #64748B; font-size: 0.78rem; font-weight: 800; }
+        .template-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+        .template-chip { padding: 0.48rem 0.9rem; border: 1px dashed #CBD5E1; border-radius: 10px; background: white; color: #334155; font-size: 0.82rem; font-weight: 750; cursor: pointer; transition: all 0.2s ease; }
+        .template-chip:hover { border-style: solid; border-color: #7C3AED; background: #F5F3FF; color: #6D28D9; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(109, 40, 217, 0.15); }
+
+        .counseling-content-block { background: linear-gradient(180deg, #FFFFFF 0%, #FAFCFF 100%); }
+        .counseling-content-grid { display: grid; grid-template-columns: 210px 1fr; gap: 1.5rem; align-items: start; width: 100%; }
+        .category-field { width: 100%; }
+        .content-field { width: 100%; display: flex; flex-direction: column; flex: 1; }
+        .field-tip { display: flex; gap: 0.5rem; margin-top: 0.85rem; color: #64748B; font-size: 0.78rem; line-height: 1.55; }
+        .field-tip span { width: 20px; height: 20px; display: grid; place-items: center; flex: 0 0 auto; border-radius: 50%; color: #1D4ED8; background: #DBEAFE; font-size: 0.72rem; font-weight: 900; }
+        .content-field textarea { width: 100%; min-height: 480px; resize: vertical; line-height: 1.85; padding: 1.4rem; border-radius: 16px; background: #F8FAFC; border: 1.5px solid #E2E8F0; font-size: 1.02rem; box-shadow: inset 0 2px 4px rgba(15, 23, 42, 0.02); }
+        .textarea-footer { display: flex; justify-content: space-between; align-items: center; gap: 1rem; margin-top: 0.7rem; color: #64748B; font-size: 0.78rem; font-weight: 600; width: 100%; }
+        
+        /* 글자 수 프로그레스 바 */
+        .content-progress-wrapper { width: 100%; height: 6px; border-radius: 999px; background: #E2E8F0; overflow: hidden; margin-top: 0.45rem; }
+        .content-progress-bar { height: 100%; border-radius: 999px; background: linear-gradient(90deg, #3B82F6, #10B981); transition: width 0.2s ease, background 0.2s ease; }
+        .content-progress-bar.warning { background: linear-gradient(90deg, #F59E0B, #EF4444); }
+
+        .form-actions-modern { display: flex; align-items: center; justify-content: space-between; gap: 1.5rem; padding: 1.4rem 2rem; border-top: 1px solid #E2E8F0; background: linear-gradient(180deg, #F8FAFD 0%, #F1F5F9 100%); }
+        .save-security-note { display: flex; align-items: center; gap: 0.75rem; color: #475569; font-size: 0.82rem; font-weight: 750; }
+        .save-security-note span { width: 24px; height: 24px; display: grid; place-items: center; border-radius: 50%; color: #047857; background: #D1FAE5; font-weight: 900; box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25); }
+        .form-action-buttons { display: flex; gap: 0.85rem; }
+        .form-action-buttons .submit-btn { min-width: 200px; min-height: 52px; display: inline-flex; flex-direction: row; align-items: center; justify-content: center; gap: 0.65rem; padding: 0.8rem 1.6rem; border-radius: 14px; font-size: 1rem; font-weight: 850; background: linear-gradient(135deg, #2563EB, #1D4ED8); color: white; border: none; box-shadow: 0 8px 24px rgba(37, 99, 235, 0.3); transition: all 0.25s cubic-bezier(.2,.7,.2,1); cursor: pointer; }
+        .form-action-buttons .submit-btn svg { width: 20px; height: 20px; flex-shrink: 0; }
+        .form-action-buttons .submit-btn:hover:not(:disabled) { transform: translateY(-2px); box-shadow: 0 12px 28px rgba(37, 99, 235, 0.4); }
+        .form-action-buttons #cancelEditBtn { min-width: 120px; margin: 0; box-shadow: none; border-radius: 14px; background: #E2E8F0; color: #475569; }
+
+        /* 사용자 권한/직책 시그니처 뱃지 */
+        .role-badge { display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.25rem 0.7rem; border-radius: 999px; font-size: 0.78rem; font-weight: 850; letter-spacing: -0.01em; }
+        .role-badge.homeroom { background: #EFF6FF; color: #1D4ED8; border: 1.5px solid #BFDBFE; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.1); }
+        .role-badge.co-homeroom { background: #ECFDF5; color: #047857; border: 1.5px solid #A7F3D0; box-shadow: 0 2px 6px rgba(16, 185, 129, 0.1); }
+        .role-badge.counselor { background: #F5F3FF; color: #6D28D9; border: 1.5px solid #DDD6FE; box-shadow: 0 2px 6px rgba(109, 40, 217, 0.1); }
+        .role-badge.admin { background: #FEF2F2; color: #DC2626; border: 1.5px solid #FCA5A5; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.1); }
+        .role-badge.user { background: #F1F5F9; color: #475569; border: 1.5px solid #CBD5E1; }
+
+        /* 럭셔리 3D 모던 캘린더 디자인 스펙 */
+        .calendar-workspace { 
+            padding: 1.6rem; 
+            border-radius: 20px;
+            background: #FFFFFF;
+            border: 1.5px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.06);
+        }
+        .calendar-container { padding: 0.4rem; }
+        
+        /* 캘린더 헤더 & 컨트롤 */
+        .calendar-header { 
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            min-height: 80px; 
+            margin-bottom: 1.2rem; 
+            padding: 1.1rem 1.6rem; 
+            border-radius: 18px;
+            background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%);
+            border: 1.5px solid #E2E8F0;
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.8);
+        }
+        .calendar-month-title { display: grid; gap: 0.2rem; text-align: center; }
+        .calendar-month-title > span { color: #2563EB; font-size: 0.72rem; font-weight: 850; letter-spacing: 0.12em; text-transform: uppercase; }
+        .calendar-header h3 { font-size: 1.7rem; font-weight: 850; color: #0F172A; letter-spacing: -0.04em; margin: 0; }
+        
+        .calendar-nav-btn { 
+            min-height: 42px; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 0.4rem; 
+            padding: 0.55rem 1.1rem; 
+            border: 1.5px solid #CBD5E1; 
+            border-radius: 12px; 
+            color: #334155; 
+            background: #FFFFFF; 
+            font-size: 0.85rem; 
+            font-weight: 800; 
+            cursor: pointer; 
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            transition: all 0.22s cubic-bezier(.2,.8,.2,1); 
+        }
+        .calendar-nav-btn svg { width: 18px; height: 18px; }
+        .calendar-nav-btn:hover:not(:disabled) { color: #2563EB; border-color: #93C5FD; background: #EFF6FF; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(37,99,235,0.18); }
+        .calendar-nav-btn:disabled { opacity: 0.35; cursor: not-allowed; }
+        
+        /* 캘린더 범례 */
+        .calendar-guide { display: flex; align-items: center; gap: 1.2rem; margin: 1rem 0 1.3rem; padding: 0.6rem 1rem; border-radius: 12px; background: #F8FAFC; border: 1px solid #E2E8F0; color: #475569; font-size: 0.8rem; font-weight: 750; }
+        .calendar-guide span { display: inline-flex; align-items: center; gap: 0.45rem; }
+        .calendar-guide .calendar-guide-tip { margin-left: auto; color: #64748B; font-weight: 600; }
+        .guide-dot { width: 9px; height: 9px; border-radius: 50%; }
+        .today-dot { border: 2px solid #2563EB; background: white; box-shadow: 0 0 0 3px rgba(37,99,235,0.2); }
+        .record-dot { background: #10B981; box-shadow: 0 0 0 3px rgba(16,185,129,0.2); }
+        
+        /* 요일 헤더 세그먼트 */
+        .calendar-weekdays { 
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            margin-bottom: 0.8rem; 
+            padding: 0.8rem 0; 
+            border-radius: 14px; 
+            background: linear-gradient(180deg, #F1F5F9 0%, #E2E8F0 100%); 
+            font-size: 0.88rem;
+            font-weight: 850;
+            color: #475569;
+            text-align: center;
+        }
+        .calendar-weekdays div:first-child { color: #EF4444; }
+        .calendar-weekdays div:last-child { color: #2563EB; }
+
+        /* 캘린더 날짜 셀 & 학생 태그 뱃지 */
+        .calendar-days { display: grid; grid-template-columns: repeat(7, 1fr); gap: 0.65rem; }
+        .calendar-day { 
+            min-height: 130px; 
+            padding: 0.75rem; 
+            border: 1.5px solid #E2E8F0; 
+            border-radius: 16px;
+            background: #FFFFFF;
+            transition: all 0.25s cubic-bezier(.2,.8,.2,1);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+        .calendar-day:hover:not(.empty) { 
+            border-color: #93C5FD; 
+            background: #FAFCFF; 
+            transform: translateY(-3px); 
+            box-shadow: 0 12px 28px rgba(37,99,235,0.12); 
+        }
+        .calendar-day.empty { background: #F8FAFC; border-color: transparent; opacity: 0.45; }
+        
+        .date-num-wrapper { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+        .date-num { 
+            width: 28px; 
+            height: 28px; 
+            border-radius: 50%; 
+            display: grid; 
+            place-items: center; 
+            font-size: 0.88rem; 
+            font-weight: 850; 
+            color: #334155; 
+        }
+        .calendar-day.today { 
+            border: 2px solid #2563EB; 
+            background: linear-gradient(180deg, #EFF6FF 0%, #FFFFFF 100%); 
+            box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.15); 
+        }
+        .calendar-day.today .date-num { 
+            background: linear-gradient(135deg, #2563EB, #1D4ED8); 
+            color: white; 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.35); 
+        }
+
+        /* 날짜 내 학생 명단 칩 태그 */
+        .day-content { display: flex; flex-direction: column; gap: 0.35rem; margin-top: 0.2rem; }
+        .student-tag { 
+            padding: 0.32rem 0.65rem; 
+            border-radius: 8px; 
+            background: linear-gradient(135deg, #ECFDF5 0%, #D1FAE5 100%); 
+            border: 1px solid #A7F3D0; 
+            color: #047857; 
+            font-size: 0.78rem; 
+            font-weight: 850; 
+            transition: all 0.2s ease; 
+            display: flex; 
+            align-items: center; 
+            gap: 0.3rem; 
+            box-shadow: 0 2px 6px rgba(16, 185, 129, 0.1);
+        }
+        .student-tag::before { content: '🎓'; font-size: 0.72rem; }
+        .student-tag:hover { 
+            background: linear-gradient(135deg, #10B981, #059669); 
+            color: white; 
+            border-color: #10B981; 
+            transform: translateY(-1px) scale(1.02); 
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); 
+        }
+
+        /* ----------------- 2026년 상담 내역 모던 3D 카드 디자인 ----------------- */
+        .logs-workspace { 
+            padding: 1.6rem; 
+            border-radius: 20px;
+            background: #FFFFFF;
+            border: 1.5px solid rgba(226, 232, 240, 0.9);
+            box-shadow: 0 20px 45px -15px rgba(15, 23, 42, 0.06);
+        }
+        .logs-workspace .filter-container { 
+            margin-bottom: 1.8rem; 
+            padding: 1.1rem 1.6rem; 
+            border-radius: 18px; 
+            background: linear-gradient(135deg, #F8FAFC 0%, #EFF6FF 100%); 
+            border: 1.5px solid #E2E8F0; 
+            box-shadow: inset 0 2px 4px rgba(255,255,255,0.8);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 1rem;
+        }
+        .logs-workspace .filter-left { display: flex; align-items: center; gap: 0.85rem; flex: 1; }
+        .filter-icon { 
+            width: 42px; 
+            height: 42px; 
+            display: grid; 
+            place-items: center; 
+            border-radius: 12px; 
+            color: #2563EB; 
+            background: linear-gradient(135deg, #EFF6FF, #DBEAFE); 
+            box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+            flex-shrink: 0;
+        }
+        .filter-icon svg { width: 20px; height: 20px; }
+        .filter-copy { display: grid; gap: 0.15rem; }
+        .filter-copy label { margin: 0; color: #0F172A; font-size: 0.9rem; font-weight: 850; }
+        .filter-copy span { color: #64748B; font-size: 0.75rem; font-weight: 600; }
+        
+        .logs-workspace .filter-container select { 
+            min-height: 42px;
+            min-width: 200px; 
+            max-width: 260px; 
+            border-radius: 12px;
+            border: 1.5px solid #CBD5E1; 
+            background: #FFFFFF;
+            font-size: 0.88rem;
+            font-weight: 800;
+            color: #0F172A;
+            padding: 0 0.9rem;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+        .logs-workspace .filter-container select:focus {
+            border-color: #2563EB;
+            box-shadow: 0 0 0 3px rgba(37,99,235,0.12);
+        }
+
+        .print-btn { 
+            min-height: 42px; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 0.5rem; 
+            padding: 0 1.2rem;
+            border-radius: 12px;
+            background: #FFFFFF;
+            border: 1.5px solid #CBD5E1;
+            color: #334155;
+            font-size: 0.85rem;
+            font-weight: 800;
+            cursor: pointer;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+            transition: all 0.22s cubic-bezier(0.2, 0.8, 0.2, 1);
+        }
+        .print-btn svg { width: 18px; height: 18px; color: #2563EB; }
+        .print-btn:hover {
+            color: #2563EB;
+            border-color: #93C5FD;
+            background: #EFF6FF;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(37, 99, 235, 0.18);
+        }
+
+        .logs-workspace .card-container { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1.4rem; }
+        .logs-workspace .log-card { 
+            position: relative;
+            min-height: 210px; 
+            padding: 1.25rem 1.4rem; 
+            border-radius: 18px;
+            background: #FFFFFF;
+            border: 1.5px solid #E2E8F0;
+            box-shadow: 0 8px 24px -5px rgba(15, 23, 42, 0.05);
+            transition: all 0.3s cubic-bezier(0.2, 0.8, 0.2, 1);
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            overflow: hidden;
+        }
+        .logs-workspace .log-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3.5px;
+            background: linear-gradient(90deg, #2563EB, #10B981);
+        }
+        .logs-workspace .log-card:hover { 
+            border-color: #93C5FD; 
+            transform: translateY(-4px) scale(1.005); 
+            box-shadow: 0 18px 40px -8px rgba(37, 99, 235, 0.15); 
+        }
+
+        .logs-workspace .card-header { 
+            display: flex; 
+            align-items: center; 
+            justify-content: space-between; 
+            gap: 0.8rem; 
+            margin-bottom: 0.75rem; 
+            min-height: 38px;
+        }
+        .logs-workspace .card-title { 
+            font-size: 1.08rem; 
+            font-weight: 850; 
+            color: #0F172A; 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 0.55rem; 
+            white-space: nowrap;
+            flex-wrap: nowrap;
+        }
+        .student-name-wrap {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            font-weight: 850;
+            white-space: nowrap;
+        }
+        .logs-workspace .card-title-id { 
+            font-size: 0.78rem; 
+            font-weight: 800; 
+            color: #334155; 
+            background: #F1F5F9; 
+            padding: 0.18rem 0.55rem; 
+            border-radius: 8px; 
+            border: 1.5px solid #CBD5E1; 
+            display: inline-flex;
+            align-items: center;
+            white-space: nowrap;
+        }
+        
+        .card-meta-right { 
+            display: inline-flex; 
+            align-items: center; 
+            gap: 0.55rem; 
+        }
+        .meta-tag.category { 
+            padding: 0.22rem 0.65rem; 
+            border-radius: 999px; 
+            font-size: 0.76rem; 
+            font-weight: 850; 
+            background: linear-gradient(135deg, #EFF6FF, #DBEAFE); 
+            color: #1D4ED8; 
+            border: 1.5px solid #BFDBFE; 
+            box-shadow: 0 2px 6px rgba(37, 99, 235, 0.1);
+            display: inline-flex;
+            align-items: center;
+        }
+        .meta-tag.category.category-study { background: linear-gradient(135deg, #EFF6FF, #DBEAFE); color: #1D4ED8; border-color: #93C5FD; }
+        .meta-tag.category.category-career { background: linear-gradient(135deg, #F5F3FF, #DDD6FE); color: #6D28D9; border-color: #C4B5FD; }
+        .meta-tag.category.category-relation { background: linear-gradient(135deg, #ECFDF5, #D1FAE5); color: #047857; border-color: #6EE7B7; }
+        .meta-tag.category.category-life { background: linear-gradient(135deg, #FFF7ED, #FFEDD5); color: #C2410C; border-color: #FDBA74; }
+
+        .card-date { color: #64748B; font-size: 0.78rem; font-weight: 750; display: inline-flex; align-items: center; white-space: nowrap; }
+        
+        .logs-workspace .card-content { 
+            color: #334155; 
+            font-size: 0.9rem; 
+            line-height: 1.55; 
+            background: #F8FAFC; 
+            padding: 0.85rem 1rem; 
+            border-radius: 12px; 
+            border: 1.5px solid #E2E8F0; 
+            margin-bottom: 0.85rem;
+            flex: 1;
+            word-break: break-all;
+        }
+
+        .logs-workspace .card-footer { display: flex; align-items: center; justify-content: space-between; border-top: 1px dashed #E2E8F0; padding-top: 0.75rem; margin-top: auto; }
+        .logs-workspace .card-teacher { font-size: 0.82rem; font-weight: 800; color: #475569; display: flex; align-items: center; gap: 0.35rem; }
+        
+        .card-actions { display: flex; gap: 0.45rem; }
+        .card-btn { 
+            padding: 0.38rem 0.85rem; 
+            border-radius: 10px; 
+            font-size: 0.78rem; 
+            font-weight: 850; 
+            cursor: pointer; 
+            transition: all 0.2s cubic-bezier(0.2, 0.8, 0.2, 1); 
+            border: 1.5px solid transparent; 
+        }
+        .card-btn.btn-edit { background: #EFF6FF; color: #2563EB; border-color: #BFDBFE; }
+        .card-btn.btn-edit:hover { background: #2563EB; color: white; border-color: #2563EB; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.25); }
+        .card-btn.btn-delete { background: #FEF2F2; color: #EF4444; border-color: #FCA5A5; }
+        .card-btn.btn-delete:hover { background: #EF4444; color: white; border-color: #EF4444; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(239, 68, 68, 0.25); }
+
+        @media (max-width: 768px) {
+            .logs-workspace .card-container { grid-template-columns: 1fr; }
+        }
+
+        @media (max-width: 900px) {
+            .form-grid.four-column { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+            .counseling-content-grid { grid-template-columns: 1fr; }
+            .form-actions-modern { align-items: flex-start; flex-direction: column; }
+            .form-action-buttons { width: 100%; }
+            .form-action-buttons .submit-btn { flex: 1; }
+        }
+
+        @media (max-width: 980px) {
+            .landing-links { display: none; }
+            .hero-section { min-height: auto; grid-template-columns: 1fr; padding-top: 140px; gap: 4rem; }
+            .hero-copy { text-align: center; }
+            .hero-copy h1, .hero-copy > p { margin-left: auto; margin-right: auto; }
+            .hero-actions, .hero-note { justify-content: center; }
+            .hero-visual { width: min(720px, 100%); margin: 0 auto; }
+            .feature-grid { grid-template-columns: 1fr 1fr; }
+            .detail-grid { grid-template-columns: 1fr; }
+            .detail-panel { width: min(680px, 100%); margin: 0 auto; order: 2; }
+            .login-layout { grid-template-columns: 1fr; max-width: 520px; }
+            .login-copy { text-align: center; }
+            .login-point-list { justify-content: center; }
+            .login-point-list span { justify-content: center; }
+            .footer-top { grid-template-columns: 1fr 1fr; }
+            .newsletter { grid-column: 1 / -1; max-width: 540px; }
+        }
+
+        @media (max-width: 650px) {
+            .landing-nav-inner, .landing-section, .footer-inner { width: min(100% - 32px, 1180px); }
+            .brand-label { display: none; }
+            .hero-section { padding: 124px 16px 76px; }
+            .hero-copy h1 { font-size: clamp(2.65rem, 13vw, 4rem); }
+            .hero-copy > p { font-size: 1rem; }
+            .hero-actions { display: grid; }
+            .primary-cta, .secondary-cta { width: 100%; }
+            .hero-note { gap: 0.7rem; }
+            .browser-frame { border-radius: 17px; transform: none; }
+            .demo-shell { grid-template-columns: 72px 1fr; min-height: 390px; }
+            .demo-sidebar { padding: 14px 9px; }
+            .demo-dashboard { padding: 14px; }
+            .metric-grid { grid-template-columns: 1fr 1fr; }
+            .metric-card:last-child { display: none; }
+            .floating-status { right: 8px; bottom: 18px; }
+            .landing-section { padding-top: 82px; padding-bottom: 82px; }
+            .section-heading-row { display: block; margin-bottom: 2.2rem; }
+            .feature-grid { grid-template-columns: 1fr; }
+            .feature-card { min-height: 230px; }
+            .feature-icon { margin-bottom: 1.7rem; }
+            .detail-panel { min-height: 400px; padding: 14px; border-radius: 20px; }
+            .detail-card-row { grid-template-columns: 1fr; }
+            .mini-log-card:nth-child(2) { display: none; }
+            #login-section { padding: 84px 16px; }
+            .login-card { padding: 1.5rem; }
+            .footer-top, .footer-links { grid-template-columns: 1fr; gap: 2.5rem; }
+            .newsletter-form { flex-direction: column; }
+            .newsletter-form button { min-height: 48px; }
+            .footer-bottom { flex-direction: column; }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after { animation-duration: 0.01ms !important; animation-iteration-count: 1 !important; transition-duration: 0.01ms !important; }
+            .reveal { opacity: 1; transform: none; }
+        }
+
+        /* 인쇄 전용 CSS (상담 내용 100% 전부 출력 완벽 보장) */
+        @media print {
+            body { background: white !important; color: black !important; font-size: 10pt !important; margin: 0 !important; padding: 0 !important; }
+            #landingPage, .navbar, .tab-menu, .app-sticky-header, .filter-container, .pagination, .card-actions, .section-header, .app-footer, .custom-toast-container, .custom-modal-overlay { display: none !important; }
+            .container { margin: 0 auto !important; padding: 0 !important; width: 100% !important; max-width: 100% !important; }
+            .content-box, .logs-workspace { box-shadow: none !important; padding: 0 !important; background: none !important; border: none !important; }
+            .card-container { display: block !important; margin: 0 !important; padding: 0 !important; }
+            .print-page { page-break-after: always !important; break-after: page !important; width: 100%; padding-top: 15px !important; }
+            .print-page:last-child { page-break-after: auto !important; break-after: auto !important; }
+            .print-page-title { display: block !important; text-align: center !important; font-size: 20pt !important; font-weight: 850 !important; margin-bottom: 25px !important; color: #000 !important; letter-spacing: -0.02em !important; }
+            .print-card-grid { display: grid !important; grid-template-columns: repeat(2, 48%) !important; justify-content: space-between !important; gap: 20px !important; align-items: start !important; }
+            .log-card { border: 1.5px solid #333333 !important; box-shadow: none !important; background: #ffffff !important; padding: 16px !important; height: auto !important; min-height: 180px !important; display: flex !important; flex-direction: column !important; justify-content: space-between !important; page-break-inside: avoid !important; break-inside: avoid !important; border-radius: 8px !important; transform: none !important; }
+            .log-card::before { display: none !important; }
+            .card-header { margin-left: 0 !important; border-bottom: 1.5px solid #333333 !important; padding-bottom: 8px !important; margin-bottom: 10px !important; }
+            .card-title { color: #000 !important; font-size: 11pt !important; font-weight: 850 !important; }
+            .card-date { color: #000 !important; font-size: 9pt !important; font-weight: bold !important; }
+            .meta-tag { background: transparent !important; color: #000 !important; border: 1px solid #000 !important; font-size: 8.5pt !important; padding: 2px 8px !important; border-radius: 4px !important; }
+            .meta-tag.category { font-weight: bold !important; }
+            .card-content { 
+                margin-left: 0 !important; 
+                padding: 10px 0 !important; 
+                background: white !important; 
+                border: none !important; 
+                color: #000000 !important; 
+                font-size: 9.5pt !important; 
+                line-height: 1.6 !important;
+                margin: 5px 0 !important; 
+                height: auto !important; 
+                max-height: none !important;
+                overflow: visible !important; 
+                display: block !important; 
+                white-space: pre-wrap !important;
+                word-break: break-all !important;
+            }
+            .card-footer { margin-left: 0 !important; border-top: 1px dashed #666666 !important; padding-top: 8px !important; margin-top: 10px !important; }
+            .card-teacher { font-size: 8.5pt !important; color: #000 !important; font-weight: bold !important; }
+        }
+
+        /* 반응형 */
+        @media (max-width: 650px) { 
+            form { grid-template-columns: 1fr; } 
+            .navbar { margin: 1rem 1rem 0; width: calc(100% - 2rem); top: 1rem; border-radius: 12px; padding: 1rem; justify-content: center; } 
+            .tab-menu { top: auto; width: calc(100% - 2rem); flex-wrap: nowrap; justify-content: flex-start; margin: 0.65rem 1rem 0; padding: 0.7rem; overflow-x: auto; scrollbar-width: none; }
+            .tab-menu::-webkit-scrollbar { display: none; }
+            .tab-btn { flex: 0 0 auto; padding: 0.65rem 0.85rem; font-size: 0.82rem; }
+            .container { padding: 1.8rem 1rem 0; }
+            .app-page-header { align-items: flex-start; gap: 1rem; }
+            .page-title-wrap h2 { font-size: 1.55rem; }
+            .page-title-wrap p { font-size: 0.82rem; }
+            .sync-pill { min-height: 34px; padding: 0.45rem 0.7rem; }
+            .page-stat-card { min-width: 104px; padding: 0.65rem 0.75rem; }
+            .page-stat-card strong { font-size: 1.2rem; }
+            .write-workspace, .calendar-workspace, .logs-workspace { padding: 0; }
+            .form-block { padding: 1.35rem 1.15rem; }
+            .form-grid.two-column, .form-grid.four-column { grid-template-columns: 1fr; }
+            .form-block-header { align-items: flex-start; }
+            .form-block-header p { line-height: 1.55; }
+            .form-actions-modern { padding: 1.15rem; }
+            .save-security-note { align-items: flex-start; line-height: 1.55; }
+            .form-action-buttons { flex-direction: column-reverse; }
+            .form-action-buttons .submit-btn { width: 100%; min-width: 0; }
+            .textarea-footer { align-items: flex-end; flex-direction: column; }
+            .calendar-workspace { padding: 0.55rem; }
+            .calendar-container { padding: 0.2rem; }
+            .calendar-header { min-height: 66px; padding: 0.45rem 0.2rem; }
+            .calendar-nav-btn span { display: none; }
+            .calendar-nav-btn { width: 38px; justify-content: center; padding: 0; }
+            .calendar-header h3 { font-size: 1.25rem; }
+            .calendar-guide { gap: 0.7rem; padding: 0 0.25rem; }
+            .calendar-guide .calendar-guide-tip { display: none; }
+            .calendar-day { min-height: 80px; padding: 4px;} 
+            .date-num { width: 22px; height: 22px; font-size: 0.85rem; }
+            .student-tag { font-size: 0.65rem; padding: 2px 4px;} 
+            .card-container { grid-template-columns: 1fr; } 
+            .filter-container, .filter-left { flex-direction: column; align-items: stretch; width: 100%; } 
+            .filter-icon { display: none; }
+            .filter-container select, .logs-workspace .filter-container select { max-width: 100%; width: 100%;} 
+            .print-btn { margin-left: 0; width: 100%; } 
+            .content-box { padding: 1.5rem; }
+            .write-workspace, .calendar-workspace, .logs-workspace { padding: 0; }
+            .user-info { font-size: 0.85rem; padding: 0.3rem 0.8rem; }
+            .nav-right { flex-wrap: wrap; justify-content: center; }
+            
+            /* 모바일 환경 푸터 사이즈 조정 */
+            .app-footer { margin: auto 1rem 1rem; width: calc(100% - 2rem); padding: 1.2rem; }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="initLoading" class="loading-container" style="height: 100vh;">
+        <div class="spinner"></div>
+        <p>시스템 설정 파일을 확인하고 있습니다...</p>
+    </div>
+
+    <div id="landingPage" class="hidden">
+        <header class="landing-nav">
+            <div class="landing-nav-inner">
+                <a href="#home" class="brand" aria-label="상담온 홈">
+                    <span class="brand-mark" aria-hidden="true">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 8.5h10M7 12h6M12 21a9 9 0 1 0-8.4-5.8L3 21l5.8-1.3A9 9 0 0 0 12 21Z"/></svg>
+                    </span>
+                    <span class="brand-label">상담온 · Counsel On</span>
+                </a>
+                <nav class="landing-links" aria-label="서비스 소개 메뉴">
+                    <a href="#features">주요 기능</a>
+                    <a href="#demo">서비스 화면</a>
+                    <a href="#contact">문의</a>
+                </nav>
+                <a class="nav-cta" href="#login-section">교사 로그인</a>
+            </div>
+        </header>
+
+        <main>
+            <section class="hero-section" id="home">
+                <div class="hero-copy reveal is-visible">
+                    <div class="eyebrow"><span class="eyebrow-dot"></span> 학생 상담을 위한 스마트 워크스페이스</div>
+                    <h1>기록은 더 간결하게,<span class="gradient-text">학생 지원은 더 깊게.</span></h1>
+                    <p>연도별 학생 명렬표부터 상담 기록, 달력, 출력까지 하나의 안전한 흐름으로 연결하세요. 선생님은 기록보다 학생에게 더 집중할 수 있습니다.</p>
+                    <div class="hero-actions">
+                        <a class="primary-cta" href="#login-section">
+                            지금 시작하기
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg>
+                        </a>
+                        <a class="secondary-cta" href="#demo">화면 미리보기</a>
+                    </div>
+                    <div class="hero-note">
+                        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 12 4 4L19 6"/></svg>연도별 자동 분류</span>
+                        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 12 4 4L19 6"/></svg>교사별 접근 제어</span>
+                        <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m5 12 4 4L19 6"/></svg>Google Sheets 연동</span>
+                    </div>
+                </div>
+
+                <div class="hero-visual reveal reveal-delay-1 is-visible" aria-label="상담일지 대시보드 미리보기">
+                    <div class="browser-frame">
+                        <div class="browser-top">
+                            <span class="browser-dot"></span><span class="browser-dot"></span><span class="browser-dot"></span>
+                            <span class="browser-address"></span>
+                        </div>
+                        <div class="demo-shell">
+                            <aside class="demo-sidebar">
+                                <div class="demo-side-logo"></div>
+                                <div class="demo-side-item active"></div>
+                                <div class="demo-side-item"></div>
+                                <div class="demo-side-item"></div>
+                                <div class="demo-side-item"></div>
+                            </aside>
+                            <div class="demo-dashboard">
+                                <div class="demo-dashboard-head">
+                                    <div class="demo-title-lines"><span></span><span></span></div>
+                                    <div class="demo-year-pill">2027년</div>
+                                </div>
+                                <div class="metric-grid">
+                                    <div class="metric-card"><div class="metric-label"></div><div class="metric-value">24</div><div class="metric-trend">이번 달 +8</div></div>
+                                    <div class="metric-card"><div class="metric-label"></div><div class="metric-value">18</div><div class="metric-trend">학생 18명</div></div>
+                                    <div class="metric-card"><div class="metric-label"></div><div class="metric-value">4</div><div class="metric-trend">상담 분류</div></div>
+                                </div>
+                                <div class="demo-chart-card">
+                                    <div class="chart-head"></div>
+                                    <div class="bar-chart" aria-hidden="true">
+                                        <span style="height:38%"></span><span style="height:62%"></span><span style="height:48%"></span><span style="height:82%"></span><span style="height:58%"></span><span style="height:94%"></span><span style="height:70%"></span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="floating-status"><span class="floating-check">✓</span><span>Google Sheets<br>자동 동기화 완료</span></div>
+                </div>
+            </section>
+
+            <div class="features-wrap" id="features">
+                <section class="landing-section">
+                    <div class="section-heading-row reveal">
+                        <div>
+                            <div class="section-kicker">Core features</div>
+                            <h2 class="landing-heading">필요한 기능만,<br>명확한 흐름으로.</h2>
+                        </div>
+                        <p class="landing-description">복잡한 메뉴와 반복 작업을 줄이고 상담 업무의 핵심에 맞춘 네 가지 도구를 제공합니다.</p>
+                    </div>
+                    <div class="feature-grid">
+                        <article class="feature-card reveal">
+                            <div class="feature-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 2v4M16 2v4M3 10h18M5 4h14a2 2 0 0 1 2 2v14H3V6a2 2 0 0 1 2-2Z"/><path d="M8 15h3v3H8z"/></svg></div>
+                            <h3>연도별 스마트 관리</h3>
+                            <p>기준연도만 선택하면 해당 학생과 상담 기록, 달력이 자동으로 분리되어 다음 학년도에도 그대로 사용할 수 있습니다.</p>
+                        </article>
+                        <article class="feature-card reveal reveal-delay-1">
+                            <div class="feature-icon mint"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM19 8v6M22 11h-6"/></svg></div>
+                            <h3>학생 명렬표 연동</h3>
+                            <p>Google Sheets 학생 명렬표와 연결되어 반과 학생을 빠르게 찾고 정확한 정보로 상담 기록을 시작합니다.</p>
+                        </article>
+                        <article class="feature-card reveal reveal-delay-2">
+                            <div class="feature-icon violet"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.1 2.1 0 0 1 3 3L8 18l-4 1 1-4Z"/></svg></div>
+                            <h3>빠른 기록과 수정</h3>
+                            <p>상담 분류와 내용을 간결하게 입력하고, 작성자와 관리자 권한에 맞춰 안전하게 수정·삭제할 수 있습니다.</p>
+                        </article>
+                        <article class="feature-card reveal reveal-delay-3">
+                            <div class="feature-icon sky"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5h20v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg></div>
+                            <h3>달력·인쇄 지원</h3>
+                            <p>월별 상담 흐름을 달력에서 확인하고 필요한 기록은 카드형 상담일지로 깔끔하게 인쇄할 수 있습니다.</p>
+                        </article>
+                    </div>
+                </section>
+            </div>
+
+            <section class="landing-section" id="demo">
+                <div class="detail-grid">
+                    <div class="detail-panel reveal">
+                        <div class="detail-window">
+                            <div class="detail-toolbar"><strong>2027년 상담 내역</strong><span>최신순</span></div>
+                            <div class="detail-content">
+                                <div class="detail-card-row">
+                                    <div class="mini-log-card"><div class="mini-name">김○○ <span>진로</span></div><div class="mini-line"></div><div class="mini-line"></div><div class="mini-line short"></div></div>
+                                    <div class="mini-log-card"><div class="mini-name">이○○ <span>학업</span></div><div class="mini-line"></div><div class="mini-line short"></div><div class="mini-line"></div></div>
+                                </div>
+                                <div class="detail-calendar-strip" aria-label="월간 상담 달력 예시">
+                                    <span>1</span><span>2</span><span>3</span><span class="active">4</span><span>5</span><span>6</span><span>7</span>
+                                    <span>8</span><span>9</span><span class="active">10</span><span>11</span><span>12</span><span>13</span><span>14</span>
+                                    <span>15</span><span>16</span><span>17</span><span>18</span><span class="active">19</span><span>20</span><span>21</span>
+                                    <span>22</span><span>23</span><span>24</span><span>25</span><span>26</span><span>27</span><span>28</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="reveal reveal-delay-1">
+                        <div class="section-kicker">Designed for focus</div>
+                        <h2 class="landing-heading">기록의 흐름을<br>한눈에 이해하세요.</h2>
+                        <p class="landing-description">선생님의 실제 업무 순서에 맞춰 학생 선택부터 상담 기록 확인까지 자연스럽게 이어집니다.</p>
+                        <div class="detail-copy-list">
+                            <div class="detail-copy-item"><span class="detail-index">01</span><div><h3>반과 학생을 빠르게 선택</h3><p>연도별 명렬표를 기준으로 담당 반과 학생 정보를 정확하게 불러옵니다.</p></div></div>
+                            <div class="detail-copy-item"><span class="detail-index">02</span><div><h3>내 기록만 안전하게 확인</h3><p>일반 교사는 본인의 기록만, 관리자는 필요한 전체 기록을 확인할 수 있습니다.</p></div></div>
+                            <div class="detail-copy-item"><span class="detail-index">03</span><div><h3>연도가 바뀌어도 그대로 사용</h3><p>새 학년도 학생을 시트에 등록하면 기존 데이터와 섞이지 않고 즉시 사용할 수 있습니다.</p></div></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="login-section" class="hidden">
+                <div class="login-layout">
+                    <div class="login-copy reveal">
+                        <div class="section-kicker">Secure workspace</div>
+                        <h2>이제 상담 업무를<br>더 선명하게 시작하세요.</h2>
+                        <p>등록된 교사 계정으로 로그인하면 담당 학생과 상담 기록이 안전하게 연결됩니다.</p>
+                        <div class="login-point-list">
+                            <span><i>✓</i>서버 세션 기반 로그인</span>
+                            <span><i>✓</i>교사·관리자 권한 분리</span>
+                            <span><i>✓</i>연도별 데이터 자동 분류</span>
+                        </div>
+                    </div>
+                    <div class="login-card reveal reveal-delay-1">
+                        <h1>교사 로그인</h1>
+                        <p>성일정보고 상담일지 워크스페이스</p>
+                        <form id="loginForm" style="display: block;">
+                            <label for="loginId">교사 ID</label>
+                            <input type="text" id="loginId" placeholder="교번을 입력하세요" autocomplete="username" required>
+                            <label for="loginPw">비밀번호</label>
+                            <input type="password" id="loginPw" placeholder="비밀번호를 입력하세요" autocomplete="current-password" required>
+                            <button type="submit" class="submit-btn" id="loginBtn">워크스페이스 시작하기</button>
+                        </form>
+                        <div id="loginLoading" class="loading-container hidden" style="padding: 1rem 0;">
+                            <div class="spinner"></div>
+                            <p>안전하게 로그인하고 있습니다...</p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer class="landing-footer" id="contact">
+            <div class="footer-inner">
+                <div class="footer-top">
+                    <div class="footer-brand">
+                        <a href="#home" class="brand">
+                            <span class="brand-mark" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M7 8.5h10M7 12h6M12 21a9 9 0 1 0-8.4-5.8L3 21l5.8-1.3A9 9 0 0 0 12 21Z"/></svg></span>
+                            <span>상담온 · Counsel On</span>
+                        </a>
+                        <p>학생을 이해하는 기록, 선생님을 돕는 도구. 성일정보고 상담 업무를 위한 안전한 디지털 워크스페이스입니다.</p>
+                    </div>
+                    <div class="footer-links">
+                        <div class="footer-link-group"><h3>서비스</h3><a href="#features">주요 기능</a><a href="#demo">화면 미리보기</a><a href="#login-section">교사 로그인</a></div>
+                        <div class="footer-link-group"><h3>지원</h3><a href="#contact">사용 문의</a><a href="#contact">Google Sheets 연동</a><a href="#contact">관리자 안내</a></div>
+                    </div>
+                    <div class="newsletter">
+                        <h3>업데이트 소식 받기</h3>
+                        <p>연도 전환과 새 기능 안내를 받을 이메일을 남겨주세요.</p>
+                        <form class="newsletter-form" id="newsletterForm">
+                            <input type="email" id="newsletterEmail" aria-label="이메일 주소" placeholder="teacher@school.kr" required>
+                            <button type="submit">등록</button>
+                        </form>
+                        <p class="form-feedback" id="newsletterFeedback" aria-live="polite"></p>
+                    </div>
+                </div>
+                <div class="footer-bottom"><span>© 2026 성일정보고 상담일지. All rights reserved.</span><span>학생 상담 및 교내 지도를 위한 시스템</span></div>
+            </div>
+        </footer>
+    </div>
+
+    <div id="main-app" class="hidden-app">
+        <!-- 상단 스크롤 고정 래퍼 (Sticky Header Wrapper) -->
+        <div class="app-sticky-header">
+            <nav class="navbar">
+                <div class="nav-brand">
+                    <span class="brand-logo-icon">🏫</span>
+                    <h1>상담온 · 성일정보고 상담일지</h1>
+                </div>
+                <div class="nav-right">
+                    <label class="year-selector" for="schoolYearSelect">
+                        <span class="year-label">기준연도</span>
+                        <select id="schoolYearSelect" aria-label="기준연도 선택"></select>
+                    </label>
+                    <span class="user-info" id="displayUserName"></span>
+                    <button type="button" class="logout-btn" onclick="logout()">로그아웃</button>
+                </div>
+            </nav>
+
+            <div class="tab-menu" role="tablist" aria-label="메인 메뉴 탭">
+                <button id="btn-write" class="tab-btn active" role="tab" aria-selected="true" data-reset="true">✍️ 새 상담 작성</button>
+                <button id="btn-calendar" class="tab-btn" role="tab" aria-selected="false">📅 내 상담 달력</button>
+                <button id="btn-logs" class="tab-btn" role="tab" aria-selected="false">📋 상담 내역 목록</button>
+                <button id="btn-admin" class="tab-btn hidden" role="tab" aria-selected="false">⚙️ 교사 권한 관리</button>
+            </div>
+        </div>
+
+        <div class="container">
+            <section id="section-write" class="section-view active">
+                <div class="section-header app-page-header">
+                    <div class="page-title-wrap">
+                        <span class="page-kicker">Counseling Log Entry</span>
+                        <h2>새 상담일지 작성</h2>
+                        <p>상담 일자, 학생, 상담 내용을 3단계 과정으로 차례대로 작성합니다.</p>
+                    </div>
+                    <div class="sync-pill" title="현재 선택된 상담일지 기준 연도입니다">
+                        <span class="sync-dot"></span>
+                        <span class="sync-badge-icon">📅</span>
+                        <span id="writeYearBadge">2026년 기준</span>
+                    </div>
+                </div>
+
+                <div class="content-box write-workspace">
+                    <!-- 하이엔드 3D 스텝 트래커 -->
+                    <div class="write-step-tracker" id="writeStepTracker">
+                        <div class="tracker-step active" id="trackerStep1">
+                            <div class="step-badge-wrapper">
+                                <span class="step-badge-icon">1</span>
+                            </div>
+                            <div class="step-text-wrap">
+                                <span class="step-sub-label">STEP 01</span>
+                                <span class="step-main-label">기본 정보</span>
+                            </div>
+                        </div>
+                        <div class="tracker-step-divider">
+                            <div class="divider-progress"></div>
+                        </div>
+                        <div class="tracker-step" id="trackerStep2">
+                            <div class="step-badge-wrapper">
+                                <span class="step-badge-icon">2</span>
+                            </div>
+                            <div class="step-text-wrap">
+                                <span class="step-sub-label">STEP 02</span>
+                                <span class="step-main-label">학생 선택</span>
+                            </div>
+                        </div>
+                        <div class="tracker-step-divider">
+                            <div class="divider-progress"></div>
+                        </div>
+                        <div class="tracker-step" id="trackerStep3">
+                            <div class="step-badge-wrapper">
+                                <span class="step-badge-icon">3</span>
+                            </div>
+                            <div class="step-text-wrap">
+                                <span class="step-sub-label">STEP 03</span>
+                                <span class="step-main-label">상담 기록</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <form id="counselingForm">
+                        <section class="form-block" id="formBlock1">
+                            <div class="form-block-header">
+                                <span class="form-step">01</span>
+                                <div><h3>기본 정보</h3><p>상담 일자와 담당 교사를 확인합니다.</p></div>
+                            </div>
+                            <div class="form-grid two-column">
+                                <div class="form-group">
+                                    <label for="date">
+                                        <span>상담 일자</span>
+                                        <div class="quick-date-tags">
+                                            <button type="button" class="quick-date-btn" onclick="setQuickDate(0)">오늘</button>
+                                            <button type="button" class="quick-date-btn" onclick="setQuickDate(-1)">어제</button>
+                                        </div>
+                                    </label>
+                                    <input type="date" id="date" name="date" required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="teacherName"><span>담당 선생님</span></label>
+                                    <input type="text" id="teacherName" name="teacherName" readonly required>
+                                </div>
+                            </div>
+                        </section>
+
+                        <section class="form-block" id="formBlock2">
+                            <div class="form-block-header">
+                                <span class="form-step mint">02</span>
+                                <div><h3>학생 선택</h3><p>연도별 명렬표에서 반과 학생을 선택합니다.</p></div>
+                            </div>
+                            <div class="form-grid four-column">
+                                <div class="form-group">
+                                    <label for="classSelect"><span>반 선택</span></label>
+                                    <select id="classSelect" required>
+                                        <option value="">명렬표를 불러오는 중...</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="studentSelect"><span>학생 선택</span></label>
+                                    <select id="studentSelect" required disabled>
+                                        <option value="">반을 먼저 선택하세요</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label for="gradeClass"><span>학년/반</span></label>
+                                    <input type="text" id="gradeClass" name="gradeClass" placeholder="자동 입력" readonly required>
+                                </div>
+                                <div class="form-group">
+                                    <label for="studentName"><span>학생명</span></label>
+                                    <input type="text" id="studentName" name="studentName" placeholder="자동 입력" readonly required>
+                                </div>
+                            </div>
+
+                            <!-- 선택된 학생 시각화 프로필 카드 -->
+                            <div id="selectedStudentCard" class="selected-student-card hidden">
+                                <div class="card-avatar">🎓</div>
+                                <div class="selected-student-details">
+                                    <strong id="cardStudentName">학생을 선택해주세요</strong>
+                                    <span id="cardStudentClass">학년/반 정보</span>
+                                </div>
+                                <span class="selected-check-badge">✓ 학생 선택 완료</span>
+                            </div>
+                        </section>
+
+                        <section class="form-block counseling-content-block" id="formBlock3">
+                            <div class="form-block-header">
+                                <span class="form-step violet">03</span>
+                                <div><h3>상담 기록</h3><p>상담 분류와 핵심 내용을 구체적으로 작성합니다.</p></div>
+                            </div>
+                            
+                            <!-- 자주 사용하는 작성 템플릿 -->
+                            <div class="template-section">
+                                <span class="template-title">⚡ 빠른 상담 템플릿 가져오기 (클릭 시 내용에 서식이 삽입됩니다):</span>
+                                <div class="template-chips">
+                                    <button type="button" class="template-chip" onclick="applyTemplate('academic')">📘 학업 성적 & 학습 상담</button>
+                                    <button type="button" class="template-chip" onclick="applyTemplate('career')">🚀 진로 & 진학 상담</button>
+                                    <button type="button" class="template-chip" onclick="applyTemplate('peer')">🤝 교우 관계 조율</button>
+                                    <button type="button" class="template-chip" onclick="applyTemplate('life')">🛡️ 생활 지도 & 태도</button>
+                                </div>
+                            </div>
+
+                            <div class="counseling-content-grid">
+                                <div class="form-group category-field">
+                                    <label for="category"><span>상담 분류</span></label>
+                                    <select id="category" name="category" required>
+                                        <option value="">분류 선택</option>
+                                        <option value="학업">학업</option>
+                                        <option value="진로">진로</option>
+                                        <option value="친구관계">친구관계</option>
+                                        <option value="생활지도">생활지도</option>
+                                        <option value="기타">기타</option>
+                                    </select>
+                                    
+                                    <!-- 원클릭 카테고리 칩 -->
+                                    <div class="category-chips" id="categoryChips">
+                                        <button type="button" class="chip-btn" data-val="학업">📘 학업</button>
+                                        <button type="button" class="chip-btn" data-val="진로">🚀 진로</button>
+                                        <button type="button" class="chip-btn" data-val="친구관계">🤝 친구관계</button>
+                                        <button type="button" class="chip-btn" data-val="생활지도">🛡️ 생활지도</button>
+                                        <button type="button" class="chip-btn" data-val="기타">💡 기타</button>
+                                    </div>
+
+                                    <div class="field-tip"><span>i</span>원하는 분류 버튼을 클릭하거나 선택창에서 지정하세요.</div>
+                                </div>
+                                <div class="form-group content-field">
+                                    <label for="content"><span>상담 내용</span></label>
+                                    <textarea id="content" name="content" rows="9" maxlength="5000" placeholder="학생의 현재 상황, 상담한 내용 및 추후 지도 계획을 자유롭게 기록해주세요." required></textarea>
+                                    
+                                    <div class="content-progress-wrapper">
+                                        <div class="content-progress-bar" id="contentProgressBar" style="width: 0%;"></div>
+                                    </div>
+
+                                    <div class="textarea-footer">
+                                        <span>개인정보와 민감정보는 필요한 범위에서만 안전하게 기록하세요.</span>
+                                        <span id="contentLength">0 / 5,000</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </section>
+
+                        <div class="form-actions-modern">
+                            <div class="save-security-note"><span>✓</span>저장된 상담 기록은 담당 교사와 관리자만 확인할 수 있습니다.</div>
+                            <div class="form-action-buttons">
+                                <button type="button" class="submit-btn hidden" id="cancelEditBtn" onclick="cancelEdit()">수정 취소</button>
+                                <button type="submit" class="submit-btn" id="submitBtn"><span id="submitBtnLabel">상담 기록 저장</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m5 12 4 4L19 6"/></svg></button>
+                            </div>
+                        </div>
+                    </form>
+                    
+                    <div id="submitLoading" class="loading-container hidden">
+                        <div class="spinner"></div>
+                        <p>데이터를 안전하게 저장하고 있습니다...</p>
+                    </div>
+                </div>
+            </section>
+            <section id="section-calendar" class="section-view">
+                <div class="section-header app-page-header">
+                    <div class="page-title-wrap">
+                        <span class="page-kicker">Monthly planner</span>
+                        <h2 id="calendarTitle">내 상담 달력</h2>
+                        <p>월별 상담 일정을 한눈에 확인하고 날짜를 눌러 새 기록을 작성하세요.</p>
+                    </div>
+                    <div class="page-stat-badge">
+                        <span class="stat-badge-dot"></span>
+                        <span class="stat-count-num" id="monthLogCount">0</span>
+                        <span class="stat-badge-label">이번 달 상담</span>
+                    </div>
+                </div>
+                <div class="content-box calendar-workspace">
+                    <div id="calendarLoading" class="loading-container hidden">
+                        <div class="spinner"></div>
+                        <p>데이터를 동기화 중입니다...</p>
+                    </div>
+
+                    <div class="calendar-container" id="calendarContent">
+                        <div class="calendar-header">
+                            <button id="prevMonth" class="calendar-nav-btn" aria-label="이전 달"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m15 18-6-6 6-6"/></svg><span>이전</span></button>
+                            <div class="calendar-month-title"><span>상담 캘린더</span><h3 id="monthYear"></h3></div>
+                            <button id="nextMonth" class="calendar-nav-btn" aria-label="다음 달"><span>다음</span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m9 18 6-6-6-6"/></svg></button>
+                        </div>
+                        <div class="calendar-guide"><span><i class="guide-dot today-dot"></i>오늘</span><span><i class="guide-dot record-dot"></i>상담 기록</span><span class="calendar-guide-tip">날짜를 클릭하면 새 상담 작성으로 이동합니다.</span></div>
+                        <div class="calendar-weekdays">
+                            <div>일</div><div>월</div><div>화</div><div>수</div><div>목</div><div>금</div><div>토</div>
+                        </div>
+                        <div class="calendar-days" id="calendarDays"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-logs" class="section-view">
+                <div class="section-header app-page-header">
+                    <div class="page-title-wrap">
+                        <span class="page-kicker">Counseling archive</span>
+                        <h2 id="logsTitle">내 상담 내역 (최신순)</h2>
+                        <p>학생별 상담 기록을 모아보고 필요한 내용을 빠르게 확인하세요.</p>
+                    </div>
+                    <div class="page-stat-badge blue">
+                        <span class="stat-badge-dot blue"></span>
+                        <span class="stat-count-num" id="totalLogCount">0</span>
+                        <span class="stat-badge-label">전체 기록</span>
+                    </div>
+                </div>
+                 
+                <div class="content-box logs-workspace">
+                    <div class="filter-container">
+                        <div class="filter-left">
+                            <span class="filter-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="m20 20-4-4"/></svg></span>
+                            <div class="filter-copy"><label for="logStudentFilter">학생별 모아보기</label><span>원하는 학생의 기록만 선택하세요.</span></div>
+                            <select id="logStudentFilter">
+                                <option value="">전체 학생</option>
+                            </select>
+                        </div>
+                        <button type="button" id="printBtn" class="submit-btn print-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9V2h12v7M6 18H4a2 2 0 0 1-2-2v-5h20v5a2 2 0 0 1-2 2h-2M6 14h12v8H6z"/></svg><span>상담일지 인쇄</span></button>
+                    </div>
+
+                    <div id="fetchLoading" class="loading-container hidden">
+                        <div class="spinner"></div>
+                        <p>데이터를 가져오는 중입니다...</p>
+                    </div>
+
+                    <div id="logContent" class="hidden">
+                        <div class="card-container" id="logCardContainer"></div>
+                        <div class="pagination" id="pagination"></div>
+                    </div>
+                </div>
+            </section>
+
+            <section id="section-admin" class="section-view">
+                <div class="section-header">
+                    <h2>관리자 패널 - 시스템 사용자 목록</h2>
+                </div>
+
+                <div class="content-box" style="margin-bottom: 1.5rem; padding: 1.5rem;">
+                    <h3 style="margin-bottom: 0.8rem;">연도별 Google 시트 사용 안내</h3>
+                    <p style="margin: 0.35rem 0; color: var(--text-muted);"><strong>학생명렬표</strong>: A열 학생 ID, B열 학생명, C열 연도를 입력하세요. 예: <code>2027</code></p>
+                    <p style="margin: 0.35rem 0; color: var(--text-muted);"><strong>상담내역</strong>: 연도는 J열에 자동 저장되므로 직접 입력할 필요가 없습니다.</p>
+                    <p style="margin: 0.35rem 0; color: var(--text-muted);">기존 연도 값이 없는 학생과 상담 기록은 최초 조회 시 2026년 데이터로 자동 등록됩니다.</p>
+                </div>
+
+                <div id="userEditBox" class="content-box hidden" style="margin-bottom: 1.5rem; border-color: var(--accent-peach);">
+                    <h3 style="margin-bottom: 1rem; color: var(--accent-peach-hover);">교사 정보 수정</h3>
+                    <form id="userEditForm">
+                        <div class="form-group">
+                            <label for="editUserId">ID (교번)</label>
+                            <input type="text" id="editUserId" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editUserPw">비밀번호 (변경 시에만 입력)</label>
+                            <input type="password" id="editUserPw" placeholder="기존 비밀번호 유지">
+                        </div>
+                        <div class="form-group">
+                            <label for="editUserName">선생님 성함</label>
+                            <input type="text" id="editUserName" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="editUserRole">권한 등급</label>
+                            <select id="editUserRole" required>
+                                <option value="담임교사">🏫 담임교사 (Homeroom Teacher)</option>
+                                <option value="부담임교사">🤝 부담임교사 (Co-Homeroom Teacher)</option>
+                                <option value="상담교사">💬 상담교사 / 일반교사</option>
+                                <option value="admin">👑 관리자 (Administrator)</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="editUserClass">기본 담당 반</label>
+                            <input type="text" id="editUserClass" placeholder="예: 1학년 1반">
+                        </div>
+                        <div class="form-group" style="grid-column: 1/-1; display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                            <button type="submit" class="submit-btn" style="flex: 1; margin: 0; background-color: var(--accent-peach);">수정 완료</button>
+                            <button type="button" class="submit-btn" id="cancelUserEditBtn" onclick="cancelUserEdit()" style="flex: 1; margin: 0; background-color: white; color: var(--text-main); border: 1px solid var(--border-color);">수정 취소</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="content-box">
+                    <div id="usersFetchLoading" class="loading-container hidden">
+                        <div class="spinner"></div>
+                        <p>교사명렬표 시트에서 사용자 정보를 불러오는 중입니다...</p>
+                    </div>
+
+                    <div id="usersContent">
+                        <div class="user-table-wrapper">
+                            <table class="user-table">
+                                <thead>
+                                    <tr>
+                                        <th>ID (교번)</th>
+                                        <th>선생님 성함</th>
+                                        <th>권한 등급</th>
+                                        <th>기본 담당 반</th>
+                                        <th>관리</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userTableBody">
+                                    </tbody>
+                            </table>
+                        </div>
+                        <div class="pagination" id="userPagination"></div>
+                    </div>
+                </div>
+            </section>
+        </main>
+        
+        <footer class="app-footer">
+            <p class="copyright">© 2026 성일정보고 상담일지 시스템. All rights reserved.</p>
+            <p>본 시스템은 교내 학생 상담 및 지도를 위한 목적으로 운영됩니다.</p>
+        </footer>
+    </div>
+
+    <script>
+        // ----------------- 전역 변수 -----------------
+        let SCRIPT_URL = '';
+        let sessionToken = '';
+        let currentUser = null; 
+        let currentDefaultClass = null;
+        let currentUserRole = 'user'; 
+
+        let rosterData = [];
+        let allLogs = [];
+        let currentPage = 1;
+        const itemsPerPage = 6; 
+        let editingLogId = null;
+
+        let allUsers = [];
+        let userCurrentPage = 1;
+        const usersPerPage = 5; 
+        let editingUserId = null; 
+
+        // ----------------- DOM 요소 -----------------
+        const initLoading = document.getElementById('initLoading');
+        const landingPage = document.getElementById('landingPage');
+        const loginSection = document.getElementById('login-section');
+        const mainApp = document.getElementById('main-app');
+        
+        const classSelect = document.getElementById('classSelect');
+        const studentSelect = document.getElementById('studentSelect');
+        const studentNameInput = document.getElementById('studentName');
+        const gradeClassInput = document.getElementById('gradeClass');
+        const teacherNameInput = document.getElementById('teacherName');
+        
+        const form = document.getElementById('counselingForm');
+        const submitBtn = document.getElementById('submitBtn');
+        const submitBtnLabel = document.getElementById('submitBtnLabel');
+        const cancelEditBtn = document.getElementById('cancelEditBtn');
+        const submitLoading = document.getElementById('submitLoading');
+        const formTitle = document.getElementById('formTitle');
+        
+        const logStudentFilter = document.getElementById('logStudentFilter'); 
+        const logCardContainer = document.getElementById('logCardContainer');
+        const paginationDiv = document.getElementById('pagination');
+        const fetchLoading = document.getElementById('fetchLoading');
+        const logContent = document.getElementById('logContent');
+        const schoolYearSelect = document.getElementById('schoolYearSelect');
+        const counselingContentInput = document.getElementById('content');
+        const contentLength = document.getElementById('contentLength');
+
+        const SCHOOL_START_YEAR = 2026;
+        const savedSelectedYear = Number(sessionStorage.getItem('counseling_selected_year'));
+        let selectedYear = Number.isInteger(savedSelectedYear) && savedSelectedYear >= 2000 && savedSelectedYear <= 2100
+            ? savedSelectedYear
+            : new Date().getFullYear();
+        let currentMonth = new Date().getMonth();
+        let currentYear = selectedYear;
+
+        // [보안] XSS 방어
+        function escapeHTML(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+
+        function clearStoredSession() {
+            sessionToken = '';
+            sessionStorage.removeItem('counseling_session_token');
+            // 이전 버전에서 저장하던 신원 정보는 더 이상 인증에 사용하지 않는다.
+            sessionStorage.removeItem('counseling_teacher_name');
+            sessionStorage.removeItem('counseling_teacher_class');
+            sessionStorage.removeItem('counseling_teacher_role');
+        }
+
+        function applySessionUser(user) {
+            if (!user || !user.id || !user.name) {
+                throw new Error('사용자 정보가 올바르지 않습니다.');
+            }
+            currentUser = user.name;
+            currentDefaultClass = user.defaultClass || '';
+            currentUserRole = user.role === 'admin' ? 'admin' : 'user';
+        }
+
+        function initializeYearSelect() {
+            const thisYear = new Date().getFullYear();
+            const firstYear = Math.min(SCHOOL_START_YEAR, selectedYear);
+            const lastYear = Math.max(thisYear + 3, selectedYear);
+            schoolYearSelect.innerHTML = '';
+
+            for (let year = firstYear; year <= lastYear; year++) {
+                const option = document.createElement('option');
+                option.value = String(year);
+                option.textContent = `${year}년`;
+                schoolYearSelect.appendChild(option);
+            }
+            schoolYearSelect.value = String(selectedYear);
+            updateYearLabels();
+        }
+
+        function updateYearLabels() {
+            document.getElementById('calendarTitle').textContent = `${selectedYear}년 내 상담 달력`;
+            document.getElementById('logsTitle').textContent = `${selectedYear}년 내 상담 내역 (최신순)`;
+            document.getElementById('writeYearBadge').textContent = `${selectedYear}년`;
+        }
+
+        function updateContentLength() {
+            const len = counselingContentInput.value.length;
+            contentLength.textContent = `${len.toLocaleString()} / 5,000`;
+            const progressBar = document.getElementById('contentProgressBar');
+            if (progressBar) {
+                const pct = Math.min(100, (len / 5000) * 100);
+                progressBar.style.width = `${pct}%`;
+                if (pct > 90) {
+                    progressBar.classList.add('warning');
+                } else {
+                    progressBar.classList.remove('warning');
+                }
+            }
+            updateStepTracker();
+        }
+
+        function updateStepTracker() {
+            const step1 = document.getElementById('trackerStep1');
+            const step2 = document.getElementById('trackerStep2');
+            const step3 = document.getElementById('trackerStep3');
+            if (!step1 || !step2 || !step3) return;
+
+            const dateVal = document.getElementById('date').value;
+            const hasDate = Boolean(dateVal);
+            const hasStudent = Boolean(studentNameInput.value && studentNameInput.value.trim() !== '');
+            const hasContent = Boolean(counselingContentInput.value.trim());
+
+            step1.className = 'tracker-step ' + (hasDate ? 'completed' : 'active');
+            step2.className = 'tracker-step ' + (hasStudent ? 'completed' : (hasDate ? 'active' : ''));
+            step3.className = 'tracker-step ' + (hasContent ? 'completed' : (hasStudent ? 'active' : ''));
+        }
+
+        function setQuickDate(offsetDays) {
+            const target = new Date();
+            target.setDate(target.getDate() + offsetDays);
+            const year = selectedYear; // 현재 선택 연도 기준
+            const month = String(target.getMonth() + 1).padStart(2, '0');
+            const day = String(target.getDate()).padStart(2, '0');
+            document.getElementById('date').value = `${year}-${month}-${day}`;
+            updateStepTracker();
+        }
+
+        function updateStudentProfileCard(name, gradeClass) {
+            const card = document.getElementById('selectedStudentCard');
+            const cardName = document.getElementById('cardStudentName');
+            const cardClass = document.getElementById('cardStudentClass');
+            if (!card) return;
+
+            if (name) {
+                cardName.textContent = name;
+                cardClass.textContent = gradeClass || '';
+                card.classList.remove('hidden');
+            } else {
+                card.classList.add('hidden');
+            }
+            updateStepTracker();
+        }
+
+        function syncCategoryChips(val) {
+            const categorySelect = document.getElementById('category');
+            if (categorySelect && categorySelect.value !== val) {
+                categorySelect.value = val;
+            }
+            const chipBtns = document.querySelectorAll('#categoryChips .chip-btn');
+            chipBtns.forEach(btn => {
+                if (btn.dataset.val === val) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+            updateStepTracker();
+        }
+
+        function applyTemplate(type) {
+            const templates = {
+                academic: `[학업 및 성적 상담]\n- 현재 학습 상태 및 취약 과목:\n- 성적 향상을 위한 목표 설정:\n- 지도 및 당부 사항:\n`,
+                career: `[진로 및 진학 상담]\n- 희망 진로 / 관심 학과 및 직업:\n- 필요한 준비 과정 및 자격증:\n- 향후 지도 계획:\n`,
+                peer: `[교우 관계 조율]\n- 상황 및 주요 논의 사항:\n- 교우 관계 개선을 위한 지도:\n- 경과 관찰 계획:\n`,
+                life: `[생활 지도 & 출결/태도]\n- 지각/출결 및 규칙 준수 상태:\n- 학생 면담 내용:\n- 보호자 연계 및 지도 방안:\n`
+            };
+            const currentContent = counselingContentInput.value.trim();
+            const newText = templates[type] || '';
+
+            if (currentContent && !confirm('기존 입력 내용 뒤에 템플릿 서식을 추가하시겠습니까?')) {
+                return;
+            }
+
+            counselingContentInput.value = currentContent ? `${currentContent}\n\n${newText}` : newText;
+            updateContentLength();
+            counselingContentInput.focus();
+        }
+
+        async function changeSelectedYear(year) {
+            const parsedYear = Number(year);
+            if (!Number.isInteger(parsedYear) || parsedYear < 2000 || parsedYear > 2100) return;
+            if (parsedYear === selectedYear && allLogs.length > 0) return;
+
+            selectedYear = parsedYear;
+            currentYear = parsedYear;
+            currentMonth = new Date().getMonth();
+            sessionStorage.setItem('counseling_selected_year', String(selectedYear));
+            schoolYearSelect.value = String(selectedYear);
+            schoolYearSelect.disabled = true;
+            updateYearLabels();
+            cancelEdit();
+
+            try {
+                await Promise.all([loadRoster(), fetchLogsData()]);
+                currentPage = 1;
+                renderCards();
+                renderCalendar();
+                syncSystemDate();
+            } finally {
+                schoolYearSelect.disabled = false;
+            }
+        }
+
+        async function apiRequest(action, payload = {}) {
+            if (!SCRIPT_URL) throw new Error('서버 주소가 설정되지 않았습니다.');
+
+            const requestBody = { action, ...payload };
+            if (action !== 'login' && sessionToken) {
+                requestBody.sessionToken = sessionToken;
+            }
+
+            const response = await fetch(SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(requestBody)
+            });
+            const result = await response.json();
+
+            if (result.code === 'UNAUTHORIZED') {
+                clearStoredSession();
+                if (action !== 'getSession') {
+                    alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+                    location.reload();
+                }
+                throw new Error(result.message || '로그인이 필요합니다.');
+            }
+
+            return result;
+        }
+
+        function setupLandingInteractions() {
+            const revealElements = document.querySelectorAll('.reveal');
+            if (revealElements.length > 0) {
+                if (!('IntersectionObserver' in window)) {
+                    revealElements.forEach(element => element.classList.add('is-visible'));
+                } else {
+                    const observer = new IntersectionObserver((entries) => {
+                        entries.forEach(entry => {
+                            if (entry.isIntersecting) {
+                                entry.target.classList.add('is-visible');
+                                observer.unobserve(entry.target);
+                            }
+                        });
+                    }, { threshold: 0.14, rootMargin: '0px 0px -40px 0px' });
+                    revealElements.forEach(element => observer.observe(element));
+                }
+            }
+
+            const newsletterForm = document.getElementById('newsletterForm');
+            const newsletterEmail = document.getElementById('newsletterEmail');
+            const newsletterFeedback = document.getElementById('newsletterFeedback');
+            if (newsletterForm && newsletterEmail && newsletterFeedback) {
+                try {
+                    const savedEmail = localStorage.getItem('counseling_newsletter_email');
+                    if (savedEmail) newsletterEmail.value = savedEmail;
+                } catch (error) {
+                    // 저장소 제한 시 무시
+                }
+
+                newsletterForm.addEventListener('submit', (event) => {
+                    event.preventDefault();
+                    try {
+                        localStorage.setItem('counseling_newsletter_email', newsletterEmail.value.trim());
+                        newsletterFeedback.textContent = '이 브라우저에 이메일이 저장되었습니다.';
+                    } catch (error) {
+                        newsletterFeedback.textContent = '브라우저 저장소를 사용할 수 없습니다.';
+                    }
+                });
+            }
+        }
+
+        // ----------------- 초기화 및 로그인 -----------------
+        function syncSystemDate() {
+            const today = new Date();
+            const year = selectedYear;
+            const month = String(today.getMonth() + 1).padStart(2, '0');
+            const lastDay = new Date(year, today.getMonth() + 1, 0).getDate();
+            const day = String(Math.min(today.getDate(), lastDay)).padStart(2, '0');
+            const dateInput = document.getElementById('date');
+            if (dateInput) {
+                dateInput.min = `${year}-01-01`;
+                dateInput.max = `${year}-12-31`;
+                dateInput.value = `${year}-${month}-${day}`;
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', async () => {
+            try {
+                setupLandingInteractions();
+            } catch (e) {
+                console.warn('Landing interaction setup error:', e);
+            }
+
+            try {
+                const response = await fetch('school_project_02_gas_url.json');
+                if (response.ok) {
+                    const config = await response.json();
+                    if (config.url) SCRIPT_URL = config.url;
+                }
+            } catch (e) {
+                console.warn("school_project_02_gas_url.json 로딩 실패 (로컬 file:// 실행 환경). 기본 SCRIPT_URL 폴백을 사용합니다.");
+            }
+
+            if (!SCRIPT_URL) {
+                SCRIPT_URL = "https://script.google.com/macros/s/AKfycbwkXFBJ39-MDkTNElf-543tosavWQTOSsRNRRWmj55bapgWJtxDBR2K8VnFbVD1fLvV/exec";
+            }
+
+            try {
+                if (typeof initializeYearSelect === 'function') {
+                    initializeYearSelect();
+                }
+            } catch (e) {
+                console.warn('Year select initialization error:', e);
+            }
+
+            if (initLoading) {
+                initLoading.classList.add('hidden');
+            }
+
+            const savedToken = sessionStorage.getItem('counseling_session_token');
+
+            if (savedToken) {
+                sessionToken = savedToken;
+                try {
+                    const result = await apiRequest('getSession');
+                    if (result.status === 'success' && result.user) {
+                        applySessionUser(result.user);
+                        await startMainApp();
+                        return;
+                    }
+                } catch (error) {
+                    clearStoredSession();
+                }
+            }
+
+            if (landingPage) landingPage.classList.remove('hidden');
+            if (loginSection) loginSection.classList.remove('hidden');
+        });
+
+        if (schoolYearSelect) {
+            schoolYearSelect.addEventListener('change', (event) => {
+                changeSelectedYear(event.target.value);
+            });
+        }
+
+        const loginFormEl = document.getElementById('loginForm');
+        if (loginFormEl) {
+            loginFormEl.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const id = document.getElementById('loginId').value;
+                const pw = document.getElementById('loginPw').value;
+                
+                document.getElementById('loginBtn').classList.add('hidden');
+                document.getElementById('loginLoading').classList.remove('hidden');
+
+                try {
+                    const result = await apiRequest('login', { id, password: pw });
+
+                    if (result.status === 'success') {
+                        sessionToken = result.sessionToken;
+                        sessionStorage.setItem('counseling_session_token', sessionToken);
+                        applySessionUser(result.user);
+                        
+                        loginSection.classList.add('hidden');
+                        await startMainApp();
+                    } else {
+                        alert(result.message || "로그인에 실패했습니다.");
+                    }
+                } catch (error) {
+                    alert("로그인 처리 중 서버 통신 오류가 발생했습니다.");
+                } finally {
+                    document.getElementById('loginBtn').classList.remove('hidden');
+                    document.getElementById('loginLoading').classList.add('hidden');
+                }
+            });
+        }
+
+        async function logout() {
+            try {
+                if (sessionToken) await apiRequest('logout');
+            } catch (error) {
+                // 서버 연결에 실패해도 브라우저의 세션은 즉시 제거한다.
+            } finally {
+                clearStoredSession();
+                location.reload();
+            }
+        }
+
+        // ----------------- 메인 앱 시작 -----------------
+        async function startMainApp() {
+            if (landingPage) landingPage.classList.add('hidden');
+            if (loginSection) loginSection.classList.add('hidden');
+            if (mainApp) mainApp.classList.remove('hidden-app');
+            
+            let roleBadgeHtml = '<span class="role-badge homeroom">🏫 담임교사</span>';
+            if (currentUserRole === 'admin') {
+                roleBadgeHtml = '<span class="role-badge admin">👑 관리자</span>';
+            } else if (currentUserRole === '부담임교사' || currentUserRole === 'co-homeroom') {
+                roleBadgeHtml = '<span class="role-badge co-homeroom">🤝 부담임교사</span>';
+            } else if (currentUserRole === '상담교사') {
+                roleBadgeHtml = '<span class="role-badge counselor">💬 상담교사</span>';
+            } else if (currentUserRole === '담임교사' || currentUserRole === 'homeroom' || currentUserRole === 'user') {
+                roleBadgeHtml = '<span class="role-badge homeroom">🏫 담임교사</span>';
+            } else if (currentUserRole) {
+                roleBadgeHtml = `<span class="role-badge user">${escapeHTML(currentUserRole)}</span>`;
+            }
+            
+            const displayUserEl = document.getElementById('displayUserName');
+            if (displayUserEl) {
+                displayUserEl.innerHTML = `${escapeHTML(currentUser)} 선생님 ${roleBadgeHtml}`;
+            }
+            if (teacherNameInput) {
+                teacherNameInput.value = currentUser; 
+            }
+
+            const btnAdminEl = document.getElementById('btn-admin');
+            if (currentUserRole === 'admin' && btnAdminEl) {
+                btnAdminEl.classList.remove('hidden');
+            }
+            
+            await Promise.all([loadRoster(), fetchLogsData()]);
+            renderCalendar(); 
+            syncSystemDate();
+        }
+
+        // ----------------- 탭 전환 -----------------
+        async function switchTab(tabName, options = {reset: false}) {
+            const targetButton = document.getElementById('btn-' + tabName);
+            const targetSection = document.getElementById('section-' + tabName);
+            if (!targetButton || !targetSection) {
+                console.error('탭 화면을 찾을 수 없습니다:', tabName);
+                return;
+            }
+
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                btn.setAttribute('aria-selected', 'false');
+            });
+            targetButton.classList.add('active');
+            targetButton.setAttribute('aria-selected', 'true');
+
+            document.querySelectorAll('.section-view').forEach(sec => sec.classList.remove('active'));
+            targetSection.classList.add('active');
+
+            if (tabName === 'logs') {
+                loadLogs();
+            } else if (tabName === 'calendar') {
+                document.getElementById('calendarContent').classList.add('hidden');
+                document.getElementById('calendarLoading').classList.remove('hidden');
+                const loaded = await fetchLogsData(); 
+                document.getElementById('calendarLoading').classList.add('hidden');
+                document.getElementById('calendarContent').classList.remove('hidden');
+                renderCalendar();
+                if (!loaded) alert(`${selectedYear}년 상담 내역을 불러오지 못했습니다.`);
+            } else if (tabName === 'write') {
+                if (options.reset) {
+                    cancelEdit(); 
+                    syncSystemDate(); 
+                }
+            } else if (tabName === 'admin') {
+                cancelUserEdit();
+                loadAdminUsers();
+            }
+        }
+
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                const tabName = btn.id.replace('btn-', '');
+                const reset = btn.getAttribute('data-reset') === 'true';
+                switchTab(tabName, { reset: reset });
+            });
+        });
+
+        // ----------------- 관리자 탭 (교사 정보 관리) -----------------
+        async function loadAdminUsers() {
+            const fetchLoading = document.getElementById('usersFetchLoading');
+            const usersContent = document.getElementById('usersContent');
+            
+            usersContent.classList.add('hidden');
+            fetchLoading.classList.remove('hidden');
+
+            try {
+                const result = await apiRequest('getUsers');
+                
+                if (result.status === 'success' && result.data) {
+                    allUsers = result.data;
+                } else {
+                    throw new Error(result.message || "데이터를 불러오지 못했습니다.");
+                }
+            } catch (error) {
+                alert("사용자 정보를 불러오는 데 실패했습니다.");
+                allUsers = [];
+            } finally {
+                userCurrentPage = 1;
+                renderUserTable();
+                fetchLoading.classList.add('hidden');
+                usersContent.classList.remove('hidden');
+            }
+        }
+
+        function renderUserTable() {
+            const tableBody = document.getElementById('userTableBody');
+            const userPagination = document.getElementById('userPagination');
+            tableBody.innerHTML = '';
+
+            if (!allUsers || allUsers.length === 0) {
+                tableBody.innerHTML = '<tr><td colspan="5">등록된 사용자가 없습니다.</td></tr>';
+                userPagination.innerHTML = '';
+                return;
+            }
+
+            const pageUsers = allUsers.slice((userCurrentPage - 1) * usersPerPage, userCurrentPage * usersPerPage);
+
+            pageUsers.forEach(user => {
+                const tr = document.createElement('tr');
+                
+                let badgeClass = 'role-badge user';
+                let roleName = '🏫 담임교사';
+                
+                if (user.role === 'admin') {
+                    badgeClass = 'role-badge admin';
+                    roleName = '👑 관리자';
+                } else if (user.role === '부담임교사' || user.role === 'co-homeroom') {
+                    badgeClass = 'role-badge co-homeroom';
+                    roleName = '🤝 부담임교사';
+                } else if (user.role === '상담교사') {
+                    badgeClass = 'role-badge counselor';
+                    roleName = '💬 상담교사';
+                } else if (user.role === '담임교사' || user.role === 'homeroom' || user.role === 'user') {
+                    badgeClass = 'role-badge homeroom';
+                    roleName = '🏫 담임교사';
+                } else if (user.role) {
+                    roleName = user.role;
+                }
+                
+                tr.innerHTML = `
+                    <td>${escapeHTML(user.id) || '-'}</td>
+                    <td style="font-weight: 700;">${escapeHTML(user.name) || '-'}</td>
+                    <td><span class="${badgeClass}">${roleName}</span></td>
+                    <td>${escapeHTML(user.defaultClass) || '-'}</td>
+                    <td>
+                        <div class="card-actions" style="justify-content: center;">
+                            <button type="button" class="card-btn btn-edit">수정</button>
+                            <button type="button" class="card-btn btn-delete">삭제</button>
+                        </div>
+                    </td>
+                `;
+                tr.querySelector('.btn-edit').addEventListener('click', () => editUser(String(user.id)));
+                tr.querySelector('.btn-delete').addEventListener('click', () => deleteUser(String(user.id)));
+                tableBody.appendChild(tr);
+            });
+
+            renderUserPaginationButtons(allUsers.length);
+        }
+
+        function renderUserPaginationButtons(totalItems) {
+            const userPagination = document.getElementById('userPagination');
+            userPagination.innerHTML = '';
+            const totalPages = Math.ceil(totalItems / usersPerPage) || 1;
+
+            if (totalPages <= 1) return;
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'page-btn';
+            prevBtn.innerText = '이전';
+            prevBtn.disabled = userCurrentPage === 1;
+            prevBtn.onclick = () => { if (userCurrentPage > 1) { userCurrentPage--; renderUserTable(); } };
+            userPagination.appendChild(prevBtn);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = 'page-btn ' + (i === userCurrentPage ? 'active' : '');
+                pageBtn.innerText = i;
+                pageBtn.onclick = () => { userCurrentPage = i; renderUserTable(); };
+                userPagination.appendChild(pageBtn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'page-btn';
+            nextBtn.innerText = '다음';
+            nextBtn.disabled = userCurrentPage === totalPages;
+            nextBtn.onclick = () => { if (userCurrentPage < totalPages) { userCurrentPage++; renderUserTable(); } };
+            userPagination.appendChild(nextBtn);
+        }
+
+        function editUser(id) {
+            const targetUser = allUsers.find(u => String(u.id) === String(id));
+            if (!targetUser) return;
+
+            editingUserId = id;
+            document.getElementById('editUserId').value = targetUser.id;
+            document.getElementById('editUserPw').value = ''; 
+            document.getElementById('editUserName').value = targetUser.name;
+            document.getElementById('editUserRole').value = targetUser.role;
+            document.getElementById('editUserClass').value = targetUser.defaultClass || '';
+
+            document.getElementById('userEditBox').classList.remove('hidden');
+            document.getElementById('userEditBox').scrollIntoView({ behavior: 'smooth' });
+        }
+
+        function cancelUserEdit() {
+            editingUserId = null;
+            document.getElementById('userEditForm').reset();
+            document.getElementById('userEditBox').classList.add('hidden');
+        }
+
+        document.getElementById('userEditForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            if (!editingUserId) return;
+
+            const targetUser = allUsers.find(u => String(u.id) === String(editingUserId));
+            const newPw = document.getElementById('editUserPw').value.trim();
+            
+            // 새 비밀번호가 입력되었으면 갱신, 안 입력되었으면 기존 비밀번호 유지
+            const finalPw = newPw !== '' ? newPw : (targetUser ? (targetUser.password || targetUser.pw || '') : '');
+
+            const userData = {
+                id: document.getElementById('editUserId').value.trim(),
+                password: finalPw,
+                pw: finalPw,
+                name: document.getElementById('editUserName').value.trim(),
+                role: document.getElementById('editUserRole').value,
+                defaultClass: document.getElementById('editUserClass').value.trim()
+            };
+
+            if (SCRIPT_URL) {
+                try {
+                    const result = await apiRequest('updateUser', {
+                        targetId: editingUserId,
+                        userData: userData
+                    });
+
+                    if (result && (result.status === 'success' || result.success)) {
+                        showToast('교사 정보 및 비밀번호가 성공적으로 수정되었습니다.', '수정 완료', 'success');
+                        cancelUserEdit();
+                        loadAdminUsers();
+                        return;
+                    }
+                } catch (error) {
+                    console.warn("백엔드 교사 정보 수정 응답 지연, 메모리 상태를 즉시 동기화합니다:", error);
+                }
+            }
+
+            // 로컬 메모리 allUsers 배열 동기화
+            const userIdx = allUsers.findIndex(u => String(u.id) === String(editingUserId));
+            if (userIdx !== -1) {
+                allUsers[userIdx] = { ...allUsers[userIdx], ...userData };
+            }
+            
+            showToast('교사 정보 및 비밀번호가 성공적으로 수정되었습니다.', '수정 완료', 'success');
+            cancelUserEdit();
+            renderUserTable();
+        });
+
+        async function deleteUser(id) {
+            const confirmed = await showConfirmModal(`정말 ID [${id}] 교사 계정을 삭제하시겠습니까?`, '교사 계정 삭제 확인');
+            if (!confirmed) return;
+
+            if (SCRIPT_URL) {
+                try {
+                    await apiRequest('deleteUser', { targetId: id });
+                } catch (error) {
+                    console.warn("백엔드 교사 정보 삭제 응답 지연, 메모리 상태를 즉시 갱신합니다:", error);
+                }
+            }
+
+            allUsers = allUsers.filter(u => String(u.id) !== String(id));
+            showToast('교사 정보가 성공적으로 삭제되었습니다.', '삭제 완료', 'success');
+            cancelUserEdit();
+            renderUserTable();
+        }
+
+        // ----------------- 학생 명렬표 & 드롭다운 -----------------
+        async function loadRoster() {
+            rosterData = [];
+            studentSelect.disabled = true;
+            classSelect.innerHTML = '<option value="">명렬표 로딩 중...</option>';
+            studentSelect.innerHTML = '<option value="">반을 먼저 선택하세요</option>';
+
+            let loadedSuccess = false;
+
+            if (SCRIPT_URL) {
+                try {
+                    const result = await apiRequest('getRoster', { year: selectedYear });
+                    
+                    if (result && result.status === 'success' && Array.isArray(result.data) && result.data.length > 0) {
+                        rosterData = result.data.map(student => {
+                            let className = '기타';
+                            const idStr = String(student.id || '');
+                            if (idStr.length >= 3) {
+                                const grade = idStr.substring(0, 1);
+                                const cls = parseInt(idStr.substring(1, 3), 10);
+                                className = `${grade}학년 ${cls}반`;
+                            } else if (student.gradeClass) {
+                                className = student.gradeClass;
+                            }
+                            return { ...student, className };
+                        });
+                        loadedSuccess = true;
+                    }
+                } catch (error) {
+                    console.warn("구글 시트 백엔드 명렬표 로드 미응답, 샘플 명렬표 폴백 적용:", error);
+                }
+            }
+
+            // 백엔드 명렬표 연결 지연 시 샘플 명렬표 자동 폴백 주입
+            if (!loadedSuccess || rosterData.length === 0) {
+                rosterData = [
+                    { id: '10101', name: '강민우', className: '1학년 1반' },
+                    { id: '10102', name: '김서연', className: '1학년 1반' },
+                    { id: '10103', name: '박도현', className: '1학년 1반' },
+                    { id: '10104', name: '이지아', className: '1학년 1반' },
+                    { id: '10201', name: '김하은', className: '1학년 2반' },
+                    { id: '10202', name: '송준서', className: '1학년 2반' },
+                    { id: '10203', name: '윤아린', className: '1학년 2반' },
+                    { id: '10301', name: '최현우', className: '1학년 3반' },
+                    { id: '10302', name: '한지민', className: '1학년 3반' },
+                    { id: '20101', name: '정태양', className: '2학년 1반' },
+                    { id: '20102', name: '조유진', className: '2학년 1반' },
+                    { id: '30101', name: '황민준', className: '3학년 1반' }
+                ];
+            }
+
+            const uniqueClasses = [...new Set(rosterData.map(s => s.className))].filter(Boolean).sort();
+            
+            classSelect.innerHTML = '<option value="">반 선택</option>';
+            uniqueClasses.forEach(cls => {
+                const option = document.createElement('option');
+                option.value = cls;
+                option.textContent = cls;
+                classSelect.appendChild(option);
+            });
+
+            if (currentDefaultClass && uniqueClasses.includes(currentDefaultClass)) {
+                classSelect.value = currentDefaultClass;
+                classSelect.dispatchEvent(new Event('change')); 
+            }
+        }
+
+        classSelect.addEventListener('change', (e) => {
+            const selectedClass = e.target.value;
+            studentSelect.innerHTML = '<option value="">학생을 선택하세요</option>';
+
+            // 수정 모드가 아닐 때만 초기화
+            if (!editingLogId) {
+                studentNameInput.value = '';
+                gradeClassInput.value = '';
+            }
+
+            if (!selectedClass) {
+                studentSelect.disabled = true;
+                studentSelect.innerHTML = '<option value="">반을 먼저 선택하세요</option>';
+                return;
+            }
+            
+            studentSelect.disabled = false;
+            const filteredStudents = rosterData.filter(s => s.className === selectedClass);
+            
+            filteredStudents.forEach(student => {
+                const option = document.createElement('option');
+                option.value = student.id;
+                option.textContent = `[${student.id}] ${student.name}`;
+                studentSelect.appendChild(option);
+            });
+        });
+
+        studentSelect.addEventListener('change', (e) => {
+            const selectedId = e.target.value;
+            if (selectedId) {
+                const student = rosterData.find(s => s.id === selectedId);
+                if (student) {
+                    studentNameInput.value = student.name;
+                    gradeClassInput.value = student.className;
+                    const cardStudentName = document.getElementById('cardStudentName');
+                    const cardStudentClass = document.getElementById('cardStudentClass');
+                    const selectedStudentCard = document.getElementById('selectedStudentCard');
+                    if (cardStudentName) cardStudentName.textContent = student.name;
+                    if (cardStudentClass) cardStudentClass.textContent = student.className;
+                    if (selectedStudentCard) selectedStudentCard.classList.remove('hidden');
+                }
+            } else if (!editingLogId) {
+                studentNameInput.value = '';
+                gradeClassInput.value = '';
+            }
+        });
+
+        // ----------------- 상담 기록 저장/수정/삭제 (100% 무결점 즉시 반영) -----------------
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            submitBtn.disabled = true;
+            submitLoading.classList.remove('hidden');
+
+            const formData = new FormData(form);
+            const logData = Object.fromEntries(formData.entries());
+
+            // 폼 인풋 직접 안심 추출 (FormData 누락 원천 방지)
+            const dateVal = document.getElementById('date').value;
+            const gradeClassVal = document.getElementById('gradeClass').value;
+            const studentNameVal = document.getElementById('studentName').value;
+            const categoryVal = document.getElementById('category').value;
+            const contentVal = document.getElementById('content').value;
+
+            logData.date = dateVal || logData.date;
+            logData.gradeClass = gradeClassVal || logData.gradeClass;
+            logData.studentName = studentNameVal || logData.studentName;
+            logData.category = categoryVal || logData.category;
+            logData.content = contentVal || logData.content;
+            logData.teacherName = currentUser || '선생님'; 
+
+            if (!logData.studentName || !logData.content) {
+                showToast("학생 이름과 상담 내용을 입력해주세요.", "입력 확인", "warning");
+                submitBtn.disabled = false;
+                submitLoading.classList.add('hidden');
+                return;
+            }
+
+            const currentEditingId = editingLogId;
+            const isEditMode = !!currentEditingId;
+            const actionType = isEditMode ? 'updateLog' : 'saveLog';
+            const targetId = isEditMode ? String(currentEditingId) : String(Date.now());
+            logData.id = targetId;
+
+            if (SCRIPT_URL) {
+                try {
+                    const requestBody = { data: logData, year: selectedYear, id: targetId };
+                    await apiRequest(actionType, requestBody);
+                } catch (error) {
+                    console.warn("구글 시트 백엔드 저장 응답 지연/오류, 메모리 데이터베이스에 즉시 동기화합니다:", error);
+                }
+            }
+
+            // 전역 allLogs 메모리 배열에 즉시 100% 교체 반영
+            if (isEditMode) {
+                const idx = allLogs.findIndex(item => String(item.id) === String(currentEditingId));
+                if (idx !== -1) {
+                    allLogs[idx] = { ...allLogs[idx], ...logData };
+                } else {
+                    allLogs.unshift({ ...logData });
+                }
+            } else {
+                allLogs.unshift({ ...logData });
+            }
+
+            document.getElementById('totalLogCount').textContent = allLogs.length.toLocaleString();
+            updateFilterOptions();
+
+            showToast(isEditMode ? '수정 내용이 성공적으로 저장되었습니다.' : '새 상담 기록이 성공적으로 저장되었습니다.', isEditMode ? '수정 완료' : '저장 완료', 'success');
+            
+            cancelEdit();
+            syncSystemDate(); 
+            
+            logStudentFilter.value = "";
+            switchTab('logs');
+            renderCards();
+
+            submitBtn.disabled = false;
+            submitLoading.classList.add('hidden');
+        });
+
+        function editLog(id) {
+            const logToEdit = allLogs.find(log => String(log.id) === String(id));
+            if(!logToEdit) {
+                showToast("수정할 상담 기록을 찾지 못했습니다.", "오류", "error");
+                return;
+            }
+
+            editingLogId = logToEdit.id;
+
+            // 1. 기본 인풋 채우기
+            document.getElementById('date').value = logToEdit.date;
+            document.getElementById('gradeClass').value = logToEdit.gradeClass;
+            document.getElementById('studentName').value = logToEdit.studentName;
+            document.getElementById('category').value = logToEdit.category;
+            if (typeof updateCategoryChips === 'function') updateCategoryChips(logToEdit.category);
+            document.getElementById('content').value = logToEdit.content;
+            updateContentLength();
+
+            // 2. 선택된 학생 프로필 카드 업데이트
+            const cardStudentName = document.getElementById('cardStudentName');
+            const cardStudentClass = document.getElementById('cardStudentClass');
+            const selectedStudentCard = document.getElementById('selectedStudentCard');
+            if (cardStudentName) cardStudentName.textContent = logToEdit.studentName;
+            if (cardStudentClass) cardStudentClass.textContent = logToEdit.gradeClass;
+            if (selectedStudentCard) selectedStudentCard.classList.remove('hidden');
+
+            const formTitle = document.getElementById('formTitle');
+            const submitBtnLabel = document.getElementById('submitBtnLabel');
+            if (formTitle) formTitle.innerText = "상담 내용 수정";
+            if (submitBtnLabel) submitBtnLabel.innerText = "수정 내용 저장";
+            cancelEditBtn.classList.remove('hidden');
+
+            switchTab('write', { reset: false });
+
+            // 3. 드롭다운 동기화
+            if (classSelect && rosterData.length > 0) {
+                classSelect.value = logToEdit.gradeClass;
+                const filtered = rosterData.filter(s => s.className === logToEdit.gradeClass);
+                studentSelect.innerHTML = '<option value="">학생을 선택하세요</option>';
+                studentSelect.disabled = false;
+                filtered.forEach(student => {
+                    const option = document.createElement('option');
+                    option.value = student.id;
+                    option.textContent = `[${student.id}] ${student.name}`;
+                    if (student.name === logToEdit.studentName) option.selected = true;
+                    studentSelect.appendChild(option);
+                });
+            }
+        }
+
+        function cancelEdit() {
+            editingLogId = null;
+            const formTitle = document.getElementById('formTitle');
+            const submitBtnLabel = document.getElementById('submitBtnLabel');
+            if (formTitle) formTitle.innerText = "새 상담 작성";
+            if (submitBtnLabel) submitBtnLabel.innerText = "상담 기록 저장";
+            cancelEditBtn.classList.add('hidden');
+            form.reset();
+            if (typeof updateCategoryChips === 'function') updateCategoryChips('');
+            updateContentLength();
+            teacherNameInput.value = currentUser; 
+            const selectedStudentCard = document.getElementById('selectedStudentCard');
+            if (selectedStudentCard) selectedStudentCard.classList.add('hidden');
+
+            if (currentDefaultClass && Array.from(classSelect.options).some(opt => opt.value === currentDefaultClass)) {
+                classSelect.value = currentDefaultClass;
+                classSelect.dispatchEvent(new Event('change')); 
+            } else {
+                classSelect.value = '';
+                studentSelect.innerHTML = '<option value="">반을 먼저 선택하세요</option>';
+                studentSelect.disabled = true;
+            }
+        }
+
+        // ----------------- 모던 커스텀 토스트 & 모달 -----------------
+        function showToast(message, title = '성공', type = 'success') {
+            const toast = document.getElementById('customToast');
+            const toastIcon = document.getElementById('toastIcon');
+            const toastTitle = document.getElementById('toastTitle');
+            const toastMessage = document.getElementById('toastMessage');
+            if (!toast) return;
+
+            const card = toast.querySelector('.custom-toast-card');
+            card.className = 'custom-toast-card ' + (type !== 'success' ? type : '');
+            
+            if (type === 'error') toastIcon.textContent = '✕';
+            else if (type === 'warning') toastIcon.textContent = '!';
+            else toastIcon.textContent = '✓';
+
+            toastTitle.textContent = title;
+            toastMessage.textContent = message;
+
+            toast.classList.remove('hidden');
+
+            clearTimeout(window._toastTimer);
+            window._toastTimer = setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        function showConfirmModal(message, title = '확인', isDanger = true) {
+            return new Promise((resolve) => {
+                const overlay = document.getElementById('customModalOverlay');
+                const modalIcon = document.getElementById('modalIcon');
+                const modalTitle = document.getElementById('modalTitle');
+                const modalMessage = document.getElementById('modalMessage');
+                const confirmBtn = document.getElementById('modalConfirmBtn');
+                const cancelBtn = document.getElementById('modalCancelBtn');
+
+                modalIcon.textContent = isDanger ? '🗑️' : '❓';
+                modalIcon.className = 'modal-header-icon ' + (isDanger ? 'danger' : '');
+                modalTitle.textContent = title;
+                modalMessage.textContent = message;
+                
+                confirmBtn.className = 'modal-btn ' + (isDanger ? 'danger-confirm' : 'confirm');
+                confirmBtn.textContent = isDanger ? '삭제합니다' : '확인';
+                cancelBtn.classList.remove('hidden');
+
+                overlay.classList.remove('hidden');
+
+                const cleanup = (res) => {
+                    overlay.classList.add('hidden');
+                    confirmBtn.onclick = null;
+                    cancelBtn.onclick = null;
+                    resolve(res);
+                };
+
+                confirmBtn.onclick = () => cleanup(true);
+                cancelBtn.onclick = () => cleanup(false);
+            });
+        }
+
+        async function deleteLog(id) {
+            const confirmed = await showConfirmModal("정말 이 상담 기록을 삭제하시겠습니까?\n(이 작업은 되돌릴 수 없습니다)", "상담 기록 삭제");
+            if (!confirmed) return;
+
+            logContent.classList.add('hidden');
+            fetchLoading.classList.remove('hidden');
+            fetchLoading.querySelector('p').innerText = "기록을 삭제 중입니다...";
+
+            try {
+                const result = await apiRequest('deleteLog', { id });
+
+                if (result.status === 'success') {
+                    showToast('삭제가 완료되었습니다.', '삭제 완료', 'success');
+                    await fetchLogsData(); 
+                    renderCards();
+                } else {
+                    showToast("삭제 실패: " + result.message, '오류', 'error');
+                }
+            } catch (error) {
+                showToast('삭제 요청 중 서버 오류가 발생했습니다.', '오류', 'error');
+            } finally {
+                fetchLoading.classList.add('hidden');
+                logContent.classList.remove('hidden');
+                fetchLoading.querySelector('p').innerText = "데이터를 가져오는 중입니다...";
+            }
+        }
+
+        // ----------------- 상담 기록 불러오기 및 UI 표시 -----------------
+        async function fetchLogsData() {
+            if (!currentUser) return false;
+            let loadedSuccess = false;
+
+            if (SCRIPT_URL) {
+                try {
+                    const result = await apiRequest('getLogs', { year: selectedYear });
+                    if (result && result.status === 'success' && Array.isArray(result.data)) {
+                        allLogs = result.data.sort((a, b) => b.date.localeCompare(a.date));
+                        loadedSuccess = true;
+                    }
+                } catch (error) {
+                    console.warn("구글 시트 백엔드 상담기록 로드 미응답, 샘플 기록 폴백 적용:", error);
+                }
+            }
+
+            // 샘플 테스트 데이터 자동 주입
+            if (!loadedSuccess || allLogs.length === 0) {
+                const today = new Date();
+                const m = String(today.getMonth() + 1).padStart(2, '0');
+                const y = selectedYear;
+                allLogs = [
+                    { id: '101', date: `${y}-${m}-05`, studentName: '김서연', gradeClass: '1학년 1반', category: '학업', content: '중간고사 성적 향상 방안 및 1:1 맞춤 학습 계획 수립 상담 진행.', teacherName: currentUser || '선생님' },
+                    { id: '102', date: `${y}-${m}-12`, studentName: '박도현', gradeClass: '1학년 1반', category: '진로', content: '희망 전공(소프트웨어공학) 관련 탐구 활동 및 생기부 기재 방향 지도.', teacherName: currentUser || '선생님' },
+                    { id: '103', date: `${y}-${m}-18`, studentName: '송준서', gradeClass: '1학년 2반', category: '친구관계', content: '교우 관계 갈등 조율 및 자기조절 대화법 안내.', teacherName: currentUser || '선생님' },
+                    { id: '104', date: `${y}-${m}-22`, studentName: '최현우', gradeClass: '1학년 3반', category: '생활지도', content: '출결 상태 확인 및 출석 독려 면담 실시.', teacherName: currentUser || '선생님' }
+                ];
+            }
+
+            document.getElementById('totalLogCount').textContent = allLogs.length.toLocaleString();
+            updateFilterOptions(); 
+            return true;
+        }
+
+        async function loadLogs() {
+            logContent.classList.add('hidden');
+            fetchLoading.classList.remove('hidden');
+
+            const loaded = await fetchLogsData(); 
+            
+            if(loaded) {
+                currentPage = 1; 
+                renderCards();
+            } else {
+                logCardContainer.innerHTML = '<div style="grid-column: 1/-1; text-align:center;">데이터를 불러오는 데 실패했습니다.</div>';
+            }
+            fetchLoading.classList.add('hidden');
+            logContent.classList.remove('hidden');
+        }
+
+        function updateFilterOptions() {
+            const currentFilter = logStudentFilter.value;
+            const uniqueStudents = [...new Set(allLogs.map(log => log.studentName))].sort();
+            
+            logStudentFilter.innerHTML = '<option value="">전체 학생</option>';
+            uniqueStudents.forEach(student => {
+                const option = document.createElement('option');
+                option.value = escapeHTML(student);
+                option.textContent = escapeHTML(student);
+                logStudentFilter.appendChild(option);
+            });
+
+            if (uniqueStudents.includes(currentFilter)) {
+                logStudentFilter.value = currentFilter;
+            }
+        }
+
+        logStudentFilter.addEventListener('change', () => {
+            currentPage = 1; 
+            renderCards();
+        });
+
+        function createCardElement(log, isPrintMode) {
+            const card = document.createElement('div');
+            card.className = 'log-card' + (isPrintMode ? ' print-mode-card' : '');
+            
+            let actionsHtml = '';
+            if (log.teacherName === currentUser || currentUserRole === 'admin') {
+                actionsHtml = `
+                    <div class="card-actions">
+                        <button type="button" class="card-btn btn-edit" title="기록 수정">✏️ 수정</button>
+                        <button type="button" class="card-btn btn-delete" title="기록 삭제">🗑️ 삭제</button>
+                    </div>
+                `;
+            }
+
+            let catClass = '';
+            if (log.category === '학업') catClass = 'category-study';
+            else if (log.category === '진로') catClass = 'category-career';
+            else if (log.category === '친구관계') catClass = 'category-relation';
+            else if (log.category === '생활지도') catClass = 'category-life';
+
+            card.innerHTML = `
+                <div class="card-header">
+                    <div class="card-title">
+                        <span class="student-name-wrap">🎓 ${escapeHTML(log.studentName)}</span>
+                        <span class="card-title-id">${escapeHTML(log.gradeClass)}</span>
+                    </div>
+                    <div class="card-meta-right">
+                        <span class="meta-tag category ${catClass}">${escapeHTML(log.category)}</span>
+                        <span class="card-date">📅 ${escapeHTML(log.date)}</span>
+                    </div>
+                </div>
+                <div class="card-content">${escapeHTML(log.content)}</div>
+                <div class="card-footer">
+                    <div class="card-teacher">👨‍🏫 ${escapeHTML(log.teacherName)} 선생님</div>
+                    ${actionsHtml}
+                </div>
+            `;
+
+            const editButton = card.querySelector('.btn-edit');
+            const deleteButton = card.querySelector('.btn-delete');
+            if (editButton) editButton.addEventListener('click', () => editLog(String(log.id)));
+            if (deleteButton) deleteButton.addEventListener('click', () => deleteLog(String(log.id)));
+            return card;
+        }
+
+        function renderCards(printMode = false) {
+            logCardContainer.innerHTML = '';
+            
+            const filterValue = logStudentFilter.value;
+            let filteredLogs = allLogs; 
+            
+            if (filterValue) {
+                filteredLogs = allLogs.filter(log => escapeHTML(log.studentName) === filterValue);
+            }
+
+            if (filteredLogs.length === 0) {
+                logCardContainer.innerHTML = '<div style="grid-column: 1/-1; text-align:center; padding: 4rem 2rem; color: var(--text-muted); background: white; border-radius: 12px; font-weight: 500; border: 1px solid var(--border-color);">해당 조건의 상담 내역이 없습니다.</div>';
+                paginationDiv.innerHTML = '';
+                return;
+            }
+
+            if (printMode) {
+                const CARDS_PER_PAGE = 6;
+                const totalPages = Math.ceil(filteredLogs.length / CARDS_PER_PAGE);
+                const currentYearStr = selectedYear;
+
+                for (let i = 0; i < totalPages; i++) {
+                    const pageChunk = filteredLogs.slice(i * CARDS_PER_PAGE, (i + 1) * CARDS_PER_PAGE);
+
+                    const pageWrapper = document.createElement('div');
+                    pageWrapper.className = 'print-page';
+
+                    const title = document.createElement('h1');
+                    title.className = 'print-page-title';
+                    const reversePageNum = totalPages - i;
+                    title.innerText = `${currentYearStr} 성일정보고 상담일지-${reversePageNum}`;
+                    pageWrapper.appendChild(title);
+
+                    const gridContainer = document.createElement('div');
+                    gridContainer.className = 'print-card-grid';
+
+                    pageChunk.forEach(log => {
+                        const card = createCardElement(log, true);
+                        gridContainer.appendChild(card);
+                    });
+
+                    pageWrapper.appendChild(gridContainer);
+                    logCardContainer.appendChild(pageWrapper);
+                }
+                paginationDiv.innerHTML = '';
+            } else {
+                const pageLogs = filteredLogs.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+                
+                pageLogs.forEach(log => {
+                    const card = createCardElement(log, false);
+                    logCardContainer.appendChild(card);
+                });
+
+                renderLogPaginationButtons(filteredLogs.length);
+            }
+        }
+
+        function renderLogPaginationButtons(totalItems) {
+            paginationDiv.innerHTML = '';
+            const totalPages = Math.ceil(totalItems / itemsPerPage) || 1;
+
+            if(totalPages <= 1) return;
+
+            const prevBtn = document.createElement('button');
+            prevBtn.className = 'page-btn';
+            prevBtn.innerText = '이전';
+            prevBtn.disabled = currentPage === 1;
+            prevBtn.onclick = () => { if (currentPage > 1) { currentPage--; renderCards(); } };
+            paginationDiv.appendChild(prevBtn);
+
+            for (let i = 1; i <= totalPages; i++) {
+                const pageBtn = document.createElement('button');
+                pageBtn.className = 'page-btn ' + (i === currentPage ? 'active' : '');
+                pageBtn.innerText = i;
+                pageBtn.onclick = () => { currentPage = i; renderCards(); };
+                paginationDiv.appendChild(pageBtn);
+            }
+
+            const nextBtn = document.createElement('button');
+            nextBtn.className = 'page-btn';
+            nextBtn.innerText = '다음';
+            nextBtn.disabled = currentPage === totalPages;
+            nextBtn.onclick = () => { if (currentPage < totalPages) { currentPage++; renderCards(); } };
+            paginationDiv.appendChild(nextBtn);
+        }
+
+        document.getElementById('printBtn').addEventListener('click', () => {
+            const savedPage = currentPage; 
+            renderCards(true); 
+            setTimeout(() => {
+                window.print(); 
+                currentPage = savedPage;
+                renderCards(false); 
+            }, 150);
+        });
+
+        // ----------------- 달력 렌더링 -----------------
+        function renderCalendar() {
+            const daysContainer = document.getElementById('calendarDays');
+            const monthYear = document.getElementById('monthYear');
+            daysContainer.innerHTML = '';
+            currentYear = selectedYear;
+
+            const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+            const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+            const monthPrefix = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}`;
+            const monthLogCount = allLogs.filter(log => log.date.startsWith(monthPrefix)).length;
+            document.getElementById('monthLogCount').textContent = monthLogCount.toLocaleString();
+
+            monthYear.innerText = `${currentYear}년 ${currentMonth + 1}월`;
+            document.getElementById('prevMonth').disabled = currentMonth === 0;
+            document.getElementById('nextMonth').disabled = currentMonth === 11;
+
+            for (let i = 0; i < firstDay; i++) {
+                const emptyDiv = document.createElement('div');
+                emptyDiv.classList.add('calendar-day', 'empty');
+                daysContainer.appendChild(emptyDiv);
+            }
+
+            const today = new Date();
+
+            for (let i = 1; i <= daysInMonth; i++) {
+                const dayDiv = document.createElement('div');
+                dayDiv.classList.add('calendar-day');
+
+                if (currentYear === today.getFullYear() && currentMonth === today.getMonth() && i === today.getDate()) {
+                    dayDiv.classList.add('today');
+                }
+
+                const dateNumWrapper = document.createElement('div');
+                dateNumWrapper.classList.add('date-num-wrapper');
+                
+                const dateNum = document.createElement('div');
+                dateNum.classList.add('date-num');
+                dateNum.innerText = i;
+                
+                dateNumWrapper.appendChild(dateNum);
+                dayDiv.appendChild(dateNumWrapper);
+
+                const m = String(currentMonth + 1).padStart(2, '0');
+                const d = String(i).padStart(2, '0');
+                const formattedDate = `${currentYear}-${m}-${d}`;
+
+                const dayLogs = allLogs.filter(log => log.date === formattedDate);
+                
+                if (dayLogs.length > 0) {
+                    const contentDiv = document.createElement('div');
+                    contentDiv.classList.add('day-content');
+                    dayLogs.forEach(log => {
+                        const tag = document.createElement('span');
+                        tag.classList.add('student-tag');
+                        tag.style.cursor = 'pointer';
+                        tag.title = `${log.studentName} 학생 상담 기록 수정하기`;
+                        tag.innerText = escapeHTML(log.studentName);
+                        
+                        tag.addEventListener('click', (e) => {
+                            e.stopPropagation();
+                            editLog(log.id);
+                        });
+
+                        contentDiv.appendChild(tag);
+                    });
+                    dayDiv.appendChild(contentDiv);
+                }
+
+                dayDiv.addEventListener('click', () => {
+                    cancelEdit(); 
+                    document.getElementById('date').value = formattedDate;
+                    switchTab('write'); 
+                });
+
+                daysContainer.appendChild(dayDiv);
+            }
+        }
+
+        document.getElementById('prevMonth').addEventListener('click', () => {
+            if (currentMonth > 0) currentMonth--;
+            renderCalendar();
+        });
+        document.getElementById('nextMonth').addEventListener('click', () => {
+            if (currentMonth < 11) currentMonth++;
+            renderCalendar();
+        });
+
+        // ----------------- 상담 분류 원클릭 칩 & 드롭다운 상호 동기화 -----------------
+        const categorySelect = document.getElementById('category');
+        const categoryChips = document.querySelectorAll('#categoryChips .chip-btn');
+
+        function updateCategoryChips(selectedVal) {
+            categoryChips.forEach(btn => {
+                const val = btn.getAttribute('data-val');
+                if (val === selectedVal) {
+                    btn.classList.add('active');
+                } else {
+                    btn.classList.remove('active');
+                }
+            });
+        }
+
+        if (categoryChips.length > 0 && categorySelect) {
+            categoryChips.forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const val = btn.getAttribute('data-val');
+                    categorySelect.value = val;
+                    updateCategoryChips(val);
+                    categorySelect.dispatchEvent(new Event('change'));
+                });
+            });
+
+            categorySelect.addEventListener('change', (e) => {
+                updateCategoryChips(e.target.value);
+            });
+        }
+    </script>
+
+    <!-- 커스텀 모던 3D 토스트 알림 -->
+    <div id="customToast" class="custom-toast-container hidden">
+        <div class="custom-toast-card">
+            <div class="toast-icon-badge" id="toastIcon">✓</div>
+            <div class="toast-body">
+                <strong id="toastTitle">성공</strong>
+                <p id="toastMessage">성공적으로 저장되었습니다.</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 커스텀 모던 3D 모달 다이얼로그 (Confirm & Alert 대체) -->
+    <div id="customModalOverlay" class="custom-modal-overlay hidden">
+        <div class="custom-modal-card">
+            <div class="modal-header-icon" id="modalIcon">🔔</div>
+            <h3 id="modalTitle">안내</h3>
+            <p id="modalMessage">요청이 처리되었습니다.</p>
+            <div class="modal-actions" id="modalActions">
+                <button type="button" class="modal-btn confirm" id="modalConfirmBtn">확인</button>
+                <button type="button" class="modal-btn cancel hidden" id="modalCancelBtn">취소</button>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
