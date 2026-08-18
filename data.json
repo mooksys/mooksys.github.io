@@ -128,6 +128,11 @@
         "title": "도제 내부평가 문제은행 v1.0",
         "url": "project26/doje_project06_testbank2_v187.html",
         "type": "primary"
+      },
+      {
+        "title": "doje Beacon System v1.1",
+        "url": "doje_project26/project06_beacon/",
+        "type": "secondary"
       }
     ]
   },
