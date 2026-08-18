@@ -1,0 +1,4571 @@
+<!doctype html>
+<html lang="ko">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, viewport-fit=cover"
+    />
+    <meta name="theme-color" content="#0b1120" />
+    <title>2026 Doje Beacon System</title>
+
+    <!--
+      flatpickr 는 vendor/ 로 자체 호스팅합니다 (v4.6.13 고정).
+      CDN 에서 받으면 브라우저 추적방지 기능이 서드파티 저장소 접근을 막으며
+      콘솔에 "Tracking Prevention blocked access to storage" 경고를 남기고,
+      학교망에서 CDN 이 막히면 날짜 선택기 자체가 동작하지 않습니다.
+      기존 URL 은 버전 미고정(npm/flatpickr = 항상 최신)이라 예고 없이
+      동작이 바뀔 수 있었던 문제도 함께 해소됩니다.
+    -->
+    <link rel="stylesheet" href="vendor/flatpickr/flatpickr.min.css" />
+    <script src="vendor/flatpickr/flatpickr.min.js"></script>
+    <script src="vendor/flatpickr/l10n-ko.js"></script>
+
+    <!--
+      Pretendard 도 자체 호스팅합니다 (v1.3.8 가변 폰트 1.97MB 단일 파일).
+      이것으로 외부 도메인 요청이 완전히 사라져 추적방지 경고도 없어집니다.
+      폰트를 받는 동안에는 font-display:swap 으로 아래 폰트 스택이 먼저 그려집니다.
+    -->
+    <link rel="preload" as="font" type="font/woff2"
+          href="vendor/pretendard/PretendardVariable.woff2" crossorigin />
+    <link rel="stylesheet" href="vendor/pretendard/pretendard.css" />
+
+    <style>
+      :root {
+        /* ── 브랜드 ── */
+        --primary: #3b82f6;
+        --primary-hover: #2563eb;
+        --primary-deep: #1d4ed8;
+        --in-btn: #10b981;
+        --in-hover: #059669;
+        --out-btn: #f59e0b;
+        --out-hover: #d97706;
+
+        /* ── 표면 · 글자 ── */
+        /* 카드가 흰색이므로 배경은 한 톤 더 눌러야 카드가 떠 보입니다 */
+        --bg: #e7ecf3;
+        --surface: #ffffff;
+        --surface-sunken: #f8fafc;
+        --border: #e6ebf1;
+        --border-strong: #cbd5e1;
+        --text: #1e293b;
+        --text-light: #64748b;
+        --text-muted: #94a3b8;
+        --heading: #0f172a;
+
+        /* ── 의미색 ── */
+        --danger: #ef4444;
+        --danger-soft: #fee2e2;
+        --warn: #f59e0b;
+        --warn-soft: #fef3c7;
+        --success: #10b981;
+        --success-soft: #d1fae5;
+        --info-soft: #eff6ff;
+
+        /* ── 모서리 ── */
+        --r-sm: 10px;
+        --r-md: 14px;
+        --r-lg: 18px;
+        --r-xl: 24px;
+        --r-pill: 999px;
+
+        /* ── 그림자 (색을 머금은 부드러운 층) ── */
+        --sh-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+        --sh-sm:
+          0 1px 2px rgba(15, 23, 42, 0.04), 0 2px 6px rgba(15, 23, 42, 0.04);
+        --sh-md:
+          0 2px 4px rgba(15, 23, 42, 0.04), 0 8px 20px rgba(15, 23, 42, 0.06);
+        --sh-lg:
+          0 4px 8px rgba(15, 23, 42, 0.04), 0 20px 40px rgba(15, 23, 42, 0.08);
+        --ring: 0 0 0 4px rgba(59, 130, 246, 0.15);
+
+        /* ── 여백 ── */
+        --pad-card: 32px;
+        --gap: 14px;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+      }
+
+      body {
+        /* Pretendard 를 못 받아와도(CDN 차단·오프라인) 각 OS의 한글 기본
+           폰트로 자연스럽게 대체됩니다. */
+        font-family:
+          "Pretendard",
+          -apple-system,
+          BlinkMacSystemFont,
+          "Apple SD Gothic Neo",
+          "Segoe UI",
+          "Malgun Gothic",
+          "맑은 고딕",
+          "Noto Sans KR",
+          sans-serif;
+        /* 배경에 아주 옅은 색 번짐을 깔아 흰 카드가 떠 보이게 합니다 */
+        background:
+          radial-gradient(
+            60% 50% at 12% 0%,
+            rgba(59, 130, 246, 0.07),
+            transparent 70%
+          ),
+          radial-gradient(
+            50% 45% at 92% 8%,
+            rgba(139, 92, 246, 0.06),
+            transparent 70%
+          ),
+          var(--bg);
+        background-attachment: fixed;
+        color: var(--text);
+        margin: 0;
+        padding: 20px;
+        display: flex;
+        justify-content: center;
+        min-height: 100vh;
+        min-height: 100dvh;
+        align-items: flex-start;
+        -webkit-text-size-adjust: 100%;
+        -webkit-font-smoothing: antialiased;
+      }
+
+      .card {
+        background: var(--surface);
+        width: 100%;
+        /* border-box 가 없으면 width:100% 에 좌우 패딩이 더해져
+           카드가 화면보다 넓어지고 모바일에서 가로 스크롤이 생깁니다. */
+        box-sizing: border-box;
+        max-width: 480px;
+        padding: var(--pad-card) calc(var(--pad-card) - 6px);
+        border-radius: var(--r-xl);
+        border: 1px solid var(--border);
+        box-shadow: var(--sh-lg);
+        margin-top: 20px;
+        transition:
+          max-width 0.3s ease,
+          box-shadow 0.3s ease;
+        position: relative;
+      }
+
+      h2 {
+        text-align: center;
+        margin-top: 0;
+        margin-bottom: 26px;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.025em;
+        color: var(--heading);
+        word-break: keep-all;
+      }
+      h3 {
+        letter-spacing: -0.02em;
+      }
+
+      .input-group {
+        margin-bottom: 18px;
+        position: relative;
+      }
+
+      label {
+        display: block;
+        font-size: 13px;
+        margin-bottom: 8px;
+        color: var(--text-light);
+        font-weight: 600;
+      }
+
+      input[type="text"],
+      input[type="password"],
+      input[type="time"],
+      select {
+        width: 100%;
+        padding: 13px 14px;
+        border: 1.5px solid var(--border);
+        border-radius: var(--r-md);
+        box-sizing: border-box;
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text);
+        outline: none;
+        transition:
+          border-color 0.18s,
+          background 0.18s,
+          box-shadow 0.18s;
+        background: var(--surface-sunken);
+        font-family: inherit;
+      }
+      input[type="text"]:hover:not(:disabled),
+      input[type="password"]:hover:not(:disabled),
+      input[type="time"]:hover:not(:disabled),
+      select:hover:not(:disabled) {
+        border-color: var(--border-strong);
+      }
+
+      input[type="text"]:focus,
+      input[type="password"]:focus,
+      input[type="time"]:focus,
+      select:focus {
+        border-color: var(--primary);
+        background: var(--surface);
+        box-shadow: var(--ring);
+      }
+      input:disabled,
+      select:disabled {
+        background: #f1f5f9;
+        color: var(--text-muted);
+        cursor: not-allowed;
+      }
+
+      button {
+        width: 100%;
+        padding: 15px;
+        /* none 대신 투명 1px — 테두리가 있는 버튼(.btn-secondary)과 없는 버튼이
+           flex 행에 나란히 놓일 때 폭이 2px씩 어긋나는 것을 막습니다. */
+        border: 1px solid transparent;
+        border-radius: var(--r-md);
+        font-size: 15.5px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        color: white;
+        cursor: pointer;
+        transition:
+          transform 0.15s ease,
+          box-shadow 0.2s ease,
+          background 0.18s ease,
+          filter 0.18s ease;
+        font-family: inherit;
+        box-shadow: var(--sh-sm);
+      }
+      /* 키보드 포커스는 항상 또렷하게 */
+      button:focus-visible,
+      a:focus-visible,
+      input:focus-visible,
+      select:focus-visible {
+        outline: none;
+        box-shadow: var(--ring);
+      }
+
+      button:active {
+        transform: translateY(1px);
+      }
+      button:disabled {
+        background: #cbd5e1 !important;
+        box-shadow: none;
+        cursor: not-allowed;
+        filter: none;
+      }
+
+      .btn-primary {
+        background: linear-gradient(
+          135deg,
+          var(--primary),
+          var(--primary-hover)
+        );
+        box-shadow: 0 6px 16px -6px rgba(59, 130, 246, 0.6);
+      }
+      .btn-primary:hover:not(:disabled) {
+        box-shadow: 0 10px 22px -6px rgba(59, 130, 246, 0.7);
+        transform: translateY(-1px);
+      }
+      .btn-danger {
+        background: linear-gradient(135deg, #ef4444, #dc2626);
+        box-shadow: 0 6px 16px -6px rgba(239, 68, 68, 0.55);
+      }
+      .btn-danger:hover:not(:disabled) {
+        box-shadow: 0 10px 22px -6px rgba(239, 68, 68, 0.65);
+        transform: translateY(-1px);
+      }
+
+      /* margin-bottom 을 여기 두면 flex 행(모달 버튼 등)에서 다른 버튼과
+         높이가 어긋납니다. 간격은 그것을 필요로 하는 쪽에서만 줍니다. */
+      .btn-secondary {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--border-strong);
+        box-shadow: none;
+        font-size: 14px;
+        padding: 12px;
+      }
+      .btn-secondary:hover {
+        background: var(--surface-sunken);
+        border-color: #94a3b8;
+      }
+      /* flex-basis:0 은 padding+border 아래로 못 줄어듭니다. 두 버튼의 패딩이
+         다르면 그 차이만큼 폭이 어긋나므로 모달 안에서는 규격을 통일합니다. */
+      .modal-actions button {
+        flex: 1;
+        min-width: 0;
+        padding: 13px;
+        font-size: 15px;
+      }
+
+      .btn-in {
+        background: linear-gradient(135deg, var(--in-btn), var(--in-hover));
+        margin-bottom: 15px;
+      }
+      .btn-out {
+        background: linear-gradient(135deg, var(--out-btn), var(--out-hover));
+      }
+
+      .btn-done {
+        background: #f1f5f9 !important;
+        color: #94a3b8 !important;
+        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05) !important;
+        cursor: not-allowed;
+        border: 1px solid #e2e8f0;
+      }
+
+      .hidden {
+        display: none !important;
+      }
+      .text-center {
+        text-align: center;
+      }
+
+      /* 절대배치로 띄우면 좁은 화면에서 제목 위로 겹칩니다.
+         흐름 안에 두고 오른쪽 정렬해 어떤 폭에서도 안전하게 만듭니다. */
+      .top-right-controls {
+        display: flex;
+        gap: 8px;
+        align-items: center;
+        justify-content: flex-end;
+        margin: -8px 0 14px;
+      }
+
+      .btn-icon,
+      .btn-logout {
+        border: 1px solid transparent;
+        padding: 7px 13px;
+        border-radius: var(--r-pill);
+        font-size: 12.5px;
+        font-weight: 700;
+        cursor: pointer;
+        transition:
+          background 0.18s,
+          border-color 0.18s,
+          transform 0.15s;
+        width: auto;
+        min-height: 34px;
+        box-shadow: none;
+        font-family: inherit;
+      }
+      .btn-icon {
+        background: var(--surface-sunken);
+        border-color: var(--border);
+        color: var(--text-light);
+      }
+      .btn-icon:hover {
+        background: #eef2f7;
+        border-color: var(--border-strong);
+        transform: translateY(-1px);
+      }
+
+      .btn-logout {
+        background: var(--danger-soft);
+        border-color: #fecaca;
+        color: #dc2626;
+      }
+      .btn-logout:hover {
+        background: #fecaca;
+        transform: translateY(-1px);
+      }
+
+      .info-box {
+        background: linear-gradient(135deg, #f0f7ff, #eef4ff);
+        border: 1px solid #dbeafe;
+        border-radius: var(--r-lg);
+        padding: 18px 16px;
+        margin-bottom: 22px;
+        text-align: center;
+      }
+      .info-box p {
+        margin: 5px 0;
+        color: var(--primary-deep);
+        font-weight: 700;
+        letter-spacing: -0.01em;
+      }
+
+      /* 흰 카드에 가는 색 막대만 두면 배경(흰 카드)에 묻힙니다.
+         옅은 색면으로 채워 각 알림이 스스로 구분되게 합니다. */
+      .alert-box {
+        position: relative;
+        border-radius: var(--r-lg);
+        padding: 14px 16px;
+        margin-bottom: 10px;
+        text-align: left;
+        background: var(--accent-tint);
+        border: 1px solid var(--accent-line);
+        transition:
+          box-shadow 0.2s ease,
+          transform 0.2s ease;
+      }
+      .alert-box:hover {
+        box-shadow: 0 8px 18px -8px var(--accent-shadow);
+        transform: translateY(-1px);
+      }
+      .alert-head {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 7px;
+      }
+      .alert-icon {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 30px;
+        height: 30px;
+        flex-shrink: 0;
+        border-radius: 10px;
+        font-size: 14px;
+        background: rgba(255, 255, 255, 0.85);
+        box-shadow: inset 0 0 0 1px var(--accent-line);
+      }
+      .alert-box p {
+        margin: 0;
+        font-weight: 700;
+        font-size: 13.5px;
+        color: var(--accent-text);
+        letter-spacing: -0.015em;
+        word-break: keep-all;
+      }
+      .alert-body {
+        font-size: 13.5px;
+        font-weight: 600;
+        color: var(--text-light);
+        word-break: keep-all;
+        line-height: 1.6;
+        padding-left: 40px;
+      }
+
+      .box-red {
+        --accent: #ef4444;
+        --accent-tint: #fef5f5;
+        --accent-line: #fbd0d3;
+        --accent-text: #b91c1c;
+        --accent-shadow: rgba(239, 68, 68, 0.4);
+      }
+      .box-orange {
+        --accent: #f59e0b;
+        --accent-tint: #fffaef;
+        --accent-line: #fbe0aa;
+        --accent-text: #b45309;
+        --accent-shadow: rgba(245, 158, 11, 0.4);
+      }
+      .box-purple {
+        --accent: #a855f7;
+        --accent-tint: #faf6ff;
+        --accent-line: #e6d5fb;
+        --accent-text: #7e22ce;
+        --accent-shadow: rgba(168, 85, 247, 0.35);
+      }
+
+      /* ── 앱 헤더 (제목 자리) ─────────────────────────────────────
+         가운데 정렬된 맨몸 텍스트 대신 마크 + 제목 + 부제를 한 덩어리로
+         묶어 화면 상단에 무게중심을 만듭니다. */
+      .app-head {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0 0 20px;
+      }
+      .app-head-mark {
+        width: 42px;
+        height: 42px;
+        flex: 0 0 auto;
+        border-radius: 13px;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        background: linear-gradient(140deg, #6366f1, #3b82f6 45%, #06b6d4);
+        box-shadow:
+          0 6px 14px -5px rgba(59, 130, 246, 0.65),
+          inset 0 1px 0 rgba(255, 255, 255, 0.4);
+      }
+      .app-head-mark svg {
+        width: 22px;
+        height: 22px;
+      }
+      .app-head-text {
+        min-width: 0;
+      }
+      .app-head-title {
+        display: block;
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: var(--heading);
+        line-height: 1.25;
+      }
+      .app-head-sub {
+        display: block;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-muted);
+        letter-spacing: -0.01em;
+        margin-top: 2px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* ── 섹션 머리 (라벨 + 우측 액션) ───────────────────────────── */
+      .section-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 10px;
+      }
+      .section-title {
+        font-size: 11.5px;
+        font-weight: 800;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--text-muted);
+      }
+      /* 전체폭 흰 슬랩이던 새로고침 버튼을 작은 칩으로 */
+      .chip-btn {
+        width: auto;
+        flex: 0 0 auto;
+        padding: 7px 13px;
+        font-size: 12.5px;
+        font-weight: 700;
+        min-height: 34px;
+        border-radius: var(--r-pill);
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        color: var(--text-light);
+        box-shadow: none;
+        transition:
+          background 0.18s,
+          border-color 0.18s,
+          color 0.18s;
+      }
+      .chip-btn:hover:not(:disabled) {
+        background: #eef2f7;
+        border-color: var(--border-strong);
+        color: var(--text);
+      }
+      /* 주요 행동(학생 등록)용 강조 칩 */
+      .chip-btn-accent {
+        background: var(--info-soft);
+        border-color: #bfdbfe;
+        color: var(--primary-hover);
+      }
+      .chip-btn-accent:hover:not(:disabled) {
+        background: #dbeafe;
+        border-color: #93c5fd;
+        color: var(--primary-deep);
+      }
+
+      /* 학생 등록 폼은 입력이 4개라 기본 모달보다 조금 넓게.
+         .modal-box 가 이 규칙보다 뒤에 정의돼 있어 클래스를 겹쳐 씁니다. */
+      .modal-box.modal-box-wide {
+        max-width: 440px;
+      }
+
+      .date-display {
+        font-size: 20px;
+        font-weight: 800;
+        color: #0f172a;
+        margin-bottom: 5px;
+      }
+
+      .footer-box {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 12px;
+        padding: 15px;
+        margin-top: 25px;
+        text-align: center;
+        font-weight: 700;
+        color: #64748b;
+        font-size: 14px;
+      }
+
+      /* 날짜 네비게이션 */
+      .date-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        background: white;
+        padding: 10px;
+        border-radius: 16px;
+        margin-bottom: 15px;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        border: 1px solid #e2e8f0;
+      }
+
+      .nav-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        /* 화살표 버튼은 줄어들지 않고, 남는 폭은 날짜 영역이 가져갑니다 */
+        flex: 0 0 auto;
+        width: 44px;
+        height: 44px;
+        border-radius: 12px;
+        background: white;
+        color: #64748b;
+        border: 1px solid #e2e8f0;
+        cursor: pointer;
+        transition: all 0.2s;
+        box-shadow: 0 2px 4px rgba(0, 0, 0, 0.02);
+        padding: 0;
+      }
+      .nav-btn:hover {
+        background: #f8fafc;
+        color: var(--primary);
+        border-color: #cbd5e1;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+      }
+      .nav-btn:active {
+        transform: translateY(1px);
+      }
+
+      .date-picker-wrapper {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        /* 남는 폭을 모두 차지하고, 필요하면 줄어듭니다.
+           min-width:0 이 없으면 flex 아이템이 내용 크기 아래로 줄지 못해
+           날짜가 두 줄로 접힙니다. */
+        flex: 1 1 auto;
+        min-width: 0;
+        background: #eff6ff;
+        padding: 12px 18px;
+        border-radius: 14px;
+        border: 1px solid #bfdbfe;
+        transition: all 0.2s;
+        cursor: pointer;
+      }
+      .date-picker-wrapper:hover {
+        background: #dbeafe;
+        border-color: #93c5fd;
+      }
+
+      .calendar-icon {
+        color: var(--primary);
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+      .current-day-label {
+        font-weight: 800;
+        font-size: 16px;
+        color: var(--primary);
+        pointer-events: none;
+        /* 좁은 화면에서도 항상 한 줄 */
+        white-space: nowrap;
+        min-width: 0;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+
+      /* 좁은 화면에서는 여백과 글자를 조금씩 줄여 한 줄을 유지합니다 */
+      @media (max-width: 540px) {
+        .date-nav {
+          padding: 8px;
+          gap: 6px;
+        }
+        .nav-btn {
+          width: 40px;
+          height: 40px;
+        }
+        .date-picker-wrapper {
+          padding: 11px 10px;
+          gap: 6px;
+        }
+        .current-day-label {
+          font-size: 15px;
+        }
+      }
+      /* 385px 이하에서는 아이콘까지 넣으면 "2026-08-05 (수)" 가 잘립니다.
+         (아이콘 20px + gap 6px 를 회수해야 날짜가 온전히 들어갑니다) */
+      @media (max-width: 385px) {
+        .nav-btn {
+          width: 36px;
+          height: 36px;
+        }
+        .date-picker-wrapper .calendar-icon {
+          display: none;
+        }
+        .current-day-label {
+          font-size: 14px;
+        }
+      }
+
+      /* Flatpickr 커스텀 */
+      .flatpickr-calendar {
+        font-family: "Pretendard", sans-serif !important;
+        border-radius: 16px !important;
+        box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1) !important;
+        border: 1px solid #e2e8f0 !important;
+      }
+      .flatpickr-day.selected,
+      .flatpickr-day.startRange,
+      .flatpickr-day.endRange,
+      .flatpickr-day.selected:focus,
+      .flatpickr-day.startRange:focus,
+      .flatpickr-day.endRange:focus,
+      .flatpickr-day.selected:hover,
+      .flatpickr-day.startRange:hover,
+      .flatpickr-day.endRange:hover {
+        background: var(--primary) !important;
+        border-color: var(--primary) !important;
+      }
+      .flatpickr-months .flatpickr-month {
+        height: 40px !important;
+      }
+
+      /* 통계 행 */
+      /* 하나의 흰 상자를 3등분하는 대신, 각 지표를 자기 색을 가진 카드로
+         분리합니다. 흰 상자만 쌓이던 화면에 색과 위계가 생깁니다. */
+      .stats-row {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      /* 아이콘을 별도 줄에 두면 카드가 100px 넘게 높아집니다.
+         라벨과 같은 줄에 인라인으로 붙여 높이를 절반으로 줄입니다. */
+      .stat-item {
+        position: relative;
+        min-width: 0;
+        text-align: left;
+        padding: 8px 11px 9px;
+        border-radius: var(--r-md);
+        background: var(--tint);
+        border: 1px solid var(--tint-line);
+      }
+      .stat-head {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+      }
+      .stat-ico {
+        flex: 0 0 auto;
+        width: 15px;
+        height: 15px;
+        display: grid;
+        place-items: center;
+        color: var(--tone-dim);
+      }
+      .stat-ico svg {
+        width: 13px;
+        height: 13px;
+      }
+      .stat-label {
+        min-width: 0;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.3;
+        color: var(--tone-dim);
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .stat-val {
+        font-size: 18px;
+        font-weight: 800;
+        letter-spacing: -0.035em;
+        color: var(--tone);
+        font-variant-numeric: tabular-nums;
+        line-height: 1.2;
+      }
+      .stat-in {
+        --tint: #ecfdf5;
+        --tint-line: #b6f0d7;
+        --tone: #047857;
+        --tone-dim: #10b981;
+      }
+      .stat-out {
+        --tint: #fffbeb;
+        --tint-line: #fde3a7;
+        --tone: #b45309;
+        --tone-dim: #f0a020;
+      }
+      .stat-warn {
+        --tint: #fef2f2;
+        --tint-line: #fecdd3;
+        --tone: #be123c;
+        --tone-dim: #f43f5e;
+      }
+
+      /* 테이블 */
+      .table-container {
+        overflow-x: auto;
+        border-radius: var(--r-lg);
+        border: 1px solid var(--border);
+        background: var(--surface);
+        box-shadow: var(--sh-xs);
+        -webkit-overflow-scrolling: touch;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 13px;
+        text-align: center;
+        background: var(--surface);
+        white-space: nowrap;
+      }
+      th {
+        background: var(--surface-sunken);
+        color: var(--text-light);
+        padding: 12px 10px;
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        border-bottom: 1px solid var(--border);
+        /* 가로 스크롤이 긴 표에서도 머리글이 붙어 있게 */
+        position: sticky;
+        top: 0;
+        z-index: 1;
+      }
+      td {
+        padding: 13px 10px;
+        border-bottom: 1px solid #f1f5f9;
+        color: var(--text);
+      }
+      tbody tr:last-child td {
+        border-bottom: none;
+      }
+      tbody tr {
+        transition: background 0.15s;
+      }
+      tbody tr:hover {
+        background: #fafcfe;
+      }
+
+      .badge {
+        display: inline-block;
+        padding: 4px 10px;
+        border-radius: var(--r-pill);
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        border: 1px solid transparent;
+      }
+      .bg-late {
+        background: var(--danger-soft);
+        color: #dc2626;
+        border-color: #fecaca;
+      }
+      .bg-early {
+        background: var(--warn-soft);
+        color: #d97706;
+        border-color: #fde68a;
+      }
+      .bg-normal {
+        background: var(--success-soft);
+        color: #059669;
+        border-color: #a7f3d0;
+      }
+
+      /* 페이지네이션 */
+      .pagination {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        /* 예상 못 한 폭에서도 잘리지 않도록 하는 안전장치 */
+        flex-wrap: wrap;
+        gap: 6px;
+        margin-top: 15px;
+      }
+      .page-btn {
+        width: auto;
+        min-width: 34px;
+        min-height: 34px;
+        padding: 6px 10px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text-light);
+        font-size: 13px;
+        border-radius: var(--r-sm);
+        cursor: pointer;
+        box-shadow: none;
+        font-weight: 700;
+        transition:
+          background 0.15s,
+          color 0.15s,
+          border-color 0.15s;
+      }
+      .page-btn:hover:not(:disabled):not(.active) {
+        background: var(--surface-sunken);
+        border-color: var(--border-strong);
+        color: var(--text);
+      }
+      /* 생략 구간 표시 (…) — 버튼이 아니라 클릭 대상이 아닙니다 */
+      .page-gap {
+        color: #94a3b8;
+        font-size: 13px;
+        font-weight: 700;
+        padding: 0 2px;
+        user-select: none;
+      }
+      .page-btn.active {
+        background: var(--primary);
+        color: white;
+        border-color: var(--primary);
+        box-shadow: 0 4px 10px -3px rgba(59, 130, 246, 0.6);
+      }
+      .page-btn:disabled {
+        background: #f1f5f9;
+        color: #94a3b8;
+        border-color: #e2e8f0;
+        cursor: not-allowed;
+      }
+
+      /* 비밀번호 변경 모달 */
+      .modal-overlay {
+        position: fixed;
+        inset: 0;
+        background: rgba(15, 23, 42, 0.45);
+        backdrop-filter: blur(3px);
+        -webkit-backdrop-filter: blur(3px);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+        padding: 20px;
+        animation: modalFade 0.2s ease both;
+      }
+      .modal-box {
+        background: var(--surface);
+        border-radius: var(--r-xl);
+        padding: 28px 24px;
+        width: 100%;
+        max-width: 380px;
+        max-height: calc(100dvh - 40px);
+        overflow-y: auto;
+        box-shadow: 0 24px 60px rgba(2, 6, 23, 0.35);
+        animation: modalPop 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      @keyframes modalFade {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes modalPop {
+        from {
+          opacity: 0;
+          transform: translateY(10px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .modal-box h3 {
+        margin: 0 0 20px;
+        font-size: 18px;
+        font-weight: 700;
+        color: #0f172a;
+      }
+      .modal-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 20px;
+      }
+      .modal-actions button {
+        flex: 1;
+      }
+
+      /* 메시지 */
+      .msg-error {
+        color: #ef4444;
+        text-align: center;
+        margin-top: 12px;
+        font-size: 13px;
+        font-weight: 600;
+        word-break: keep-all;
+      }
+      .msg-success {
+        color: #10b981;
+        text-align: center;
+        margin-top: 12px;
+        font-size: 13px;
+        font-weight: 600;
+      }
+
+      /* ── 탭 ─────────────────────────────────────────────────────── */
+      .tab-bar {
+        display: flex;
+        gap: 4px;
+        margin-bottom: 18px;
+        background: #eef2f7;
+        border: 1px solid var(--border);
+        padding: 5px;
+        border-radius: var(--r-md);
+      }
+      .tab-btn {
+        flex: 1;
+        padding: 10px 6px;
+        border: none;
+        border-radius: var(--r-sm);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        cursor: pointer;
+        transition:
+          background 0.18s,
+          color 0.18s,
+          box-shadow 0.18s;
+        background: transparent;
+        color: var(--text-light);
+        font-family: inherit;
+        box-shadow: none;
+        width: auto;
+      }
+      .tab-btn:hover:not(.active) {
+        background: rgba(255, 255, 255, 0.6);
+        color: var(--text);
+      }
+      .tab-btn.active {
+        background: var(--surface);
+        color: var(--primary-hover);
+        box-shadow: var(--sh-sm);
+      }
+      .tab-panel {
+        display: none;
+      }
+      .tab-panel.active {
+        display: block;
+        animation: panelIn 0.22s ease both;
+      }
+      @keyframes panelIn {
+        from {
+          opacity: 0;
+          transform: translateY(4px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      /* ── 학생 관리 ─────────────────────────────────────────────── */
+      .student-form-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 12px;
+      }
+      .student-form-grid .input-group {
+        margin-bottom: 0;
+      }
+
+      /* 1회성 초기 비밀번호 안내 */
+      .initial-pw-notice {
+        margin-top: 14px;
+        padding: 14px;
+        border: 1.5px dashed var(--in-btn);
+        border-radius: 12px;
+        background: #ecfdf5;
+      }
+      .initial-pw-head {
+        font-size: 13px;
+        color: #065f46;
+        margin-bottom: 10px;
+      }
+      .initial-pw-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .initial-pw-row code {
+        flex: 1;
+        font-family: "Consolas", "Menlo", monospace;
+        font-size: 22px;
+        font-weight: 700;
+        letter-spacing: 3px;
+        color: #065f46;
+        background: white;
+        border: 1px solid #a7f3d0;
+        border-radius: 10px;
+        padding: 10px 12px;
+        text-align: center;
+        user-select: all;
+        overflow-wrap: anywhere;
+      }
+      .initial-pw-copy {
+        width: auto;
+        flex: 0 0 auto;
+        padding: 10px 16px;
+        margin-bottom: 0;
+      }
+      .initial-pw-warn {
+        margin-top: 10px;
+        font-size: 12px;
+        line-height: 1.6;
+        color: #047857;
+      }
+      .student-list-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 0 2px 10px;
+        font-size: 13px;
+        color: var(--text-light);
+      }
+      /* wrap 이 없으면 버튼 3개가 한 줄에 묶여 '관리' 열의 최소 폭이
+         176px 로 고정되고, 좁은 화면에서 표 전체가 가로로 넘칩니다. */
+      .student-action-group {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 5px;
+      }
+      .student-action-btn {
+        width: auto;
+        padding: 7px 9px;
+        border-radius: 8px;
+        font-size: 11px;
+        font-weight: 700;
+        box-shadow: none;
+        white-space: nowrap;
+      }
+      .student-action-btn.edit {
+        background: #dbeafe;
+        color: #1d4ed8;
+      }
+      .student-action-btn.reset {
+        background: #fef3c7;
+        color: #b45309;
+      }
+      .student-action-btn.delete {
+        background: #fee2e2;
+        color: #dc2626;
+      }
+
+      @media (max-width: 540px) {
+        /* 좁은 화면에서 탭 4개를 한 줄에 밀어넣으면 마지막 탭이 잘립니다.
+           가로 스크롤(잘림을 숨길 뿐 발견하기 어려움) 대신 2×2로 접어
+           네 개가 항상 보이게 합니다. */
+        .tab-bar {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 5px;
+        }
+        .tab-btn {
+          width: 100%;
+          min-width: 0;
+          padding: 11px 4px;
+          font-size: 12.5px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        }
+        .student-form-grid {
+          grid-template-columns: 1fr;
+        }
+        .pagination {
+          gap: 4px;
+        }
+        .page-btn {
+          padding: 6px 7px;
+          min-width: 32px;
+        }
+        /* 학생 목록은 열이 4개라 좁은 화면에서 가장 빡빡합니다.
+           셀·버튼 여백을 회수해 관리 버튼 3개가 한 줄에 들어가게 합니다. */
+        #tab-students th,
+        #tab-students td {
+          padding: 11px 6px;
+        }
+        .student-action-group {
+          gap: 4px;
+        }
+        .student-action-btn {
+          padding: 7px 6px;
+          font-size: 10.5px;
+        }
+      }
+
+      /* ── 날짜 차단 캘린더 ──────────────────────────────────────── */
+      .bc-month-nav {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 8px;
+        margin-bottom: 10px;
+        padding: 6px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        box-shadow: var(--sh-xs);
+      }
+      /* 대시보드 날짜 이동 버튼(44px)보다 작게 — 달력 위 보조 조작입니다 */
+      .bc-month-nav .nav-btn {
+        width: 36px;
+        height: 36px;
+        border-radius: var(--r-sm);
+      }
+      .bc-month-title {
+        font-weight: 800;
+        font-size: 15.5px;
+        letter-spacing: -0.02em;
+        color: var(--heading);
+      }
+
+      /* 달력 전체를 하나의 면으로 묶습니다 */
+      .block-calendar-grid {
+        display: grid;
+        /* 1fr 만 쓰면 트랙이 칸 내용(날짜 태그 등)의 최소 폭 아래로 줄지 못해
+           좁은 화면에서 달력이 카드 밖으로 넘칩니다. */
+        grid-template-columns: repeat(7, minmax(0, 1fr));
+        gap: 3px;
+        margin-bottom: 12px;
+        padding: 10px;
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        box-shadow: var(--sh-xs);
+      }
+      .bc-day-header {
+        text-align: center;
+        font-size: 10.5px;
+        font-weight: 800;
+        color: var(--text-muted);
+        padding: 2px 0 7px;
+      }
+      .bc-day-header:first-child {
+        color: #fb7185;
+      }
+      .bc-day-header:nth-child(7) {
+        color: #93b4fc;
+      }
+
+      .bc-day {
+        aspect-ratio: 1;
+        min-width: 0;
+        overflow: hidden;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        border-radius: var(--r-sm);
+        font-size: 12px;
+        cursor: pointer;
+        border: 1.5px solid transparent;
+        transition:
+          background 0.15s,
+          border-color 0.15s,
+          color 0.15s,
+          transform 0.15s;
+        position: relative;
+        background: transparent;
+        color: var(--text);
+        user-select: none;
+      }
+      /* 면(배경)은 '누를 수 있는 실습일'에만 줍니다.
+         전부 회색으로 칠하면 어디를 눌러야 하는지 알 수 없습니다. */
+      .bc-day:not(.empty):not(.non-field):not(.holiday):not(.blocked) {
+        background: var(--surface-sunken);
+        border-color: var(--border);
+      }
+      .bc-day:hover:not(.empty):not(.non-field):not(.holiday) {
+        border-color: var(--primary);
+        background: var(--info-soft);
+        transform: translateY(-1px);
+      }
+      .bc-day.empty {
+        background: transparent;
+        border-color: transparent;
+        cursor: default;
+        pointer-events: none;
+      }
+      /* 비대상일은 흐리게 덮지 않고, 면을 빼고 숫자만 옅게 둡니다 */
+      .bc-day.non-field {
+        background: transparent;
+        border-color: transparent;
+        color: #b6c2d1;
+        cursor: default;
+        pointer-events: none;
+      }
+      .bc-day.weekend {
+        color: #cbd5e1;
+      }
+      .bc-day.blocked {
+        background: #fef2f2;
+        border-color: #fbb6bd;
+        color: #be123c;
+        font-weight: 800;
+      }
+      .bc-day.holiday {
+        background: #fffbeb;
+        border-color: #fcd982;
+        color: #b45309;
+        cursor: default;
+        pointer-events: none;
+      }
+      /* 오늘 표시는 테두리 대신 링으로 — 차단·공휴일 색과 겹쳐도 살아남습니다
+         (예전에는 border-color !important 라 상태색을 덮어버렸습니다) */
+      .bc-day.today {
+        font-weight: 800;
+        box-shadow: 0 0 0 2.5px rgba(59, 130, 246, 0.28);
+      }
+      .bc-day .day-num {
+        font-size: 13px;
+        font-weight: 700;
+        line-height: 1;
+      }
+      .bc-day .day-tag {
+        font-size: 8.5px;
+        font-weight: 700;
+        margin-top: 3px;
+        max-width: calc(100% - 4px);
+        padding: 1px 5px;
+        border-radius: var(--r-pill);
+        background: rgba(255, 255, 255, 0.8);
+        overflow: hidden;
+        text-align: center;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+
+      /* 범례 — 인라인 색상 대신 클래스로 (달력 색과 한 곳에서 관리) */
+      .block-legend {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+      }
+      .block-legend > span {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--text-light);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-pill);
+        padding: 4px 9px;
+      }
+      .legend-dot {
+        width: 9px;
+        height: 9px;
+        flex: 0 0 auto;
+        border-radius: 3px;
+        display: inline-block;
+      }
+      .legend-dot.is-blocked {
+        background: #fef2f2;
+        border: 1px solid #fbb6bd;
+      }
+      .legend-dot.is-holiday {
+        background: #fffbeb;
+        border: 1px solid #fcd982;
+      }
+      .legend-dot.is-field {
+        background: var(--surface-sunken);
+        border: 1px solid var(--border-strong);
+      }
+      .legend-dot.is-off {
+        background: transparent;
+        border: 1px dashed #cbd5e1;
+      }
+
+      /* 날짜 클릭 시 펼쳐지는 차단 설정 폼 */
+      .bc-form {
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        padding: 16px;
+        margin-top: 4px;
+      }
+      .bc-form-title {
+        font-weight: 800;
+        font-size: 14px;
+        letter-spacing: -0.02em;
+        color: var(--heading);
+        margin-bottom: 12px;
+      }
+      .bc-form-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .bc-form-actions button {
+        flex: 1;
+        min-width: 0;
+        padding: 12px;
+        font-size: 14px;
+      }
+      .bc-form-actions .bc-close {
+        flex: 0 0 44px;
+        padding: 12px 0;
+      }
+
+      /* ── 수동 차단 목록 (월별 탭) ───────────────────────────────── */
+      .bl-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin-bottom: 9px;
+      }
+      .bl-total {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: var(--text-muted);
+      }
+      /* 학년도가 길어지면 탭이 12개까지 늘 수 있어 줄바꿈으로 받습니다
+         (가로 스크롤은 넘친 탭을 발견하기 어렵습니다) */
+      .bl-tabs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin-bottom: 10px;
+      }
+      .bl-tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        width: auto;
+        min-height: 32px;
+        padding: 5px 10px;
+        border-radius: var(--r-pill);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text-light);
+        font-size: 12px;
+        font-weight: 700;
+        box-shadow: none;
+        transition:
+          background 0.15s,
+          border-color 0.15s,
+          color 0.15s;
+      }
+      .bl-tab:hover:not(.active) {
+        background: var(--surface-sunken);
+        border-color: var(--border-strong);
+        color: var(--text);
+      }
+      .bl-tab.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+        box-shadow: 0 4px 10px -3px rgba(59, 130, 246, 0.55);
+      }
+      /* 다른 해의 달임을 알리는 접두 연도 (예: 2027 1월) */
+      .bl-year {
+        font-size: 10px;
+        font-weight: 700;
+        opacity: 0.65;
+        margin-right: 3px;
+      }
+      .bl-count {
+        display: inline-grid;
+        place-items: center;
+        min-width: 17px;
+        height: 17px;
+        padding: 0 4px;
+        border-radius: var(--r-pill);
+        background: var(--surface-sunken);
+        color: var(--text-light);
+        font-size: 10.5px;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+      }
+      .bl-tab.active .bl-count {
+        background: rgba(255, 255, 255, 0.25);
+        color: #fff;
+      }
+
+      .bl-list {
+        display: flex;
+        flex-direction: column;
+        gap: 5px;
+      }
+      .bl-item {
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 9px 12px;
+        border-radius: var(--r-sm);
+        background: #fef5f5;
+        border: 1px solid #fbd0d3;
+      }
+      .bl-date {
+        flex: 0 0 auto;
+        font-size: 12.5px;
+        font-weight: 800;
+        color: #b91c1c;
+        font-variant-numeric: tabular-nums;
+      }
+      .bl-reason {
+        min-width: 0;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-light);
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+      }
+      .bl-reason-none {
+        color: var(--text-muted);
+        font-style: italic;
+      }
+      .bl-empty {
+        padding: 14px;
+        border-radius: var(--r-sm);
+        background: var(--surface-sunken);
+        border: 1px dashed var(--border-strong);
+        text-align: center;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--text-muted);
+      }
+      .bl-empty-ok {
+        background: #ecfdf5;
+        border: 1px solid #b6f0d7;
+        color: #047857;
+        font-weight: 700;
+      }
+
+      /* ── PDF 레포트 패널 ─────────────────────────────────────── */
+      .report-panel {
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        border-radius: 16px;
+        padding: 20px;
+      }
+      .report-panel h3 {
+        margin: 0 0 16px;
+        font-size: 15px;
+        font-weight: 700;
+      }
+      .month-selector {
+        display: flex;
+        gap: 10px;
+        margin-bottom: 16px;
+      }
+      .month-selector select {
+        flex: 1;
+        padding: 12px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 10px;
+        font-size: 14px;
+        background: white;
+        font-family: inherit;
+        outline: none;
+      }
+      .month-selector select:focus {
+        border-color: var(--primary);
+      }
+      .report-preview {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-md);
+        overflow: hidden;
+        margin-bottom: 12px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 80px;
+      }
+      .report-placeholder {
+        color: var(--text-light);
+        font-size: 13px;
+        padding: 30px;
+        text-align: center;
+      }
+
+      /* ── 레포트 미리보기 축소 ─────────────────────────────────────
+         레포트는 실습일마다 열이 붙어 미리보기 폭보다 항상 넓습니다.
+         문서를 통째로 축소해 폭을 맞추면 가로 스크롤이 사라지고,
+         iframe 을 문서 높이만큼 늘려 두면 안쪽 세로 스크롤도 없어집니다.
+         (스크롤은 바깥 stage 한 곳만 담당) */
+      .report-preview.has-doc {
+        display: block;
+        background: #eef2f7;
+      }
+      .report-stage {
+        overflow: auto;
+        max-height: 460px;
+        -webkit-overflow-scrolling: touch;
+      }
+      .report-fit {
+        /* 축소된 실제 점유 크기 — JS가 지정합니다.
+           transform 은 레이아웃 크기를 바꾸지 않으므로 이 래퍼가 필요합니다. */
+        position: relative;
+      }
+      .report-scaler {
+        transform-origin: top left;
+        will-change: transform;
+      }
+      .report-frame {
+        border: none;
+        display: block;
+        background: #fff;
+      }
+
+      /* 배율 전환 */
+      .report-zoom {
+        display: flex;
+        gap: 6px;
+        align-items: center;
+        margin-bottom: 10px;
+      }
+      .report-zoom-label {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-right: auto;
+      }
+      .report-zoom-btn {
+        width: auto;
+        min-height: 30px;
+        padding: 5px 11px;
+        border-radius: var(--r-pill);
+        background: var(--surface);
+        border: 1px solid var(--border);
+        color: var(--text-light);
+        font-size: 11.5px;
+        font-weight: 700;
+        box-shadow: none;
+      }
+      .report-zoom-btn:hover:not(.active) {
+        background: var(--surface-sunken);
+        border-color: var(--border-strong);
+        color: var(--text);
+      }
+      .report-zoom-btn.active {
+        background: var(--primary);
+        border-color: var(--primary);
+        color: #fff;
+      }
+
+      /* ══════════════════════════════════════════════════════════════
+         로그인 / 초기설정 화면
+         body.auth-view 는 로그인 전에만 붙습니다 (showMain에서 제거).
+         ══════════════════════════════════════════════════════════════ */
+      body.auth-view {
+        align-items: center;
+        /* border-box 가 없으면 min-height 에 패딩이 더해져 화면 높이를
+           초과하고, 세로 스크롤이 생기면서 카드가 아래로 밀립니다. */
+        box-sizing: border-box;
+        min-height: 100vh;
+        min-height: 100dvh;
+        padding: 24px 18px;
+        background: #0b1120;
+      }
+
+      /* 오로라 배경 — 고정 레이어 두 장이 서로 다른 속도로 천천히 흐릅니다 */
+      body.auth-view::before,
+      body.auth-view::after {
+        content: "";
+        position: fixed;
+        inset: -30%;
+        z-index: 0;
+        pointer-events: none;
+      }
+      body.auth-view::before {
+        background:
+          radial-gradient(
+            38% 42% at 22% 26%,
+            rgba(79, 70, 229, 0.62),
+            transparent 70%
+          ),
+          radial-gradient(
+            34% 38% at 78% 20%,
+            rgba(6, 182, 212, 0.42),
+            transparent 70%
+          ),
+          radial-gradient(
+            44% 46% at 62% 84%,
+            rgba(124, 58, 237, 0.52),
+            transparent 70%
+          );
+        filter: blur(28px);
+        animation: auroraDrift 26s ease-in-out infinite alternate;
+      }
+      body.auth-view::after {
+        background:
+          radial-gradient(
+            30% 34% at 86% 62%,
+            rgba(59, 130, 246, 0.38),
+            transparent 70%
+          ),
+          radial-gradient(
+            28% 30% at 10% 74%,
+            rgba(14, 165, 233, 0.3),
+            transparent 70%
+          );
+        filter: blur(34px);
+        animation: auroraDrift 34s ease-in-out infinite alternate-reverse;
+      }
+      @keyframes auroraDrift {
+        from {
+          transform: translate3d(-3%, -2%, 0) scale(1);
+        }
+        to {
+          transform: translate3d(4%, 3%, 0) scale(1.12);
+        }
+      }
+
+      /* 유리 카드 */
+      body.auth-view .card {
+        position: relative;
+        z-index: 1;
+        /* 기본 .card 는 content-box 라 max-width 에 패딩이 더해집니다.
+           로그인 카드만 border-box 로 맞춰 지정한 폭 그대로 나오게 합니다. */
+        box-sizing: border-box;
+        max-width: 430px;
+        margin-top: 0;
+        padding: 38px 30px 28px;
+        border-radius: 28px;
+        background: rgba(255, 255, 255, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.75);
+        backdrop-filter: blur(22px) saturate(180%);
+        -webkit-backdrop-filter: blur(22px) saturate(180%);
+        box-shadow:
+          inset 0 1px 0 rgba(255, 255, 255, 0.7),
+          0 24px 50px -12px rgba(2, 6, 23, 0.55),
+          0 0 0 1px rgba(2, 6, 23, 0.06);
+        animation: authCardIn 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+      }
+      @keyframes authCardIn {
+        from {
+          opacity: 0;
+          transform: translateY(14px) scale(0.985);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+
+      /* ── 브랜드 ─────────────────────────────────────────────────── */
+      .auth-brand {
+        text-align: center;
+        margin-bottom: 26px;
+      }
+      .auth-mark {
+        width: 60px;
+        height: 60px;
+        margin: 0 auto 14px;
+        border-radius: 19px;
+        display: grid;
+        place-items: center;
+        color: #fff;
+        background: linear-gradient(140deg, #6366f1, #3b82f6 45%, #06b6d4);
+        box-shadow:
+          0 10px 22px -6px rgba(59, 130, 246, 0.6),
+          inset 0 1px 0 rgba(255, 255, 255, 0.45);
+      }
+      .auth-mark svg {
+        width: 30px;
+        height: 30px;
+      }
+      .auth-mark .beam {
+        animation: beaconPulse 2.8s ease-in-out infinite;
+      }
+      .auth-mark .beam-2 {
+        animation-delay: 0.4s;
+      }
+      @keyframes beaconPulse {
+        0%,
+        100% {
+          opacity: 0.3;
+        }
+        50% {
+          opacity: 1;
+        }
+      }
+      .auth-title {
+        margin: 0 0 8px;
+        font-size: 22px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .auth-year {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.04em;
+        color: var(--primary-hover);
+        background: rgba(59, 130, 246, 0.12);
+        border: 1px solid rgba(59, 130, 246, 0.22);
+        border-radius: 999px;
+        padding: 3px 9px;
+        line-height: 1;
+      }
+      .auth-sub {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-light);
+      }
+
+      /* ── 입력 필드 (플로팅 라벨) ─────────────────────────────────── */
+      .auth-form {
+        display: flex;
+        flex-direction: column;
+        gap: 13px;
+      }
+      .field {
+        position: relative;
+      }
+      .field-icon {
+        position: absolute;
+        left: 16px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 18px;
+        height: 18px;
+        color: #94a3b8;
+        pointer-events: none;
+        transition: color 0.18s;
+        z-index: 1;
+      }
+      #loginSection .field input {
+        width: 100%;
+        height: 60px;
+        padding: 23px 14px 9px 46px;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 15px;
+        background: rgba(248, 250, 252, 0.85);
+        font-size: 15px;
+        font-weight: 600;
+        color: var(--text);
+        box-sizing: border-box;
+        transition:
+          border-color 0.18s,
+          box-shadow 0.18s,
+          background 0.18s;
+        outline: none;
+      }
+      #loginSection .field.has-toggle input {
+        padding-right: 58px;
+      }
+      #loginSection .field input:focus {
+        border-color: var(--primary);
+        background: #fff;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.14);
+      }
+      #loginSection .field input:focus ~ .field-icon {
+        color: var(--primary);
+      }
+      #loginSection .field input:disabled {
+        background: rgba(241, 245, 249, 0.7);
+        cursor: not-allowed;
+      }
+      /* 크롬 자동완성이 배경을 노랗게 덮는 것 방지 */
+      #loginSection .field input:-webkit-autofill,
+      #loginSection .field input:-webkit-autofill:focus {
+        -webkit-text-fill-color: var(--text);
+        box-shadow: 0 0 0 60px #fff inset;
+        transition: background-color 9999s ease-in-out 0s;
+      }
+      .field label {
+        position: absolute;
+        left: 47px;
+        top: 50%;
+        transform: translateY(-50%);
+        margin: 0;
+        font-size: 14px;
+        font-weight: 600;
+        color: #94a3b8;
+        pointer-events: none;
+        transition:
+          top 0.16s ease,
+          font-size 0.16s ease,
+          color 0.16s ease;
+      }
+      /* placeholder=" " 라서 값이 있거나 포커스일 때만 라벨이 올라갑니다 */
+      .field input:focus ~ label,
+      .field input:not(:placeholder-shown) ~ label {
+        top: 16px;
+        transform: none;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.01em;
+        color: var(--primary-hover);
+      }
+      .field-toggle {
+        position: absolute;
+        right: 8px;
+        top: 50%;
+        transform: translateY(-50%);
+        /* 모바일 탭 타겟 44px 확보 */
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        border: none;
+        border-radius: 11px;
+        background: transparent;
+        color: #94a3b8;
+        box-shadow: none;
+        display: grid;
+        place-items: center;
+        cursor: pointer;
+        transition: 0.16s;
+      }
+      .field-toggle:hover {
+        background: rgba(100, 116, 139, 0.1);
+        color: var(--text);
+      }
+      .field-toggle:active {
+        transform: translateY(-50%);
+      }
+      .field-toggle svg {
+        width: 19px;
+        height: 19px;
+      }
+
+      /* ── 아이디 저장 체크박스 ───────────────────────────────────── */
+      .auth-meta {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        margin: 3px 1px 5px;
+      }
+      .auth-check {
+        display: inline-flex;
+        align-items: center;
+        gap: 9px;
+        margin: 0;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--text-light);
+        cursor: pointer;
+        user-select: none;
+      }
+      .auth-check input {
+        position: absolute;
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .auth-check .box {
+        flex: 0 0 auto;
+        width: 19px;
+        height: 19px;
+        border-radius: 6px;
+        border: 1.5px solid #cbd5e1;
+        background: #fff;
+        display: grid;
+        place-items: center;
+        transition: 0.16s;
+      }
+      .auth-check .box svg {
+        width: 12px;
+        height: 12px;
+        color: #fff;
+        opacity: 0;
+        transform: scale(0.6);
+        transition: 0.16s;
+      }
+      .auth-check input:checked + .box {
+        background: var(--primary);
+        border-color: var(--primary);
+      }
+      .auth-check input:checked + .box svg {
+        opacity: 1;
+        transform: none;
+      }
+      .auth-check input:focus-visible + .box {
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.22);
+      }
+      .auth-hint {
+        font-size: 12px;
+        font-weight: 600;
+        color: #94a3b8;
+      }
+
+      /* ── 로그인 버튼 ────────────────────────────────────────────── */
+      .btn-auth {
+        height: 56px;
+        padding: 0 18px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        border-radius: 16px;
+        font-size: 15.5px;
+        letter-spacing: -0.01em;
+        background: linear-gradient(135deg, #4f46e5, #3b82f6 55%, #0ea5e9);
+        box-shadow: 0 10px 24px -8px rgba(59, 130, 246, 0.75);
+      }
+      .btn-auth:hover:not(:disabled) {
+        transform: translateY(-1px);
+        box-shadow: 0 14px 30px -8px rgba(59, 130, 246, 0.85);
+      }
+      .btn-auth:active:not(:disabled) {
+        transform: translateY(1px);
+      }
+      .btn-spinner {
+        display: none;
+        flex: 0 0 auto;
+        width: 17px;
+        height: 17px;
+        border-radius: 50%;
+        border: 2.2px solid rgba(255, 255, 255, 0.35);
+        border-top-color: #fff;
+        animation: authSpin 0.7s linear infinite;
+      }
+      .btn-auth.is-loading .btn-spinner {
+        display: block;
+      }
+      @keyframes authSpin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* ── 오류 메시지 / 푸터 ─────────────────────────────────────── */
+      #loginSection #loginMsg {
+        margin-top: 0;
+      }
+      #loginSection #loginMsg:not(:empty) {
+        margin-top: 14px;
+        padding: 11px 13px;
+        border-radius: 12px;
+        background: #fef2f2;
+        border: 1px solid #fecaca;
+        color: #dc2626;
+        text-align: left;
+        font-size: 12.5px;
+        line-height: 1.6;
+        animation: authMsgIn 0.28s ease both;
+      }
+      @keyframes authMsgIn {
+        from {
+          opacity: 0;
+          transform: translateY(-4px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
+      }
+      .auth-foot {
+        margin-top: 22px;
+        padding-top: 16px;
+        border-top: 1px solid rgba(100, 116, 139, 0.14);
+        text-align: center;
+        font-size: 11.5px;
+        line-height: 1.7;
+        color: #94a3b8;
+        font-weight: 600;
+        word-break: keep-all;
+      }
+
+      @media (max-width: 400px) {
+        body.auth-view .card {
+          padding: 30px 20px 24px;
+          border-radius: 24px;
+        }
+        .auth-title {
+          font-size: 19px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        body.auth-view::before,
+        body.auth-view::after,
+        body.auth-view .card,
+        .auth-mark .beam,
+        .btn-spinner {
+          animation: none;
+        }
+      }
+
+      /* ══════════════════════════════════════════════════════════════
+         반응형 — 화면이 좁아질수록 여백을 회수해 내용 폭을 확보합니다.
+         카드 패딩은 --pad-card 하나만 바꾸면 전체에 반영됩니다.
+         ══════════════════════════════════════════════════════════════ */
+      @media (max-width: 640px) {
+        :root {
+          --pad-card: 24px;
+        }
+        body {
+          padding: 14px;
+        }
+        .card {
+          margin-top: 10px;
+          border-radius: var(--r-xl);
+        }
+        h2 {
+          font-size: 20px;
+          margin-bottom: 22px;
+        }
+      }
+
+      /* 390~430px 대의 흔한 폰은 위 640px 단계(패딩 24px)를 그대로 씁니다.
+         여기부터는 정말 좁은 기기(360px 이하)만 추가로 조입니다. */
+      @media (max-width: 360px) {
+        :root {
+          --pad-card: 18px;
+        }
+        body {
+          padding: 10px;
+        }
+        .stats-row {
+          gap: 6px;
+        }
+        .stat-item {
+          padding: 8px 8px 9px;
+        }
+        /* 폭이 부족하면 아이콘을 접고 라벨을 온전히 살립니다 */
+        .stat-ico {
+          display: none;
+        }
+        .stat-val {
+          font-size: 17px;
+        }
+        .stat-label {
+          font-size: 10.5px;
+        }
+        .app-head-mark {
+          width: 38px;
+          height: 38px;
+        }
+        .app-head-title {
+          font-size: 16.5px;
+        }
+        .alert-body {
+          /* 아이콘 자리만큼 들여쓰던 여백을 회수 */
+          padding-left: 0;
+          margin-top: 2px;
+        }
+        .alert-box {
+          padding: 14px 14px 14px 18px;
+        }
+        table {
+          font-size: 12.5px;
+        }
+        th,
+        td {
+          padding: 11px 8px;
+        }
+      }
+
+      /* 큰 화면에서는 숨 쉴 공간을 조금 더 줍니다 */
+      @media (min-width: 900px) {
+        :root {
+          --pad-card: 38px;
+        }
+        body {
+          padding: 40px 20px;
+        }
+      }
+
+      /* 마우스가 없는 터치 기기에서는 hover 들뜸 효과를 끕니다
+         (탭 후 hover 상태가 남아 어색해지는 것을 방지) */
+      @media (hover: none) {
+        .alert-box:hover,
+        .btn-primary:hover:not(:disabled),
+        .btn-danger:hover:not(:disabled),
+        .btn-icon:hover,
+        .btn-logout:hover,
+        .nav-btn:hover {
+          transform: none;
+        }
+      }
+    </style>
+  </head>
+  <body class="auth-view">
+    <div class="card" id="appCard">
+      <!-- 상단 우측 버튼 (로그인 후 표시) -->
+      <div id="topRightControls" class="top-right-controls hidden">
+        <button
+          class="btn-icon"
+          id="changePwBtn"
+          onclick="openChangePwModal()"
+          title="비밀번호 변경"
+        >
+          🔑
+        </button>
+        <button class="btn-logout" onclick="logout()">🚪 로그아웃</button>
+      </div>
+
+      <!-- ───────── 로그인 화면 ───────── -->
+      <div id="loginSection">
+        <div class="auth-brand">
+          <div class="auth-mark">
+            <!-- 비콘(신호) 마크 — 가운데 점에서 신호가 퍼져나가는 형태 -->
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none" />
+              <path class="beam" d="M7.8 7.8a6 6 0 0 0 0 8.4" />
+              <path class="beam" d="M16.2 7.8a6 6 0 0 1 0 8.4" />
+              <path class="beam beam-2" d="M4.6 4.6a10.5 10.5 0 0 0 0 14.8" />
+              <path class="beam beam-2" d="M19.4 4.6a10.5 10.5 0 0 1 0 14.8" />
+            </svg>
+          </div>
+          <h1 class="auth-title">
+            Doje Beacon <span class="auth-year">2026</span>
+          </h1>
+          <div class="auth-sub">🎓 성일정보고등학교 도제반 3-12</div>
+        </div>
+
+        <form id="loginForm" class="auth-form" autocomplete="on">
+          <div class="field">
+            <input
+              type="text"
+              id="userId"
+              name="username"
+              autocomplete="username"
+              placeholder=" "
+              disabled
+            />
+            <label for="userId">학번 (교사는 ID)</label>
+            <svg
+              class="field-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+          </div>
+
+          <div class="field has-toggle">
+            <input
+              type="password"
+              id="userPw"
+              name="password"
+              autocomplete="current-password"
+              placeholder=" "
+              disabled
+            />
+            <label for="userPw">비밀번호</label>
+            <svg
+              class="field-icon"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <rect x="4" y="10.5" width="16" height="10" rx="2.5" />
+              <path d="M8 10.5V7a4 4 0 0 1 8 0v3.5" />
+            </svg>
+            <button
+              type="button"
+              class="field-toggle"
+              id="pwToggleBtn"
+              onclick="togglePwVisibility()"
+              aria-label="비밀번호 표시"
+              aria-pressed="false"
+              title="비밀번호 표시"
+            >
+              <svg
+                id="pwToggleIcon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                aria-hidden="true"
+              >
+                <path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z" />
+                <circle cx="12" cy="12" r="3" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="auth-meta">
+            <label class="auth-check">
+              <input type="checkbox" id="rememberId" />
+              <span class="box">
+                <svg
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="3.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  aria-hidden="true"
+                >
+                  <path d="m5 13 4.5 4.5L19 7" />
+                </svg>
+              </span>
+              아이디 저장
+            </label>
+            <span class="auth-hint">화·수·목 실습일</span>
+          </div>
+
+          <button
+            id="loginBtn"
+            type="submit"
+            class="btn-primary btn-auth"
+            disabled
+          >
+            <span class="btn-spinner" aria-hidden="true"></span>
+            <span id="loginBtnLabel">서버 설정 불러오는 중...</span>
+          </button>
+          <div id="loginMsg" class="msg-error" role="alert"></div>
+        </form>
+
+        <div class="auth-foot">
+          비밀번호를 잊었다면 담당 교사에게 초기화를 요청하세요.
+        </div>
+      </div>
+
+      <!-- ───────── 초기 설정 화면 ───────── -->
+      <div id="setupSection" class="hidden">
+        <h2>초기 설정 (1회)</h2>
+        <p
+          class="text-center"
+          style="font-size: 13px; color: var(--text-light); margin-bottom: 20px"
+        >
+          안전한 사용을 위해 비밀번호와 기준 출퇴근 시간을 설정해주세요.
+        </p>
+
+        <div class="input-group">
+          <label>새 비밀번호 (4자리 이상)</label>
+          <input type="password" id="newPw" placeholder="새로운 비밀번호" />
+        </div>
+
+        <!-- ✅ select → input[type=time] 으로 변경 (자유 시간 입력) -->
+        <div id="timeSetupArea" class="hidden">
+          <div class="input-group">
+            <label>내 회사 입실 기준 시간</label>
+            <input type="time" id="setInTime" value="09:00" />
+          </div>
+          <div class="input-group">
+            <label>내 회사 퇴실 기준 시간</label>
+            <input type="time" id="setOutTime" value="18:00" />
+          </div>
+        </div>
+
+        <button class="btn-primary" onclick="submitSetup()">
+          설정 완료 및 시작하기
+        </button>
+      </div>
+
+      <!-- ───────── 학생 메인 화면 ───────── -->
+      <div id="studentSection" class="hidden">
+        <div class="app-head">
+          <span class="app-head-mark">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none" />
+              <path d="M7.8 7.8a6 6 0 0 0 0 8.4" />
+              <path d="M16.2 7.8a6 6 0 0 1 0 8.4" />
+              <path d="M4.6 4.6a10.5 10.5 0 0 0 0 14.8" />
+              <path d="M19.4 4.6a10.5 10.5 0 0 1 0 14.8" />
+            </svg>
+          </span>
+          <span class="app-head-text">
+            <span class="app-head-title">Doje Beacon</span>
+            <span class="app-head-sub">성일정보고 도제반 3-12</span>
+          </span>
+        </div>
+        <div class="text-center">
+          <div class="date-display" id="currentDateStr"></div>
+          <div
+            id="dayWarning"
+            class="hidden msg-error"
+            style="margin-bottom: 10px"
+          >
+            ※ 오늘은 현장실습일이 아닙니다.
+          </div>
+        </div>
+
+        <div class="info-box">
+          <p id="welcomeName" style="color: #0f172a; font-size: 16px">
+            반갑습니다.
+          </p>
+          <p id="myTimeInfo" style="font-size: 14px">
+            내 기준: - 입실 / - 퇴실
+          </p>
+        </div>
+
+        <button id="btnIn" class="btn-in" onclick="submitAttend('입실')">
+          👆 입실 기록하기
+        </button>
+        <button id="btnOut" class="btn-out" onclick="submitAttend('퇴실')">
+          👋 퇴실 기록하기
+        </button>
+
+        <div class="footer-box">🎓 성일정보고등학교 도제반 3-12</div>
+      </div>
+
+      <!-- ───────── 교사 대시보드 ───────── -->
+      <div id="adminSection" class="hidden">
+        <div class="app-head">
+          <span class="app-head-mark">
+            <svg
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              aria-hidden="true"
+            >
+              <circle cx="12" cy="12" r="2.6" fill="currentColor" stroke="none" />
+              <path d="M7.8 7.8a6 6 0 0 0 0 8.4" />
+              <path d="M16.2 7.8a6 6 0 0 1 0 8.4" />
+              <path d="M4.6 4.6a10.5 10.5 0 0 0 0 14.8" />
+              <path d="M19.4 4.6a10.5 10.5 0 0 1 0 14.8" />
+            </svg>
+          </span>
+          <span class="app-head-text">
+            <span class="app-head-title">Doje Beacon</span>
+            <span class="app-head-sub">성일정보고 도제반 3-12 · 교사</span>
+          </span>
+        </div>
+
+        <!-- 탭 바 -->
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchTab('tab-dashboard')">
+            📋 출석 현황
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-students')">
+            👥 학생 관리
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-block')">
+            🚫 날짜 차단
+          </button>
+          <button class="tab-btn" onclick="switchTab('tab-report')">
+            📄 월간 레포트
+          </button>
+        </div>
+
+        <!-- ── 탭 1: 출석 현황 ── -->
+        <div id="tab-dashboard" class="tab-panel active">
+          <div class="section-head">
+            <span class="section-title">조회 날짜</span>
+            <button
+              onclick="fetchAdminData(false)"
+              class="chip-btn"
+              id="refreshBtn"
+            >
+              🔄 새로고침
+            </button>
+          </div>
+
+          <div class="date-nav">
+            <button class="nav-btn" onclick="changeDate(-1)">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <div class="date-picker-wrapper" id="calendarTrigger">
+              <svg
+                class="calendar-icon"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              <span id="displayDateText" class="current-day-label"
+                >로딩중...</span
+              >
+            </div>
+            <button class="nav-btn" onclick="changeDate(1)">
+              <svg
+                width="20"
+                height="20"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+
+          <div
+            id="adminDayWarning"
+            class="hidden text-center msg-error"
+            style="margin-bottom: 15px"
+          >
+            ※ 해당 날짜는 현장실습일(화, 수, 목)이 아닙니다.
+          </div>
+          <div
+            id="adminBlockedWarning"
+            class="hidden text-center"
+            style="
+              margin-bottom: 15px;
+              padding: 10px;
+              background: #fee2e2;
+              border-radius: 10px;
+              color: #dc2626;
+              font-weight: 700;
+              font-size: 13px;
+            "
+          ></div>
+
+          <div class="stats-row">
+            <div class="stat-item stat-in">
+              <div class="stat-head">
+                <span class="stat-ico">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 5v14" />
+                    <path d="m6 13 6 6 6-6" />
+                  </svg>
+                </span>
+                <div class="stat-label">해당일 입실</div>
+              </div>
+              <div class="stat-val" id="countIn">0명</div>
+            </div>
+            <div class="stat-item stat-out">
+              <div class="stat-head">
+                <span class="stat-ico">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.6"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M12 19V5" />
+                    <path d="m6 11 6-6 6 6" />
+                  </svg>
+                </span>
+                <div class="stat-label">해당일 퇴실</div>
+              </div>
+              <div class="stat-val" id="countOut">0명</div>
+            </div>
+            <div class="stat-item stat-warn">
+              <div class="stat-head">
+                <span class="stat-ico">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <circle cx="12" cy="12" r="8.5" />
+                    <path d="M12 7.5V12l2.8 2.8" />
+                  </svg>
+                </span>
+                <div class="stat-label">지각/조퇴</div>
+              </div>
+              <div class="stat-val" id="countWarn">0명</div>
+            </div>
+          </div>
+
+          <div class="section-head" style="margin-top: 18px">
+            <span class="section-title">확인 필요</span>
+          </div>
+          <div style="margin-bottom: 20px">
+            <div class="alert-box box-red">
+              <div class="alert-head">
+                <span class="alert-icon">⚠️</span>
+                <p>미입력 학생 (입/퇴실 기록 없음)</p>
+              </div>
+              <div class="alert-body" id="unrecordedList">
+                데이터 불러오는 중...
+              </div>
+            </div>
+            <div class="alert-box box-orange">
+              <div class="alert-head">
+                <span class="alert-icon">⏰</span>
+                <p>기준시간 대비 25분 이상 늦은 학생</p>
+              </div>
+              <div class="alert-body" id="late25List">
+                데이터 불러오는 중...
+              </div>
+            </div>
+            <div class="alert-box box-purple">
+              <div class="alert-head">
+                <span class="alert-icon">🏃</span>
+                <p>18시 이후 퇴실 미기록자 (입실만 한 학생)</p>
+              </div>
+              <div class="alert-body" id="missingOutList">
+                데이터 불러오는 중...
+              </div>
+            </div>
+          </div>
+
+          <div class="section-head">
+            <span class="section-title">기록 상세</span>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>학번/이름</th>
+                  <th>구분</th>
+                  <th>시간</th>
+                  <th>상태</th>
+                </tr>
+              </thead>
+              <tbody id="dashboardContent"></tbody>
+            </table>
+          </div>
+          <div id="paginationControls"></div>
+        </div>
+
+        <!-- ── 탭 2: 학생 관리 ── -->
+        <div id="tab-students" class="tab-panel">
+          <div class="section-head">
+            <span class="section-title">등록 학생 목록</span>
+            <button class="chip-btn chip-btn-accent" onclick="openStudentForm()">
+              ➕ 학생 등록
+            </button>
+          </div>
+
+          <!-- 발급된 초기 비밀번호는 해시로만 저장되어 다시 볼 수 없습니다 -->
+          <div id="initialPwNotice" class="initial-pw-notice hidden">
+            <div class="initial-pw-head">
+              🔐 <strong id="initialPwTarget"></strong> 학생의 초기 비밀번호
+            </div>
+            <div class="initial-pw-row">
+              <code id="initialPwValue"></code>
+              <button
+                type="button"
+                class="btn-secondary initial-pw-copy"
+                id="copyInitialPwBtn"
+                onclick="copyInitialPw()"
+              >
+                복사
+              </button>
+            </div>
+            <div class="initial-pw-warn">
+              이 화면을 벗어나면 다시 확인할 수 없습니다. 학생에게 전달한 뒤
+              최초 로그인에서 비밀번호를 바꾸도록 안내해주세요.
+            </div>
+          </div>
+
+          <div id="studentManageMsg" class="msg-error"></div>
+
+          <div class="student-list-head">
+            <strong>전체</strong>
+            <span id="studentManageCount">0명</span>
+          </div>
+          <div class="table-container">
+            <table>
+              <thead>
+                <tr>
+                  <th>학번</th>
+                  <th>이름</th>
+                  <th>기준시간</th>
+                  <th>관리</th>
+                </tr>
+              </thead>
+              <tbody id="studentManageContent">
+                <tr>
+                  <td colspan="4">데이터를 불러오는 중...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div id="studentPagination"></div>
+          <p style="font-size: 12px; color: #64748b; line-height: 1.6">
+            학번은 출결 이력 식별키이므로 등록 후 변경할 수 없습니다. 학생
+            삭제 시 기존 출결 기록은 보존됩니다.
+          </p>
+        </div>
+
+        <!-- ── 탭 3: 날짜 차단 ── -->
+        <div id="tab-block" class="tab-panel">
+          <div class="bc-month-nav">
+            <button class="nav-btn" onclick="blockCalPrev()">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M15 18l-6-6 6-6" />
+              </svg>
+            </button>
+            <div class="bc-month-title" id="bcMonthTitle">로딩중...</div>
+            <button class="nav-btn" onclick="blockCalNext()">
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+              >
+                <path d="M9 18l6-6-6-6" />
+              </svg>
+            </button>
+          </div>
+
+          <div class="block-legend">
+            <span><span class="legend-dot is-blocked"></span>차단됨</span>
+            <span><span class="legend-dot is-holiday"></span>공휴일(자동)</span>
+            <span><span class="legend-dot is-field"></span>현장실습일</span>
+            <span><span class="legend-dot is-off"></span>비대상일</span>
+          </div>
+
+          <div class="block-calendar-grid" id="blockCalGrid">
+            <div class="bc-day-header">일</div>
+            <div class="bc-day-header">월</div>
+            <div class="bc-day-header" style="color: var(--primary)">화</div>
+            <div class="bc-day-header" style="color: var(--primary)">수</div>
+            <div class="bc-day-header" style="color: var(--primary)">목</div>
+            <div class="bc-day-header">금</div>
+            <div class="bc-day-header">토</div>
+          </div>
+
+          <!-- 차단 설정 폼 (날짜 클릭 시 표시) -->
+          <div id="blockForm" class="bc-form hidden">
+            <div class="bc-form-title">
+              📅 <span id="blockFormDate"></span> 설정
+            </div>
+            <div class="input-group" style="margin-bottom: 12px">
+              <label for="blockReason">사유 (선택)</label>
+              <input
+                type="text"
+                id="blockReason"
+                placeholder="예: 현장학습, 공결 처리 등"
+              />
+            </div>
+            <div class="bc-form-actions">
+              <button class="btn-danger" onclick="applyBlockDate(true)">
+                🚫 차단하기
+              </button>
+              <button class="btn-secondary" onclick="applyBlockDate(false)">
+                ✅ 차단 해제
+              </button>
+              <button
+                class="btn-secondary bc-close"
+                aria-label="닫기"
+                onclick="
+                  document.getElementById('blockForm').classList.add('hidden')
+                "
+              >
+                ✕
+              </button>
+            </div>
+            <div id="blockFormMsg" class="msg-error"></div>
+          </div>
+
+          <div style="margin-top: 14px" id="blockedListSummary"></div>
+        </div>
+
+        <!-- ── 탭 4: 월간 레포트 ── -->
+        <div id="tab-report" class="tab-panel">
+          <div class="report-panel">
+            <h3>📄 월간 출석 레포트</h3>
+            <div class="month-selector">
+              <select id="reportYear"></select>
+              <select id="reportMonth">
+                <option value="1">1월</option>
+                <option value="2">2월</option>
+                <option value="3">3월</option>
+                <option value="4">4월</option>
+                <option value="5">5월</option>
+                <option value="6">6월</option>
+                <option value="7">7월</option>
+                <option value="8">8월</option>
+                <option value="9">9월</option>
+                <option value="10">10월</option>
+                <option value="11">11월</option>
+                <option value="12">12월</option>
+              </select>
+            </div>
+            <button
+              class="btn-primary"
+              onclick="generateReport()"
+              id="reportBtn"
+              style="margin-bottom: 16px"
+            >
+              📊 레포트 미리보기 생성
+            </button>
+            <div id="reportZoom" class="report-zoom hidden">
+              <span class="report-zoom-label">미리보기 배율</span>
+              <button
+                type="button"
+                class="report-zoom-btn active"
+                data-zoom="fit"
+                onclick="setReportZoom('fit')"
+              >
+                화면 맞춤
+              </button>
+              <button
+                type="button"
+                class="report-zoom-btn"
+                data-zoom="full"
+                onclick="setReportZoom('full')"
+              >
+                100%
+              </button>
+            </div>
+            <div id="reportPreviewArea" class="report-preview">
+              <div class="report-placeholder">
+                월과 연도를 선택 후 버튼을 누르세요.
+              </div>
+            </div>
+            <div id="reportActions" class="hidden" style="display: none">
+              <button
+                class="btn-primary"
+                onclick="downloadReport()"
+                style="margin-bottom: 10px"
+              >
+                🖨️ 새 탭에서 열기 → PDF 저장
+              </button>
+            </div>
+            <div id="reportMsg" class="msg-error"></div>
+          </div>
+        </div>
+
+        <div class="footer-box" style="margin-top: 24px">
+          🎓 성일정보고등학교 도제반 3-12
+        </div>
+      </div>
+    </div>
+
+    <!-- ───────── 비밀번호 변경 모달 ───────── -->
+    <!-- ───────── 학생 등록/수정 모달 ───────── -->
+    <div id="studentFormModal" class="modal-overlay hidden">
+      <div class="modal-box modal-box-wide">
+        <h3 id="studentFormTitle">➕ 학생 등록</h3>
+        <div class="student-form-grid">
+          <div class="input-group">
+            <label for="manageStudentId">학번</label>
+            <input
+              type="text"
+              id="manageStudentId"
+              maxlength="30"
+              placeholder="예: 31201"
+            />
+          </div>
+          <div class="input-group">
+            <label for="manageStudentName">이름</label>
+            <input
+              type="text"
+              id="manageStudentName"
+              maxlength="20"
+              placeholder="학생 이름"
+            />
+          </div>
+          <div class="input-group">
+            <label for="manageStudentInTime">입실 기준시간</label>
+            <input type="time" id="manageStudentInTime" value="09:00" />
+          </div>
+          <div class="input-group">
+            <label for="manageStudentOutTime">퇴실 기준시간</label>
+            <input type="time" id="manageStudentOutTime" value="18:00" />
+          </div>
+        </div>
+        <div id="studentFormMsg" class="msg-error"></div>
+        <div class="modal-actions">
+          <button class="btn-secondary" onclick="closeStudentForm()">
+            취소
+          </button>
+          <button
+            class="btn-primary"
+            id="saveStudentBtn"
+            onclick="saveStudent()"
+          >
+            학생 등록
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="changePwModal" class="modal-overlay hidden">
+      <div class="modal-box">
+        <h3>🔑 비밀번호 변경</h3>
+        <div class="input-group">
+          <label>현재 비밀번호</label>
+          <input type="password" id="currentPw" placeholder="현재 비밀번호" />
+        </div>
+        <div class="input-group">
+          <label>새 비밀번호 (4자리 이상)</label>
+          <input
+            type="password"
+            id="changePwNew"
+            placeholder="새 비밀번호"
+            onkeyup="if (event.keyCode === 13) submitChangePw();"
+          />
+        </div>
+        <div class="input-group">
+          <label>새 비밀번호 확인</label>
+          <input
+            type="password"
+            id="changePwConfirm"
+            placeholder="새 비밀번호 다시 입력"
+            onkeyup="if (event.keyCode === 13) submitChangePw();"
+          />
+        </div>
+        <div id="changePwMsg" class="msg-error"></div>
+        <div class="modal-actions">
+          <button
+            class="btn-secondary"
+            onclick="closeChangePwModal()"
+            style="margin-bottom: 0"
+          >
+            취소
+          </button>
+          <button class="btn-primary" onclick="submitChangePw()">
+            변경하기
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      // ── 화면 전용 상수 (서버 규칙과 무관) ─────────────────────────────
+      const SESSION_KEY = "attendance_user";
+      // ✅ 자동 새로고침 30초로 조정 (기존 10초)
+      const AUTO_REFRESH_MS = 30 * 1000;
+      const ITEMS_PER_PAGE = 5;
+      const STUDENTS_PER_PAGE = 6;
+
+      // ── 업무 규칙 상수 ────────────────────────────────────────────────
+      // 실습요일·공휴일·지각 기준 등은 code.gs가 유일한 출처이며, 페이지 시작
+      // 시점에 getConfig로 내려받습니다. 아래 값은 그 요청이 실패했을 때만
+      // 쓰이는 최후의 기본값입니다 — 규칙을 바꿀 때는 code.gs를 고치세요.
+      const CONFIG_FALLBACK = {
+        fieldDays: [2, 3, 4], // 화, 수, 목
+        holidays: {
+          "01-01": "새해",
+          "03-01": "삼일절",
+          "05-05": "어린이날",
+          "06-06": "현충일",
+          "08-15": "광복절",
+          "10-03": "개천절",
+          "10-09": "한글날",
+          "12-25": "크리스마스",
+        },
+        outUnlockAfterMinutes: 120,
+        lateGraceMinutes: 20,
+        dashboardLateAlertMinutes: 25,
+        dayCloseMinutes: 18 * 60,
+        sessionTimeoutMs: 30 * 60 * 1000,
+        minPasswordLength: 4,
+        maxPasswordLength: 50,
+        blockedPasswords: ["0000", "1234"],
+      };
+      let CONFIG = { ...CONFIG_FALLBACK };
+
+      // ── 상태 ──────────────────────────────────────────────────────────
+      let API_URL = "";
+      let userInfo = {};
+      let allAdminData = [];
+      let allStudents = [];
+      let allBlockedDates = []; // 차단 날짜 목록
+      let currentAdminDate = new Date();
+      let autoRefreshTimer = null;
+      let fpCalendar = null;
+      let currentFilteredData = [];
+      let currentPage = 1;
+      let sessionTimeoutTimer;
+      let editingStudentId = null;
+      let studentPage = 1;
+      // 날짜 차단 캘린더 상태
+      let bcYear = new Date().getFullYear();
+      let bcMonth = new Date().getMonth(); // 0-based
+      let selectedBlockDate = null;
+      // 수동 차단 목록에서 선택된 달 ('yyyy-MM'). null 이면 달력의 현재 달을 씁니다.
+      let blockedListMonth = null;
+      // 레포트 상태
+      let reportHtmlContent = "";
+      // 미리보기 배율: 'fit'(폭 맞춤) | 'full'(100%)
+      let reportZoom = "fit";
+      // 문서 크기를 재기 전에 iframe 에 줄 기준 폭. 이보다 넓으면 실제 값으로 교체됩니다.
+      const REPORT_DOC_WIDTH = 1000;
+
+      // ── 초기화 ────────────────────────────────────────────────────────
+      const REMEMBER_ID_KEY = "attendance_remembered_id";
+
+      window.onload = async () => {
+        // 폼 submit(엔터 입력 포함)을 login()에 연결 — 실제 페이지 이동은 막음
+        document.getElementById("loginForm").addEventListener("submit", (e) => {
+          e.preventDefault();
+          login();
+        });
+
+        // 저장된 아이디 복원 (비밀번호는 저장하지 않고, 브라우저 자격증명
+        // 관리자가 자동으로 채워주는 것에 맡깁니다)
+        const rememberedId = localStorage.getItem(REMEMBER_ID_KEY);
+        if (rememberedId) {
+          document.getElementById("userId").value = rememberedId;
+          document.getElementById("rememberId").checked = true;
+        }
+
+        try {
+          const response = await fetch("project26_05_gas_url.json");
+          if (!response.ok) throw new Error("config fetch failed");
+          const config = await response.json();
+          API_URL = config.api_url;
+        } catch (error) {
+          document.getElementById("loginMsg").innerText =
+            "서버 설정을 불러오는데 실패했습니다. 관리자에게 문의하세요.";
+          return;
+        }
+
+        // 업무 규칙을 서버에서 받아옵니다. 실패해도 기본값으로 동작은 하되,
+        // 서버가 최종 판정을 하므로 화면 표시만 어긋날 수 있습니다.
+        const cfgRes = await callAPI({ action: "getConfig" });
+        if (cfgRes.success && cfgRes.config) {
+          CONFIG = { ...CONFIG_FALLBACK, ...cfgRes.config };
+        } else {
+          console.warn("서버 설정을 받지 못해 기본값으로 동작합니다.");
+        }
+
+        document.getElementById("userId").disabled = false;
+        document.getElementById("userPw").disabled = false;
+        setLoginButton("로그인", false);
+        document.getElementById("loginBtn").disabled = false;
+
+        // 세션 복원
+        // JSON.parse 를 감싸지 않으면 저장값이 손상됐을 때 예외가 나면서
+        // window.onload 의 나머지(세션 타임아웃·리사이즈·탭 전환 처리)가
+        // 통째로 등록되지 않습니다.
+        const savedSession = sessionStorage.getItem(SESSION_KEY);
+        if (savedSession) {
+          let restored = null;
+          try {
+            restored = JSON.parse(savedSession);
+          } catch (_) {
+            restored = null;
+          }
+          if (restored && restored.id && restored.role && restored.token) {
+            userInfo = restored;
+            document.getElementById("loginSection").classList.add("hidden");
+            showMain();
+            // 복원 직후에도 자동 로그아웃이 걸리도록 타이머를 시작합니다.
+            // (예전에는 첫 마우스·키 입력이 있어야 비로소 시작됐습니다)
+            resetSessionTimer();
+          } else {
+            sessionStorage.removeItem(SESSION_KEY);
+          }
+        }
+
+        // 세션 타임아웃 이벤트 등록
+        ["click", "mousemove", "keypress", "scroll", "touchstart"].forEach(
+          (evt) => {
+            document.addEventListener(evt, resetSessionTimer, {
+              passive: true,
+            });
+          },
+        );
+
+        // 화면 폭이 바뀌면 레포트 미리보기 배율을 다시 계산합니다
+        let refitTimer = null;
+        window.addEventListener("resize", () => {
+          if (!document.querySelector(".report-stage")) return;
+          clearTimeout(refitTimer);
+          refitTimer = setTimeout(fitReportPreview, 150);
+        });
+
+        // ✅ 백그라운드 탭 자동 새로고침 정지
+        document.addEventListener("visibilitychange", () => {
+          if (document.hidden) {
+            if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+            autoRefreshTimer = null;
+          } else {
+            if (userInfo.role === "교사") startAutoRefresh();
+          }
+        });
+      };
+
+      function resetSessionTimer() {
+        if (!sessionStorage.getItem(SESSION_KEY)) return;
+        clearTimeout(sessionTimeoutTimer);
+        sessionTimeoutTimer = setTimeout(() => {
+          alert("보안을 위해 장시간 활동이 없어 자동 로그아웃 되었습니다.");
+          logout();
+        }, CONFIG.sessionTimeoutMs);
+      }
+
+      // ── API 통신 ──────────────────────────────────────────────────────
+      // ✅ 로그인 후 발급된 세션 토큰(userInfo.token)을 모든 요청에 자동으로
+      //    실어 보냅니다. 서버는 이 토큰을 req.id 와 함께 재검증하므로,
+      //    id 값만 알아서는 다른 계정으로 요청을 위조할 수 없습니다.
+      async function callAPI(payload) {
+        if (!API_URL)
+          return { success: false, msg: "서버 주소가 설정되지 않았습니다." };
+        const body = { ...payload };
+        if (!body.token && userInfo && userInfo.token) {
+          body.token = userInfo.token;
+        }
+        try {
+          const response = await fetch(API_URL, {
+            method: "POST",
+            body: JSON.stringify(body),
+          });
+          return await response.json();
+        } catch (error) {
+          return {
+            success: false,
+            msg: "서버 연결 실패. 네트워크 상태나 스크립트 URL을 확인하세요.",
+          };
+        }
+      }
+
+      // ── 로그인 ────────────────────────────────────────────────────────
+      // 버튼 안에 스피너가 들어있어 innerText로 통째로 덮어쓰면 안 됩니다.
+      function setLoginButton(label, isLoading) {
+        document.getElementById("loginBtnLabel").textContent = label;
+        document
+          .getElementById("loginBtn")
+          .classList.toggle("is-loading", !!isLoading);
+      }
+
+      function togglePwVisibility() {
+        const input = document.getElementById("userPw");
+        const btn = document.getElementById("pwToggleBtn");
+        const showing = input.type === "text";
+
+        input.type = showing ? "password" : "text";
+        btn.setAttribute("aria-pressed", String(!showing));
+        const label = showing ? "비밀번호 표시" : "비밀번호 숨기기";
+        btn.setAttribute("aria-label", label);
+        btn.title = label;
+
+        // 눈 아이콘 ↔ 사선 그어진 눈 아이콘
+        document.getElementById("pwToggleIcon").innerHTML = showing
+          ? '<path d="M2 12s3.6-6.5 10-6.5S22 12 22 12s-3.6 6.5-10 6.5S2 12 2 12Z"/><circle cx="12" cy="12" r="3"/>'
+          : '<path d="M10.6 6.6A9.9 9.9 0 0 1 12 6.5c6.4 0 10 6.5 10 6.5a18 18 0 0 1-3.2 4M6.2 8.3A17.7 17.7 0 0 0 2 13s3.6 6.5 10 6.5a10 10 0 0 0 4-.8"/><path d="m3 3 18 18"/><path d="M9.9 10.1a3 3 0 0 0 4.2 4.2"/>';
+      }
+
+      // 입력 즉시 학번 존재 여부를 확인하던 verifyId()는 제거했습니다.
+      // 누구나 학번 목록을 훑어볼 수 있는 열거 창구였고, 오타 한 글자에
+      // 입력값을 통째로 지워버리는 동작도 문제였습니다.
+      async function login() {
+        const id = document.getElementById("userId").value.trim();
+        const pw = document.getElementById("userPw").value;
+        if (!id || !pw) return alert("입력값을 확인해주세요.");
+
+        const btn = document.getElementById("loginBtn");
+        setLoginButton("확인중...", true);
+        btn.disabled = true;
+
+        const res = await callAPI({ action: "login", id, pw });
+
+        setLoginButton("로그인", false);
+        btn.disabled = false;
+
+        if (res.success) {
+          // 아이디 저장 체크 여부에 따라 로컬에 아이디만 보관 (비밀번호는 절대 저장하지 않음)
+          if (document.getElementById("rememberId").checked) {
+            localStorage.setItem(REMEMBER_ID_KEY, id);
+          } else {
+            localStorage.removeItem(REMEMBER_ID_KEY);
+          }
+
+          // 브라우저 자체 비밀번호 관리자에 저장 요청 (지원 브라우저만 해당,
+          // 우리 코드/서버는 비밀번호를 별도로 저장하지 않습니다)
+          if (window.PasswordCredential) {
+            try {
+              const cred = new PasswordCredential({
+                id,
+                password: pw,
+                name: res.name ? `${res.name} (${id})` : id,
+              });
+              navigator.credentials.store(cred);
+            } catch (_) {
+              // 저장 실패해도 로그인 흐름에는 영향 없음
+            }
+          }
+
+          userInfo = res;
+          document.getElementById("loginSection").classList.add("hidden");
+
+          if (res.needsSetup) {
+            document.getElementById("setupSection").classList.remove("hidden");
+            if (res.role === "학생") {
+              document
+                .getElementById("timeSetupArea")
+                .classList.remove("hidden");
+            }
+          } else {
+            sessionStorage.setItem(SESSION_KEY, JSON.stringify(userInfo));
+            resetSessionTimer();
+            showMain();
+          }
+        } else {
+          document.getElementById("loginMsg").innerText = res.msg;
+        }
+      }
+
+      function logout() {
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+        if (sessionTimeoutTimer) clearTimeout(sessionTimeoutTimer);
+        if (outUnlockTimer) clearInterval(outUnlockTimer);
+        // 서버 측 세션 토큰도 즉시 폐기 (실패해도 로그아웃 자체는 진행)
+        if (userInfo && userInfo.token) {
+          callAPI({ action: "logout", token: userInfo.token }).catch(() => {});
+        }
+        sessionStorage.removeItem(SESSION_KEY);
+        location.reload();
+      }
+
+      // ── 초기 설정 ─────────────────────────────────────────────────────
+      async function submitSetup() {
+        const newPw = document.getElementById("newPw").value;
+        const inTime = document.getElementById("setInTime").value;
+        const outTime = document.getElementById("setOutTime").value;
+
+        if (
+          newPw.length < CONFIG.minPasswordLength ||
+          newPw.length > CONFIG.maxPasswordLength
+        )
+          return alert(
+            `비밀번호는 ${CONFIG.minPasswordLength}~${CONFIG.maxPasswordLength}자로 입력하세요.`,
+          );
+        if (CONFIG.blockedPasswords.includes(newPw))
+          return alert("초기 비밀번호는 새 비밀번호로 사용할 수 없습니다.");
+
+        const res = await callAPI({
+          action: "initialSetup",
+          id: userInfo.id,
+          pw: newPw,
+          inTime,
+          outTime,
+        });
+
+        if (res.success) {
+          alert("설정이 완료되었습니다! 다시 로그인해주세요.");
+          location.reload();
+        } else {
+          alert(res.msg);
+        }
+      }
+
+      // ── 비밀번호 변경 ─────────────────────────────────────────────────
+      function openChangePwModal() {
+        document.getElementById("currentPw").value = "";
+        document.getElementById("changePwNew").value = "";
+        document.getElementById("changePwConfirm").value = "";
+        document.getElementById("changePwMsg").innerText = "";
+        document.getElementById("changePwModal").classList.remove("hidden");
+      }
+
+      function closeChangePwModal() {
+        document.getElementById("changePwModal").classList.add("hidden");
+      }
+
+      async function submitChangePw() {
+        const currentPw = document.getElementById("currentPw").value;
+        const newPw = document.getElementById("changePwNew").value;
+        const confirm = document.getElementById("changePwConfirm").value;
+        const msgEl = document.getElementById("changePwMsg");
+
+        if (!currentPw || !newPw || !confirm) {
+          msgEl.innerText = "모든 항목을 입력해주세요.";
+          return;
+        }
+        if (
+          newPw.length < CONFIG.minPasswordLength ||
+          newPw.length > CONFIG.maxPasswordLength
+        ) {
+          msgEl.innerText = `새 비밀번호는 ${CONFIG.minPasswordLength}~${CONFIG.maxPasswordLength}자여야 합니다.`;
+          return;
+        }
+        if (newPw !== confirm) {
+          msgEl.innerText = "새 비밀번호가 일치하지 않습니다.";
+          return;
+        }
+        if (CONFIG.blockedPasswords.includes(newPw)) {
+          msgEl.innerText = "초기 비밀번호는 사용할 수 없습니다.";
+          return;
+        }
+
+        msgEl.style.color = "";
+        msgEl.innerText = "변경 중...";
+
+        const res = await callAPI({
+          action: "changePw",
+          id: userInfo.id,
+          currentPw,
+          newPw,
+        });
+
+        if (res.success) {
+          msgEl.style.color = "#10b981";
+          msgEl.innerText =
+            "✅ 비밀번호가 변경되었습니다. 다시 로그인해주세요.";
+          setTimeout(() => {
+            closeChangePwModal();
+            logout();
+          }, 1500);
+        } else {
+          msgEl.style.color = "";
+          msgEl.innerText = res.msg;
+        }
+      }
+
+      // ── 메인 화면 분기 ────────────────────────────────────────────────
+      function showMain() {
+        // 로그인 전용 배경/유리카드 스타일 해제 (초기설정 화면까지는 유지)
+        document.body.classList.remove("auth-view");
+        document.getElementById("topRightControls").classList.remove("hidden");
+
+        if (userInfo.role === "학생") {
+          document.getElementById("appCard").style.maxWidth = "400px";
+          document.getElementById("studentSection").classList.remove("hidden");
+          setupStudentView();
+        } else if (userInfo.role === "교사") {
+          // 비밀번호 변경 버튼은 학생만 (교사는 숨김)
+          document.getElementById("changePwBtn").classList.add("hidden");
+          showAdmin();
+        } else {
+          alert("권한 정보가 유효하지 않습니다.");
+          logout();
+        }
+      }
+
+      // ── 학생 화면 ─────────────────────────────────────────────────────
+      async function setupStudentView() {
+        const now = new Date();
+        const days = ["일", "월", "화", "수", "목", "금", "토"];
+        const dayIdx = now.getDay();
+
+        document.getElementById("currentDateStr").innerText =
+          `${now.getMonth() + 1}월 ${now.getDate()}일 (${days[dayIdx]})`;
+        document.getElementById("welcomeName").innerText =
+          `${userInfo.name} 학생`;
+        document.getElementById("myTimeInfo").innerText =
+          `내 기준: ${userInfo.inTime} 입실 / ${userInfo.outTime} 퇴실`;
+
+        // 현장실습일 아닌 경우
+        if (!CONFIG.fieldDays.includes(dayIdx)) {
+          disableAttendButtons("현장실습일이 아닙니다.");
+          document.getElementById("dayWarning").classList.remove("hidden");
+          return;
+        }
+
+        document.getElementById("btnIn").innerText = "⏳ 상태 확인중...";
+        document.getElementById("btnOut").innerText = "⏳ 상태 확인중...";
+
+        // 차단 여부 + 출결 상태 동시 확인
+        const [blockedRes, statusRes] = await Promise.all([
+          callAPI({ action: "checkTodayBlocked" }),
+          callAPI({ action: "getStudentStatus", id: userInfo.id }),
+        ]);
+
+        if (blockedRes.success && blockedRes.blocked) {
+          disableAttendButtons(
+            `출석이 차단된 날입니다. (${blockedRes.reason})`,
+          );
+          document.getElementById("dayWarning").innerText =
+            `🚫 오늘은 출석 기록이 차단되었습니다. 사유: ${blockedRes.reason}`;
+          document.getElementById("dayWarning").classList.remove("hidden");
+          return;
+        }
+
+        if (statusRes.success)
+          updateStudentButtons(statusRes.inDone, statusRes.outDone);
+      }
+
+      function disableAttendButtons(reason) {
+        const bIn = document.getElementById("btnIn");
+        const bOut = document.getElementById("btnOut");
+        bIn.disabled = true;
+        bOut.disabled = true;
+        bIn.classList.add("btn-done");
+        bOut.classList.add("btn-done");
+        bIn.innerText = `🚫 ${reason}`;
+        bOut.innerText = `🚫 ${reason}`;
+      }
+
+      async function submitAttend(type) {
+        const btn =
+          type === "입실"
+            ? document.getElementById("btnIn")
+            : document.getElementById("btnOut");
+
+        btn.disabled = true;
+        btn.innerText = "⏳ 기록 중...";
+
+        const res = await callAPI({
+          action: "recordAttendance",
+          id: userInfo.id,
+          type,
+        });
+
+        if (res.success) {
+          alert(res.msg);
+          const status = await callAPI({
+            action: "getStudentStatus",
+            id: userInfo.id,
+          });
+          if (status.success)
+            updateStudentButtons(status.inDone, status.outDone);
+        } else {
+          alert(res.msg);
+          btn.disabled = false;
+          btn.innerText =
+            type === "입실" ? "👆 입실 기록하기" : "👋 퇴실 기록하기";
+        }
+      }
+
+      // ── 퇴실 버튼: 내 기준 입실시간(IN_TIME) + 2시간이 지나야 활성화 ──────
+      let outUnlockTimer = null;
+
+      function getOutUnlockTimeMs() {
+        if (!userInfo || !userInfo.inTime) return null;
+        const parts = userInfo.inTime.toString().split(":");
+        if (parts.length < 2) return null;
+        const h = parseInt(parts[0], 10);
+        const m = parseInt(parts[1], 10);
+        if (isNaN(h) || isNaN(m)) return null;
+
+        const base = new Date();
+        base.setHours(h, m, 0, 0);
+        return base.getTime() + CONFIG.outUnlockAfterMinutes * 60 * 1000;
+      }
+
+      function applyOutButtonLock(btnOut) {
+        const readyAt = getOutUnlockTimeMs();
+
+        if (readyAt === null || Date.now() >= readyAt) {
+          btnOut.disabled = false;
+          btnOut.classList.remove("btn-done");
+          btnOut.innerText = "👋 퇴실 기록하기";
+          return;
+        }
+
+        const render = () => {
+          const remainMs = readyAt - Date.now();
+          if (remainMs <= 0) {
+            clearInterval(outUnlockTimer);
+            outUnlockTimer = null;
+            btnOut.disabled = false;
+            btnOut.classList.remove("btn-done");
+            btnOut.innerText = "👋 퇴실 기록하기";
+            return;
+          }
+          const remainMin = Math.ceil(remainMs / 60000);
+          btnOut.disabled = true;
+          btnOut.classList.add("btn-done");
+          const waitLabel =
+            CONFIG.outUnlockAfterMinutes % 60 === 0
+              ? `${CONFIG.outUnlockAfterMinutes / 60}시간`
+              : `${CONFIG.outUnlockAfterMinutes}분`;
+          btnOut.innerText = `⏳ ${userInfo.inTime} 입실 기준 ${waitLabel} 후 활성화 (약 ${remainMin}분 후)`;
+        };
+
+        render();
+        outUnlockTimer = setInterval(render, 30 * 1000);
+      }
+
+      function updateStudentButtons(inDone, outDone) {
+        const btnIn = document.getElementById("btnIn");
+        const btnOut = document.getElementById("btnOut");
+
+        if (outUnlockTimer) {
+          clearInterval(outUnlockTimer);
+          outUnlockTimer = null;
+        }
+
+        if (inDone) {
+          btnIn.disabled = true;
+          btnIn.classList.add("btn-done");
+          btnIn.innerText = "✅ 오늘 입실 완료";
+        } else {
+          btnIn.disabled = false;
+          btnIn.classList.remove("btn-done");
+          btnIn.innerText = "👆 입실 기록하기";
+        }
+
+        if (outDone) {
+          btnOut.disabled = true;
+          btnOut.classList.add("btn-done");
+          btnOut.innerText = "✅ 오늘 퇴실 완료";
+          return;
+        }
+
+        applyOutButtonLock(btnOut);
+      }
+
+      // ── 교사 대시보드 ─────────────────────────────────────────────────
+      function showAdmin() {
+        if (!userInfo || userInfo.role !== "교사") {
+          alert("비정상적인 접근입니다. 관리자 권한이 없습니다.");
+          logout();
+          return;
+        }
+
+        document.getElementById("appCard").style.maxWidth = "640px";
+        document.getElementById("adminSection").classList.remove("hidden");
+
+        // 연도 셀렉터 초기화
+        const yearSel = document.getElementById("reportYear");
+        const nowY = new Date().getFullYear();
+        for (let y = nowY - 1; y <= nowY + 1; y++) {
+          const opt = document.createElement("option");
+          opt.value = y;
+          opt.textContent = y + "년";
+          if (y === nowY) opt.selected = true;
+          yearSel.appendChild(opt);
+        }
+        // 현재 월 선택
+        document.getElementById("reportMonth").value =
+          new Date().getMonth() + 1;
+
+        fpCalendar = flatpickr("#calendarTrigger", {
+          locale: "ko",
+          disableMobile: true,
+          defaultDate: currentAdminDate,
+          onChange(selectedDates) {
+            if (selectedDates.length > 0) pickDate(selectedDates[0]);
+          },
+        });
+
+        fetchAdminData(false);
+        startAutoRefresh();
+      }
+
+      // ── 탭 전환 ───────────────────────────────────────────────────────
+      function switchTab(tabId) {
+        document
+          .querySelectorAll(".tab-panel")
+          .forEach((p) => p.classList.remove("active"));
+        document
+          .querySelectorAll(".tab-btn")
+          .forEach((b) => b.classList.remove("active"));
+        document.getElementById(tabId).classList.add("active");
+        // 해당 탭 버튼 활성화
+        const idx = [
+          "tab-dashboard",
+          "tab-students",
+          "tab-block",
+          "tab-report",
+        ].indexOf(tabId);
+        if (idx >= 0)
+          document.querySelectorAll(".tab-btn")[idx].classList.add("active");
+      }
+
+      // ✅ 자동 새로고침 함수 분리
+      function startAutoRefresh() {
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+        autoRefreshTimer = setInterval(() => {
+          if (!document.hidden) fetchAdminData(true);
+        }, AUTO_REFRESH_MS);
+      }
+
+      // 출결 기록은 서버가 선택된 날짜 하루치만 보내주므로,
+      // 날짜가 바뀌면 다시 조회해야 합니다.
+      function pickDate(dateObj) {
+        if (!dateObj) return;
+        currentAdminDate = new Date(dateObj);
+        currentPage = 1;
+        fetchAdminData(false);
+      }
+
+      function changeDate(offset) {
+        currentAdminDate.setDate(currentAdminDate.getDate() + offset);
+        if (fpCalendar) fpCalendar.setDate(currentAdminDate);
+        currentPage = 1;
+        fetchAdminData(false);
+      }
+
+      async function fetchAdminData(isSilent = false) {
+        const btn = document.getElementById("refreshBtn");
+        if (!isSilent && btn) {
+          btn.innerText = "불러오는 중…";
+          btn.disabled = true;
+        }
+
+        const requestedDate = formatDateForCompare(currentAdminDate);
+        const res = await callAPI({
+          action: "getAdminData",
+          id: userInfo.id,
+          date: requestedDate,
+        });
+
+        if (res.success) {
+          // 날짜를 빠르게 넘기면 이전 요청의 응답이 늦게 도착할 수 있습니다.
+          // 지금 보고 있는 날짜와 다르면 화면에 반영하지 않습니다.
+          if (formatDateForCompare(currentAdminDate) !== requestedDate) {
+            if (!isSilent && btn) {
+              btn.innerText = "🔄 새로고침";
+              btn.disabled = false;
+            }
+            return;
+          }
+
+          allAdminData = res.data.attendance.reverse();
+          allStudents = res.data.students;
+          allBlockedDates = res.data.blockedDates || [];
+          renderDashboard();
+          renderStudentManager();
+          renderBlockCalendar();
+        } else {
+          if (!isSilent) {
+            alert(res.msg);
+            if (res.msg.includes("권한") || res.msg.includes("세션")) logout();
+          }
+        }
+
+        if (!isSilent && btn) {
+          btn.innerText = "🔄 새로고침";
+          btn.disabled = false;
+        }
+      }
+
+      // ── 학생 관리 ────────────────────────────────────────────────────
+      function setStudentManageMessage(message, isSuccess = false) {
+        const msg = document.getElementById("studentManageMsg");
+        msg.className = isSuccess ? "msg-success" : "msg-error";
+        msg.textContent = message || "";
+        hideInitialPwNotice();
+      }
+
+      // 서버가 발급한 무작위 초기 비밀번호는 해시로만 저장되므로 다시 조회할 수
+      // 없습니다. 교사가 학생에게 전달할 수 있도록 이 자리에서만 보여줍니다.
+      function showInitialPwNotice(studentName, initialPw) {
+        const box = document.getElementById("initialPwNotice");
+        document.getElementById("initialPwTarget").textContent = studentName;
+        document.getElementById("initialPwValue").textContent = initialPw;
+        box.classList.remove("hidden");
+      }
+
+      function hideInitialPwNotice() {
+        document.getElementById("initialPwNotice").classList.add("hidden");
+      }
+
+      async function copyInitialPw() {
+        const value = document.getElementById("initialPwValue").textContent;
+        try {
+          await navigator.clipboard.writeText(value);
+          document.getElementById("copyInitialPwBtn").textContent = "복사됨 ✓";
+          setTimeout(() => {
+            document.getElementById("copyInitialPwBtn").textContent = "복사";
+          }, 1500);
+        } catch (_) {
+          alert(`초기 비밀번호: ${value}`);
+        }
+      }
+
+      // 폼 안에서 나는 오류는 모달 안에, 목록 관련 결과(삭제·PW초기화 등)는
+      // 탭 본문에 표시합니다. 모달이 닫힌 뒤에도 결과가 남아 있어야 합니다.
+      function setStudentFormMessage(message) {
+        document.getElementById("studentFormMsg").textContent = message || "";
+      }
+
+      function clearStudentForm() {
+        editingStudentId = null;
+        const idInput = document.getElementById("manageStudentId");
+        idInput.value = "";
+        idInput.disabled = false;
+        document.getElementById("manageStudentName").value = "";
+        document.getElementById("manageStudentInTime").value = "09:00";
+        document.getElementById("manageStudentOutTime").value = "18:00";
+        document.getElementById("studentFormTitle").textContent =
+          "➕ 학생 등록";
+        document.getElementById("saveStudentBtn").textContent = "학생 등록";
+        setStudentFormMessage("");
+      }
+
+      function openStudentForm() {
+        clearStudentForm();
+        document.getElementById("studentFormModal").classList.remove("hidden");
+        document.getElementById("manageStudentId").focus();
+      }
+
+      function closeStudentForm() {
+        document.getElementById("studentFormModal").classList.add("hidden");
+        clearStudentForm();
+      }
+
+      function beginEditStudent(studentId) {
+        const student = allStudents.find((item) => item.id === studentId);
+        if (!student) {
+          setStudentManageMessage("학생 정보를 찾을 수 없습니다.");
+          return;
+        }
+
+        clearStudentForm();
+        editingStudentId = student.id;
+        const idInput = document.getElementById("manageStudentId");
+        idInput.value = student.id;
+        // 학번은 출결 이력의 식별키라 수정할 수 없습니다.
+        idInput.disabled = true;
+        document.getElementById("manageStudentName").value = student.name;
+        document.getElementById("manageStudentInTime").value =
+          student.inTime || "09:00";
+        document.getElementById("manageStudentOutTime").value =
+          student.outTime || "18:00";
+        document.getElementById("studentFormTitle").textContent =
+          `✏️ ${student.name} 학생 수정`;
+        document.getElementById("saveStudentBtn").textContent = "수정 저장";
+        document.getElementById("studentFormModal").classList.remove("hidden");
+        document.getElementById("manageStudentName").focus();
+      }
+
+      // ── 학생 목록 페이징 ──────────────────────────────────────────
+      function displayStudentPage(page) {
+        const tbody = document.getElementById("studentManageContent");
+        if (!tbody) return;
+
+        const totalPages = Math.max(
+          1,
+          Math.ceil(allStudents.length / STUDENTS_PER_PAGE),
+        );
+        studentPage = Math.min(Math.max(1, page), totalPages);
+
+        if (allStudents.length === 0) {
+          tbody.innerHTML =
+            '<tr><td colspan="4" style="padding:24px;color:#94a3b8;">등록된 학생이 없습니다.</td></tr>';
+          document.getElementById("studentPagination").innerHTML = "";
+          return;
+        }
+
+        const start = (studentPage - 1) * STUDENTS_PER_PAGE;
+        tbody.innerHTML = allStudents
+          .slice(start, start + STUDENTS_PER_PAGE)
+          .map(
+            (student) => `<tr>
+              <td><strong>${esc(student.id)}</strong></td>
+              <td>${esc(student.name)}</td>
+              <td>${esc(student.inTime || "-")}<br><span style="color:#94a3b8;">~ ${esc(student.outTime || "-")}</span></td>
+              <td>
+                <div class="student-action-group">
+                  <button class="student-action-btn edit" data-id="${esc(student.id)}" onclick="beginEditStudent(this.dataset.id)">수정</button>
+                  <button class="student-action-btn reset" data-id="${esc(student.id)}" onclick="resetStudentPasswordForAdmin(this.dataset.id)">PW 초기화</button>
+                  <button class="student-action-btn delete" data-id="${esc(student.id)}" onclick="deleteStudentFromAdmin(this.dataset.id)">삭제</button>
+                </div>
+              </td>
+            </tr>`,
+          )
+          .join("");
+
+        document.getElementById("studentPagination").innerHTML =
+          buildPaginationHtml(totalPages, studentPage, "displayStudentPage");
+      }
+
+      function renderStudentManager() {
+        if (!document.getElementById("studentManageContent")) return;
+        document.getElementById("studentManageCount").textContent =
+          `${allStudents.length}명`;
+        // 삭제로 마지막 페이지가 비면 앞 페이지로 당깁니다.
+        displayStudentPage(studentPage);
+      }
+
+      async function saveStudent() {
+        const id = (
+          editingStudentId ||
+          document.getElementById("manageStudentId").value
+        ).trim();
+        const name = document.getElementById("manageStudentName").value.trim();
+        const inTime = document.getElementById("manageStudentInTime").value;
+        const outTime = document.getElementById("manageStudentOutTime").value;
+
+        if (!id || !name || !inTime || !outTime) {
+          setStudentFormMessage("학번, 이름, 기준시간을 모두 입력해주세요.");
+          return;
+        }
+        if (outTime <= inTime) {
+          setStudentFormMessage(
+            "퇴실 기준시간은 입실 기준시간보다 늦어야 합니다.",
+          );
+          return;
+        }
+
+        const btn = document.getElementById("saveStudentBtn");
+        const originalText = btn.textContent;
+        const isNew = !editingStudentId;
+        btn.disabled = true;
+        btn.textContent = "처리 중...";
+        setStudentFormMessage("");
+
+        const res = await callAPI({
+          action: editingStudentId ? "updateStudent" : "addStudent",
+          id: userInfo.id,
+          studentId: id,
+          name,
+          inTime,
+          outTime,
+        });
+
+        btn.disabled = false;
+        btn.textContent = originalText;
+        // 실패하면 입력값을 잃지 않도록 모달을 열어둔 채 오류만 보여줍니다.
+        if (!res.success) {
+          setStudentFormMessage(res.msg);
+          return;
+        }
+
+        closeStudentForm();
+        setStudentManageMessage(res.msg, true);
+        if (res.initialPw) showInitialPwNotice(name, res.initialPw);
+        await fetchAdminData(true);
+        // 새로 등록한 학생이 보이도록 마지막 페이지로 이동합니다.
+        if (isNew) {
+          displayStudentPage(
+            Math.ceil(allStudents.length / STUDENTS_PER_PAGE),
+          );
+        }
+      }
+
+      async function resetStudentPasswordForAdmin(studentId) {
+        const student = allStudents.find((item) => item.id === studentId);
+        if (!student) return;
+        if (
+          !confirm(
+            `${student.name} 학생의 비밀번호를 새로 발급할까요?\n발급된 비밀번호는 이 화면에서만 확인할 수 있고, 현재 로그인된 세션은 모두 종료됩니다.`,
+          )
+        )
+          return;
+
+        setStudentManageMessage("비밀번호 초기화 중...");
+        const res = await callAPI({
+          action: "resetStudentPassword",
+          id: userInfo.id,
+          studentId,
+        });
+        setStudentManageMessage(res.msg, res.success);
+        if (res.success && res.initialPw) {
+          showInitialPwNotice(student.name, res.initialPw);
+        }
+        if (res.success) await fetchAdminData(true);
+      }
+
+      async function deleteStudentFromAdmin(studentId) {
+        const student = allStudents.find((item) => item.id === studentId);
+        if (!student) return;
+        if (
+          !confirm(
+            `${student.name} 학생 계정을 삭제할까요?\n과거 출결 기록은 삭제되지 않습니다.`,
+          )
+        )
+          return;
+
+        setStudentManageMessage("학생 계정 삭제 중...");
+        const res = await callAPI({
+          action: "deleteStudent",
+          id: userInfo.id,
+          studentId,
+        });
+        // 삭제한 학생을 마침 수정 중이었다면 열려 있는 폼을 닫습니다.
+        if (res.success && editingStudentId === studentId) {
+          closeStudentForm();
+        }
+        setStudentManageMessage(res.msg, res.success);
+        if (res.success) await fetchAdminData(true);
+      }
+
+      function renderDashboard() {
+        const days = ["일", "월", "화", "수", "목", "금", "토"];
+        const targetDateStr = formatDateForCompare(currentAdminDate);
+        const adminDayIdx = currentAdminDate.getDay();
+
+        document.getElementById("displayDateText").innerText =
+          `${targetDateStr} (${days[adminDayIdx]})`;
+
+        const adminWarning = document.getElementById("adminDayWarning");
+        adminWarning.classList.toggle(
+          "hidden",
+          CONFIG.fieldDays.includes(adminDayIdx),
+        );
+
+        // 차단 날짜 경고
+        const blockedInfo = getBlockedInfo(targetDateStr);
+        const blockedWarn = document.getElementById("adminBlockedWarning");
+        if (blockedInfo.blocked) {
+          blockedWarn.textContent = `🚫 이 날은 출석 차단된 날입니다 — ${blockedInfo.reason}`;
+          blockedWarn.classList.remove("hidden");
+        } else {
+          blockedWarn.classList.add("hidden");
+        }
+
+        currentFilteredData = [];
+        let statIn = 0,
+          statOut = 0,
+          statWarn = 0;
+
+        const recordedInIds = new Set();
+        const recordedOutIds = new Set();
+        const late25Students = [];
+
+        allAdminData.forEach((r) => {
+          if (!r || r.length < 8) return;
+          if (r[1].trim() !== targetDateStr) return;
+
+          currentFilteredData.push(r);
+
+          const type = r[5];
+          const status = r[7];
+          const studentId = r[3].trim();
+          const studentName = r[4].trim();
+
+          if (type === "입실") {
+            recordedInIds.add(studentId);
+            statIn++;
+
+            const recParts = r[0].toString().trim().split(":");
+            const stdParts = r[6].toString().trim().split(":");
+            const recMins =
+              parseInt(recParts[0], 10) * 60 + parseInt(recParts[1], 10);
+            const stdMins =
+              parseInt(stdParts[0], 10) * 60 + parseInt(stdParts[1], 10);
+            if (recMins - stdMins >= CONFIG.dashboardLateAlertMinutes)
+              late25Students.push(`${esc(studentName)}(${esc(studentId)})`);
+          }
+
+          if (type === "퇴실") {
+            recordedOutIds.add(studentId);
+            statOut++;
+          }
+          if (status === "지각" || status === "조퇴") statWarn++;
+        });
+
+        document.getElementById("countIn").innerText = statIn + "명";
+        document.getElementById("countOut").innerText = statOut + "명";
+        document.getElementById("countWarn").innerText = statWarn + "명";
+
+        const allRecordedIds = new Set([...recordedInIds, ...recordedOutIds]);
+        const unrecordedStudents = allStudents.filter(
+          (s) => !allRecordedIds.has(s.id),
+        );
+        document.getElementById("unrecordedList").innerHTML =
+          unrecordedStudents.length
+            ? unrecordedStudents
+                .map((s) => `${esc(s.name)}(${esc(s.id)})`)
+                .join(", ")
+            : "<span style='color:#10b981; font-weight:700;'>✅ 1회 이상 모두 입력 완료</span>";
+
+        document.getElementById("late25List").innerHTML = late25Students.length
+          ? late25Students.join(", ")
+          : "<span style='color:#10b981; font-weight:700;'>✅ 대상자 없음</span>";
+
+        const now = new Date();
+        const isToday = targetDateStr === formatDateForCompare(now);
+        const isPastDate = targetDateStr < formatDateForCompare(now);
+        const nowMinutes = now.getHours() * 60 + now.getMinutes();
+        const closeLabel = minutesToLabel(CONFIG.dayCloseMinutes);
+
+        if (isPastDate || (isToday && nowMinutes >= CONFIG.dayCloseMinutes)) {
+          const missing = allStudents.filter(
+            (s) => recordedInIds.has(s.id) && !recordedOutIds.has(s.id),
+          );
+          document.getElementById("missingOutList").innerHTML = missing.length
+            ? missing.map((s) => `${esc(s.name)}(${esc(s.id)})`).join(", ")
+            : "<span style='color:#10b981; font-weight:700;'>✅ 전원 퇴실 완료</span>";
+        } else {
+          document.getElementById("missingOutList").innerHTML =
+            `<span style='color:#64748b;'>아직 ${esc(closeLabel)}가 되지 않았습니다.</span>`;
+        }
+
+        const totalPages = Math.ceil(
+          currentFilteredData.length / ITEMS_PER_PAGE,
+        );
+        if (currentPage > totalPages) currentPage = Math.max(1, totalPages);
+        displayPage(currentPage);
+      }
+
+      function displayPage(page) {
+        currentPage = page;
+        const totalPages = Math.ceil(
+          currentFilteredData.length / ITEMS_PER_PAGE,
+        );
+
+        if (totalPages === 0) {
+          document.getElementById("dashboardContent").innerHTML =
+            "<tr><td colspan='4' style='padding:30px; color:#94a3b8;'>해당 날짜에 기록된 데이터가 없습니다.</td></tr>";
+          document.getElementById("paginationControls").innerHTML = "";
+          return;
+        }
+
+        const startIdx = (page - 1) * ITEMS_PER_PAGE;
+        const pageData = currentFilteredData.slice(
+          startIdx,
+          startIdx + ITEMS_PER_PAGE,
+        );
+
+        let html = "";
+        pageData.forEach((r) => {
+          const type = r[5];
+          const status = r[7];
+          const studentId = r[3].trim();
+          const studentName = r[4].trim();
+          const badgeClass =
+            status === "지각"
+              ? "bg-late"
+              : status === "조퇴"
+                ? "bg-early"
+                : "bg-normal";
+          const cleanTime = r[0]
+            .toString()
+            .trim()
+            .split(":")
+            .slice(0, 2)
+            .join(":");
+
+          html += `<tr>
+            <td><strong>${esc(studentId)}</strong><br>
+                <span style="font-size:11px;color:#64748b">${esc(studentName)}</span></td>
+            <td style="font-weight:700; color:${type === "입실" ? "#10b981" : "#f59e0b"}">${esc(type)}</td>
+            <td>${esc(cleanTime)}<br>
+                <span style="font-size:10px;color:#94a3b8">기준 ${esc(r[6])}</span></td>
+            <td><span class="badge ${badgeClass}">${esc(status)}</span></td>
+          </tr>`;
+        });
+
+        document.getElementById("dashboardContent").innerHTML = html;
+        renderPaginationControls(totalPages);
+      }
+
+      // 보여줄 페이지 번호를 추립니다.
+      // 첫 페이지·마지막 페이지·현재 페이지 앞뒤 1개만 남기고 끊긴 구간은 …으로
+      // 접습니다. 예) 12페이지 중 6페이지 → 1 … 5 6 7 … 12
+      // 전체를 다 그리면 페이지가 늘어날수록 가로로 넘쳐 모바일에서 ▶ 버튼이
+      // 화면 밖으로 밀려 다음 페이지로 갈 수 없게 됩니다.
+      function getPageWindow(current, total) {
+        const wanted = [1, total, current - 1, current, current + 1];
+        const pages = [...new Set(wanted)]
+          .filter((p) => p >= 1 && p <= total)
+          .sort((a, b) => a - b);
+
+        const items = [];
+        let prev = 0;
+        pages.forEach((p) => {
+          if (prev && p - prev > 1) items.push("gap");
+          items.push(p);
+          prev = p;
+        });
+        return items;
+      }
+
+      // 출결 기록과 학생 목록이 같은 페이지네이션을 공유합니다.
+      // handler 는 페이지 번호를 받는 전역 함수 이름입니다.
+      function buildPaginationHtml(totalPages, current, handler) {
+        // 한 페이지뿐이면 조작할 게 없으므로 아예 표시하지 않습니다.
+        if (totalPages <= 1) return "";
+
+        let html = '<div class="pagination">';
+        html += `<button class="page-btn" ${current === 1 ? "disabled" : ""} onclick="${handler}(${current - 1})" aria-label="이전 페이지">◀</button>`;
+        getPageWindow(current, totalPages).forEach((item) => {
+          if (item === "gap") {
+            html += '<span class="page-gap" aria-hidden="true">…</span>';
+            return;
+          }
+          const isCurrent = item === current;
+          html += `<button class="page-btn ${isCurrent ? "active" : ""}"${isCurrent ? ' aria-current="page"' : ""} onclick="${handler}(${item})" aria-label="${item}페이지">${item}</button>`;
+        });
+        html += `<button class="page-btn" ${current === totalPages ? "disabled" : ""} onclick="${handler}(${current + 1})" aria-label="다음 페이지">▶</button>`;
+        return html + "</div>";
+      }
+
+      function renderPaginationControls(totalPages) {
+        const html = buildPaginationHtml(totalPages, currentPage, "displayPage");
+        document.getElementById("paginationControls").innerHTML = html;
+      }
+
+      // 분 단위 시각을 "18시" / "18시 30분" 형태로 표기
+      function minutesToLabel(totalMinutes) {
+        const h = Math.floor(totalMinutes / 60);
+        const m = totalMinutes % 60;
+        return m === 0 ? `${h}시` : `${h}시 ${m}분`;
+      }
+
+      function formatDateForCompare(dateObj) {
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, "0");
+        const d = String(dateObj.getDate()).padStart(2, "0");
+        return `${y}-${m}-${d}`;
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      // 공휴일 유틸 (목록은 CONFIG.holidays — 출처는 code.gs)
+      // ═══════════════════════════════════════════════════════════════
+      function getHolidayName(dateStr) {
+        return CONFIG.holidays[dateStr.substring(5)] || "";
+      }
+
+      function getBlockedInfo(dateStr) {
+        // 공휴일 자동 체크
+        const holiday = getHolidayName(dateStr);
+        if (holiday) return { blocked: true, reason: holiday + " (공휴일)" };
+        // 수동 차단 체크
+        const found = allBlockedDates.find(
+          (b) => b.date === dateStr && b.blocked,
+        );
+        if (found)
+          return { blocked: true, reason: found.reason || "교사 설정" };
+        return { blocked: false };
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      // 날짜 차단 캘린더
+      // ═══════════════════════════════════════════════════════════════
+      function renderBlockCalendar() {
+        const MONTH_NAMES = [
+          "1월",
+          "2월",
+          "3월",
+          "4월",
+          "5월",
+          "6월",
+          "7월",
+          "8월",
+          "9월",
+          "10월",
+          "11월",
+          "12월",
+        ];
+        document.getElementById("bcMonthTitle").textContent =
+          `${bcYear}년 ${MONTH_NAMES[bcMonth]}`;
+
+        const today = new Date();
+        const todayStr = formatDateForCompare(today);
+        const firstDay = new Date(bcYear, bcMonth, 1).getDay();
+        const lastDate = new Date(bcYear, bcMonth + 1, 0).getDate();
+
+        const grid = document.getElementById("blockCalGrid");
+        // 헤더 유지, 날짜 셀만 교체
+        const headers = Array.from(grid.querySelectorAll(".bc-day-header"));
+        grid.innerHTML = "";
+        headers.forEach((h) => grid.appendChild(h));
+
+        // 빈 셀
+        for (let i = 0; i < firstDay; i++) {
+          const empty = document.createElement("div");
+          empty.className = "bc-day empty";
+          grid.appendChild(empty);
+        }
+
+        for (let d = 1; d <= lastDate; d++) {
+          const dateObj = new Date(bcYear, bcMonth, d);
+          const dayIdx = dateObj.getDay();
+          const dateStr = formatDateForCompare(dateObj);
+          const isField = CONFIG.fieldDays.includes(dayIdx);
+          const isWkend = dayIdx === 0 || dayIdx === 6;
+          const blockedI = getBlockedInfo(dateStr);
+          const isHoliday = !!getHolidayName(dateStr);
+          const isToday = dateStr === todayStr;
+          const isManual = allBlockedDates.find(
+            (b) => b.date === dateStr && b.blocked,
+          );
+
+          const cell = document.createElement("div");
+          let cls = "bc-day";
+          if (!isField) cls += " non-field";
+          else if (isHoliday) cls += " holiday";
+          else if (isManual) cls += " blocked";
+          else if (isWkend) cls += " weekend";
+          if (isToday) cls += " today";
+          cell.className = cls;
+
+          // 자르기를 먼저, 이스케이프를 나중에 — 순서가 반대면 &amp; 같은
+          // 엔티티가 중간에서 잘려 깨집니다.
+          const rawReason = blockedI.reason || "";
+          const shortReason =
+            rawReason.length > 5 ? rawReason.substring(0, 5) + "…" : rawReason;
+          const tag = blockedI.blocked
+            ? `<div class="day-tag">${esc(shortReason)}</div>`
+            : "";
+          cell.innerHTML = `<div class="day-num">${d}</div>${tag}`;
+
+          if (isField && !isHoliday) {
+            cell.onclick = () => openBlockForm(dateStr, blockedI);
+          }
+          grid.appendChild(cell);
+        }
+
+        renderBlockedSummary();
+      }
+
+      // ── 수동 차단 목록 (월별 탭) ──────────────────────────────────
+      function currentCalMonthKey() {
+        return `${bcYear}-${String(bcMonth + 1).padStart(2, "0")}`;
+      }
+
+      function selectBlockedMonth(key) {
+        blockedListMonth = key;
+        renderBlockedSummary();
+      }
+
+      function renderBlockedSummary() {
+        const el = document.getElementById("blockedListSummary");
+        if (!el) return;
+
+        const manual = allBlockedDates.filter(
+          (b) => b.blocked && /^\d{4}-\d{2}-\d{2}$/.test(b.date),
+        );
+
+        if (manual.length === 0) {
+          blockedListMonth = null;
+          el.innerHTML =
+            '<div class="bl-empty bl-empty-ok">✅ 수동으로 차단된 날짜가 없습니다.</div>';
+          return;
+        }
+
+        // yyyy-MM 으로 묶습니다
+        const groups = {};
+        manual.forEach((b) => {
+          const key = b.date.slice(0, 7);
+          (groups[key] = groups[key] || []).push(b);
+        });
+
+        // 탭 = 차단일이 있는 달 + 지금 달력에서 보고 있는 달
+        // (보고 있는 달이 비어 있어도 탭이 있어야 기본 선택이 성립합니다)
+        const calKey = currentCalMonthKey();
+        const keys = [...new Set([...Object.keys(groups), calKey])].sort();
+
+        // 선택했던 달이 사라졌으면(차단 해제 등) 보고 있는 달로 되돌립니다
+        if (!blockedListMonth || !keys.includes(blockedListMonth)) {
+          blockedListMonth = calKey;
+        }
+
+        const dayNames = ["일", "월", "화", "수", "목", "금", "토"];
+        const tabs = keys
+          .map((k) => {
+            const count = (groups[k] || []).length;
+            const [y, m] = k.split("-");
+            const active = k === blockedListMonth;
+            // 지금 보고 있는 달은 차단일이 0건이어도 탭을 띄웁니다.
+            // 그 경우 '0' 배지는 군더더기라 생략합니다.
+            const badge = count
+              ? `<span class="bl-count">${count}</span>`
+              : "";
+            const yearTag =
+              y === String(bcYear) ? "" : `<span class="bl-year">${y}</span>`;
+            return `<button class="bl-tab${active ? " active" : ""}"${active ? ' aria-current="true"' : ""} onclick="selectBlockedMonth('${k}')">
+              ${yearTag}${Number(m)}월${badge}
+            </button>`;
+          })
+          .join("");
+
+        const list = (groups[blockedListMonth] || [])
+          .slice()
+          .sort((a, b) => a.date.localeCompare(b.date));
+
+        const body = list.length
+          ? list
+              .map((b) => {
+                const dayIdx = new Date(b.date.replace(/-/g, "/")).getDay();
+                const label = `${b.date.slice(5).replace("-", "/")} (${dayNames[dayIdx]})`;
+                return `<div class="bl-item">
+                  <span class="bl-date">${esc(label)}</span>
+                  <span class="bl-reason${b.reason ? "" : " bl-reason-none"}">${esc(b.reason || "사유 없음")}</span>
+                </div>`;
+              })
+              .join("")
+          : '<div class="bl-empty">이 달에는 수동 차단된 날짜가 없습니다.</div>';
+
+        el.innerHTML = `
+          <div class="bl-head">
+            <span class="section-title">수동 차단된 날짜</span>
+            <span class="bl-total">전체 ${manual.length}일</span>
+          </div>
+          <div class="bl-tabs">${tabs}</div>
+          <div class="bl-list">${body}</div>`;
+      }
+
+      // 달력의 달을 옮기면 목록 탭도 그 달로 따라갑니다
+      function blockCalPrev() {
+        if (bcMonth === 0) {
+          bcYear--;
+          bcMonth = 11;
+        } else bcMonth--;
+        blockedListMonth = currentCalMonthKey();
+        renderBlockCalendar();
+      }
+      function blockCalNext() {
+        if (bcMonth === 11) {
+          bcYear++;
+          bcMonth = 0;
+        } else bcMonth++;
+        blockedListMonth = currentCalMonthKey();
+        renderBlockCalendar();
+      }
+
+      function openBlockForm(dateStr, blockedInfo) {
+        selectedBlockDate = dateStr;
+        document.getElementById("blockFormDate").textContent = dateStr;
+        document.getElementById("blockReason").value = blockedInfo.blocked
+          ? allBlockedDates.find((b) => b.date === dateStr)?.reason || ""
+          : "";
+        document.getElementById("blockFormMsg").textContent = "";
+        document.getElementById("blockForm").classList.remove("hidden");
+      }
+
+      async function applyBlockDate(isBlock) {
+        if (!selectedBlockDate) return;
+        const reason = document.getElementById("blockReason").value.trim();
+        const msgEl = document.getElementById("blockFormMsg");
+        msgEl.textContent = isBlock ? "차단 처리 중..." : "해제 처리 중...";
+        msgEl.style.color = "#64748b";
+
+        const res = await callAPI({
+          action: "setBlockedDate",
+          id: userInfo.id,
+          date: selectedBlockDate,
+          reason,
+          blocked: isBlock,
+        });
+
+        if (res.success) {
+          // 로컬 상태 즉시 반영
+          const existing = allBlockedDates.findIndex(
+            (b) => b.date === selectedBlockDate,
+          );
+          if (existing >= 0) {
+            allBlockedDates[existing] = {
+              date: selectedBlockDate,
+              reason,
+              blocked: isBlock,
+            };
+          } else {
+            allBlockedDates.push({
+              date: selectedBlockDate,
+              reason,
+              blocked: isBlock,
+            });
+          }
+          document.getElementById("blockForm").classList.add("hidden");
+          renderBlockCalendar();
+        } else {
+          msgEl.style.color = "#ef4444";
+          msgEl.textContent = res.msg;
+        }
+      }
+
+      // ═══════════════════════════════════════════════════════════════
+      // PDF 레포트 — 브라우저 인쇄/다운로드
+      // ═══════════════════════════════════════════════════════════════
+      async function generateReport() {
+        const year = document.getElementById("reportYear").value;
+        const month = document.getElementById("reportMonth").value;
+        const btn = document.getElementById("reportBtn");
+        const msg = document.getElementById("reportMsg");
+
+        btn.disabled = true;
+        btn.innerText = "⏳ 생성 중...";
+        msg.textContent = "";
+        document.getElementById("reportPreviewArea").innerHTML =
+          `<div class="report-placeholder">⏳ 레포트를 생성하고 있습니다...<br>잠시만 기다려주세요.</div>`;
+        document.getElementById("reportActions").style.display = "none";
+
+        const res = await callAPI({
+          action: "generateMonthlyReport",
+          id: userInfo.id,
+          year: parseInt(year),
+          month: parseInt(month),
+        });
+
+        btn.disabled = false;
+        btn.innerText = "📊 레포트 미리보기 생성";
+
+        if (res.success) {
+          // Blob URL 대신 srcdoc을 씁니다. 해제(revokeObjectURL)를 잊어
+          // 새는 일이 없습니다. (blob: URL은 샌드박스 프레임에서 로드가
+          // 막히는 브라우저가 있습니다)
+          // allow-same-origin: 문서 크기를 재서 배율을 계산하려면 필요합니다.
+          // allow-scripts 는 주지 않으므로 레포트 안의 스크립트는 실행 불가입니다.
+          const area = document.getElementById("reportPreviewArea");
+          const stage = document.createElement("div");
+          stage.className = "report-stage";
+          const fit = document.createElement("div");
+          fit.className = "report-fit";
+          const scaler = document.createElement("div");
+          scaler.className = "report-scaler";
+          const frame = document.createElement("iframe");
+          frame.className = "report-frame";
+          frame.setAttribute("sandbox", "allow-same-origin");
+          frame.setAttribute("title", "월간 레포트 미리보기");
+          frame.setAttribute("scrolling", "no");
+
+          scaler.appendChild(frame);
+          fit.appendChild(scaler);
+          stage.appendChild(fit);
+          area.replaceChildren(stage);
+          area.classList.add("has-doc");
+          frame.addEventListener("load", fitReportPreview);
+          frame.srcdoc = res.html;
+
+          // 인쇄용으로 원본 HTML을 보관 (DOM data 속성에 중복 저장하지 않음)
+          reportHtmlContent = res.html;
+
+          reportZoom = "fit";
+          syncReportZoomButtons();
+          document.getElementById("reportZoom").classList.remove("hidden");
+
+          const actions = document.getElementById("reportActions");
+          actions.style.display = "block";
+          actions.classList.remove("hidden");
+
+          msg.style.color = "#10b981";
+          msg.textContent = `✅ ${res.fileName} 생성 완료 — 집계 대상 실습일 ${res.scheduledDays ?? 0}일`;
+        } else {
+          reportHtmlContent = "";
+          const area = document.getElementById("reportPreviewArea");
+          area.classList.remove("has-doc");
+          area.innerHTML = `<div class="report-placeholder" style="color:#ef4444;">❌ ${esc(res.msg)}</div>`;
+          document.getElementById("reportZoom").classList.add("hidden");
+          msg.style.color = "#ef4444";
+          msg.textContent = res.msg;
+        }
+      }
+
+      // ── 미리보기 배율 ─────────────────────────────────────────────
+      function syncReportZoomButtons() {
+        document.querySelectorAll(".report-zoom-btn").forEach((b) => {
+          b.classList.toggle("active", b.dataset.zoom === reportZoom);
+        });
+      }
+
+      function setReportZoom(mode) {
+        reportZoom = mode;
+        syncReportZoomButtons();
+        fitReportPreview();
+      }
+
+      // 문서 실제 크기를 재서 iframe 을 그만큼 키우고(내부 스크롤 제거),
+      // 래퍼를 축소해 미리보기 폭에 맞춥니다(가로 스크롤 제거).
+      function fitReportPreview() {
+        const stage = document.querySelector(".report-stage");
+        const fit = document.querySelector(".report-fit");
+        const scaler = document.querySelector(".report-scaler");
+        const frame = document.querySelector(".report-frame");
+        if (!stage || !fit || !scaler || !frame) return;
+
+        // 재측정 전에 넉넉한 크기를 줘야 문서가 좁게 접힌 채로 측정되지 않습니다
+        frame.style.width = REPORT_DOC_WIDTH + "px";
+        frame.style.height = "200px";
+
+        let docW = REPORT_DOC_WIDTH;
+        let docH = 600;
+        try {
+          const doc = frame.contentDocument;
+          if (doc && doc.body) {
+            docW = Math.max(
+              doc.documentElement.scrollWidth,
+              doc.body.scrollWidth,
+              320,
+            );
+            docH = Math.max(
+              doc.documentElement.scrollHeight,
+              doc.body.scrollHeight,
+              200,
+            );
+          }
+        } catch (_) {
+          // 동일출처 접근이 막히면 기본 크기로 둡니다 (축소만 못 할 뿐 동작함)
+        }
+
+        frame.style.width = docW + "px";
+        frame.style.height = docH + "px";
+        scaler.style.width = docW + "px";
+        scaler.style.height = docH + "px";
+
+        const avail = stage.clientWidth;
+        const scale =
+          reportZoom === "fit" && docW > 0 ? Math.min(1, avail / docW) : 1;
+        scaler.style.transform = `scale(${scale})`;
+        // transform 은 레이아웃 크기를 바꾸지 않으므로 래퍼가 축소된 크기를 대신 차지합니다
+        fit.style.width = docW * scale + "px";
+        fit.style.height = docH * scale + "px";
+      }
+
+      // 새 탭(window.open)은 팝업 차단에 걸리면 null을 돌려줘 그대로 죽고,
+      // document.write 후의 onload는 브라우저에 따라 발화하지 않습니다.
+      // 숨긴 iframe에 srcdoc으로 실어 인쇄하면 두 문제가 모두 사라집니다.
+      function downloadReport() {
+        if (!reportHtmlContent) return;
+
+        const msg = document.getElementById("reportMsg");
+        const frame = document.createElement("iframe");
+        // allow-same-origin: 부모가 contentWindow.print()를 호출하기 위해 필요.
+        // allow-scripts는 주지 않으므로 레포트 안의 스크립트는 실행되지 않습니다.
+        frame.setAttribute("sandbox", "allow-same-origin allow-modals");
+        frame.setAttribute("aria-hidden", "true");
+        frame.style.cssText =
+          "position:fixed;right:0;bottom:0;width:0;height:0;border:0;";
+
+        let done = false;
+        const cleanup = () => {
+          if (done) return;
+          done = true;
+          setTimeout(() => frame.remove(), 1000);
+        };
+
+        frame.onload = () => {
+          try {
+            frame.contentWindow.focus();
+            frame.contentWindow.print();
+          } catch (error) {
+            msg.style.color = "#ef4444";
+            msg.textContent =
+              "인쇄 창을 열지 못했습니다. 미리보기를 우클릭해 인쇄해주세요.";
+          } finally {
+            cleanup();
+          }
+        };
+
+        document.body.appendChild(frame);
+        frame.srcdoc = reportHtmlContent;
+      }
+
+      // ── XSS 방어: HTML 특수문자 이스케이프 ───────────────────────────
+      // 시트에서 온 모든 사용자 데이터는 반드시 이 함수를 거쳐 출력합니다.
+      function esc(str) {
+        return String(str)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;")
+          .replace(/"/g, "&quot;")
+          .replace(/'/g, "&#x27;");
+      }
+    </script>
+  </body>
+</html>
