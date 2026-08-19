@@ -560,60 +560,91 @@
         transform: translateY(-1px);
       }
 
-      /* 흰 카드에 가는 색 막대만 두면 배경(흰 카드)에 묻힙니다.
-         옅은 색면으로 채워 각 알림이 스스로 구분되게 합니다. */
+      /* ── 확인 필요 알림 카드 모던 리디자인 ── */
       .alert-box {
         position: relative;
-        border-radius: var(--r-lg);
-        padding: 14px 16px;
-        margin-bottom: 10px;
+        border-radius: var(--r-xl);
+        padding: 16px 18px;
+        margin-bottom: 14px;
         text-align: left;
         background: var(--accent-tint);
-        border: 1px solid var(--accent-line);
-        transition:
-          box-shadow 0.2s ease,
-          transform 0.2s ease;
+        border: 1.5px solid var(--accent-line);
+        box-shadow: 0 4px 16px -4px var(--accent-shadow-soft, rgba(0, 0, 0, 0.03));
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+        overflow: hidden;
+      }
+      .alert-box::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        width: 4.5px;
+        background: var(--accent);
       }
       .alert-box:hover {
-        box-shadow: 0 8px 18px -8px var(--accent-shadow);
-        transform: translateY(-1px);
+        box-shadow: 0 8px 24px -4px var(--accent-shadow);
+        transform: translateY(-2px);
       }
       .alert-head {
         display: flex;
         align-items: center;
+        justify-content: space-between;
+        margin-bottom: 12px;
+        padding-bottom: 8px;
+        border-bottom: 1px dashed var(--accent-line);
+      }
+      .alert-head-left {
+        display: flex;
+        align-items: center;
         gap: 10px;
-        margin-bottom: 7px;
       }
       .alert-icon {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 30px;
-        height: 30px;
+        width: 32px;
+        height: 32px;
         flex-shrink: 0;
         border-radius: 10px;
-        font-size: 14px;
-        background: rgba(255, 255, 255, 0.85);
-        box-shadow: inset 0 0 0 1px var(--accent-line);
+        font-size: 15px;
+        background: #ffffff;
+        box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), inset 0 0 0 1px var(--accent-line);
       }
-      .alert-box p {
+      .alert-title-text {
         margin: 0;
-        font-weight: 700;
-        font-size: 13.5px;
+        font-weight: 800;
+        font-size: 14px;
         color: var(--accent-text);
-        letter-spacing: -0.015em;
-        word-break: keep-all;
+        letter-spacing: -0.02em;
+        line-height: 1.3;
       }
+      .alert-count-badge {
+        font-size: 11.5px;
+        font-weight: 800;
+        padding: 2px 9px;
+        border-radius: var(--r-pill);
+        background: #ffffff;
+        color: var(--accent-text);
+        border: 1px solid var(--accent-line);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+      }
+      .alert-count-badge.is-zero {
+        color: #059669;
+        border-color: #a7f3d0;
+        background: #ecfdf5;
+      }
+
       .alert-body {
         font-size: 13px;
         font-weight: 600;
         color: var(--text-light);
         word-break: keep-all;
         line-height: 1.5;
-        padding-left: 40px;
+        padding-left: 2px;
         display: flex;
         flex-wrap: wrap;
-        gap: 6px;
+        gap: 8px;
         align-items: center;
       }
 
@@ -621,79 +652,91 @@
       .student-chip {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
-        padding: 4px 10px;
+        gap: 6px;
+        padding: 5px 12px;
         background: #ffffff;
         border: 1px solid var(--accent-line);
         border-radius: var(--r-pill);
-        font-size: 12px;
+        font-size: 12.5px;
         font-weight: 700;
         color: var(--accent-text);
-        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
-        transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.04);
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
         user-select: none;
       }
       .student-chip:hover {
-        transform: translateY(-1px);
-        box-shadow: 0 4px 10px -2px var(--accent-shadow);
+        transform: translateY(-2px);
+        box-shadow: 0 6px 14px -2px var(--accent-shadow);
         border-color: var(--accent);
       }
       .student-chip .chip-name {
-        font-weight: 700;
+        font-weight: 800;
         color: var(--heading);
       }
       .student-chip .chip-id {
         font-size: 11px;
-        font-weight: 600;
+        font-weight: 700;
         color: var(--accent-text);
         opacity: 0.85;
       }
       .student-chip .chip-time {
         font-size: 11px;
-        font-weight: 700;
-        padding: 1px 6px;
+        font-weight: 800;
+        padding: 2px 7px;
         border-radius: var(--r-pill);
-        background: var(--accent-tint);
-        color: var(--accent-text);
-        border: 1px solid var(--accent-line);
+        background: var(--accent);
+        color: #ffffff;
+        letter-spacing: -0.01em;
         margin-left: 2px;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
       }
-      .student-chip-empty {
+
+      /* 정상/완료 상태 뱃지 카드 */
+      .empty-status-card {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
+        gap: 6px;
+        padding: 7px 14px;
+        border-radius: var(--r-pill);
+        background: linear-gradient(135deg, #ffffff, #f0fdf4);
+        border: 1px solid #a7f3d0;
+        color: #166534;
+        font-size: 12.5px;
         font-weight: 700;
-        color: #059669;
-        font-size: 13px;
+        box-shadow: 0 1px 3px rgba(16, 185, 129, 0.08);
       }
 
       .box-red {
         --accent: #ef4444;
-        --accent-tint: #fef5f5;
-        --accent-line: #fbd0d3;
+        --accent-tint: linear-gradient(145deg, #ffffff, #fff5f5);
+        --accent-line: #fecdd3;
         --accent-text: #b91c1c;
-        --accent-shadow: rgba(239, 68, 68, 0.4);
+        --accent-shadow: rgba(239, 68, 68, 0.35);
+        --accent-shadow-soft: rgba(239, 68, 68, 0.08);
       }
       .box-orange {
         --accent: #f59e0b;
-        --accent-tint: #fffaef;
-        --accent-line: #fbe0aa;
+        --accent-tint: linear-gradient(145deg, #ffffff, #fffbeb);
+        --accent-line: #fde68a;
         --accent-text: #b45309;
-        --accent-shadow: rgba(245, 158, 11, 0.4);
+        --accent-shadow: rgba(245, 158, 11, 0.35);
+        --accent-shadow-soft: rgba(245, 158, 11, 0.08);
       }
       .box-rose {
         --accent: #f43f5e;
-        --accent-tint: #fff1f2;
+        --accent-tint: linear-gradient(145deg, #ffffff, #fff1f2);
         --accent-line: #fecdd3;
         --accent-text: #be123c;
-        --accent-shadow: rgba(244, 63, 94, 0.4);
+        --accent-shadow: rgba(244, 63, 94, 0.35);
+        --accent-shadow-soft: rgba(244, 63, 94, 0.08);
       }
       .box-purple {
-        --accent: #a855f7;
-        --accent-tint: #faf6ff;
-        --accent-line: #e6d5fb;
-        --accent-text: #7e22ce;
-        --accent-shadow: rgba(168, 85, 247, 0.35);
+        --accent: #8b5cf6;
+        --accent-tint: linear-gradient(145deg, #ffffff, #f5f3ff);
+        --accent-line: #ddd6fe;
+        --accent-text: #6d28d9;
+        --accent-shadow: rgba(139, 92, 246, 0.35);
+        --accent-shadow-soft: rgba(139, 92, 246, 0.08);
       }
 
       /* ── 앱 헤더 (제목 자리) ─────────────────────────────────────
@@ -751,14 +794,18 @@
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        margin-bottom: 10px;
+        margin-bottom: 12px;
       }
       .section-title {
-        font-size: 11.5px;
+        font-size: 13.5px;
         font-weight: 800;
-        letter-spacing: 0.06em;
-        text-transform: uppercase;
-        color: var(--text-muted);
+        letter-spacing: -0.015em;
+        color: var(--heading);
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        flex: 0 0 auto;
       }
       /* 전체폭 흰 슬랩이던 새로고침 버튼을 작은 칩으로 */
       .chip-btn {
@@ -1034,13 +1081,20 @@
         letter-spacing: -0.015em;
       }
       .stat-val {
-        font-size: 20px;
+        font-size: 19px;
         font-weight: 800;
         letter-spacing: -0.035em;
         color: var(--tone);
         font-variant-numeric: tabular-nums;
         line-height: 1.15;
         text-align: center;
+        white-space: nowrap;
+      }
+      @media (max-width: 420px) {
+        .stat-val {
+          font-size: 16.5px;
+          letter-spacing: -0.04em;
+        }
       }
 
       /* 4가지 카드 테마 컬러 (모던 팔레트) */
@@ -1205,30 +1259,31 @@
         cursor: not-allowed;
       }
 
-      /* 비밀번호 변경 모달 */
+      /* ── 모달 & 팝업 시스템 (글래스모피즘 + 3D 팝 애니메이션) ── */
       .modal-overlay {
         position: fixed;
         inset: 0;
-        background: rgba(15, 23, 42, 0.45);
-        backdrop-filter: blur(3px);
-        -webkit-backdrop-filter: blur(3px);
+        background: rgba(15, 23, 42, 0.52);
+        backdrop-filter: blur(6px);
+        -webkit-backdrop-filter: blur(6px);
         display: flex;
         align-items: center;
         justify-content: center;
-        z-index: 100;
+        z-index: 1000;
         padding: 20px;
-        animation: modalFade 0.2s ease both;
+        animation: modalFade 0.22s ease both;
       }
       .modal-box {
-        background: var(--surface);
+        background: #ffffff;
         border-radius: var(--r-xl);
         padding: 28px 24px;
         width: 100%;
         max-width: 380px;
         max-height: calc(100dvh - 40px);
         overflow-y: auto;
-        box-shadow: 0 24px 60px rgba(2, 6, 23, 0.35);
-        animation: modalPop 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+        box-shadow: 0 24px 60px -12px rgba(15, 23, 42, 0.35), 0 0 0 1px rgba(255, 255, 255, 0.8) inset;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        animation: modalPop 0.28s cubic-bezier(0.16, 1, 0.3, 1) both;
       }
       @keyframes modalFade {
         from {
@@ -1241,7 +1296,7 @@
       @keyframes modalPop {
         from {
           opacity: 0;
-          transform: translateY(10px) scale(0.98);
+          transform: translateY(16px) scale(0.95);
         }
         to {
           opacity: 1;
@@ -1249,10 +1304,11 @@
         }
       }
       .modal-box h3 {
-        margin: 0 0 20px;
+        margin: 0 0 18px;
         font-size: 18px;
-        font-weight: 700;
+        font-weight: 800;
         color: #0f172a;
+        letter-spacing: -0.02em;
       }
       .modal-actions {
         display: flex;
@@ -1261,6 +1317,76 @@
       }
       .modal-actions button {
         flex: 1;
+        margin-bottom: 0;
+      }
+
+      /* ── 커스텀 알림/확인 팝업 전용 스타일 ── */
+      .modal-popup-box {
+        max-width: 350px;
+        text-align: center;
+        padding: 30px 24px 22px;
+        border-radius: 26px;
+      }
+      .popup-icon-wrap {
+        width: 56px;
+        height: 56px;
+        margin: 0 auto 16px;
+        border-radius: 20px;
+        display: grid;
+        place-items: center;
+        transition: transform 0.2s ease;
+      }
+      .popup-icon-wrap svg {
+        width: 28px;
+        height: 28px;
+      }
+      .popup-icon-error {
+        background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+        color: #e11d48;
+        border: 1.5px solid #fecdd3;
+        box-shadow: 0 4px 14px rgba(225, 29, 72, 0.18);
+      }
+      .popup-icon-warning {
+        background: linear-gradient(135deg, #fffbeb, #fef3c7);
+        color: #d97706;
+        border: 1.5px solid #fde68a;
+        box-shadow: 0 4px 14px rgba(217, 119, 6, 0.18);
+      }
+      .popup-icon-success {
+        background: linear-gradient(135deg, #f0fdf4, #dcfce7);
+        color: #059669;
+        border: 1.5px solid #a7f3d0;
+        box-shadow: 0 4px 14px rgba(5, 150, 105, 0.18);
+      }
+      .popup-icon-info {
+        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        color: #2563eb;
+        border: 1.5px solid #bfdbfe;
+        box-shadow: 0 4px 14px rgba(37, 99, 235, 0.18);
+      }
+      .popup-title {
+        margin: 0 0 8px;
+        font-size: 18px;
+        font-weight: 800;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+      }
+      .popup-message {
+        margin: 0 0 22px;
+        font-size: 14px;
+        font-weight: 500;
+        line-height: 1.58;
+        color: #475569;
+        white-space: pre-line;
+        word-break: keep-all;
+      }
+      .popup-actions {
+        margin-top: 0;
+      }
+      .popup-actions button {
+        padding: 13px;
+        font-size: 14.5px;
+        border-radius: 14px;
       }
 
       /* 메시지 */
@@ -1280,44 +1406,249 @@
         font-weight: 600;
       }
 
-      /* ── 탭 ─────────────────────────────────────────────────────── */
+      /* ── 교사 헤더 뱃지 ── */
+      .admin-role-badge {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        color: #6d28d9;
+        background: #f5f3ff;
+        border: 1px solid #ddd6fe;
+        border-radius: var(--r-pill);
+        padding: 2px 8px;
+        margin-left: 6px;
+        display: inline-block;
+        vertical-align: middle;
+      }
+
+      /* ── 교사 메인 탭 바 (프리미엄 세그먼트 컨트롤) ── */
       .tab-bar {
-        display: flex;
-        gap: 4px;
-        margin-bottom: 18px;
-        background: #eef2f7;
-        border: 1px solid var(--border);
-        padding: 5px;
-        border-radius: var(--r-md);
+        display: grid;
+        grid-template-columns: repeat(4, 1fr);
+        gap: 6px;
+        margin-bottom: 22px;
+        background: linear-gradient(180deg, #f8fafc, #f1f5f9);
+        border: 1px solid #e2e8f0;
+        padding: 6px;
+        border-radius: 18px;
+        box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.02);
       }
       .tab-btn {
-        flex: 1;
-        padding: 10px 6px;
-        border: none;
-        border-radius: var(--r-sm);
-        font-size: 13px;
+        padding: 9px 4px;
+        border: 1px solid transparent;
+        border-radius: 13px;
+        font-size: 12.5px;
         font-weight: 700;
         letter-spacing: -0.02em;
         cursor: pointer;
-        transition:
-          background 0.18s,
-          color 0.18s,
-          box-shadow 0.18s;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         background: transparent;
-        color: var(--text-light);
+        color: #64748b;
         font-family: inherit;
         box-shadow: none;
-        width: auto;
+        width: 100%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        user-select: none;
+        white-space: nowrap;
+      }
+      .tab-ico-wrap {
+        width: 26px;
+        height: 26px;
+        border-radius: 8px;
+        display: grid;
+        place-items: center;
+        background: transparent;
+        color: #94a3b8;
+        transition: all 0.2s ease;
+        flex-shrink: 0;
+      }
+      .tab-ico-wrap svg {
+        width: 15px;
+        height: 15px;
       }
       .tab-btn:hover:not(.active) {
-        background: rgba(255, 255, 255, 0.6);
-        color: var(--text);
+        background: rgba(255, 255, 255, 0.7);
+        color: #1e293b;
+        transform: translateY(-1px);
+      }
+      .tab-btn:hover:not(.active) .tab-ico-wrap {
+        color: var(--heading);
       }
       .tab-btn.active {
-        background: var(--surface);
-        color: var(--primary-hover);
-        box-shadow: var(--sh-sm);
+        background: #ffffff;
+        color: var(--heading);
+        font-weight: 800;
+        box-shadow: 0 4px 14px -2px rgba(15, 23, 42, 0.1), 0 1px 3px rgba(15, 23, 42, 0.04);
+        border-color: rgba(226, 232, 240, 0.9);
       }
+
+      /* ── 탭별 고유 컬러 테마 (비활성 아이콘, 호버 틴트, 활성 글로우) ── */
+
+      /* 1. 출석 현황 (블루) */
+      .tab-btn.tab-nav-dashboard .tab-ico-wrap {
+        color: #3b82f6;
+        background: #eff6ff;
+        border: 1px solid #dbeafe;
+      }
+      .tab-btn.tab-nav-dashboard:hover:not(.active) {
+        background: #eff6ff;
+        color: #1d4ed8;
+      }
+      .tab-btn.tab-nav-dashboard.active {
+        background: #ffffff;
+        color: #1d4ed8;
+        border-color: #bfdbfe;
+        box-shadow: 0 4px 14px -2px rgba(37, 99, 235, 0.25), 0 1px 3px rgba(37, 99, 235, 0.1);
+      }
+      .tab-btn.tab-nav-dashboard.active .tab-ico-wrap {
+        background: linear-gradient(135deg, #3b82f6, #1d4ed8);
+        color: #ffffff;
+        border-color: transparent;
+        box-shadow: 0 2px 6px rgba(37, 99, 235, 0.35);
+      }
+
+      /* 2. 학생 관리 (에메랄드) */
+      .tab-btn.tab-nav-students .tab-ico-wrap {
+        color: #10b981;
+        background: #ecfdf5;
+        border: 1px solid #d1fae5;
+      }
+      .tab-btn.tab-nav-students:hover:not(.active) {
+        background: #ecfdf5;
+        color: #047857;
+      }
+      .tab-btn.tab-nav-students.active {
+        background: #ffffff;
+        color: #047857;
+        border-color: #a7f3d0;
+        box-shadow: 0 4px 14px -2px rgba(16, 185, 129, 0.25), 0 1px 3px rgba(16, 185, 129, 0.1);
+      }
+      .tab-btn.tab-nav-students.active .tab-ico-wrap {
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #ffffff;
+        border-color: transparent;
+        box-shadow: 0 2px 6px rgba(16, 185, 129, 0.35);
+      }
+
+      /* 3. 날짜 차단 (로즈 레드) */
+      .tab-btn.tab-nav-block .tab-ico-wrap {
+        color: #f43f5e;
+        background: #fff1f2;
+        border: 1px solid #ffe4e6;
+      }
+      .tab-btn.tab-nav-block:hover:not(.active) {
+        background: #fff1f2;
+        color: #be123c;
+      }
+      .tab-btn.tab-nav-block.active {
+        background: #ffffff;
+        color: #be123c;
+        border-color: #fecdd3;
+        box-shadow: 0 4px 14px -2px rgba(244, 63, 94, 0.25), 0 1px 3px rgba(244, 63, 94, 0.1);
+      }
+      .tab-btn.tab-nav-block.active .tab-ico-wrap {
+        background: linear-gradient(135deg, #f43f5e, #e11d48);
+        color: #ffffff;
+        border-color: transparent;
+        box-shadow: 0 2px 6px rgba(244, 63, 94, 0.35);
+      }
+
+      /* 4. 월간 레포트 (바이올렛 퍼플) */
+      .tab-btn.tab-nav-report .tab-ico-wrap {
+        color: #8b5cf6;
+        background: #f5f3ff;
+        border: 1px solid #ede9fe;
+      }
+      .tab-btn.tab-nav-report:hover:not(.active) {
+        background: #f5f3ff;
+        color: #6d28d9;
+      }
+      .tab-btn.tab-nav-report.active {
+        background: #ffffff;
+        color: #6d28d9;
+        border-color: #ddd6fe;
+        box-shadow: 0 4px 14px -2px rgba(139, 92, 246, 0.25), 0 1px 3px rgba(139, 92, 246, 0.1);
+      }
+      .tab-btn.tab-nav-report.active .tab-ico-wrap {
+        background: linear-gradient(135deg, #8b5cf6, #7c3aed);
+        color: #ffffff;
+        border-color: transparent;
+        box-shadow: 0 2px 6px rgba(139, 92, 246, 0.35);
+      }
+
+      @media (max-width: 480px) {
+        .tab-bar {
+          gap: 4px;
+          padding: 4px;
+          border-radius: 16px;
+        }
+        .tab-btn {
+          font-size: 11.5px;
+          padding: 7px 2px;
+          gap: 3px;
+          border-radius: 11px;
+        }
+        .tab-ico-wrap {
+          width: 22px;
+          height: 22px;
+        }
+        .tab-ico-wrap svg {
+          width: 13px;
+          height: 13px;
+        }
+      }
+
+      /* 새로고침 버튼 (글래스 칩 룩) */
+      .btn-refresh-chip {
+        width: auto !important;
+        flex: 0 0 auto !important;
+        min-width: unset !important;
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 6px 14px;
+        font-size: 12.5px;
+        font-weight: 700;
+        border-radius: var(--r-pill);
+        background: #ffffff;
+        border: 1px solid var(--border-strong);
+        color: var(--text);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        cursor: pointer;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        font-family: inherit;
+        white-space: nowrap;
+        user-select: none;
+      }
+      .btn-refresh-chip:hover:not(:disabled) {
+        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        border-color: #93c5fd;
+        color: var(--primary-deep);
+        transform: translateY(-1px);
+        box-shadow: 0 3px 10px rgba(37, 99, 235, 0.12);
+      }
+      .btn-refresh-chip svg {
+        width: 14px;
+        height: 14px;
+        color: var(--primary);
+        transition: transform 0.3s ease;
+        flex-shrink: 0;
+      }
+      .btn-refresh-chip:hover:not(:disabled) svg {
+        transform: rotate(90deg);
+      }
+      .btn-refresh-chip.is-loading svg {
+        animation: spinIco 0.8s linear infinite;
+      }
+      @keyframes spinIco {
+        100% {
+          transform: rotate(360deg);
+        }
+      }
+
       .tab-panel {
         display: none;
       }
@@ -1338,25 +1669,25 @@
 
       /* ── 대시보드 내부 서브 탭 (확인 필요 / 기록 상세) ── */
       .dash-subtab-bar {
-        display: flex;
+        display: grid;
+        grid-template-columns: 1fr 1fr;
         gap: 6px;
-        margin-top: 18px;
-        margin-bottom: 15px;
-        background: #eef2f7;
+        margin-top: 20px;
+        margin-bottom: 16px;
+        background: #f1f5f9;
         border: 1px solid var(--border);
-        padding: 4px;
-        border-radius: var(--r-md);
+        padding: 5px;
+        border-radius: var(--r-lg);
       }
       .dash-subtab-btn {
-        flex: 1;
-        padding: 9px 12px;
-        border: 1px solid transparent;
-        border-radius: var(--r-sm);
-        font-size: 13px;
+        padding: 10px 12px;
+        border: none;
+        border-radius: 12px;
+        font-size: 13.5px;
         font-weight: 700;
         letter-spacing: -0.015em;
         cursor: pointer;
-        transition: all 0.18s ease;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         background: transparent;
         color: var(--text-light);
         font-family: inherit;
@@ -1365,16 +1696,16 @@
         align-items: center;
         justify-content: center;
         gap: 6px;
+        user-select: none;
       }
       .dash-subtab-btn:hover:not(.active) {
-        background: rgba(255, 255, 255, 0.7);
+        background: rgba(255, 255, 255, 0.65);
         color: var(--text);
       }
       .dash-subtab-btn.active {
-        background: var(--surface);
+        background: #ffffff;
         color: var(--heading);
-        border-color: var(--border-strong);
-        box-shadow: var(--sh-xs);
+        box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
       }
       .dash-subtab-panel {
         display: none;
@@ -1439,42 +1770,159 @@
         line-height: 1.6;
         color: #047857;
       }
-      .student-list-head {
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        margin: 0 2px 10px;
-        font-size: 13px;
-        color: var(--text-light);
+      /* ── 학생 관리 상단 액션 & 인원수 뱃지 ── */
+      .student-count-badge {
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        padding: 3px 10px;
+        border-radius: var(--r-pill);
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        color: #334155;
+        margin-left: 6px;
       }
-      /* wrap 이 없으면 버튼 3개가 한 줄에 묶여 '관리' 열의 최소 폭이
-         176px 로 고정되고, 좁은 화면에서 표 전체가 가로로 넘칩니다. */
+      .btn-add-student {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 7px 15px;
+        font-size: 13px;
+        font-weight: 800;
+        border-radius: var(--r-pill);
+        background: linear-gradient(135deg, #10b981, #059669);
+        color: #ffffff;
+        border: 1px solid #059669;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.25);
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        width: auto;
+        font-family: inherit;
+        white-space: nowrap;
+      }
+      .btn-add-student:hover:not(:disabled) {
+        background: linear-gradient(135deg, #059669, #047857);
+        transform: translateY(-1.5px);
+        box-shadow: 0 6px 16px rgba(16, 185, 129, 0.35);
+      }
+      .btn-add-student svg {
+        width: 15px;
+        height: 15px;
+      }
+
+      /* 학생 테이블 기준시간 타임 뱃지 */
+      .time-range-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 3px 8px;
+        border-radius: var(--r-pill);
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        font-size: 12px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+      }
+      .time-range-badge .t-in {
+        color: #047857;
+      }
+      .time-range-badge .t-sep {
+        color: #94a3b8;
+        font-size: 11px;
+      }
+      .time-range-badge .t-out {
+        color: #b45309;
+      }
+
+      /* 학생 관리 액션 버튼 그룹 (수정, PW초기화, 삭제) */
       .student-action-group {
         display: flex;
-        flex-wrap: wrap;
+        align-items: center;
         justify-content: center;
-        gap: 5px;
+        gap: 6px;
+        flex-wrap: wrap;
       }
       .student-action-btn {
         width: auto;
-        padding: 7px 9px;
-        border-radius: 8px;
-        font-size: 11px;
+        min-height: unset;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 5px 10px;
+        border-radius: 9px;
+        font-size: 11.5px;
         font-weight: 700;
-        box-shadow: none;
+        letter-spacing: -0.01em;
+        cursor: pointer;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        border: 1px solid transparent;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
         white-space: nowrap;
+        font-family: inherit;
+        user-select: none;
+      }
+      .student-action-btn svg {
+        width: 12px;
+        height: 12px;
+        flex-shrink: 0;
       }
       .student-action-btn.edit {
-        background: #dbeafe;
+        background: #eff6ff;
         color: #1d4ed8;
+        border-color: #bfdbfe;
+      }
+      .student-action-btn.edit:hover {
+        background: #dbeafe;
+        color: #1e40af;
+        border-color: #93c5fd;
+        transform: translateY(-1.5px);
+        box-shadow: 0 3px 8px rgba(37, 99, 235, 0.18);
       }
       .student-action-btn.reset {
-        background: #fef3c7;
+        background: #fffbeb;
         color: #b45309;
+        border-color: #fde68a;
+      }
+      .student-action-btn.reset:hover {
+        background: #fef3c7;
+        color: #92400e;
+        border-color: #fcd34d;
+        transform: translateY(-1.5px);
+        box-shadow: 0 3px 8px rgba(245, 158, 11, 0.18);
       }
       .student-action-btn.delete {
-        background: #fee2e2;
-        color: #dc2626;
+        background: #fff1f2;
+        color: #e11d48;
+        border-color: #fecdd3;
+      }
+      .student-action-btn.delete:hover {
+        background: #ffe4e6;
+        color: #be123c;
+        border-color: #fda4af;
+        transform: translateY(-1.5px);
+        box-shadow: 0 3px 8px rgba(244, 63, 94, 0.18);
+      }
+
+      /* 하단 안내 카드 */
+      .student-notice-box {
+        display: flex;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 11px 14px;
+        border-radius: var(--r-md);
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        font-size: 12px;
+        line-height: 1.55;
+        color: #64748b;
+        margin-top: 14px;
+      }
+      .student-notice-box svg {
+        width: 15px;
+        height: 15px;
+        color: var(--primary);
+        flex-shrink: 0;
+        margin-top: 2px;
       }
 
       @media (max-width: 540px) {
@@ -1520,60 +1968,115 @@
         }
       }
 
-      /* ── 날짜 차단 캘린더 ──────────────────────────────────────── */
+      /* ── 날짜 차단 캘린더 (모던 프리미엄 리디자인) ──────────────────────── */
       .bc-month-nav {
         display: flex;
         justify-content: space-between;
         align-items: center;
-        gap: 8px;
-        margin-bottom: 10px;
-        padding: 6px;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--r-md);
-        box-shadow: var(--sh-xs);
+        gap: 12px;
+        margin-bottom: 12px;
+        padding: 8px 12px;
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 18px;
+        box-shadow: 0 2px 10px rgba(15, 23, 42, 0.04);
       }
-      /* 대시보드 날짜 이동 버튼(44px)보다 작게 — 달력 위 보조 조작입니다 */
       .bc-month-nav .nav-btn {
-        width: 36px;
-        height: 36px;
-        border-radius: var(--r-sm);
+        width: 38px;
+        height: 38px;
+        border-radius: 12px;
+        display: grid;
+        place-items: center;
+        background: #f8fafc;
+        border: 1px solid #e2e8f0;
+        color: #334155;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      }
+      .bc-month-nav .nav-btn:hover {
+        background: #eff6ff;
+        border-color: #bfdbfe;
+        color: #2563eb;
+        transform: scale(1.05);
       }
       .bc-month-title {
         font-weight: 800;
-        font-size: 15.5px;
+        font-size: 16.5px;
         letter-spacing: -0.02em;
-        color: var(--heading);
+        color: #0f172a;
       }
 
-      /* 달력 전체를 하나의 면으로 묶습니다 */
+      /* 범례 — 모던 글래스 캡슐 칩 */
+      .block-legend {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 14px;
+        flex-wrap: wrap;
+      }
+      .block-legend > span {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        font-size: 11.5px;
+        font-weight: 700;
+        border-radius: var(--r-pill);
+        padding: 4px 10px;
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        color: #475569;
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+      }
+      .legend-dot {
+        width: 8px;
+        height: 8px;
+        flex: 0 0 auto;
+        border-radius: 50%;
+        display: inline-block;
+      }
+      .legend-dot.is-blocked {
+        background: #e11d48;
+        box-shadow: 0 0 0 2px #fecdd3;
+      }
+      .legend-dot.is-holiday {
+        background: #d97706;
+        box-shadow: 0 0 0 2px #fde68a;
+      }
+      .legend-dot.is-field {
+        background: #2563eb;
+        box-shadow: 0 0 0 2px #bfdbfe;
+      }
+      .legend-dot.is-off {
+        background: #cbd5e1;
+      }
+
+      /* 달력 전체 컨테이너 */
       .block-calendar-grid {
         display: grid;
-        /* 1fr 만 쓰면 트랙이 칸 내용(날짜 태그 등)의 최소 폭 아래로 줄지 못해
-           좁은 화면에서 달력이 카드 밖으로 넘칩니다. */
         grid-template-columns: repeat(7, minmax(0, 1fr));
-        gap: 3px;
-        margin-bottom: 12px;
-        padding: 10px;
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--r-lg);
-        box-shadow: var(--sh-xs);
+        gap: 6px;
+        margin-bottom: 16px;
+        padding: 14px;
+        background: #ffffff;
+        border: 1px solid rgba(226, 232, 240, 0.9);
+        border-radius: 22px;
+        box-shadow: 0 8px 24px -4px rgba(15, 23, 42, 0.05);
       }
       .bc-day-header {
         text-align: center;
-        font-size: 10.5px;
+        font-size: 12px;
         font-weight: 800;
-        color: var(--text-muted);
-        padding: 2px 0 7px;
+        color: #64748b;
+        padding: 4px 0 10px;
+        letter-spacing: -0.01em;
       }
       .bc-day-header:first-child {
-        color: #fb7185;
+        color: #e11d48;
       }
       .bc-day-header:nth-child(7) {
-        color: #93b4fc;
+        color: #2563eb;
       }
 
+      /* 개별 날짜 셀 */
       .bc-day {
         aspect-ratio: 1;
         min-width: 0;
@@ -1582,30 +2085,27 @@
         flex-direction: column;
         align-items: center;
         justify-content: center;
-        border-radius: var(--r-sm);
-        font-size: 12px;
+        border-radius: 14px;
+        font-size: 13px;
         cursor: pointer;
         border: 1.5px solid transparent;
-        transition:
-          background 0.15s,
-          border-color 0.15s,
-          color 0.15s,
-          transform 0.15s;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         position: relative;
         background: transparent;
-        color: var(--text);
+        color: #1e293b;
         user-select: none;
       }
-      /* 면(배경)은 '누를 수 있는 실습일'에만 줍니다.
-         전부 회색으로 칠하면 어디를 눌러야 하는지 알 수 없습니다. */
+      /* 현장실습일 (클릭 가능 기본 상태) */
       .bc-day:not(.empty):not(.non-field):not(.holiday):not(.blocked) {
-        background: var(--surface-sunken);
-        border-color: var(--border);
+        background: #f8fafc;
+        border-color: #e2e8f0;
+        color: #0f172a;
       }
-      .bc-day:hover:not(.empty):not(.non-field):not(.holiday) {
-        border-color: var(--primary);
-        background: var(--info-soft);
-        transform: translateY(-1px);
+      .bc-day:hover:not(.empty):not(.non-field):not(.holiday):not(.blocked) {
+        border-color: #3b82f6;
+        background: #eff6ff;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.18);
       }
       .bc-day.empty {
         background: transparent;
@@ -1613,112 +2113,85 @@
         cursor: default;
         pointer-events: none;
       }
-      /* 비대상일은 흐리게 덮지 않고, 면을 빼고 숫자만 옅게 둡니다 */
+      /* 비실습일 */
       .bc-day.non-field {
         background: transparent;
         border-color: transparent;
-        color: #b6c2d1;
+        color: #cbd5e1;
         cursor: default;
         pointer-events: none;
       }
       .bc-day.weekend {
         color: #cbd5e1;
       }
+      /* 차단일 */
       .bc-day.blocked {
-        background: #fef2f2;
-        border-color: #fbb6bd;
-        color: #be123c;
+        background: linear-gradient(145deg, #fff1f2, #ffe4e6);
+        border-color: #fca5a5;
+        color: #e11d48;
         font-weight: 800;
+        box-shadow: 0 2px 8px rgba(225, 29, 72, 0.12);
       }
+      .bc-day.blocked:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 6px 16px rgba(225, 29, 72, 0.25);
+        border-color: #f87171;
+      }
+      /* 공휴일 */
       .bc-day.holiday {
-        background: #fffbeb;
-        border-color: #fcd982;
-        color: #b45309;
+        background: linear-gradient(145deg, #fffbeb, #fef3c7);
+        border-color: #fde68a;
+        color: #d97706;
+        font-weight: 800;
         cursor: default;
         pointer-events: none;
       }
-      /* 오늘 표시는 테두리 대신 링으로 — 차단·공휴일 색과 겹쳐도 살아남습니다
-         (예전에는 border-color !important 라 상태색을 덮어버렸습니다) */
+      /* 오늘 날짜 표시 */
       .bc-day.today {
         font-weight: 800;
-        box-shadow: 0 0 0 2.5px rgba(59, 130, 246, 0.28);
+        box-shadow: 0 0 0 2.5px #2563eb, 0 4px 12px rgba(37, 99, 235, 0.22);
       }
       .bc-day .day-num {
-        font-size: 13px;
-        font-weight: 700;
+        font-size: 13.5px;
+        font-weight: 800;
         line-height: 1;
+        letter-spacing: -0.02em;
       }
       .bc-day .day-tag {
-        font-size: 8.5px;
-        font-weight: 700;
+        font-size: 9.5px;
+        font-weight: 800;
         margin-top: 3px;
-        max-width: calc(100% - 4px);
+        max-width: calc(100% - 6px);
         padding: 1px 5px;
         border-radius: var(--r-pill);
-        background: rgba(255, 255, 255, 0.8);
+        background: rgba(255, 255, 255, 0.95);
+        border: 1px solid rgba(225, 29, 72, 0.18);
         overflow: hidden;
         text-align: center;
         white-space: nowrap;
         text-overflow: ellipsis;
+        letter-spacing: -0.02em;
+      }
+      .bc-day.holiday .day-tag {
+        border-color: rgba(217, 119, 6, 0.22);
       }
 
-      /* 범례 — 인라인 색상 대신 클래스로 (달력 색과 한 곳에서 관리) */
-      .block-legend {
-        display: flex;
-        gap: 6px;
-        margin-bottom: 14px;
-        flex-wrap: wrap;
-      }
-      .block-legend > span {
-        display: flex;
-        align-items: center;
-        gap: 5px;
-        font-size: 11px;
-        font-weight: 600;
-        color: var(--text-light);
-        background: var(--surface);
-        border: 1px solid var(--border);
-        border-radius: var(--r-pill);
-        padding: 4px 9px;
-      }
-      .legend-dot {
-        width: 9px;
-        height: 9px;
-        flex: 0 0 auto;
-        border-radius: 3px;
-        display: inline-block;
-      }
-      .legend-dot.is-blocked {
-        background: #fef2f2;
-        border: 1px solid #fbb6bd;
-      }
-      .legend-dot.is-holiday {
-        background: #fffbeb;
-        border: 1px solid #fcd982;
-      }
-      .legend-dot.is-field {
-        background: var(--surface-sunken);
-        border: 1px solid var(--border-strong);
-      }
-      .legend-dot.is-off {
-        background: transparent;
-        border: 1px dashed #cbd5e1;
-      }
-
-      /* 날짜 클릭 시 펼쳐지는 차단 설정 폼 */
+      /* 날짜 클릭 시 열리는 차단 설정 폼 */
       .bc-form {
-        background: var(--surface-sunken);
-        border: 1px solid var(--border);
-        border-radius: var(--r-lg);
-        padding: 16px;
-        margin-top: 4px;
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        border-radius: 20px;
+        padding: 20px 18px;
+        margin-top: 8px;
+        box-shadow: 0 12px 30px -4px rgba(15, 23, 42, 0.1);
+        animation: panelIn 0.22s ease both;
       }
       .bc-form-title {
         font-weight: 800;
-        font-size: 14px;
+        font-size: 15px;
         letter-spacing: -0.02em;
-        color: var(--heading);
-        margin-bottom: 12px;
+        color: #0f172a;
+        margin-bottom: 14px;
       }
       .bc-form-actions {
         display: flex;
@@ -1729,135 +2202,143 @@
         min-width: 0;
         padding: 12px;
         font-size: 14px;
+        border-radius: 12px;
+        margin-bottom: 0;
       }
       .bc-form-actions .bc-close {
         flex: 0 0 44px;
         padding: 12px 0;
       }
 
-      /* ── 수동 차단 목록 (월별 탭) ───────────────────────────────── */
+      /* ── 수동 차단 목록 (월별 탭 & 카드 리스트) ── */
       .bl-head {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        margin-bottom: 9px;
+        margin-bottom: 12px;
+        padding: 0 2px;
       }
       .bl-total {
-        font-size: 11.5px;
-        font-weight: 700;
-        color: var(--text-muted);
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: -0.01em;
+        padding: 3px 10px;
+        border-radius: var(--r-pill);
+        background: #fff1f2;
+        border: 1px solid #fecdd3;
+        color: #e11d48;
       }
-      /* 학년도가 길어지면 탭이 12개까지 늘 수 있어 줄바꿈으로 받습니다
-         (가로 스크롤은 넘친 탭을 발견하기 어렵습니다) */
       .bl-tabs {
         display: flex;
         flex-wrap: wrap;
-        gap: 5px;
-        margin-bottom: 10px;
+        gap: 6px;
+        margin-bottom: 14px;
       }
       .bl-tab {
         display: inline-flex;
         align-items: center;
         gap: 5px;
         width: auto;
-        min-height: 32px;
-        padding: 5px 10px;
+        min-height: 34px;
+        padding: 6px 12px;
         border-radius: var(--r-pill);
-        background: var(--surface);
-        border: 1px solid var(--border);
-        color: var(--text-light);
+        background: #ffffff;
+        border: 1px solid #e2e8f0;
+        color: #475569;
         font-size: 12px;
         font-weight: 700;
-        box-shadow: none;
-        transition:
-          background 0.15s,
-          border-color 0.15s,
-          color 0.15s;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
       }
       .bl-tab:hover:not(.active) {
-        background: var(--surface-sunken);
-        border-color: var(--border-strong);
-        color: var(--text);
+        background: #f8fafc;
+        border-color: #cbd5e1;
+        color: #0f172a;
+        transform: translateY(-1px);
       }
       .bl-tab.active {
-        background: var(--primary);
-        border-color: var(--primary);
-        color: #fff;
-        box-shadow: 0 4px 10px -3px rgba(59, 130, 246, 0.55);
+        background: linear-gradient(135deg, #e11d48, #be123c);
+        border-color: #be123c;
+        color: #ffffff;
+        box-shadow: 0 4px 12px rgba(225, 29, 72, 0.3);
       }
-      /* 다른 해의 달임을 알리는 접두 연도 (예: 2027 1월) */
       .bl-year {
         font-size: 10px;
-        font-weight: 700;
-        opacity: 0.65;
-        margin-right: 3px;
+        font-weight: 800;
+        opacity: 0.75;
+        margin-right: 2px;
       }
       .bl-count {
         display: inline-grid;
         place-items: center;
-        min-width: 17px;
-        height: 17px;
+        min-width: 18px;
+        height: 18px;
         padding: 0 4px;
         border-radius: var(--r-pill);
-        background: var(--surface-sunken);
-        color: var(--text-light);
         font-size: 10.5px;
         font-weight: 800;
-        font-variant-numeric: tabular-nums;
-      }
-      .bl-tab.active .bl-count {
         background: rgba(255, 255, 255, 0.25);
-        color: #fff;
+        color: #ffffff;
       }
-
+      .bl-tab:not(.active) .bl-count {
+        background: #fee2e2;
+        color: #e11d48;
+      }
       .bl-list {
         display: flex;
         flex-direction: column;
-        gap: 5px;
+        gap: 8px;
       }
       .bl-item {
         display: flex;
         align-items: center;
-        gap: 9px;
-        padding: 9px 12px;
-        border-radius: var(--r-sm);
-        background: #fef5f5;
-        border: 1px solid #fbd0d3;
+        justify-content: space-between;
+        padding: 10px 14px;
+        border-radius: 14px;
+        background: #ffffff;
+        border: 1px solid #fee2e2;
+        box-shadow: 0 2px 6px rgba(225, 29, 72, 0.04);
+        transition: transform 0.18s ease, box-shadow 0.18s ease;
+      }
+      .bl-item:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px rgba(225, 29, 72, 0.1);
+        border-color: #fecdd3;
       }
       .bl-date {
-        flex: 0 0 auto;
-        font-size: 12.5px;
         font-weight: 800;
-        color: #b91c1c;
-        font-variant-numeric: tabular-nums;
+        font-size: 13px;
+        color: #0f172a;
       }
       .bl-reason {
-        min-width: 0;
-        font-size: 12px;
-        font-weight: 600;
-        color: var(--text-light);
-        overflow: hidden;
-        text-overflow: ellipsis;
-        white-space: nowrap;
+        font-size: 11.5px;
+        font-weight: 700;
+        padding: 3px 8px;
+        border-radius: var(--r-pill);
+        background: #fff1f2;
+        color: #e11d48;
+        border: 1px solid #fecdd3;
       }
       .bl-reason-none {
-        color: var(--text-muted);
-        font-style: italic;
+        background: #f1f5f9;
+        color: #64748b;
+        border-color: #e2e8f0;
       }
       .bl-empty {
-        padding: 14px;
-        border-radius: var(--r-sm);
-        background: var(--surface-sunken);
-        border: 1px dashed var(--border-strong);
+        padding: 16px;
+        border-radius: 14px;
+        background: #f8fafc;
+        border: 1.5px dashed #e2e8f0;
         text-align: center;
-        font-size: 12px;
-        font-weight: 600;
-        color: var(--text-muted);
+        font-size: 12.5px;
+        font-weight: 700;
+        color: #64748b;
       }
       .bl-empty-ok {
         background: #ecfdf5;
-        border: 1px solid #b6f0d7;
+        border: 1px solid #a7f3d0;
         color: #047857;
         font-weight: 700;
       }
@@ -2141,6 +2622,57 @@
         color: var(--text-light);
       }
 
+      /* ── 로그인 역할 전환 탭 (학생 / 교사) ── */
+      .auth-role-tabs {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 6px;
+        background: #f1f5f9;
+        border: 1px solid var(--border);
+        padding: 5px;
+        border-radius: 16px;
+        margin: 20px 0 16px;
+        position: relative;
+      }
+      .auth-role-tab {
+        border: none;
+        border-radius: 12px;
+        padding: 10px 12px;
+        font-size: 13.5px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        cursor: pointer;
+        transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        background: transparent;
+        color: var(--text-light);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        box-shadow: none;
+        user-select: none;
+      }
+      .auth-role-tab:hover:not(.active) {
+        background: rgba(255, 255, 255, 0.65);
+        color: var(--text);
+      }
+      .auth-role-tab.active {
+        background: #ffffff;
+        color: var(--heading);
+        box-shadow: 0 3px 10px rgba(15, 23, 42, 0.08);
+      }
+      .auth-role-tab.active.tab-student {
+        color: #2563eb;
+      }
+      .auth-role-tab.active.tab-teacher {
+        color: #7c3aed;
+      }
+      .auth-role-tab svg {
+        width: 17px;
+        height: 17px;
+        flex-shrink: 0;
+      }
+
       /* ── 입력 필드 (플로팅 라벨) ─────────────────────────────────── */
       .auth-form {
         display: flex;
@@ -2416,6 +2948,48 @@
         }
       }
 
+      /* ── 인쇄 최적화 (A4 세로 1페이지 맞춤) ── */
+      @media print {
+        @page {
+          size: A4 portrait;
+          margin: 8mm 6mm;
+        }
+        html,
+        body {
+          background: #ffffff !important;
+          color: #0f172a !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          -webkit-print-color-adjust: exact !important;
+          print-color-adjust: exact !important;
+        }
+        .modal-overlay,
+        .tab-bar,
+        .bc-month-nav,
+        .month-selector,
+        .pagination,
+        .btn-refresh-chip,
+        #reportActions,
+        .report-zoom-bar {
+          display: none !important;
+        }
+        .card {
+          box-shadow: none !important;
+          border: none !important;
+          padding: 0 !important;
+          margin: 0 !important;
+          max-width: 100% !important;
+        }
+        table {
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+        }
+        tr {
+          page-break-inside: avoid !important;
+          break-inside: avoid !important;
+        }
+      }
+
       /* ══════════════════════════════════════════════════════════════
          반응형 — 화면이 좁아질수록 여백을 회수해 내용 폭을 확보합니다.
          카드 패딩은 --pad-card 하나만 바꾸면 전체에 반영됩니다.
@@ -2551,6 +3125,34 @@
           <div class="auth-sub">🎓 성일정보고등학교 도제반 3-12</div>
         </div>
 
+        <!-- ── 로그인 역할 선택 탭 (학생 / 교사) ── -->
+        <div class="auth-role-tabs">
+          <button
+            type="button"
+            class="auth-role-tab active tab-student"
+            id="tabLoginStudent"
+            onclick="switchLoginRole('student')"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M22 10v6M2 10l10-5 10 5-10 5z" />
+              <path d="M6 12v5c3 3 9 3 12 0v-5" />
+            </svg>
+            <span>학생 로그인</span>
+          </button>
+          <button
+            type="button"
+            class="auth-role-tab tab-teacher"
+            id="tabLoginTeacher"
+            onclick="switchLoginRole('teacher')"
+          >
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2" />
+              <circle cx="12" cy="7" r="4" />
+            </svg>
+            <span>교사 로그인</span>
+          </button>
+        </div>
+
         <form id="loginForm" class="auth-form" autocomplete="on">
           <div class="field">
             <input
@@ -2561,9 +3163,10 @@
               placeholder=" "
               disabled
             />
-            <label for="userId">학번 (교사는 ID)</label>
+            <label for="userId" id="userIdLabel">학번</label>
             <svg
               class="field-icon"
+              id="userIdIcon"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -2643,7 +3246,7 @@
               </span>
               아이디 저장
             </label>
-            <span class="auth-hint">화·수·목 실습일</span>
+            <span class="auth-hint" id="authHintText">화·수·목 실습일</span>
           </div>
 
           <button
@@ -2658,7 +3261,7 @@
           <div id="loginMsg" class="msg-error" role="alert"></div>
         </form>
 
-        <div class="auth-foot">
+        <div class="auth-foot" id="authFootText">
           비밀번호를 잊었다면 담당 교사에게 초기화를 요청하세요.
         </div>
       </div>
@@ -2799,37 +3402,82 @@
             </svg>
           </span>
           <span class="app-head-text">
-            <span class="app-head-title">Doje Beacon</span>
-            <span class="app-head-sub">성일정보고 도제반 3-12 · 교사</span>
+            <span class="app-head-title">Doje Beacon <span class="admin-role-badge">교사</span></span>
+            <span class="app-head-sub">성일정보고등학교 도제반 3-12</span>
           </span>
         </div>
 
         <!-- 탭 바 -->
         <div class="tab-bar">
-          <button class="tab-btn active" onclick="switchTab('tab-dashboard')">
-            📋 출석 현황
+          <button class="tab-btn tab-nav-dashboard active" onclick="switchTab('tab-dashboard')">
+            <span class="tab-ico-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 5H7a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V7a2 2 0 0 0-2-2h-2" />
+                <rect x="9" y="3" width="6" height="4" rx="1" />
+                <path d="m9 14 2 2 4-4" />
+              </svg>
+            </span>
+            <span>출석 현황</span>
           </button>
-          <button class="tab-btn" onclick="switchTab('tab-students')">
-            👥 학생 관리
+          <button class="tab-btn tab-nav-students" onclick="switchTab('tab-students')">
+            <span class="tab-ico-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+            </span>
+            <span>학생 관리</span>
           </button>
-          <button class="tab-btn" onclick="switchTab('tab-block')">
-            🚫 날짜 차단
+          <button class="tab-btn tab-nav-block" onclick="switchTab('tab-block')">
+            <span class="tab-ico-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+              </svg>
+            </span>
+            <span>날짜 차단</span>
           </button>
-          <button class="tab-btn" onclick="switchTab('tab-report')">
-            📄 월간 레포트
+          <button class="tab-btn tab-nav-report" onclick="switchTab('tab-report')">
+            <span class="tab-ico-wrap">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+                <polyline points="14 2 14 8 20 8" />
+                <line x1="16" y1="13" x2="8" y2="13" />
+                <line x1="16" y1="17" x2="8" y2="17" />
+                <polyline points="10 9 9 9 8 9" />
+              </svg>
+            </span>
+            <span>월간 레포트</span>
           </button>
         </div>
 
         <!-- ── 탭 1: 출석 현황 ── -->
         <div id="tab-dashboard" class="tab-panel active">
           <div class="section-head">
-            <span class="section-title">조회 날짜</span>
+            <span class="section-title">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: var(--primary);">
+                <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
+                <line x1="16" y1="2" x2="16" y2="6" />
+                <line x1="8" y1="2" x2="8" y2="6" />
+                <line x1="3" y1="10" x2="21" y2="10" />
+              </svg>
+              <span>조회 날짜</span>
+            </span>
             <button
               onclick="fetchAdminData(false)"
-              class="chip-btn"
+              class="btn-refresh-chip"
               id="refreshBtn"
+              title="출결 데이터 새로고침"
             >
-              🔄 새로고침
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+                <path d="M3 3v5h5" />
+                <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+                <path d="M16 21h5v-5" />
+              </svg>
+              <span>새로고침</span>
             </button>
           </div>
 
@@ -3019,8 +3667,11 @@
               <!-- 1. 입실 미입력 학생 -->
               <div class="alert-box box-red">
                 <div class="alert-head">
-                  <span class="alert-icon">🚪</span>
-                  <p>입실 미입력 학생</p>
+                  <div class="alert-head-left">
+                    <span class="alert-icon">🚪</span>
+                    <span class="alert-title-text">입실 미입력 학생</span>
+                  </div>
+                  <span class="alert-count-badge is-zero" id="unrecordedInCount">0명</span>
                 </div>
                 <div class="alert-body" id="unrecordedInList">
                   데이터 불러오는 중...
@@ -3030,8 +3681,11 @@
               <!-- 2. 퇴실 미입력 학생 -->
               <div class="alert-box box-orange">
                 <div class="alert-head">
-                  <span class="alert-icon">🚶</span>
-                  <p>퇴실 미입력 학생</p>
+                  <div class="alert-head-left">
+                    <span class="alert-icon">🚶</span>
+                    <span class="alert-title-text">퇴실 미입력 학생</span>
+                  </div>
+                  <span class="alert-count-badge is-zero" id="unrecordedOutCount">0명</span>
                 </div>
                 <div class="alert-body" id="unrecordedOutList">
                   데이터 불러오는 중...
@@ -3041,8 +3695,11 @@
               <!-- 3. 지각 학생 -->
               <div class="alert-box box-rose">
                 <div class="alert-head">
-                  <span class="alert-icon">⏰</span>
-                  <p>지각 학생</p>
+                  <div class="alert-head-left">
+                    <span class="alert-icon">⏰</span>
+                    <span class="alert-title-text">지각 학생</span>
+                  </div>
+                  <span class="alert-count-badge is-zero" id="lateCountBadge">0명</span>
                 </div>
                 <div class="alert-body" id="lateList">
                   데이터 불러오는 중...
@@ -3052,8 +3709,11 @@
               <!-- 4. 조퇴 학생 -->
               <div class="alert-box box-purple">
                 <div class="alert-head">
-                  <span class="alert-icon">🏃</span>
-                  <p>조퇴 학생</p>
+                  <div class="alert-head-left">
+                    <span class="alert-icon">🏃</span>
+                    <span class="alert-title-text">조퇴 학생</span>
+                  </div>
+                  <span class="alert-count-badge is-zero" id="earlyCountBadge">0명</span>
                 </div>
                 <div class="alert-body" id="earlyList">
                   데이터 불러오는 중...
@@ -3084,9 +3744,22 @@
         <!-- ── 탭 2: 학생 관리 ── -->
         <div id="tab-students" class="tab-panel">
           <div class="section-head">
-            <span class="section-title">등록 학생 목록</span>
-            <button class="chip-btn chip-btn-accent" onclick="openStudentForm()">
-              ➕ 학생 등록
+            <span class="section-title">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: #059669;">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+                <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+              </svg>
+              <span>등록 학생 목록</span>
+              <span class="student-count-badge" id="studentManageCount">0명</span>
+            </span>
+            <button class="btn-add-student" onclick="openStudentForm()">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"/>
+                <line x1="5" y1="12" x2="19" y2="12"/>
+              </svg>
+              <span>학생 등록</span>
             </button>
           </div>
 
@@ -3114,10 +3787,6 @@
 
           <div id="studentManageMsg" class="msg-error"></div>
 
-          <div class="student-list-head">
-            <strong>전체</strong>
-            <span id="studentManageCount">0명</span>
-          </div>
           <div class="table-container">
             <table>
               <thead>
@@ -3136,10 +3805,14 @@
             </table>
           </div>
           <div id="studentPagination"></div>
-          <p style="font-size: 12px; color: #64748b; line-height: 1.6">
-            학번은 출결 이력 식별키이므로 등록 후 변경할 수 없습니다. 학생
-            삭제 시 기존 출결 기록은 보존됩니다.
-          </p>
+          <div class="student-notice-box">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+              <circle cx="12" cy="12" r="10"/>
+              <line x1="12" y1="16" x2="12" y2="12"/>
+              <line x1="12" y1="8" x2="12.01" y2="8"/>
+            </svg>
+            <div>학번은 출결 이력 식별키이므로 등록 후 변경할 수 없습니다. 학생 삭제 시 기존 출결 기록은 안전하게 보존됩니다.</div>
+          </div>
         </div>
 
         <!-- ── 탭 3: 날짜 차단 ── -->
@@ -3186,9 +3859,9 @@
           <div class="block-calendar-grid" id="blockCalGrid">
             <div class="bc-day-header">일</div>
             <div class="bc-day-header">월</div>
-            <div class="bc-day-header" style="color: var(--primary)">화</div>
-            <div class="bc-day-header" style="color: var(--primary)">수</div>
-            <div class="bc-day-header" style="color: var(--primary)">목</div>
+            <div class="bc-day-header" style="color: #2563eb">화</div>
+            <div class="bc-day-header" style="color: #2563eb">수</div>
+            <div class="bc-day-header" style="color: #2563eb">목</div>
             <div class="bc-day-header">금</div>
             <div class="bc-day-header">토</div>
           </div>
@@ -3196,19 +3869,19 @@
           <!-- 차단 설정 폼 (날짜 클릭 시 표시) -->
           <div id="blockForm" class="bc-form hidden">
             <div class="bc-form-title">
-              📅 <span id="blockFormDate"></span> 설정
+              📅 <span id="blockFormDate"></span> 출석 차단 설정
             </div>
-            <div class="input-group" style="margin-bottom: 12px">
-              <label for="blockReason">사유 (선택)</label>
+            <div class="input-group" style="margin-bottom: 14px">
+              <label for="blockReason">차단 사유 (선택)</label>
               <input
                 type="text"
                 id="blockReason"
-                placeholder="예: 현장학습, 공결 처리 등"
+                placeholder="예: 현장체험학습, 개교기념일, 공결 등"
               />
             </div>
             <div class="bc-form-actions">
               <button class="btn-danger" onclick="applyBlockDate(true)">
-                🚫 차단하기
+                🚫 출석 차단하기
               </button>
               <button class="btn-secondary" onclick="applyBlockDate(false)">
                 ✅ 차단 해제
@@ -3391,13 +4064,191 @@
       </div>
     </div>
 
+    <!-- ── 전역 모던 팝업 (Alert / Confirm) ── -->
+    <div id="appModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+      <div class="modal-box modal-popup-box">
+        <div class="popup-icon-wrap popup-icon-info" id="popupIconWrap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"/>
+            <line x1="12" y1="16" x2="12" y2="12"/>
+            <line x1="12" y1="8" x2="12.01" y2="8"/>
+          </svg>
+        </div>
+        <h3 class="popup-title" id="popupTitle">알림</h3>
+        <p class="popup-message" id="popupMessage">내용</p>
+        <div class="modal-actions popup-actions" id="popupActions">
+          <button class="btn-primary" id="popupOkBtn" style="margin-bottom:0">확인</button>
+        </div>
+      </div>
+    </div>
+
     <script>
+      // ── 모던 커스텀 팝업 시스템 (Alert / Confirm) ─────────────────────
+      function showAlert(message, options = {}) {
+        return new Promise((resolve) => {
+          const msgStr = String(message || "");
+          const isErr =
+            options.type === "error" ||
+            (!options.type &&
+              (msgStr.includes("실패") ||
+                msgStr.includes("오류") ||
+                msgStr.includes("차단") ||
+                msgStr.includes("불가") ||
+                msgStr.includes("일치하지") ||
+                msgStr.includes("확인해주세요") ||
+                msgStr.includes("없습니다")));
+          const isSuccess =
+            options.type === "success" ||
+            (!options.type &&
+              (msgStr.includes("완료") ||
+                msgStr.includes("성공") ||
+                msgStr.includes("발급되었습니다")));
+          const type =
+            options.type || (isErr ? "error" : isSuccess ? "success" : "info");
+          const title =
+            options.title ||
+            (type === "error"
+              ? "알림"
+              : type === "success"
+                ? "완료"
+                : type === "warning"
+                  ? "주의"
+                  : "안내");
+          const btnText = options.btnText || "확인";
+
+          const modal = document.getElementById("appModal");
+          const iconWrap = document.getElementById("popupIconWrap");
+          const titleEl = document.getElementById("popupTitle");
+          const msgEl = document.getElementById("popupMessage");
+          const actionsEl = document.getElementById("popupActions");
+
+          iconWrap.className = `popup-icon-wrap popup-icon-${type}`;
+          if (type === "error") {
+            iconWrap.innerHTML =
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+          } else if (type === "success") {
+            iconWrap.innerHTML =
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>';
+          } else if (type === "warning") {
+            iconWrap.innerHTML =
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+          } else {
+            iconWrap.innerHTML =
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="16" x2="12" y2="12"/><line x1="12" y1="8" x2="12.01" y2="8"/></svg>';
+          }
+
+          titleEl.textContent = title;
+          msgEl.textContent = msgStr;
+
+          const btnThemeClass =
+            type === "error"
+              ? "btn-danger"
+              : type === "success"
+                ? "btn-primary"
+                : "btn-primary";
+          actionsEl.innerHTML = `<button class="${btnThemeClass}" id="popupOkBtn" style="margin-bottom:0">${esc(btnText)}</button>`;
+
+          let isResolved = false;
+          const close = () => {
+            if (isResolved) return;
+            isResolved = true;
+            modal.classList.add("hidden");
+            window.removeEventListener("keydown", onKeyDown);
+            resolve();
+          };
+
+          const onKeyDown = (e) => {
+            if (e.key === "Enter" || e.key === "Escape") {
+              e.preventDefault();
+              close();
+            }
+          };
+
+          document.getElementById("popupOkBtn").onclick = close;
+          window.addEventListener("keydown", onKeyDown);
+
+          modal.classList.remove("hidden");
+          setTimeout(() => document.getElementById("popupOkBtn")?.focus(), 50);
+        });
+      }
+
+      function showConfirm(message, options = {}) {
+        return new Promise((resolve) => {
+          const msgStr = String(message || "");
+          const isDanger =
+            options.danger ||
+            msgStr.includes("삭제") ||
+            msgStr.includes("초기화") ||
+            msgStr.includes("종료");
+          const type = options.type || (isDanger ? "warning" : "info");
+          const title = options.title || (isDanger ? "확인 필요" : "확인");
+          const confirmText =
+            options.confirmText || (isDanger ? "계속 진행" : "확인");
+          const cancelText = options.cancelText || "취소";
+
+          const modal = document.getElementById("appModal");
+          const iconWrap = document.getElementById("popupIconWrap");
+          const titleEl = document.getElementById("popupTitle");
+          const msgEl = document.getElementById("popupMessage");
+          const actionsEl = document.getElementById("popupActions");
+
+          iconWrap.className = `popup-icon-wrap popup-icon-${type}`;
+          if (isDanger || type === "warning") {
+            iconWrap.innerHTML =
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>';
+          } else {
+            iconWrap.innerHTML =
+              '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>';
+          }
+
+          titleEl.textContent = title;
+          msgEl.textContent = msgStr;
+
+          const confirmClass = isDanger ? "btn-danger" : "btn-primary";
+          actionsEl.innerHTML = `
+            <button class="btn-secondary" id="popupCancelBtn" style="margin-bottom:0">${esc(cancelText)}</button>
+            <button class="${confirmClass}" id="popupConfirmBtn" style="margin-bottom:0">${esc(confirmText)}</button>
+          `;
+
+          let isResolved = false;
+          const close = (val) => {
+            if (isResolved) return;
+            isResolved = true;
+            modal.classList.add("hidden");
+            window.removeEventListener("keydown", onKeyDown);
+            resolve(val);
+          };
+
+          const onKeyDown = (e) => {
+            if (e.key === "Escape") {
+              e.preventDefault();
+              close(false);
+            }
+          };
+
+          document.getElementById("popupCancelBtn").onclick = () =>
+            close(false);
+          document.getElementById("popupConfirmBtn").onclick = () =>
+            close(true);
+          window.addEventListener("keydown", onKeyDown);
+
+          modal.classList.remove("hidden");
+          setTimeout(
+            () => document.getElementById("popupConfirmBtn")?.focus(),
+            50,
+          );
+        });
+      }
+
+      // 기본 window.alert를 안전하게 오버라이드
+      window.alert = (msg) => showAlert(msg);
+
       // ── 화면 전용 상수 (서버 규칙과 무관) ─────────────────────────────
       const SESSION_KEY = "attendance_user";
       // ✅ 자동 새로고침 30초로 조정 (기존 10초)
       const AUTO_REFRESH_MS = 30 * 1000;
       const ITEMS_PER_PAGE = 5;
-      const STUDENTS_PER_PAGE = 6;
+      const STUDENTS_PER_PAGE = 8;
 
       // ── 업무 규칙 상수 ────────────────────────────────────────────────
       // 실습요일·공휴일·지각 기준 등은 code.gs가 유일한 출처이며, 페이지 시작
@@ -3464,7 +4315,9 @@
       const REPORT_DOC_WIDTH = 1000;
 
       // ── 초기화 ────────────────────────────────────────────────────────
-      const REMEMBER_ID_KEY = "attendance_remembered_id";
+      let currentLoginRole = "student"; // 'student' | 'teacher'
+      const REMEMBER_STUDENT_ID_KEY = "attendance_saved_student_id";
+      const REMEMBER_TEACHER_ID_KEY = "attendance_saved_teacher_id";
 
       window.onload = async () => {
         // 폼 submit(엔터 입력 포함)을 login()에 연결 — 실제 페이지 이동은 막음
@@ -3473,13 +4326,19 @@
           login();
         });
 
-        // 저장된 아이디 복원 (비밀번호는 저장하지 않고, 브라우저 자격증명
-        // 관리자가 자동으로 채워주는 것에 맡깁니다)
-        const rememberedId = localStorage.getItem(REMEMBER_ID_KEY);
-        if (rememberedId) {
-          document.getElementById("userId").value = rememberedId;
-          document.getElementById("rememberId").checked = true;
+        // 기존 단일 키 호환 마이그레이션
+        const legacySavedId = localStorage.getItem("attendance_remembered_id");
+        if (legacySavedId) {
+          if (/^\d+$/.test(legacySavedId)) {
+            localStorage.setItem(REMEMBER_STUDENT_ID_KEY, legacySavedId);
+          } else {
+            localStorage.setItem(REMEMBER_TEACHER_ID_KEY, legacySavedId);
+          }
+          localStorage.removeItem("attendance_remembered_id");
         }
+
+        // 초기 학생 탭 기준으로 저장된 ID 복원
+        switchLoginRole("student");
 
         try {
           const response = await fetch("project26_05_gas_url.json");
@@ -3593,6 +4452,53 @@
       }
 
       // ── 로그인 ────────────────────────────────────────────────────────
+      function switchLoginRole(role) {
+        currentLoginRole = role;
+        const isStudent = role === "student";
+
+        const tabStudent = document.getElementById("tabLoginStudent");
+        const tabTeacher = document.getElementById("tabLoginTeacher");
+        if (tabStudent) tabStudent.classList.toggle("active", isStudent);
+        if (tabTeacher) tabTeacher.classList.toggle("active", !isStudent);
+
+        const idInput = document.getElementById("userId");
+        const idLabel = document.getElementById("userIdLabel");
+        const idIcon = document.getElementById("userIdIcon");
+        const hintEl = document.getElementById("authHintText");
+        const footEl = document.getElementById("authFootText");
+        const msgEl = document.getElementById("loginMsg");
+        if (msgEl) msgEl.innerText = "";
+
+        if (isStudent) {
+          if (idLabel) idLabel.textContent = "학번";
+          if (idIcon) {
+            idIcon.innerHTML = '<path d="M19 21v-2a4 4 0 0 0-4-4H9a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/>';
+          }
+          const saved = localStorage.getItem(REMEMBER_STUDENT_ID_KEY) || "";
+          if (idInput) {
+            idInput.value = saved;
+          }
+          const remEl = document.getElementById("rememberId");
+          if (remEl) remEl.checked = !!saved;
+          if (hintEl) hintEl.textContent = "화·수·목 실습일";
+          if (footEl) footEl.textContent = "비밀번호를 잊었다면 담당 교사에게 초기화를 요청하세요.";
+        } else {
+          if (idLabel) idLabel.textContent = "교사 ID";
+          if (idIcon) {
+            idIcon.innerHTML = '<path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>';
+          }
+          const saved = localStorage.getItem(REMEMBER_TEACHER_ID_KEY) || "";
+          if (idInput) {
+            idInput.value = saved;
+          }
+          const remEl = document.getElementById("rememberId");
+          if (remEl) remEl.checked = !!saved;
+          if (hintEl) hintEl.textContent = "관리자 전용";
+          if (footEl) footEl.textContent = "교사 비밀번호 분실 시 구글 시트 메뉴에서 초기화할 수 있습니다.";
+        }
+        if (idInput && !idInput.disabled) idInput.focus();
+      }
+
       // 버튼 안에 스피너가 들어있어 innerText로 통째로 덮어쓰면 안 됩니다.
       function setLoginButton(label, isLoading) {
         document.getElementById("loginBtnLabel").textContent = label;
@@ -3636,11 +4542,15 @@
         btn.disabled = false;
 
         if (res.success) {
-          // 아이디 저장 체크 여부에 따라 로컬에 아이디만 보관 (비밀번호는 절대 저장하지 않음)
+          // 아이디 저장 체크 여부에 따라 해당 역할 키로 로컬에 아이디 보관
+          const keyToSave =
+            currentLoginRole === "student"
+              ? REMEMBER_STUDENT_ID_KEY
+              : REMEMBER_TEACHER_ID_KEY;
           if (document.getElementById("rememberId").checked) {
-            localStorage.setItem(REMEMBER_ID_KEY, id);
+            localStorage.setItem(keyToSave, id);
           } else {
-            localStorage.removeItem(REMEMBER_ID_KEY);
+            localStorage.removeItem(keyToSave);
           }
 
           // 브라우저 자체 비밀번호 관리자에 저장 요청 (지원 브라우저만 해당,
@@ -4115,7 +5025,7 @@
       async function fetchAdminData(isSilent = false) {
         const btn = document.getElementById("refreshBtn");
         if (!isSilent && btn) {
-          btn.innerText = "불러오는 중…";
+          btn.classList.add("is-loading");
           btn.disabled = true;
         }
 
@@ -4131,7 +5041,7 @@
           // 지금 보고 있는 날짜와 다르면 화면에 반영하지 않습니다.
           if (formatDateForCompare(currentAdminDate) !== requestedDate) {
             if (!isSilent && btn) {
-              btn.innerText = "🔄 새로고침";
+              btn.classList.remove("is-loading");
               btn.disabled = false;
             }
             return;
@@ -4151,7 +5061,7 @@
         }
 
         if (!isSilent && btn) {
-          btn.innerText = "🔄 새로고침";
+          btn.classList.remove("is-loading");
           btn.disabled = false;
         }
       }
@@ -4269,14 +5179,37 @@
           .slice(start, start + STUDENTS_PER_PAGE)
           .map(
             (student) => `<tr>
-              <td><strong>${esc(student.id)}</strong></td>
-              <td>${esc(student.name)}</td>
-              <td>${esc(student.inTime || "-")}<br><span style="color:#94a3b8;">~ ${esc(student.outTime || "-")}</span></td>
+              <td><span style="font-weight: 800; color: #1e293b; letter-spacing: -0.01em;">${esc(student.id)}</span></td>
+              <td><span style="font-weight: 700; color: #0f172a;">${esc(student.name)}</span></td>
+              <td>
+                <div class="time-range-badge">
+                  <span class="t-in">${esc(student.inTime || "-")}</span>
+                  <span class="t-sep">~</span>
+                  <span class="t-out">${esc(student.outTime || "-")}</span>
+                </div>
+              </td>
               <td>
                 <div class="student-action-group">
-                  <button class="student-action-btn edit" data-id="${esc(student.id)}" onclick="beginEditStudent(this.dataset.id)">수정</button>
-                  <button class="student-action-btn reset" data-id="${esc(student.id)}" onclick="resetStudentPasswordForAdmin(this.dataset.id)">PW 초기화</button>
-                  <button class="student-action-btn delete" data-id="${esc(student.id)}" onclick="deleteStudentFromAdmin(this.dataset.id)">삭제</button>
+                  <button class="student-action-btn edit" data-id="${esc(student.id)}" onclick="beginEditStudent(this.dataset.id)" title="학생 정보 수정">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M12 20h9"/>
+                      <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/>
+                    </svg>
+                    <span>수정</span>
+                  </button>
+                  <button class="student-action-btn reset" data-id="${esc(student.id)}" onclick="resetStudentPasswordForAdmin(this.dataset.id)" title="비밀번호 초기화">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M21 2l-2 2m-1.5 1.5L16 7l-1.5-1.5L13 7l-1.5-1.5L10 7l-1.5-1.5L7 7l-1.5-1.5L4 7a5 5 0 1 0 7.07 7.07l1.41-1.41"/>
+                    </svg>
+                    <span>PW 초기화</span>
+                  </button>
+                  <button class="student-action-btn delete" data-id="${esc(student.id)}" onclick="deleteStudentFromAdmin(this.dataset.id)" title="학생 삭제">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="3 6 5 6 21 6"/>
+                      <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
+                    </svg>
+                    <span>삭제</span>
+                  </button>
                 </div>
               </td>
             </tr>`,
@@ -4354,12 +5287,15 @@
       async function resetStudentPasswordForAdmin(studentId) {
         const student = allStudents.find((item) => item.id === studentId);
         if (!student) return;
-        if (
-          !confirm(
-            `${student.name} 학생의 비밀번호를 새로 발급할까요?\n발급된 비밀번호는 이 화면에서만 확인할 수 있고, 현재 로그인된 세션은 모두 종료됩니다.`,
-          )
-        )
-          return;
+        const ok = await showConfirm(
+          `${student.name} 학생의 비밀번호를 새로 발급할까요?\n발급된 비밀번호는 이 화면에서만 확인할 수 있고, 현재 로그인된 세션은 모두 종료됩니다.`,
+          {
+            title: "비밀번호 재발급",
+            confirmText: "재발급",
+            danger: true,
+          },
+        );
+        if (!ok) return;
 
         setStudentManageMessage("비밀번호 초기화 중...");
         const res = await callAPI({
@@ -4377,12 +5313,15 @@
       async function deleteStudentFromAdmin(studentId) {
         const student = allStudents.find((item) => item.id === studentId);
         if (!student) return;
-        if (
-          !confirm(
-            `${student.name} 학생 계정을 삭제할까요?\n과거 출결 기록은 삭제되지 않습니다.`,
-          )
-        )
-          return;
+        const ok = await showConfirm(
+          `${student.name} 학생 계정을 삭제할까요?\n과거 출결 기록은 삭제되지 않습니다.`,
+          {
+            title: "학생 계정 삭제",
+            confirmText: "삭제",
+            danger: true,
+          },
+        );
+        if (!ok) return;
 
         setStudentManageMessage("학생 계정 삭제 중...");
         const res = await callAPI({
@@ -4481,8 +5420,18 @@
           }
         });
 
-        document.getElementById("countIn").innerText = statIn + "명";
-        document.getElementById("countOut").innerText = statOut + "명";
+        const totalStudentCount = allStudents.length;
+        const inCompleteStr =
+          totalStudentCount > 0 && statIn >= totalStudentCount
+            ? `${statIn}명(완료)`
+            : `${statIn}명`;
+        const outCompleteStr =
+          totalStudentCount > 0 && statOut >= totalStudentCount
+            ? `${statOut}명(완료)`
+            : `${statOut}명`;
+
+        document.getElementById("countIn").innerText = inCompleteStr;
+        document.getElementById("countOut").innerText = outCompleteStr;
         document.getElementById("countLate").innerText = statLate + "명";
         document.getElementById("countEarly").innerText = statEarly + "명";
 
@@ -4494,41 +5443,53 @@
           return `<span class="student-chip"><span class="chip-name">${esc(name)}</span><span class="chip-id">(${esc(id)})</span>${timeBadge}</span>`;
         };
 
+        // 헬퍼: 카운트 뱃지 업데이트
+        const updateCountBadge = (elId, count) => {
+          const badge = document.getElementById(elId);
+          if (!badge) return;
+          badge.textContent = `${count}명`;
+          badge.classList.toggle("is-zero", count === 0);
+        };
+
         // 1. 입실 미입력 학생
         const unrecordedInStudents = allStudents.filter(
           (s) => !recordedInIds.has(s.id),
         );
+        updateCountBadge("unrecordedInCount", unrecordedInStudents.length);
         document.getElementById("unrecordedInList").innerHTML =
           unrecordedInStudents.length
             ? unrecordedInStudents
                 .map((s) => renderChip(s.name, s.id))
                 .join("")
-            : "<span class='student-chip-empty'>✅ 전원 입실 완료</span>";
+            : "<span class='empty-status-card'>✓ 전원 입실 완료</span>";
 
         // 2. 퇴실 미입력 학생
         const unrecordedOutStudents = allStudents.filter(
           (s) => !recordedOutIds.has(s.id),
         );
+        updateCountBadge("unrecordedOutCount", unrecordedOutStudents.length);
         document.getElementById("unrecordedOutList").innerHTML =
           unrecordedOutStudents.length
             ? unrecordedOutStudents
                 .map((s) => renderChip(s.name, s.id))
                 .join("")
-            : "<span class='student-chip-empty'>✅ 전원 퇴실 완료</span>";
+            : "<span class='empty-status-card'>✓ 전원 퇴실 완료</span>";
 
         // 3. 지각 학생
+        updateCountBadge("lateCountBadge", lateStudents.length);
         document.getElementById("lateList").innerHTML = lateStudents.length
           ? lateStudents
               .map((s) => renderChip(s.name, s.id, s.time))
               .join("")
-          : "<span class='student-chip-empty'>✅ 지각자 없음</span>";
+          : "<span class='empty-status-card'>✓ 지각자 없음</span>";
 
         // 4. 조퇴 학생
+        updateCountBadge("earlyCountBadge", earlyStudents.length);
         document.getElementById("earlyList").innerHTML = earlyStudents.length
           ? earlyStudents
               .map((s) => renderChip(s.name, s.id, s.time))
               .join("")
-          : "<span class='student-chip-empty'>✅ 조퇴자 없음</span>";
+          : "<span class='empty-status-card'>✓ 조퇴자 없음</span>";
 
         const totalPages = Math.ceil(
           currentFilteredData.length / ITEMS_PER_PAGE,
@@ -4842,7 +5803,13 @@
 
         el.innerHTML = `
           <div class="bl-head">
-            <span class="section-title">수동 차단된 날짜</span>
+            <span class="section-title">
+              <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="color: #e11d48;">
+                <circle cx="12" cy="12" r="10" />
+                <line x1="4.93" y1="4.93" x2="19.07" y2="19.07" />
+              </svg>
+              <span>수동 차단된 날짜</span>
+            </span>
             <span class="bl-total">전체 ${manual.length}일</span>
           </div>
           <div class="bl-tabs">${tabs}</div>

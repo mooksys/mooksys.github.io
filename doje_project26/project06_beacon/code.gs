@@ -1897,6 +1897,7 @@ function escapeHtml(value) {
 }
 
 // 레포트 HTML 빌더
+// 레포트 HTML 빌더
 function buildReportHtml(year, month, dates, students, summary, dayNames) {
   const title = `${year}년 ${month}월 도제반 출석 현황 레포트`;
 
@@ -1905,39 +1906,39 @@ function buildReportHtml(year, month, dates, students, summary, dayNames) {
 
   let dateCols = fieldDates.map(d => {
     const dayIdx = new Date(d.replace(/-/g, '/')).getDay();
-    const label  = d.substring(5).replace('-', '/') + `(${dayNames[dayIdx]})`;
-    return `<th style="min-width:70px;font-size:11px">${label}</th>`;
+    const label  = d.substring(5).replace('-', '/') + `<br>(${dayNames[dayIdx]})`;
+    return `<th style="min-width:44px;font-size:9.5px;padding:4px 1px;line-height:1.15;">${label}</th>`;
   }).join('');
 
   let rows = students.map(s => {
-    const rec  = summary[s.id];
+    const rec  = summary[s.id] || { normal: 0, late: 0, early: 0, absent: 0, records: {} };
     let cells  = fieldDates.map(d => {
       const dayRec = rec.records[d] || {};
       const inRec  = dayRec['입실'];
       const outRec = dayRec['퇴실'];
       let cell = '';
       if (inRec) {
-        const inColor  = inRec.status  === '지각' ? '#e53e3e' : '#2f855a';
-        cell += `<div style="color:${inColor};font-weight:700;font-size:11px">▲ ${escapeHtml(inRec.time)}</div>`;
+        const inColor  = inRec.status  === '지각' ? '#e11d48' : '#059669';
+        cell += `<div style="color:${inColor};font-weight:700;font-size:9px;line-height:1.15;">▲${escapeHtml(inRec.time)}</div>`;
       } else {
-        cell += `<div style="color:#999;font-size:11px">▲ 미기록</div>`;
+        cell += `<div style="color:#cbd5e1;font-size:9px;line-height:1.15;">▲-</div>`;
       }
       if (outRec) {
-        const outColor = outRec.status === '조퇴' ? '#dd6b20' : '#2b6cb0';
-        cell += `<div style="color:${outColor};font-weight:700;font-size:11px">▼ ${escapeHtml(outRec.time)}</div>`;
+        const outColor = outRec.status === '조퇴' ? '#d97706' : '#2563eb';
+        cell += `<div style="color:${outColor};font-weight:700;font-size:9px;line-height:1.15;">▼${escapeHtml(outRec.time)}</div>`;
       } else {
-        cell += `<div style="color:#999;font-size:11px">▼ 미기록</div>`;
+        cell += `<div style="color:#cbd5e1;font-size:9px;line-height:1.15;">▼-</div>`;
       }
-      return `<td style="text-align:center;padding:6px 4px;border:1px solid #e2e8f0">${cell}</td>`;
+      return `<td style="text-align:center;padding:2px 1px;border:1px solid #cbd5e1">${cell}</td>`;
     }).join('');
 
     return `<tr>
-      <td style="padding:8px;border:1px solid #e2e8f0;white-space:nowrap">${escapeHtml(s.id)}</td>
-      <td style="padding:8px;border:1px solid #e2e8f0;white-space:nowrap;font-weight:700">${escapeHtml(s.name)}</td>
-      <td style="padding:8px;text-align:center;border:1px solid #e2e8f0;color:#2f855a;font-weight:700">${rec.normal}</td>
-      <td style="padding:8px;text-align:center;border:1px solid #e2e8f0;color:#e53e3e;font-weight:700">${rec.late}</td>
-      <td style="padding:8px;text-align:center;border:1px solid #e2e8f0;color:#dd6b20;font-weight:700">${rec.early}</td>
-      <td style="padding:8px;text-align:center;border:1px solid #e2e8f0;color:#718096;font-weight:700">${rec.absent}</td>
+      <td style="padding:3px 3px;border:1px solid #cbd5e1;white-space:nowrap;font-weight:800;font-size:9.5px;text-align:center;">${escapeHtml(s.id)}</td>
+      <td style="padding:3px 3px;border:1px solid #cbd5e1;white-space:nowrap;font-weight:700;font-size:10px;text-align:center;">${escapeHtml(s.name)}</td>
+      <td style="padding:3px 1px;text-align:center;border:1px solid #cbd5e1;color:#059669;font-weight:800;font-size:9.5px;">${rec.normal}</td>
+      <td style="padding:3px 1px;text-align:center;border:1px solid #cbd5e1;color:#e11d48;font-weight:800;font-size:9.5px;">${rec.late}</td>
+      <td style="padding:3px 1px;text-align:center;border:1px solid #cbd5e1;color:#d97706;font-weight:800;font-size:9.5px;">${rec.early}</td>
+      <td style="padding:3px 1px;text-align:center;border:1px solid #cbd5e1;color:#64748b;font-weight:800;font-size:9.5px;">${rec.absent}</td>
       ${cells}
     </tr>`;
   }).join('');
@@ -1947,36 +1948,107 @@ function buildReportHtml(year, month, dates, students, summary, dayNames) {
 <html lang="ko"><head><meta charset="UTF-8">
 <title>도제반_출석레포트_${year}-${String(month).padStart(2, '0')}</title>
 <style>
-  body { font-family: 'Malgun Gothic', sans-serif; font-size: 12px; color: #1a202c; padding: 20px; }
-  h1   { font-size: 18px; text-align: center; margin-bottom: 6px; }
-  .sub { text-align: center; color: #718096; font-size: 12px; margin-bottom: 20px; }
-  table { border-collapse: collapse; width: 100%; }
-  th { background: #2d3748; color: white; padding: 8px 6px; font-size: 12px; }
-  tr:nth-child(even) { background: #f7fafc; }
-  .legend { margin-top: 16px; font-size: 11px; color: #718096; }
+  @page {
+    size: A4 portrait;
+    margin: 7mm 5mm;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Malgun Gothic", "맑은 고딕", sans-serif;
+    font-size: 10px;
+    line-height: 1.2;
+    color: #0f172a;
+    background: #ffffff;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  .report-wrap {
+    padding: 4px 2px;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  h1 {
+    font-size: 15px;
+    font-weight: 800;
+    text-align: center;
+    margin: 0 0 3px;
+    color: #0f172a;
+    letter-spacing: -0.02em;
+  }
+  .sub {
+    text-align: center;
+    color: #64748b;
+    font-size: 9px;
+    font-weight: 600;
+    margin-bottom: 5px;
+  }
+  table {
+    border-collapse: collapse;
+    width: 100%;
+    page-break-inside: avoid;
+    break-inside: avoid;
+    table-layout: auto;
+  }
+  th {
+    background: #1e293b;
+    color: #ffffff;
+    padding: 3.5px 1px;
+    font-size: 9.5px;
+    font-weight: 700;
+    border: 1px solid #94a3b8;
+    text-align: center;
+    vertical-align: middle;
+  }
+  tr {
+    page-break-inside: avoid;
+    break-inside: avoid;
+  }
+  tr:nth-child(even) {
+    background: #f8fafc;
+  }
+  .legend {
+    margin-top: 4px;
+    font-size: 8.5px;
+    color: #64748b;
+    text-align: center;
+    page-break-inside: avoid;
+  }
+  @media print {
+    body {
+      padding: 0;
+    }
+    .report-wrap {
+      padding: 0;
+    }
+  }
 </style>
 </head><body>
-<h1>🎓 ${title}</h1>
-<div class="sub">성일정보고등학교 도제반 3-12 &nbsp;|&nbsp; 현장실습일: 화·수·목 &nbsp;|&nbsp; 집계 대상: ${fieldDates.length}일</div>
-<table>
-  <thead>
-    <tr>
-      <th>학번</th><th>이름</th>
-      <th style="color:#68d391">정상</th>
-      <th style="color:#fc8181">지각</th>
-      <th style="color:#f6ad55">조퇴</th>
-      <th style="color:#a0aec0">결석</th>
-      ${dateCols}
-    </tr>
-  </thead>
-  <tbody>${rows}</tbody>
-</table>
-<div class="legend">
-  ▲ 입실 &nbsp;|&nbsp; ▼ 퇴실 &nbsp;|&nbsp;
-  <span style="color:#e53e3e">빨강=지각</span> &nbsp;
-  <span style="color:#dd6b20">주황=조퇴</span> &nbsp;
-  <span style="color:#2f855a">초록=정상</span>
-  &nbsp;|&nbsp; 생성일시: ${Utilities.formatDate(new Date(), 'GMT+9', 'yyyy-MM-dd HH:mm')}
+<div class="report-wrap">
+  <h1>🎓 ${title}</h1>
+  <div class="sub">성일정보고등학교 도제반 3-12 &nbsp;|&nbsp; 현장실습일: 화·수·목 &nbsp;|&nbsp; 집계 대상: ${fieldDates.length}일</div>
+  <table>
+    <thead>
+      <tr>
+        <th style="min-width:36px;">학번</th>
+        <th style="min-width:42px;">이름</th>
+        <th style="color:#86efac;min-width:22px;">정상</th>
+        <th style="color:#fca5a5;min-width:22px;">지각</th>
+        <th style="color:#fde68a;min-width:22px;">조퇴</th>
+        <th style="color:#cbd5e1;min-width:22px;">결석</th>
+        ${dateCols}
+      </tr>
+    </thead>
+    <tbody>${rows}</tbody>
+  </table>
+  <div class="legend">
+    ▲ 입실 &nbsp;|&nbsp; ▼ 퇴실 &nbsp;|&nbsp;
+    <span style="color:#e11d48;font-weight:700;">빨강=지각</span> &nbsp;
+    <span style="color:#d97706;font-weight:700;">주황=조퇴</span> &nbsp;
+    <span style="color:#059669;font-weight:700;">초록=정상</span>
+    &nbsp;|&nbsp; 생성일시: ${Utilities.formatDate(new Date(), 'GMT+9', 'yyyy-MM-dd HH:mm')}
+  </div>
 </div>
 </body></html>`;
 }
