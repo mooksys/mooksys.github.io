@@ -299,20 +299,212 @@
         font-size: 15px;
       }
 
-      .btn-in {
-        background: linear-gradient(135deg, var(--in-btn), var(--in-hover));
-        margin-bottom: 15px;
+      /* ── 학생 화면 모던 리디자인 스타일 ── */
+      .student-header-area {
+        text-align: center;
+        margin-bottom: 18px;
       }
-      .btn-out {
-        background: linear-gradient(135deg, var(--out-btn), var(--out-hover));
+      .student-date-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        background: #f1f5f9;
+        border: 1px solid #e2e8f0;
+        padding: 5px 14px;
+        border-radius: var(--r-pill);
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--heading);
+        margin-bottom: 6px;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+      }
+      .student-clock {
+        font-family: "Pretendard", -apple-system, monospace;
+        font-size: 30px;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+        color: var(--heading);
+        line-height: 1.2;
+        margin: 2px 0 0;
       }
 
-      .btn-done {
-        background: #f1f5f9 !important;
-        color: #94a3b8 !important;
-        box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.05) !important;
-        cursor: not-allowed;
+      /* 학생 프로필 카드 (글래스모피즘 & 그라디언트 액센트) */
+      .student-profile-card {
+        background: linear-gradient(145deg, #ffffff, #f8fafc);
         border: 1px solid #e2e8f0;
+        border-radius: var(--r-xl);
+        padding: 18px 16px;
+        margin-bottom: 20px;
+        box-shadow: 0 4px 20px -4px rgba(15, 23, 42, 0.06);
+        position: relative;
+        overflow: hidden;
+      }
+      .student-profile-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 4px;
+        background: linear-gradient(90deg, #3b82f6, #06b6d4, #10b981);
+      }
+      .student-profile-head {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 14px;
+        padding-bottom: 12px;
+        border-bottom: 1px dashed #e2e8f0;
+      }
+      .student-profile-user {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+      }
+      .student-avatar-ico {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        background: linear-gradient(135deg, #eff6ff, #dbeafe);
+        border: 1px solid #bfdbfe;
+        color: #2563eb;
+        display: grid;
+        place-items: center;
+        font-size: 18px;
+        box-shadow: 0 2px 8px rgba(37, 99, 235, 0.12);
+        flex-shrink: 0;
+      }
+      .student-name-text {
+        font-size: 16.5px;
+        font-weight: 800;
+        color: var(--heading);
+        letter-spacing: -0.02em;
+        line-height: 1.25;
+      }
+      .student-role-badge {
+        display: inline-block;
+        font-size: 10.5px;
+        font-weight: 700;
+        color: #2563eb;
+        background: #eff6ff;
+        padding: 1px 7px;
+        border-radius: var(--r-pill);
+        border: 1px solid #dbeafe;
+        margin-top: 2px;
+      }
+
+      /* 학생 기준시간 2열 그리드 */
+      .student-time-grid {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+      }
+      .student-time-item {
+        border-radius: var(--r-md);
+        padding: 10px 10px;
+        text-align: center;
+        transition: transform 0.18s, border-color 0.18s;
+      }
+      .student-time-item:hover {
+        transform: translateY(-1px);
+      }
+      .student-time-item.in-item {
+        background: linear-gradient(145deg, #f0fdf4, #ffffff);
+        border: 1px solid #dcfce7;
+      }
+      .student-time-item.out-item {
+        background: linear-gradient(145deg, #fffbeb, #ffffff);
+        border: 1px solid #fef3c7;
+      }
+      .student-time-label {
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-light);
+        margin-bottom: 3px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 3px;
+      }
+      .student-time-val {
+        font-size: 15.5px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+      .student-time-item.in-item .student-time-val {
+        color: #059669;
+      }
+      .student-time-item.out-item .student-time-val {
+        color: #d97706;
+      }
+
+      /* 메인 액션 출결 버튼 */
+      .btn-attend {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+        padding: 16px 20px;
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        border-radius: var(--r-lg);
+        border: none;
+        cursor: pointer;
+        transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+        margin-bottom: 12px;
+        color: white;
+        position: relative;
+        overflow: hidden;
+      }
+      .btn-attend:active:not(:disabled) {
+        transform: scale(0.985);
+      }
+      .btn-attend svg {
+        width: 20px;
+        height: 20px;
+        flex-shrink: 0;
+      }
+
+      .btn-in {
+        background: linear-gradient(135deg, #10b981, #059669);
+        box-shadow: 0 8px 20px -4px rgba(16, 185, 129, 0.45);
+      }
+      .btn-in:hover:not(:disabled) {
+        background: linear-gradient(135deg, #059669, #047857);
+        box-shadow: 0 12px 26px -4px rgba(16, 185, 129, 0.55);
+        transform: translateY(-2px);
+      }
+
+      .btn-out {
+        background: linear-gradient(135deg, #f59e0b, #d97706);
+        box-shadow: 0 8px 20px -4px rgba(245, 158, 11, 0.45);
+      }
+      .btn-out:hover:not(:disabled) {
+        background: linear-gradient(135deg, #d97706, #b45309);
+        box-shadow: 0 12px 26px -4px rgba(245, 158, 11, 0.55);
+        transform: translateY(-2px);
+      }
+
+      /* 완료 버튼 스타일 (소프트 민트/에메랄드 틴트 카드 룩) */
+      .btn-done {
+        background: linear-gradient(135deg, #f0fdf4, #dcfce7) !important;
+        border: 1.5px solid #86efac !important;
+        color: #166534 !important;
+        box-shadow: 0 2px 8px rgba(16, 185, 129, 0.12) !important;
+        cursor: default !important;
+        transform: none !important;
+      }
+      /* 대기/잠금 상태 버튼 */
+      .btn-lock {
+        background: linear-gradient(135deg, #f8fafc, #f1f5f9) !important;
+        border: 1.5px solid #cbd5e1 !important;
+        color: #64748b !important;
+        box-shadow: none !important;
+        cursor: not-allowed !important;
+        transform: none !important;
+        font-size: 13px !important;
       }
 
       .hidden {
@@ -322,8 +514,7 @@
         text-align: center;
       }
 
-      /* 절대배치로 띄우면 좁은 화면에서 제목 위로 겹칩니다.
-         흐름 안에 두고 오른쪽 정렬해 어떤 폭에서도 안전하게 만듭니다. */
+      /* 상단 우측 컨트롤 */
       .top-right-controls {
         display: flex;
         gap: 8px;
@@ -331,7 +522,6 @@
         justify-content: flex-end;
         margin: -8px 0 14px;
       }
-
       .btn-icon,
       .btn-logout {
         border: 1px solid transparent;
@@ -340,49 +530,34 @@
         font-size: 12.5px;
         font-weight: 700;
         cursor: pointer;
-        transition:
-          background 0.18s,
-          border-color 0.18s,
-          transform 0.15s;
+        transition: all 0.16s ease;
         width: auto;
         min-height: 34px;
         box-shadow: none;
         font-family: inherit;
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
       }
       .btn-icon {
-        background: var(--surface-sunken);
-        border-color: var(--border);
-        color: var(--text-light);
+        background: #f1f5f9;
+        border-color: #e2e8f0;
+        color: #475569;
       }
       .btn-icon:hover {
-        background: #eef2f7;
-        border-color: var(--border-strong);
+        background: #e2e8f0;
+        color: #1e293b;
         transform: translateY(-1px);
       }
-
       .btn-logout {
         background: var(--danger-soft);
         border-color: #fecaca;
         color: #dc2626;
       }
       .btn-logout:hover {
-        background: #fecaca;
+        background: #fee2e2;
+        border-color: #fca5a5;
         transform: translateY(-1px);
-      }
-
-      .info-box {
-        background: linear-gradient(135deg, #f0f7ff, #eef4ff);
-        border: 1px solid #dbeafe;
-        border-radius: var(--r-lg);
-        padding: 18px 16px;
-        margin-bottom: 22px;
-        text-align: center;
-      }
-      .info-box p {
-        margin: 5px 0;
-        color: var(--primary-deep);
-        font-weight: 700;
-        letter-spacing: -0.01em;
       }
 
       /* 흰 카드에 가는 색 막대만 두면 배경(흰 카드)에 묻힙니다.
@@ -430,12 +605,66 @@
         word-break: keep-all;
       }
       .alert-body {
-        font-size: 13.5px;
+        font-size: 13px;
         font-weight: 600;
         color: var(--text-light);
         word-break: keep-all;
-        line-height: 1.6;
+        line-height: 1.5;
         padding-left: 40px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        align-items: center;
+      }
+
+      /* ── 학생 칩 버튼 (이름(학번) 태그 스타일) ── */
+      .student-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        padding: 4px 10px;
+        background: #ffffff;
+        border: 1px solid var(--accent-line);
+        border-radius: var(--r-pill);
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--accent-text);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        transition: transform 0.16s ease, box-shadow 0.16s ease, border-color 0.16s ease;
+        user-select: none;
+      }
+      .student-chip:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 4px 10px -2px var(--accent-shadow);
+        border-color: var(--accent);
+      }
+      .student-chip .chip-name {
+        font-weight: 700;
+        color: var(--heading);
+      }
+      .student-chip .chip-id {
+        font-size: 11px;
+        font-weight: 600;
+        color: var(--accent-text);
+        opacity: 0.85;
+      }
+      .student-chip .chip-time {
+        font-size: 11px;
+        font-weight: 700;
+        padding: 1px 6px;
+        border-radius: var(--r-pill);
+        background: var(--accent-tint);
+        color: var(--accent-text);
+        border: 1px solid var(--accent-line);
+        margin-left: 2px;
+      }
+      .student-chip-empty {
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        font-weight: 700;
+        color: #059669;
+        font-size: 13px;
       }
 
       .box-red {
@@ -451,6 +680,13 @@
         --accent-line: #fbe0aa;
         --accent-text: #b45309;
         --accent-shadow: rgba(245, 158, 11, 0.4);
+      }
+      .box-rose {
+        --accent: #f43f5e;
+        --accent-tint: #fff1f2;
+        --accent-line: #fecdd3;
+        --accent-text: #be123c;
+        --accent-shadow: rgba(244, 63, 94, 0.4);
       }
       .box-purple {
         --accent: #a855f7;
@@ -723,78 +959,126 @@
         height: 40px !important;
       }
 
-      /* 통계 행 */
-      /* 하나의 흰 상자를 3등분하는 대신, 각 지표를 자기 색을 가진 카드로
-         분리합니다. 흰 상자만 쌓이던 화면에 색과 위계가 생깁니다. */
+      /* 통계 행 (4개 카드 레이아웃: 입실, 퇴실, 지각, 조퇴) */
       .stats-row {
         display: grid;
-        grid-template-columns: repeat(3, 1fr);
+        grid-template-columns: repeat(4, 1fr);
         gap: 10px;
-        margin-bottom: 16px;
+        margin-bottom: 18px;
       }
-      /* 아이콘을 별도 줄에 두면 카드가 100px 넘게 높아집니다.
-         라벨과 같은 줄에 인라인으로 붙여 높이를 절반으로 줄입니다. */
+      @media (max-width: 520px) {
+        .stats-row {
+          grid-template-columns: repeat(2, 1fr);
+          gap: 10px;
+        }
+      }
+
+      /* 개별 통계 카드: 글래스모피즘 + 소프트 그라데이션 + 호버 인터랙션 */
       .stat-item {
         position: relative;
         min-width: 0;
-        text-align: left;
-        padding: 8px 11px 9px;
-        border-radius: var(--r-md);
-        background: var(--tint);
+        text-align: center;
+        padding: 11px 12px 10px;
+        border-radius: var(--r-lg);
+        background: linear-gradient(145deg, var(--tint), rgba(255, 255, 255, 0.75));
         border: 1px solid var(--tint-line);
+        box-shadow: 0 2px 8px -2px var(--tint-shadow), inset 0 1px 0 rgba(255, 255, 255, 0.8);
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        overflow: hidden;
+      }
+      .stat-item:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px -4px var(--tint-shadow-hover), inset 0 1px 0 rgba(255, 255, 255, 0.95);
+      }
+      .stat-item::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, var(--tone-dim), var(--tone));
+        opacity: 0.85;
       }
       .stat-head {
         display: flex;
         align-items: center;
-        gap: 5px;
+        justify-content: center;
+        gap: 6px;
+        margin-bottom: 5px;
       }
       .stat-ico {
         flex: 0 0 auto;
-        width: 15px;
-        height: 15px;
+        width: 20px;
+        height: 20px;
+        border-radius: 6px;
         display: grid;
         place-items: center;
-        color: var(--tone-dim);
+        color: var(--tone);
+        background: rgba(255, 255, 255, 0.9);
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05), inset 0 0 0 1px var(--tint-line);
       }
       .stat-ico svg {
-        width: 13px;
-        height: 13px;
+        width: 12px;
+        height: 12px;
       }
       .stat-label {
         min-width: 0;
-        font-size: 11px;
+        font-size: 11.5px;
         font-weight: 700;
         line-height: 1.3;
         color: var(--tone-dim);
         white-space: nowrap;
         overflow: hidden;
         text-overflow: ellipsis;
+        letter-spacing: -0.015em;
       }
       .stat-val {
-        font-size: 18px;
+        font-size: 20px;
         font-weight: 800;
         letter-spacing: -0.035em;
         color: var(--tone);
         font-variant-numeric: tabular-nums;
-        line-height: 1.2;
+        line-height: 1.15;
+        text-align: center;
       }
+
+      /* 4가지 카드 테마 컬러 (모던 팔레트) */
+      /* 1. 입실: 민트 / 에메랄드 */
       .stat-in {
         --tint: #ecfdf5;
-        --tint-line: #b6f0d7;
-        --tone: #047857;
-        --tone-dim: #10b981;
+        --tint-line: #a7f3d0;
+        --tint-shadow: rgba(16, 185, 129, 0.12);
+        --tint-shadow-hover: rgba(16, 185, 129, 0.28);
+        --tone: #065f46;
+        --tone-dim: #059669;
       }
+      /* 2. 퇴실: 스카이 / 블루 */
       .stat-out {
-        --tint: #fffbeb;
-        --tint-line: #fde3a7;
-        --tone: #b45309;
-        --tone-dim: #f0a020;
+        --tint: #eff6ff;
+        --tint-line: #bfdbfe;
+        --tint-shadow: rgba(59, 130, 246, 0.12);
+        --tint-shadow-hover: rgba(59, 130, 246, 0.28);
+        --tone: #1e40af;
+        --tone-dim: #2563eb;
       }
-      .stat-warn {
+      /* 3. 지각: 로즈 / 레드 */
+      .stat-late {
         --tint: #fef2f2;
-        --tint-line: #fecdd3;
-        --tone: #be123c;
-        --tone-dim: #f43f5e;
+        --tint-line: #fecaca;
+        --tint-shadow: rgba(239, 68, 68, 0.12);
+        --tint-shadow-hover: rgba(239, 68, 68, 0.28);
+        --tone: #991b1b;
+        --tone-dim: #dc2626;
+      }
+      /* 4. 조퇴: 앰버 / 웜 오렌지 */
+      .stat-early {
+        --tint: #fffbeb;
+        --tint-line: #fde68a;
+        --tint-shadow: rgba(245, 158, 11, 0.12);
+        --tint-shadow-hover: rgba(245, 158, 11, 0.28);
+        --tone: #92400e;
+        --tone-dim: #d97706;
       }
 
       /* 테이블 */
@@ -1050,6 +1334,54 @@
           opacity: 1;
           transform: none;
         }
+      }
+
+      /* ── 대시보드 내부 서브 탭 (확인 필요 / 기록 상세) ── */
+      .dash-subtab-bar {
+        display: flex;
+        gap: 6px;
+        margin-top: 18px;
+        margin-bottom: 15px;
+        background: #eef2f7;
+        border: 1px solid var(--border);
+        padding: 4px;
+        border-radius: var(--r-md);
+      }
+      .dash-subtab-btn {
+        flex: 1;
+        padding: 9px 12px;
+        border: 1px solid transparent;
+        border-radius: var(--r-sm);
+        font-size: 13px;
+        font-weight: 700;
+        letter-spacing: -0.015em;
+        cursor: pointer;
+        transition: all 0.18s ease;
+        background: transparent;
+        color: var(--text-light);
+        font-family: inherit;
+        box-shadow: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+      }
+      .dash-subtab-btn:hover:not(.active) {
+        background: rgba(255, 255, 255, 0.7);
+        color: var(--text);
+      }
+      .dash-subtab-btn.active {
+        background: var(--surface);
+        color: var(--heading);
+        border-color: var(--border-strong);
+        box-shadow: var(--sh-xs);
+      }
+      .dash-subtab-panel {
+        display: none;
+      }
+      .dash-subtab-panel.active {
+        display: block;
+        animation: panelIn 0.2s ease both;
       }
 
       /* ── 학생 관리 ─────────────────────────────────────────────── */
@@ -2387,31 +2719,61 @@
             <span class="app-head-sub">성일정보고 도제반 3-12</span>
           </span>
         </div>
-        <div class="text-center">
-          <div class="date-display" id="currentDateStr"></div>
+
+        <!-- 날짜 및 실시간 시계 영역 -->
+        <div class="student-header-area">
+          <div class="student-date-badge" id="currentDateStr">8월 19일 (수)</div>
+          <div class="student-clock" id="liveClock">00:00:00</div>
           <div
             id="dayWarning"
             class="hidden msg-error"
-            style="margin-bottom: 10px"
+            style="margin-top: 8px; margin-bottom: 4px;"
           >
             ※ 오늘은 현장실습일이 아닙니다.
           </div>
         </div>
 
-        <div class="info-box">
-          <p id="welcomeName" style="color: #0f172a; font-size: 16px">
-            반갑습니다.
-          </p>
-          <p id="myTimeInfo" style="font-size: 14px">
-            내 기준: - 입실 / - 퇴실
-          </p>
+        <!-- 학생 프로필 카드 -->
+        <div class="student-profile-card">
+          <div class="student-profile-head">
+            <div class="student-profile-user">
+              <div class="student-avatar-ico">👨‍🎓</div>
+              <div>
+                <div class="student-name-text" id="welcomeName">학생</div>
+                <span class="student-role-badge">현장실습생</span>
+              </div>
+            </div>
+          </div>
+          <!-- 입퇴실 기준시간 그리드 -->
+          <div class="student-time-grid">
+            <div class="student-time-item in-item">
+              <div class="student-time-label">🚪 입실 기준</div>
+              <div class="student-time-val" id="myInTimeVal">09:00</div>
+            </div>
+            <div class="student-time-item out-item">
+              <div class="student-time-label">🚶 퇴실 기준</div>
+              <div class="student-time-val" id="myOutTimeVal">18:00</div>
+            </div>
+          </div>
         </div>
 
-        <button id="btnIn" class="btn-in" onclick="submitAttend('입실')">
-          👆 입실 기록하기
+        <!-- 메인 출결 액션 버튼 -->
+        <button id="btnIn" class="btn-attend btn-in" onclick="submitAttend('입실')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4" />
+            <polyline points="10 17 15 12 10 7" />
+            <line x1="15" y1="12" x2="3" y2="12" />
+          </svg>
+          <span>입실 기록하기</span>
         </button>
-        <button id="btnOut" class="btn-out" onclick="submitAttend('퇴실')">
-          👋 퇴실 기록하기
+
+        <button id="btnOut" class="btn-attend btn-out" onclick="submitAttend('퇴실')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+            <polyline points="16 17 21 12 16 7" />
+            <line x1="21" y1="12" x2="9" y2="12" />
+          </svg>
+          <span>퇴실 기록하기</span>
         </button>
 
         <div class="footer-box">🎓 성일정보고등학교 도제반 3-12</div>
@@ -2543,6 +2905,7 @@
           ></div>
 
           <div class="stats-row">
+            <!-- 1. 입실 -->
             <div class="stat-item stat-in">
               <div class="stat-head">
                 <span class="stat-ico">
@@ -2563,6 +2926,8 @@
               </div>
               <div class="stat-val" id="countIn">0명</div>
             </div>
+
+            <!-- 2. 퇴실 -->
             <div class="stat-item stat-out">
               <div class="stat-head">
                 <span class="stat-ico">
@@ -2583,7 +2948,9 @@
               </div>
               <div class="stat-val" id="countOut">0명</div>
             </div>
-            <div class="stat-item stat-warn">
+
+            <!-- 3. 지각 -->
+            <div class="stat-item stat-late">
               <div class="stat-head">
                 <span class="stat-ico">
                   <svg
@@ -2595,66 +2962,123 @@
                     stroke-linejoin="round"
                     aria-hidden="true"
                   >
-                    <circle cx="12" cy="12" r="8.5" />
-                    <path d="M12 7.5V12l2.8 2.8" />
+                    <circle cx="12" cy="12" r="9" />
+                    <polyline points="12 6 12 12 16 14" />
                   </svg>
                 </span>
-                <div class="stat-label">지각/조퇴</div>
+                <div class="stat-label">지각</div>
               </div>
-              <div class="stat-val" id="countWarn">0명</div>
+              <div class="stat-val" id="countLate">0명</div>
+            </div>
+
+            <!-- 4. 조퇴 -->
+            <div class="stat-item stat-early">
+              <div class="stat-head">
+                <span class="stat-ico">
+                  <svg
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2.4"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    aria-hidden="true"
+                  >
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                  </svg>
+                </span>
+                <div class="stat-label">조퇴</div>
+              </div>
+              <div class="stat-val" id="countEarly">0명</div>
             </div>
           </div>
 
-          <div class="section-head" style="margin-top: 18px">
-            <span class="section-title">확인 필요</span>
+          <!-- ── 대시보드 서브 탭 (확인 필요 / 기록 상세) ── -->
+          <div class="dash-subtab-bar">
+            <button
+              id="subtab-btn-alerts"
+              class="dash-subtab-btn active"
+              onclick="switchDashSubTab('alerts')"
+            >
+              ⚠️ 확인 필요
+            </button>
+            <button
+              id="subtab-btn-records"
+              class="dash-subtab-btn"
+              onclick="switchDashSubTab('records')"
+            >
+              📋 기록 상세
+            </button>
           </div>
-          <div style="margin-bottom: 20px">
-            <div class="alert-box box-red">
-              <div class="alert-head">
-                <span class="alert-icon">⚠️</span>
-                <p>미입력 학생 (입/퇴실 기록 없음)</p>
+
+          <!-- 서브 탭 1: 확인 필요 패널 -->
+          <div id="subtab-panel-alerts" class="dash-subtab-panel active">
+            <div style="margin-bottom: 10px">
+              <!-- 1. 입실 미입력 학생 -->
+              <div class="alert-box box-red">
+                <div class="alert-head">
+                  <span class="alert-icon">🚪</span>
+                  <p>입실 미입력 학생</p>
+                </div>
+                <div class="alert-body" id="unrecordedInList">
+                  데이터 불러오는 중...
+                </div>
               </div>
-              <div class="alert-body" id="unrecordedList">
-                데이터 불러오는 중...
+
+              <!-- 2. 퇴실 미입력 학생 -->
+              <div class="alert-box box-orange">
+                <div class="alert-head">
+                  <span class="alert-icon">🚶</span>
+                  <p>퇴실 미입력 학생</p>
+                </div>
+                <div class="alert-body" id="unrecordedOutList">
+                  데이터 불러오는 중...
+                </div>
               </div>
-            </div>
-            <div class="alert-box box-orange">
-              <div class="alert-head">
-                <span class="alert-icon">⏰</span>
-                <p>기준시간 대비 25분 이상 늦은 학생</p>
+
+              <!-- 3. 지각 학생 -->
+              <div class="alert-box box-rose">
+                <div class="alert-head">
+                  <span class="alert-icon">⏰</span>
+                  <p>지각 학생</p>
+                </div>
+                <div class="alert-body" id="lateList">
+                  데이터 불러오는 중...
+                </div>
               </div>
-              <div class="alert-body" id="late25List">
-                데이터 불러오는 중...
-              </div>
-            </div>
-            <div class="alert-box box-purple">
-              <div class="alert-head">
-                <span class="alert-icon">🏃</span>
-                <p>18시 이후 퇴실 미기록자 (입실만 한 학생)</p>
-              </div>
-              <div class="alert-body" id="missingOutList">
-                데이터 불러오는 중...
+
+              <!-- 4. 조퇴 학생 -->
+              <div class="alert-box box-purple">
+                <div class="alert-head">
+                  <span class="alert-icon">🏃</span>
+                  <p>조퇴 학생</p>
+                </div>
+                <div class="alert-body" id="earlyList">
+                  데이터 불러오는 중...
+                </div>
               </div>
             </div>
           </div>
 
-          <div class="section-head">
-            <span class="section-title">기록 상세</span>
+          <!-- 서브 탭 2: 기록 상세 패널 -->
+          <div id="subtab-panel-records" class="dash-subtab-panel">
+            <div class="table-container">
+              <table>
+                <thead>
+                  <tr>
+                    <th>학번/이름</th>
+                    <th>구분</th>
+                    <th>시간</th>
+                    <th>상태</th>
+                  </tr>
+                </thead>
+                <tbody id="dashboardContent"></tbody>
+              </table>
+            </div>
+            <div id="paginationControls"></div>
           </div>
-          <div class="table-container">
-            <table>
-              <thead>
-                <tr>
-                  <th>학번/이름</th>
-                  <th>구분</th>
-                  <th>시간</th>
-                  <th>상태</th>
-                </tr>
-              </thead>
-              <tbody id="dashboardContent"></tbody>
-            </table>
-          </div>
-          <div id="paginationControls"></div>
         </div>
 
         <!-- ── 탭 2: 학생 관리 ── -->
@@ -2981,6 +3405,8 @@
       // 쓰이는 최후의 기본값입니다 — 규칙을 바꿀 때는 code.gs를 고치세요.
       const CONFIG_FALLBACK = {
         fieldDays: [2, 3, 4], // 화, 수, 목
+        ojtStartMonth: 3, // 3월
+        ojtEndMonth: 12, // 12월
         holidays: {
           "01-01": "새해",
           "03-01": "삼일절",
@@ -3001,6 +3427,14 @@
         blockedPasswords: ["0000", "1234"],
       };
       let CONFIG = { ...CONFIG_FALLBACK };
+
+      // OJT 운영 기간 여부 (1~2월은 false, 3~12월은 true)
+      function isOjtMonth(month) {
+        const m = parseInt(month, 10);
+        const start = CONFIG.ojtStartMonth || 3;
+        const end = CONFIG.ojtEndMonth || 12;
+        return m >= start && m <= end;
+      }
 
       // ── 상태 ──────────────────────────────────────────────────────────
       let API_URL = "";
@@ -3245,6 +3679,7 @@
       }
 
       function logout() {
+        if (liveClockTimer) clearInterval(liveClockTimer);
         if (autoRefreshTimer) clearInterval(autoRefreshTimer);
         if (sessionTimeoutTimer) clearTimeout(sessionTimeoutTimer);
         if (outUnlockTimer) clearInterval(outUnlockTimer);
@@ -3371,6 +3806,23 @@
         }
       }
 
+      // ── 실시간 시계 ───────────────────────────────────────────────────
+      let liveClockTimer = null;
+      function startLiveClock() {
+        if (liveClockTimer) clearInterval(liveClockTimer);
+        const update = () => {
+          const clockEl = document.getElementById("liveClock");
+          if (!clockEl) return;
+          const now = new Date();
+          const h = String(now.getHours()).padStart(2, "0");
+          const m = String(now.getMinutes()).padStart(2, "0");
+          const s = String(now.getSeconds()).padStart(2, "0");
+          clockEl.textContent = `${h}:${m}:${s}`;
+        };
+        update();
+        liveClockTimer = setInterval(update, 1000);
+      }
+
       // ── 학생 화면 ─────────────────────────────────────────────────────
       async function setupStudentView() {
         const now = new Date();
@@ -3378,21 +3830,38 @@
         const dayIdx = now.getDay();
 
         document.getElementById("currentDateStr").innerText =
-          `${now.getMonth() + 1}월 ${now.getDate()}일 (${days[dayIdx]})`;
+          `📅 ${now.getMonth() + 1}월 ${now.getDate()}일 (${days[dayIdx]})`;
         document.getElementById("welcomeName").innerText =
-          `${userInfo.name} 학생`;
-        document.getElementById("myTimeInfo").innerText =
-          `내 기준: ${userInfo.inTime} 입실 / ${userInfo.outTime} 퇴실`;
+          `${userInfo.name || "학생"} 학생`;
+        
+        const inEl = document.getElementById("myInTimeVal");
+        const outEl = document.getElementById("myOutTimeVal");
+        if (inEl) inEl.innerText = userInfo.inTime || "09:00";
+        if (outEl) outEl.innerText = userInfo.outTime || "18:00";
 
-        // 현장실습일 아닌 경우
-        if (!CONFIG.fieldDays.includes(dayIdx)) {
-          disableAttendButtons("현장실습일이 아닙니다.");
-          document.getElementById("dayWarning").classList.remove("hidden");
+        startLiveClock();
+
+        // OJT 운영 기간(3~12월) 아닌 경우
+        const currentMonth = now.getMonth() + 1;
+        if (!isOjtMonth(currentMonth)) {
+          disableAttendButtons("1~2월 OJT 비운영");
+          const dayWarn = document.getElementById("dayWarning");
+          dayWarn.innerText = "※ 1월과 2월은 OJT(현장실습) 운영 기간이 아닙니다 (3월 1일 ~ 12월 31일)";
+          dayWarn.classList.remove("hidden");
           return;
         }
 
-        document.getElementById("btnIn").innerText = "⏳ 상태 확인중...";
-        document.getElementById("btnOut").innerText = "⏳ 상태 확인중...";
+        // 현장실습일 아닌 경우
+        if (!CONFIG.fieldDays.includes(dayIdx)) {
+          disableAttendButtons("비실습일 (출석 미운영)");
+          const dayWarn = document.getElementById("dayWarning");
+          dayWarn.innerText = "※ 오늘은 현장실습일이 아닙니다.";
+          dayWarn.classList.remove("hidden");
+          return;
+        }
+
+        setButtonLoading("btnIn", "상태 확인중...");
+        setButtonLoading("btnOut", "상태 확인중...");
 
         // 차단 여부 + 출결 상태 동시 확인
         const [blockedRes, statusRes] = await Promise.all([
@@ -3401,9 +3870,7 @@
         ]);
 
         if (blockedRes.success && blockedRes.blocked) {
-          disableAttendButtons(
-            `출석이 차단된 날입니다. (${blockedRes.reason})`,
-          );
+          disableAttendButtons(`차단됨 (${blockedRes.reason})`);
           document.getElementById("dayWarning").innerText =
             `🚫 오늘은 출석 기록이 차단되었습니다. 사유: ${blockedRes.reason}`;
           document.getElementById("dayWarning").classList.remove("hidden");
@@ -3414,25 +3881,29 @@
           updateStudentButtons(statusRes.inDone, statusRes.outDone);
       }
 
+      function setButtonLoading(btnId, label) {
+        const btn = document.getElementById(btnId);
+        if (!btn) return;
+        btn.disabled = true;
+        btn.innerHTML = `<span class="btn-spinner" aria-hidden="true"></span><span>${esc(label)}</span>`;
+      }
+
       function disableAttendButtons(reason) {
         const bIn = document.getElementById("btnIn");
         const bOut = document.getElementById("btnOut");
-        bIn.disabled = true;
-        bOut.disabled = true;
-        bIn.classList.add("btn-done");
-        bOut.classList.add("btn-done");
-        bIn.innerText = `🚫 ${reason}`;
-        bOut.innerText = `🚫 ${reason}`;
+        [bIn, bOut].forEach((b) => {
+          if (!b) return;
+          b.disabled = true;
+          b.className = "btn-attend btn-lock";
+          b.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="4.93" y1="4.93" x2="19.07" y2="19.07"/></svg><span>🚫 ${esc(reason)}</span>`;
+        });
       }
 
       async function submitAttend(type) {
-        const btn =
-          type === "입실"
-            ? document.getElementById("btnIn")
-            : document.getElementById("btnOut");
+        const isEntry = type === "입실";
+        const btn = isEntry ? document.getElementById("btnIn") : document.getElementById("btnOut");
 
-        btn.disabled = true;
-        btn.innerText = "⏳ 기록 중...";
+        setButtonLoading(isEntry ? "btnIn" : "btnOut", `${type} 기록 중...`);
 
         const res = await callAPI({
           action: "recordAttendance",
@@ -3450,9 +3921,19 @@
             updateStudentButtons(status.inDone, status.outDone);
         } else {
           alert(res.msg);
-          btn.disabled = false;
-          btn.innerText =
-            type === "입실" ? "👆 입실 기록하기" : "👋 퇴실 기록하기";
+          const status = await callAPI({
+            action: "getStudentStatus",
+            id: userInfo.id,
+          });
+          if (status && status.success) {
+            updateStudentButtons(status.inDone, status.outDone);
+          } else {
+            btn.disabled = false;
+            btn.className = `btn-attend ${isEntry ? "btn-in" : "btn-out"}`;
+            btn.innerHTML = isEntry
+              ? `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg><span>입실 기록하기</span>`
+              : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span>퇴실 기록하기</span>`;
+          }
         }
       }
 
@@ -3477,8 +3958,8 @@
 
         if (readyAt === null || Date.now() >= readyAt) {
           btnOut.disabled = false;
-          btnOut.classList.remove("btn-done");
-          btnOut.innerText = "👋 퇴실 기록하기";
+          btnOut.className = "btn-attend btn-out";
+          btnOut.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span>퇴실 기록하기</span>`;
           return;
         }
 
@@ -3488,18 +3969,18 @@
             clearInterval(outUnlockTimer);
             outUnlockTimer = null;
             btnOut.disabled = false;
-            btnOut.classList.remove("btn-done");
-            btnOut.innerText = "👋 퇴실 기록하기";
+            btnOut.className = "btn-attend btn-out";
+            btnOut.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span>퇴실 기록하기</span>`;
             return;
           }
           const remainMin = Math.ceil(remainMs / 60000);
           btnOut.disabled = true;
-          btnOut.classList.add("btn-done");
+          btnOut.className = "btn-attend btn-lock";
           const waitLabel =
             CONFIG.outUnlockAfterMinutes % 60 === 0
               ? `${CONFIG.outUnlockAfterMinutes / 60}시간`
               : `${CONFIG.outUnlockAfterMinutes}분`;
-          btnOut.innerText = `⏳ ${userInfo.inTime} 입실 기준 ${waitLabel} 후 활성화 (약 ${remainMin}분 후)`;
+          btnOut.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg><span>⏳ ${userInfo.inTime} 기준 ${waitLabel} 후 활성화 (약 ${remainMin}분 후)</span>`;
         };
 
         render();
@@ -3517,18 +3998,18 @@
 
         if (inDone) {
           btnIn.disabled = true;
-          btnIn.classList.add("btn-done");
-          btnIn.innerText = "✅ 오늘 입실 완료";
+          btnIn.className = "btn-attend btn-done";
+          btnIn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>오늘 입실 완료</span>`;
         } else {
           btnIn.disabled = false;
-          btnIn.classList.remove("btn-done");
-          btnIn.innerText = "👆 입실 기록하기";
+          btnIn.className = "btn-attend btn-in";
+          btnIn.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg><span>입실 기록하기</span>`;
         }
 
         if (outDone) {
           btnOut.disabled = true;
-          btnOut.classList.add("btn-done");
-          btnOut.innerText = "✅ 오늘 퇴실 완료";
+          btnOut.className = "btn-attend btn-done";
+          btnOut.innerHTML = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg><span>오늘 퇴실 완료</span>`;
           return;
         }
 
@@ -3556,9 +4037,9 @@
           if (y === nowY) opt.selected = true;
           yearSel.appendChild(opt);
         }
-        // 현재 월 선택
-        document.getElementById("reportMonth").value =
-          new Date().getMonth() + 1;
+        // 현재 월 선택 (1~2월인 경우 OJT 시작월인 3월 기본 선택)
+        const curM = new Date().getMonth() + 1;
+        document.getElementById("reportMonth").value = isOjtMonth(curM) ? curM : 3;
 
         fpCalendar = flatpickr("#calendarTrigger", {
           locale: "ko",
@@ -3591,6 +4072,20 @@
         ].indexOf(tabId);
         if (idx >= 0)
           document.querySelectorAll(".tab-btn")[idx].classList.add("active");
+      }
+
+      // ── 대시보드 내부 서브 탭 전환 (확인 필요 / 기록 상세) ──────────────
+      function switchDashSubTab(subTabName) {
+        const isAlerts = subTabName === "alerts";
+        const btnAlerts = document.getElementById("subtab-btn-alerts");
+        const btnRecords = document.getElementById("subtab-btn-records");
+        const panelAlerts = document.getElementById("subtab-panel-alerts");
+        const panelRecords = document.getElementById("subtab-panel-records");
+
+        if (btnAlerts) btnAlerts.classList.toggle("active", isAlerts);
+        if (btnRecords) btnRecords.classList.toggle("active", !isAlerts);
+        if (panelAlerts) panelAlerts.classList.toggle("active", isAlerts);
+        if (panelRecords) panelRecords.classList.toggle("active", !isAlerts);
       }
 
       // ✅ 자동 새로고침 함수 분리
@@ -3911,11 +4406,18 @@
         document.getElementById("displayDateText").innerText =
           `${targetDateStr} (${days[adminDayIdx]})`;
 
+        const targetMonth = currentAdminDate.getMonth() + 1;
+        const isOjt = isOjtMonth(targetMonth);
         const adminWarning = document.getElementById("adminDayWarning");
-        adminWarning.classList.toggle(
-          "hidden",
-          CONFIG.fieldDays.includes(adminDayIdx),
-        );
+        if (!isOjt) {
+          adminWarning.innerText = "※ 1월과 2월은 OJT(현장실습) 운영 기간이 아닙니다 (3월 1일 ~ 12월 31일)";
+          adminWarning.classList.remove("hidden");
+        } else if (!CONFIG.fieldDays.includes(adminDayIdx)) {
+          adminWarning.innerText = "※ 선택한 날짜는 현장실습일이 아닙니다.";
+          adminWarning.classList.remove("hidden");
+        } else {
+          adminWarning.classList.add("hidden");
+        }
 
         // 차단 날짜 경고
         const blockedInfo = getBlockedInfo(targetDateStr);
@@ -3930,11 +4432,23 @@
         currentFilteredData = [];
         let statIn = 0,
           statOut = 0,
-          statWarn = 0;
+          statLate = 0,
+          statEarly = 0;
 
         const recordedInIds = new Set();
         const recordedOutIds = new Set();
-        const late25Students = [];
+        const lateStudents = [];
+        const earlyStudents = [];
+
+        // 시간값 포맷팅 헬퍼 ("9:38:12" -> "09:38", "10:43:00" -> "10:43")
+        const formatTimeHHMM = (val) => {
+          if (!val) return "";
+          const parts = val.toString().trim().split(":");
+          if (parts.length >= 2) {
+            return parts[0].padStart(2, "0") + ":" + parts[1].padStart(2, "0");
+          }
+          return val.toString().trim().replace(/:+$/, "");
+        };
 
         allAdminData.forEach((r) => {
           if (!r || r.length < 8) return;
@@ -3942,6 +4456,7 @@
 
           currentFilteredData.push(r);
 
+          const time = formatTimeHHMM(r[0]);
           const type = r[5];
           const status = r[7];
           const studentId = r[3].trim();
@@ -3950,60 +4465,70 @@
           if (type === "입실") {
             recordedInIds.add(studentId);
             statIn++;
-
-            const recParts = r[0].toString().trim().split(":");
-            const stdParts = r[6].toString().trim().split(":");
-            const recMins =
-              parseInt(recParts[0], 10) * 60 + parseInt(recParts[1], 10);
-            const stdMins =
-              parseInt(stdParts[0], 10) * 60 + parseInt(stdParts[1], 10);
-            if (recMins - stdMins >= CONFIG.dashboardLateAlertMinutes)
-              late25Students.push(`${esc(studentName)}(${esc(studentId)})`);
+            if (status === "지각") {
+              statLate++;
+              lateStudents.push({ name: studentName, id: studentId, time });
+            }
           }
 
           if (type === "퇴실") {
             recordedOutIds.add(studentId);
             statOut++;
+            if (status === "조퇴") {
+              statEarly++;
+              earlyStudents.push({ name: studentName, id: studentId, time });
+            }
           }
-          if (status === "지각" || status === "조퇴") statWarn++;
         });
 
         document.getElementById("countIn").innerText = statIn + "명";
         document.getElementById("countOut").innerText = statOut + "명";
-        document.getElementById("countWarn").innerText = statWarn + "명";
+        document.getElementById("countLate").innerText = statLate + "명";
+        document.getElementById("countEarly").innerText = statEarly + "명";
 
-        const allRecordedIds = new Set([...recordedInIds, ...recordedOutIds]);
-        const unrecordedStudents = allStudents.filter(
-          (s) => !allRecordedIds.has(s.id),
+        // 학생 칩(버튼) 생성 헬퍼
+        const renderChip = (name, id, time) => {
+          const timeBadge = time
+            ? `<span class="chip-time">${esc(time)}</span>`
+            : "";
+          return `<span class="student-chip"><span class="chip-name">${esc(name)}</span><span class="chip-id">(${esc(id)})</span>${timeBadge}</span>`;
+        };
+
+        // 1. 입실 미입력 학생
+        const unrecordedInStudents = allStudents.filter(
+          (s) => !recordedInIds.has(s.id),
         );
-        document.getElementById("unrecordedList").innerHTML =
-          unrecordedStudents.length
-            ? unrecordedStudents
-                .map((s) => `${esc(s.name)}(${esc(s.id)})`)
-                .join(", ")
-            : "<span style='color:#10b981; font-weight:700;'>✅ 1회 이상 모두 입력 완료</span>";
+        document.getElementById("unrecordedInList").innerHTML =
+          unrecordedInStudents.length
+            ? unrecordedInStudents
+                .map((s) => renderChip(s.name, s.id))
+                .join("")
+            : "<span class='student-chip-empty'>✅ 전원 입실 완료</span>";
 
-        document.getElementById("late25List").innerHTML = late25Students.length
-          ? late25Students.join(", ")
-          : "<span style='color:#10b981; font-weight:700;'>✅ 대상자 없음</span>";
+        // 2. 퇴실 미입력 학생
+        const unrecordedOutStudents = allStudents.filter(
+          (s) => !recordedOutIds.has(s.id),
+        );
+        document.getElementById("unrecordedOutList").innerHTML =
+          unrecordedOutStudents.length
+            ? unrecordedOutStudents
+                .map((s) => renderChip(s.name, s.id))
+                .join("")
+            : "<span class='student-chip-empty'>✅ 전원 퇴실 완료</span>";
 
-        const now = new Date();
-        const isToday = targetDateStr === formatDateForCompare(now);
-        const isPastDate = targetDateStr < formatDateForCompare(now);
-        const nowMinutes = now.getHours() * 60 + now.getMinutes();
-        const closeLabel = minutesToLabel(CONFIG.dayCloseMinutes);
+        // 3. 지각 학생
+        document.getElementById("lateList").innerHTML = lateStudents.length
+          ? lateStudents
+              .map((s) => renderChip(s.name, s.id, s.time))
+              .join("")
+          : "<span class='student-chip-empty'>✅ 지각자 없음</span>";
 
-        if (isPastDate || (isToday && nowMinutes >= CONFIG.dayCloseMinutes)) {
-          const missing = allStudents.filter(
-            (s) => recordedInIds.has(s.id) && !recordedOutIds.has(s.id),
-          );
-          document.getElementById("missingOutList").innerHTML = missing.length
-            ? missing.map((s) => `${esc(s.name)}(${esc(s.id)})`).join(", ")
-            : "<span style='color:#10b981; font-weight:700;'>✅ 전원 퇴실 완료</span>";
-        } else {
-          document.getElementById("missingOutList").innerHTML =
-            `<span style='color:#64748b;'>아직 ${esc(closeLabel)}가 되지 않았습니다.</span>`;
-        }
+        // 4. 조퇴 학생
+        document.getElementById("earlyList").innerHTML = earlyStudents.length
+          ? earlyStudents
+              .map((s) => renderChip(s.name, s.id, s.time))
+              .join("")
+          : "<span class='student-chip-empty'>✅ 조퇴자 없음</span>";
 
         const totalPages = Math.ceil(
           currentFilteredData.length / ITEMS_PER_PAGE,
@@ -4031,6 +4556,16 @@
           startIdx + ITEMS_PER_PAGE,
         );
 
+        // 시간값 포맷팅 헬퍼
+        const formatTimeHHMM = (val) => {
+          if (!val) return "";
+          const parts = val.toString().trim().split(":");
+          if (parts.length >= 2) {
+            return parts[0].padStart(2, "0") + ":" + parts[1].padStart(2, "0");
+          }
+          return val.toString().trim().replace(/:+$/, "");
+        };
+
         let html = "";
         pageData.forEach((r) => {
           const type = r[5];
@@ -4043,12 +4578,7 @@
               : status === "조퇴"
                 ? "bg-early"
                 : "bg-normal";
-          const cleanTime = r[0]
-            .toString()
-            .trim()
-            .split(":")
-            .slice(0, 2)
-            .join(":");
+          const cleanTime = formatTimeHHMM(r[0]);
 
           html += `<tr>
             <td><strong>${esc(studentId)}</strong><br>
@@ -4132,10 +4662,16 @@
       }
 
       function getBlockedInfo(dateStr) {
-        // 공휴일 자동 체크
+        if (!dateStr) return { blocked: false };
+        // 1. OJT 운영 기간 체크 (1월, 2월은 OJT 없음)
+        const month = parseInt(dateStr.substring(5, 7), 10);
+        if (!isOjtMonth(month)) {
+          return { blocked: true, reason: "OJT 비운영 (1~2월)" };
+        }
+        // 2. 공휴일 자동 체크
         const holiday = getHolidayName(dateStr);
         if (holiday) return { blocked: true, reason: holiday + " (공휴일)" };
-        // 수동 차단 체크
+        // 3. 수동 차단 체크
         const found = allBlockedDates.find(
           (b) => b.date === dateStr && b.blocked,
         );
@@ -4183,11 +4719,13 @@
           grid.appendChild(empty);
         }
 
+        const isCalMonthOjt = isOjtMonth(bcMonth + 1);
+
         for (let d = 1; d <= lastDate; d++) {
           const dateObj = new Date(bcYear, bcMonth, d);
           const dayIdx = dateObj.getDay();
           const dateStr = formatDateForCompare(dateObj);
-          const isField = CONFIG.fieldDays.includes(dayIdx);
+          const isField = isCalMonthOjt && CONFIG.fieldDays.includes(dayIdx);
           const isWkend = dayIdx === 0 || dayIdx === 6;
           const blockedI = getBlockedInfo(dateStr);
           const isHoliday = !!getHolidayName(dateStr);

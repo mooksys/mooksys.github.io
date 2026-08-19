@@ -39,6 +39,15 @@ const BCOL = {
   BLOCKED: 2,  // C: TRUE=차단 / FALSE=허용
 };
 
+// ── OJT(현장실습) 운영 기간 (매년 3월 1일 ~ 12월 31일, 1~2월은 OJT 없음) ──
+const OJT_START_MONTH = 3;  // 3월
+const OJT_END_MONTH   = 12; // 12월
+
+function isOjtMonth(month) {
+  const m = parseInt(month, 10);
+  return m >= OJT_START_MONTH && m <= OJT_END_MONTH;
+}
+
 // ── 현장실습일 (0=일, 1=월, 2=화, 3=수, 4=목, 5=금, 6=토) ───────────
 const FIELD_DAYS = [2, 3, 4]; // 화, 수, 목
 
@@ -260,6 +269,8 @@ function jsonResponse(obj) {
 function buildClientConfig() {
   return {
     fieldDays:                 FIELD_DAYS,
+    ojtStartMonth:             OJT_START_MONTH,
+    ojtEndMonth:               OJT_END_MONTH,
     holidays:                  FIXED_HOLIDAYS,
     outUnlockAfterMinutes:     OUT_UNLOCK_AFTER_MINUTES,
     lateGraceMinutes:          LATE_GRACE_MINUTES,
@@ -585,12 +596,131 @@ function hidePastAttendanceRows(attendSheet, todayStr) {
 function onOpen() {
   SpreadsheetApp.getUi()
     .createMenu('출결 관리')
+    .addItem('🔑 선생님 비밀번호 초기화', 'manualResetTeacherPassword')
+    .addSeparator()
     .addItem('지난 날짜 행 숨기기 (수동 실행)', 'manualHidePastAttendanceRows')
     .addItem('숨긴 행 모두 보이기', 'unhideAllAttendanceRows')
     .addSeparator()
     .addItem('만료 세션 지금 정리', 'manualCleanupSessions')
     .addItem('세션 자동 정리 트리거 등록 (1회)', 'installSessionCleanupTrigger')
     .addToUi();
+}
+
+/**
+ * [교사 비밀번호 초기화] 구글 시트 메뉴에서 직접 실행
+ * - Users 시트의 교사 계정을 조회하여 비밀번호를 안전하게 재설정합니다.
+ * - 직접 입력하거나, 비워두면 8자리 무작위 비밀번호를 자동 발급합니다.
+ */
+function manualResetTeacherPassword() {
+  const ui = SpreadsheetApp.getUi();
+  const sheets = getSheets();
+  if (!sheets.users) {
+    ui.alert('오류', 'Users 시트를 찾을 수 없습니다.', ui.ButtonSet.OK);
+    return;
+  }
+
+  const displayData = sheets.users.getDataRange().getDisplayValues();
+  const teachers = [];
+  for (let i = 1; i < displayData.length; i++) {
+    const role = cellAt(displayData[i], COL.ROLE);
+    if (role === '교사') {
+      teachers.push({
+        rowIdx: i,
+        id: cellAt(displayData[i], COL.ID),
+        name: cellAt(displayData[i], COL.NAME),
+      });
+    }
+  }
+
+  if (teachers.length === 0) {
+    ui.alert('알림', '등록된 교사(선생님) 계정이 없습니다.\nUsers 시트에 역할(ROLE)이 "교사"인 계정이 있는지 확인해주세요.', ui.ButtonSet.OK);
+    return;
+  }
+
+  let targetTeacher = null;
+  if (teachers.length === 1) {
+    targetTeacher = teachers[0];
+    const confirmRes = ui.alert(
+      '선생님 비밀번호 초기화',
+      `[선생님 계정 정보]\n- 교사 ID: ${targetTeacher.id}\n- 이름: ${targetTeacher.name}\n\n해당 계정의 비밀번호를 초기화하시겠습니까?`,
+      ui.ButtonSet.YES_NO
+    );
+    if (confirmRes !== ui.Button.YES) return;
+  } else {
+    const teacherListText = teachers.map(t => `• ID: ${t.id} (${t.name})`).join('\n');
+    const promptRes = ui.prompt(
+      '선생님 비밀번호 초기화',
+      `비밀번호를 초기화할 교사 ID를 입력해주세요:\n\n[등록된 교사 목록]\n${teacherListText}`,
+      ui.ButtonSet.OK_CANCEL
+    );
+    if (promptRes.getSelectedButton() !== ui.Button.OK) return;
+    const inputId = promptRes.getResponseText().trim();
+    if (!inputId) {
+      ui.alert('알림', '교사 ID를 입력하지 않았습니다.', ui.ButtonSet.OK);
+      return;
+    }
+    targetTeacher = teachers.find(t => t.id === inputId);
+    if (!targetTeacher) {
+      ui.alert('오류', `입력하신 ID(${inputId})에 해당하는 교사 계정을 찾을 수 없습니다.`, ui.ButtonSet.OK);
+      return;
+    }
+  }
+
+  const pwPrompt = ui.prompt(
+    '새 임시 비밀번호 설정',
+    `교사(${targetTeacher.name} / ${targetTeacher.id}) 계정의 임시 비밀번호를 입력하세요.\n\n(비워두고 [확인]을 누르면 안전한 8자리 무작위 비밀번호가 자동 생성됩니다.)`,
+    ui.ButtonSet.OK_CANCEL
+  );
+  if (pwPrompt.getSelectedButton() !== ui.Button.OK) return;
+
+  let newPw = pwPrompt.getResponseText().trim();
+  if (newPw === '') {
+    newPw = generateInitialPassword();
+  } else {
+    if (newPw.length < PW_MIN_LENGTH || newPw.length > PW_MAX_LENGTH) {
+      ui.alert('오류', `비밀번호는 ${PW_MIN_LENGTH}~${PW_MAX_LENGTH}자여야 합니다.`, ui.ButtonSet.OK);
+      return;
+    }
+  }
+
+  if (!ensurePasswordPepper()) {
+    ui.alert('오류', LOCK_BUSY_MSG, ui.ButtonSet.OK);
+    return;
+  }
+
+  const locked = runWithScriptLock(() => {
+    const latestData = sheets.users.getDataRange().getDisplayValues();
+    const rowIdx = findUserRowIndex(latestData, targetTeacher.id);
+    if (rowIdx < 0) {
+      return { success: false, msg: '사용자를 찾을 수 없습니다.' };
+    }
+
+    writePasswordUnsafe(sheets.users, rowIdx, newPw);
+    sheets.users.getRange(rowIdx + 1, COL.FAIL + 1).setValue(0);
+    sheets.users.getRange(rowIdx + 1, COL.LOCK + 1).setValue(0);
+    sheets.users.getRange(rowIdx + 1, COL.MUST_SETUP + 1).setValue('TRUE');
+
+    if (sheets.sessions) {
+      deleteSessionsForUserUnsafe(sheets.sessions, targetTeacher.id);
+    }
+
+    return { success: true };
+  });
+
+  if (!locked.acquired || !locked.value.success) {
+    ui.alert('오류', locked.acquired ? locked.value.msg : LOCK_BUSY_MSG, ui.ButtonSet.OK);
+    return;
+  }
+
+  ui.alert(
+    '비밀번호 초기화 완료',
+    `✅ ${targetTeacher.name} 선생님의 비밀번호가 초기화되었습니다.\n\n` +
+    `• 교사 ID: ${targetTeacher.id}\n` +
+    `• 새 임시 비밀번호: ${newPw}\n\n` +
+    `※ 웹 화면에서 로그인 후 최초 1회 새 비밀번호로 변경해야 합니다.\n` +
+    `※ 기존에 로그인되어 있던 모든 세션은 즉시 로그아웃되었습니다.`,
+    ui.ButtonSet.OK
+  );
 }
 
 function manualCleanupSessions() {
@@ -764,7 +894,7 @@ function nowKST() {
   return new Date(nowStr.replace(/-/g, '/'));
 }
 
-// ✅ 시간값 정규화 — Date 객체 / "9:00" / "09:00" 모두 → "HH:MM" 문자열로 변환
+// ✅ 시간값 정규화 — Date 객체 / "9:00" / "09:00" / "9:38:12" 모두 → "HH:MM" 문자열로 변환
 function timeObjectToHHMM(val) {
   if (!val || val === '') return '';
   // Date 객체인 경우
@@ -774,13 +904,13 @@ function timeObjectToHHMM(val) {
     const m = String(d.getMinutes()).padStart(2, '0');
     return `${h}:${m}`;
   }
-  // 문자열인 경우 — 앞부분 5자 추출 후 정규화
-  const str   = val.toString().trim().substring(0, 5);
+  // 문자열인 경우 — 콜론 분리 후 2자리 패딩
+  const str   = val.toString().trim();
   const parts = str.split(':');
-  if (parts.length === 2) {
+  if (parts.length >= 2) {
     return parts[0].padStart(2, '0') + ':' + parts[1].padStart(2, '0');
   }
-  return str;
+  return str.replace(/:+$/, '');
 }
 
 // HH:MM을 0~1439 사이의 분으로 변환. 잘못된 시간은 null을 반환합니다.
@@ -1164,7 +1294,11 @@ function recordAttendance(userSheet, attendSheet, blockedSheet, id, type) {
     const dayNames    = ['일', '월', '화', '수', '목', '금', '토'];
     const currentMins = now.getHours() * 60 + now.getMinutes();
 
-    // ── 날짜·요일 규칙 확인 ──
+    // ── OJT 운영 기간 및 날짜·요일 규칙 확인 ──
+    const currentMonth = now.getMonth() + 1;
+    if (!isOjtMonth(currentMonth)) {
+      return { success: false, msg: `1월과 2월은 OJT(현장실습) 운영 기간이 아닙니다. (OJT 운영 기간: 3월 1일 ~ 12월 31일)` };
+    }
     const blockResult = isDateBlocked(blockedSheet, todayStr);
     if (blockResult.blocked) {
       return { success: false, msg: `오늘(${todayStr})은 출석 기록이 차단된 날입니다. 사유: ${blockResult.reason}` };
@@ -1252,6 +1386,11 @@ function recordAttendance(userSheet, attendSheet, blockedSheet, id, type) {
 // 월간 레포트 집계 대상 실습일 생성
 // ─────────────────────────────────────────────────────────────────────
 function getScheduledReportDates(year, month, blockedSheet, nowDate) {
+  // 1월, 2월은 OJT 비운영 기간이므로 집계 대상 실습일 없음 (0일)
+  if (!isOjtMonth(month)) {
+    return [];
+  }
+
   const blockedDates = getBlockedDates(blockedSheet).dates || [];
   const manualBlockedSet = new Set(
     blockedDates.filter(item => item.blocked).map(item => item.date)
@@ -1297,6 +1436,11 @@ function generateMonthlyReport(userSheet, attendSheet, blockedSheet, year, month
     return { success: false, msg: '연도는 2020~2099 사이여야 합니다.' };
   }
 
+  // 1월, 2월 OJT 비운영월 검사
+  if (!isOjtMonth(m)) {
+    return { success: false, msg: '1월과 2월은 OJT(현장실습) 운영 기간이 아닙니다. (OJT 운영 기간: 3월~12월)' };
+  }
+
   const prefix = `${y}-${String(m).padStart(2, '0')}`;
 
   const userData    = userSheet.getDataRange().getDisplayValues();
@@ -1326,7 +1470,7 @@ function generateMonthlyReport(userSheet, attendSheet, blockedSheet, year, month
     const date   = r[ACOL.DATE].toString().trim();
     const type   = r[ACOL.TYPE];
     const status = r[ACOL.STATUS];
-    const time   = r[ACOL.TIME].toString().trim().substring(0, 5);
+    const time   = timeObjectToHHMM(r[ACOL.TIME]);
     if (!summary[sid]) return;
     if (!scheduledDateSet.has(date)) return; // 비실습일·차단일·미래 기록 제외
 
@@ -1661,16 +1805,25 @@ function migratePasswordsToHash() {
 // 날짜 차단 기능
 // ═════════════════════════════════════════════════════════════════════
 
-// 특정 날짜가 차단됐는지 확인 (공휴일 포함)
+// 특정 날짜가 차단됐는지 확인 (OJT 기간 및 공휴일 포함)
 function isDateBlocked(blockedSheet, dateStr) {
-  if (!blockedSheet) return { blocked: false };
+  if (!dateStr) return { blocked: false };
 
+  // 1. OJT 운영 기간 체크 (1월, 2월은 OJT 없음)
+  const month = parseInt(dateStr.substring(5, 7), 10);
+  if (!isOjtMonth(month)) {
+    return { blocked: true, reason: 'OJT 비운영 기간 (1~2월은 OJT 없음)' };
+  }
+
+  // 2. 공휴일 체크
   const mmdd = dateStr.substring(5); // yyyy-MM-dd → MM-DD
   if (FIXED_HOLIDAYS[mmdd]) {
     return { blocked: true, reason: FIXED_HOLIDAYS[mmdd] + ' (공휴일)' };
   }
 
-  // BlockedDates 시트에서 수동 차단 확인
+  if (!blockedSheet) return { blocked: false };
+
+  // 3. BlockedDates 시트에서 수동 차단 확인
   const data = blockedSheet.getDataRange().getDisplayValues();
   for (let i = 1; i < data.length; i++) {
     const rowDate    = data[i][BCOL.DATE].toString().trim();
