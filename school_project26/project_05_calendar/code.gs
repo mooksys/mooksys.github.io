@@ -71,6 +71,9 @@ function doPost(e) {
         case 'add_event':
           result = addEvent_(ss, payload);
           break;
+        case 'update_event':
+          result = updateEvent_(ss, payload);
+          break;
         case 'delete_event':
           result = deleteEvent_(ss, payload);
           break;
@@ -316,6 +319,48 @@ function deleteEvent_(ss, payload) {
   events.splice(targetIndex, 1);
   writeCellEvents_(cell, events);
   return { deleted: true };
+}
+
+function updateEvent_(ss, payload) {
+  const oldDate = parseIsoDate_(payload.oldDate || payload.date);
+  const oldType = requireText_(payload.oldType || payload.type, '기존 일정 분류', 60, false);
+  const oldTitle = requireText_(payload.oldTitle || payload.title, '기존 일정 명칭', MAX_TITLE_LENGTH + 10, false);
+  const eventId = requireText_(payload.eventId, '일정 식별자', 100, false);
+
+  const newDate = parseIsoDate_(payload.newDate || payload.date);
+  const newType = requireEventType_(payload.newType || payload.type);
+  const newTitle = requireText_(payload.newTitle || payload.title, '새 일정 명칭', MAX_TITLE_LENGTH, false);
+  const hours = (newType === 'off-JT' || newType === 'OJT')
+    ? requireInteger_(payload.hours, '이수 시간', 1, 24)
+    : null;
+  const finalNewTitle = hours === null ? newTitle : newTitle + ' (' + hours + ')';
+
+  // 1. 기존 셀에서 일정 삭제
+  const oldSheet = ss.getSheetByName(oldDate.year + '.' + oldDate.month);
+  if (!oldSheet) throw new Error('기존 일정 시트를 찾을 수 없습니다.');
+  const oldColumn = findEventColumn_(oldSheet, oldType);
+  const oldRow = findDayRow_(oldSheet, oldDate.day);
+  if (!oldColumn || !oldRow) throw new Error('기존 일정이 이미 변경되었거나 삭제되었습니다.');
+
+  const oldCell = oldSheet.getRange(oldRow, oldColumn);
+  const oldEvents = readCellEvents_(oldCell.getDisplayValue(), oldCell.getNote(), oldSheet.getSheetId(), oldRow, oldColumn);
+  const targetIndex = oldEvents.findIndex((event) => event.id === eventId || event.title === oldTitle);
+  if (targetIndex === -1) throw new Error('일정 정보가 변경되었습니다. 새로고침 후 다시 시도하세요.');
+
+  oldEvents.splice(targetIndex, 1);
+  writeCellEvents_(oldCell, oldEvents);
+
+  // 2. 새 셀에 일정 등록
+  const newSheet = getOrCreateMonthlySheet_(ss, newDate.year, newDate.month);
+  const newColumn = findOrCreateEventColumn_(newSheet, newType);
+  const newRow = findOrCreateDayRow_(newSheet, newDate.day);
+  const newCell = newSheet.getRange(newRow, newColumn);
+  const newEvents = readCellEvents_(newCell.getDisplayValue(), newCell.getNote(), newSheet.getSheetId(), newRow, newColumn);
+  const updatedEvent = { id: eventId, title: finalNewTitle };
+  newEvents.push(updatedEvent);
+  writeCellEvents_(newCell, newEvents);
+
+  return { event: { id: eventId, date: newDate.iso, type: newType, title: finalNewTitle } };
 }
 
 function getOrCreateMonthlySheet_(ss, year, month) {

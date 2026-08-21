@@ -54,11 +54,13 @@
 - **FR-401**: 일정표 저장 버튼 클릭 시, `html2canvas`를 동적 로드하여 현재 선택된 뷰(월간/1주간/2주간)의 **순수 달력 영역 (`#calendar-workspace`)**만을 2배율 고해상도 PNG 파일(`성일정보고_달력_{월간/1주간/2주간}_{해당기간}.png`)로 즉각 다운로드. 캡처 시 저장 버튼 및 관리자 패널은 자동으로 제외.
 
 ### 3.5 관리자 보안 및 일정 관리 (Admin Operations)
-- **FR-501 (관리자 인증)**: Google Apps Script Script Properties에 등록된 `ADMIN_PASSWORD`와 일치 여부를 검증하고 30분 유효기간(TTL)의 고유 세션 토큰 발급.
+- **FR-501 (관리자 인증 및 세션 지속성)**: Google Apps Script Script Properties에 등록된 `ADMIN_PASSWORD`와 일치 여부를 검증하고 토큰 발급. 브라우저 로컬 스토리지(`localStorage`)에 저장하여 사용자가 명시적으로 '로그아웃'하기 전까지 페이지 새로고침 후에도 관리자 모드를 유지.
 - **FR-502 (공지 업데이트)**: 공지 텍스트를 즉시 '설정' 시트 B1 셀에 반영.
 - **FR-503 (마일스톤 관리)**: 디데이 시트에 목표 날짜, 명칭, 고유 ID(UUID) 추가 및 삭제.
 - **FR-504 (신규 일정 등록)**: 날짜, 일정 분류, 명칭, 이수시간(off-JT/OJT 선택 시 기본값 또는 1~24 커스텀)을 입력받아 해당 연.월 시트의 해당 일/분류 셀에 줄바꿈 추가 및 Note 메타데이터 동기화.
-- **FR-505 (일정 삭제)**: 각 일정 배지의 `×` 버튼 클릭 시 일정 고유 ID(UUID / Legacy ID) 및 명칭 검증 후 해당 셀에서 안전하게 제거.
+- **FR-505 (일정 삭제)**: 특정 일자의 특정 일정을 선택하여 시트 셀 및 Note 메타데이터에서 안전하게 제거.
+- **FR-506 (인라인 일정 수정)**: 날짜 클릭 팝업 모달에서 기존 일정의 명칭, 분류, 이수시간을 즉시 수정하여 시트와 동기화.
+- **FR-507 (관리자 편집 도구 팝업 모달)**: 상단 히어로 영역 '관리자 로그인' 버튼 옆에 '관리자 편집도구' 버튼 제공 (로그인 시 `#admin-tools-modal` 팝업 창 즉시 오픈, 미로그인 시 로그인 모달 인증 완료 후 자동 오픈). 팝업 내에서 공지사항, D-Day, 신규 일정을 탭으로 전환하며 관리 가능.
 
 ---
 
@@ -144,6 +146,7 @@ flowchart TD
 | `add_dday` | `token`, `date`, `title` | 신규 디데이 마일스톤 등록 |
 | `delete_dday` | `token`, `id`, `date`, `title` | 등록된 디데이 마일스톤 삭제 |
 | `add_event` | `token`, `date`, `type`, `title`, `hours` | 신규 일정 등록 (이수시간 포함) |
+| `update_event` | `token`, `eventId`, `oldDate`, `oldType`, `oldTitle`, `newDate`, `newType`, `newTitle`, `hours` | 등록된 일정 수정 및 셀/Note 메타데이터 갱신 |
 | `delete_event`| `token`, `date`, `type`, `title`, `eventId` | 특정 날짜/분류의 일정 배지 삭제 |
 
 ---
