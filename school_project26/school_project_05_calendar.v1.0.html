@@ -5,219 +5,1751 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>성일정보고등학교 | 스마트 통합 일정표</title>
   <meta name="description" content="성일정보고등학교 도제교육과정의 학사 일정, 교내 교육, 현장 훈련 및 주요 마일스톤을 한눈에 확인하는 통합 일정표입니다.">
-  <meta name="theme-color" content="#f7f8fc">
+  <meta name="theme-color" content="#f8fafc">
   
   <style>
     :root {
       color-scheme: light;
-      --ink: #172033;
-      --ink-soft: #5f6c85;
-      --line: rgba(133, 148, 178, .18);
-      --surface: rgba(255, 255, 255, .78);
-      --surface-solid: #ffffff;
-      --canvas: #f6f7fb;
+      --ink: #0f172a;
+      --ink-soft: #64748b;
+      --line: rgba(148, 163, 184, .2);
+      --surface: rgba(255, 255, 255, .84);
+      --canvas: #f8fafc;
       --primary: #4f46e5;
-      --primary-dark: #3730a3;
-      --mint: #35d0ba;
-      --blue-offjt: #3979f6;
-      --red-ojt: #f05f75;
-      --green-special: #20a877;
+      --primary-hover: #4338ca;
+      --primary-light: #eef2ff;
+      --mint: #10b981;
+      --blue-offjt: #3b82f6;
+      --red-ojt: #f43f5e;
+      --green-special: #10b981;
       --purple-special: #8b5cf6;
-      --gray-general: #667085;
-      --shadow-sm: 0 4px 16px rgba(30, 41, 59, .05);
-      --shadow-lg: 0 28px 70px rgba(48, 60, 90, .12);
-      --radius-sm: 12px;
-      --radius: 20px;
-      --radius-lg: 28px;
-      --font-sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+      --gray-general: #64748b;
+      --danger: #ef4444;
+      --shadow-sm: 0 2px 8px rgba(15, 23, 42, .04);
+      --shadow-md: 0 8px 24px rgba(15, 23, 42, .06);
+      --shadow-lg: 0 20px 40px -15px rgba(15, 23, 42, .12);
+      --shadow-modal: 0 25px 60px -12px rgba(15, 23, 42, .25);
+      --radius-sm: 10px;
+      --radius: 16px;
+      --radius-lg: 24px;
+      --radius-xl: 28px;
+      --font-sans: -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     html { min-width: 320px; scroll-behavior: smooth; }
-    body { min-width: 320px; margin: 0; color: var(--ink); background: var(--canvas); font: 500 15px/1.55 var(--font-sans); letter-spacing: -.012em; }
-    body::before, body::after { content: ""; position: fixed; z-index: -1; border-radius: 50%; filter: blur(8px); pointer-events: none; }
-    body::before { width: 26rem; height: 26rem; top: -11rem; left: -11rem; background: rgba(148, 163, 255, .25); }
-    body::after { width: 28rem; height: 28rem; right: -14rem; top: 28rem; background: rgba(97, 224, 203, .15); }
+    body {
+      min-width: 320px;
+      color: var(--ink);
+      background: var(--canvas);
+      font: 500 15px/1.55 var(--font-sans);
+      letter-spacing: -.015em;
+      position: relative;
+      overflow-x: hidden;
+    }
+
+    body::before, body::after {
+      content: "";
+      position: fixed;
+      z-index: -1;
+      border-radius: 50%;
+      filter: blur(80px);
+      pointer-events: none;
+    }
+    body::before {
+      width: 28rem;
+      height: 28rem;
+      top: -10rem;
+      left: -10rem;
+      background: rgba(99, 102, 241, .12);
+    }
+    body::after {
+      width: 30rem;
+      height: 30rem;
+      right: -12rem;
+      top: 24rem;
+      background: rgba(56, 189, 248, .1);
+    }
+
     button, input, select { font: inherit; }
-    button { border: 0; cursor: pointer; }
-    button:focus-visible, input:focus-visible, select:focus-visible { outline: 3px solid rgba(79, 70, 229, .28); outline-offset: 3px; }
-    .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0; }
-    .skip-link { position: fixed; z-index: 100; left: 1rem; top: -5rem; padding: .65rem 1rem; border-radius: 10px; color: #fff; background: var(--primary); transition: top .2s ease; }
+    button { border: 0; cursor: pointer; background: none; }
+    button:focus-visible, input:focus-visible, select:focus-visible {
+      outline: 2px solid var(--primary);
+      outline-offset: 2px;
+    }
+    
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
+    }
+    .skip-link {
+      position: fixed;
+      z-index: 100;
+      left: 1rem;
+      top: -5rem;
+      padding: .65rem 1.2rem;
+      border-radius: 10px;
+      color: #fff;
+      background: var(--primary);
+      box-shadow: var(--shadow-md);
+      transition: top .2s ease;
+      font-weight: 700;
+      text-decoration: none;
+    }
     .skip-link:focus { top: 1rem; }
 
-    .app-shell { width: min(100% - 24px, 1210px); margin: 8px auto 20px; padding: 8px; border: 1px solid rgba(255, 255, 255, .72); border-radius: 22px; background: rgba(255,255,255,.44); box-shadow: var(--shadow-lg); backdrop-filter: blur(22px); -webkit-backdrop-filter: blur(22px); }
-    .topbar, .hero, .dashboard, .calendar-workspace, .admin-panel { animation: rise .55s both; }
-    .topbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 38px; padding: 0 4px 6px; }
-    .brand { display: inline-flex; align-items: center; gap: 8px; min-width: 0; text-decoration: none; color: var(--ink); }
-    .brand-mark { display: grid; width: 30px; height: 30px; place-items: center; border-radius: 10px; color: #fff; font-weight: 800; font-size: .85rem; background: linear-gradient(135deg, var(--primary), #8b5cf6); box-shadow: 0 6px 14px rgba(79,70,229,.24); }
-    .brand-copy { display: grid; line-height: 1.1; }
-    .brand-copy strong { font-size: .88rem; letter-spacing: -.04em; }
-    .brand-copy span { margin-top: 2px; color: var(--ink-soft); font-size: .66rem; font-weight: 700; letter-spacing: .04em; text-transform: uppercase; }
-    .topbar-status { display: inline-flex; align-items: center; gap: 6px; padding: 5px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); background: rgba(255,255,255,.6); font-size: .72rem; font-weight: 700; }
-    .topbar-status i { width: 6px; height: 6px; border-radius: 50%; background: #34d399; box-shadow: 0 0 0 3px rgba(52,211,153,.15); }
+    /* Layout Shell */
+    .app-shell {
+      width: min(100% - 24px, 1220px);
+      margin: 12px auto 28px;
+      padding: 12px;
+      border: 1px solid rgba(255, 255, 255, .8);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, .68);
+      box-shadow: var(--shadow-lg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+    }
 
-    .hero { display: grid; gap: 12px; padding: 12px 10px 10px; }
-    .eyebrow { display: inline-flex; align-items: center; width: fit-content; gap: 6px; margin: 0 0 5px; color: var(--primary); font-size: .72rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-    .eyebrow::before { content: ""; width: 6px; height: 6px; border-radius: 50%; background: var(--mint); }
-    h1, h2, h3, h4, p { margin: 0; }
-    .title-area h1 { max-width: 720px; font-size: clamp(1.7rem, 6vw, 2.8rem); line-height: 1.08; letter-spacing: -.06em; }
-    .title-area h1 span { display: inline-flex; margin-left: 5px; padding: 3px 8px; vertical-align: middle; border: 1px solid rgba(79,70,229,.14); border-radius: 999px; color: var(--primary); background: rgba(238,237,255,.78); font-size: .68rem; letter-spacing: 0; }
-    .title-area p { max-width: 550px; margin-top: 6px; color: var(--ink-soft); font-size: .88rem; }
-    .hero-actions { display: flex; flex-wrap: wrap; gap: 6px; }
-    .btn-primary, .btn-success, .btn-secondary, .btn-danger { display: inline-flex; align-items: center; justify-content: center; min-height: 36px; padding: 7px 12px; border: 1px solid transparent; border-radius: 10px; font-size: .8rem; font-weight: 800; transition: transform .2s ease, box-shadow .2s ease, background .2s ease; }
-    .btn-primary { color: #fff; background: var(--primary); box-shadow: 0 6px 14px rgba(79,70,229,.2); }
-    .btn-success { color: #24314c; background: #eef1ff; border-color: #dfe3ff; }
-    .btn-secondary { color: var(--ink-soft); background: rgba(255,255,255,.72); border-color: var(--line); }
-    .btn-danger { color: #c93751; background: #fff0f2; border-color: #ffd9df; }
-    .btn-primary:hover { background: var(--primary-dark); box-shadow: 0 10px 22px rgba(79,70,229,.25); }
-    .btn-success:hover, .btn-secondary:hover { background: #fff; box-shadow: var(--shadow-sm); }
-    .btn-danger:hover { background: #ffe8ec; }
-    .btn-primary:active, .btn-success:active, .btn-secondary:active, .btn-danger:active, .tab-btn:active { transform: translateY(1px) scale(.985); }
+    .topbar, .hero, .dashboard, .calendar-workspace {
+      animation: rise .45s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
 
-    .notice-bar { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 10px; padding: 8px 12px; border: 1px solid rgba(91, 82, 220, .12); border-radius: var(--radius); color: #414a68; background: linear-gradient(120deg, rgba(239,238,255,.9), rgba(255,255,255,.8)); }
-    .notice-icon { display: grid; width: 26px; height: 26px; flex: 0 0 auto; place-items: center; border-radius: 8px; color: var(--primary); background: #fff; font-size: .85rem; box-shadow: var(--shadow-sm); }
-    .notice-content { min-width: 0; }
-    .notice-title { display: block; margin-bottom: 1px; color: var(--primary); font-size: .68rem; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
-    .notice-text { overflow-wrap: anywhere; font-size: 1.35rem; font-weight: 750; line-height: 1.3; }
+    /* Topbar */
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 42px;
+      padding: 2px 6px 10px;
+    }
+    .brand {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      text-decoration: none;
+      color: var(--ink);
+    }
+    .brand-mark {
+      display: grid;
+      width: 34px;
+      height: 34px;
+      place-items: center;
+      border-radius: 11px;
+      color: #fff;
+      font-weight: 900;
+      font-size: .95rem;
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      box-shadow: 0 6px 16px rgba(79, 70, 229, .28);
+    }
+    .brand-copy { display: grid; line-height: 1.15; }
+    .brand-copy strong { font-size: .95rem; font-weight: 800; letter-spacing: -.03em; }
+    .brand-copy span {
+      margin-top: 2px;
+      color: var(--ink-soft);
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+    }
+    .topbar-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #334155;
+      background: rgba(255, 255, 255, .8);
+      font-size: .75rem;
+      font-weight: 700;
+      box-shadow: var(--shadow-sm);
+    }
+    .topbar-status i {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 3px rgba(16, 185, 129, .2);
+      animation: pulse 2s infinite;
+    }
 
-    .dashboard { display: grid; grid-template-columns: 1fr; gap: 8px; margin: 0 0 10px; }
-    .stat-card { position: relative; overflow: hidden; padding: 11px 14px; border: 1.5px solid rgba(255,255,255,.9); border-radius: 16px; background: var(--surface); box-shadow: 0 4px 16px rgba(30, 41, 59, .05); backdrop-filter: blur(16px); transition: transform .2s ease, box-shadow .2s ease; }
-    .stat-card:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(30, 41, 59, .08); }
-    .stat-card::after { content: ""; position: absolute; right: -14px; top: -18px; width: 72px; height: 72px; border-radius: 50%; opacity: .8; pointer-events: none; }
-    .stat-card.offjt { border-color: rgba(57,121,246,.25); background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(240,246,255,.8)); }
-    .stat-card.offjt::after { background: rgba(57,121,246,.15); }
+    /* Hero */
+    .hero {
+      display: grid;
+      gap: 14px;
+      padding: 14px 10px 14px;
+    }
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      margin-bottom: 6px;
+      color: var(--primary);
+      font-size: .75rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .eyebrow::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #06b6d4;
+    }
+    .title-area h1 {
+      font-size: clamp(1.75rem, 5vw, 2.7rem);
+      font-weight: 900;
+      line-height: 1.12;
+      letter-spacing: -.05em;
+      color: var(--ink);
+    }
+    .title-area h1 span {
+      display: inline-flex;
+      margin-left: 6px;
+      padding: 3px 9px;
+      vertical-align: middle;
+      border: 1px solid rgba(79, 70, 229, .18);
+      border-radius: 999px;
+      color: var(--primary);
+      background: rgba(238, 242, 255, .9);
+      font-size: .72rem;
+      font-weight: 800;
+    }
+    .title-area p {
+      max-width: 580px;
+      margin-top: 6px;
+      color: var(--ink-soft);
+      font-size: .9rem;
+      font-weight: 550;
+    }
+    .hero-actions {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+    }
+
+    /* Buttons */
+    .btn-primary, .btn-success, .btn-secondary, .btn-danger, .btn-sm {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 38px;
+      padding: 8px 15px;
+      border: 1px solid transparent;
+      border-radius: var(--radius-sm);
+      font-size: .82rem;
+      font-weight: 750;
+      letter-spacing: -.01em;
+      transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+      user-select: none;
+    }
+    .btn-primary {
+      color: #fff;
+      background: var(--primary);
+      box-shadow: 0 4px 14px rgba(79, 70, 229, .25);
+    }
+    .btn-primary:hover {
+      background: var(--primary-hover);
+      box-shadow: 0 8px 20px rgba(79, 70, 229, .32);
+      transform: translateY(-1px);
+    }
+    .btn-success {
+      color: #1e293b;
+      background: #eff6ff;
+      border-color: #dbeafe;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-success:hover {
+      background: #e0e7ff;
+      border-color: #c7d2fe;
+      color: var(--primary);
+      transform: translateY(-1px);
+    }
+    .btn-secondary {
+      color: #475569;
+      background: #ffffff;
+      border-color: #e2e8f0;
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-secondary:hover {
+      background: #f8fafc;
+      border-color: #cbd5e1;
+      color: var(--ink);
+      transform: translateY(-1px);
+    }
+    .btn-secondary.admin-active {
+      color: var(--primary);
+      background: #eef2ff;
+      border-color: #c7d2fe;
+    }
+    .btn-danger {
+      color: #e11d48;
+      background: #fff1f2;
+      border-color: #ffe4e6;
+    }
+    .btn-danger:hover {
+      background: #fee2e2;
+      border-color: #fecdd3;
+      transform: translateY(-1px);
+    }
+    .btn-sm {
+      min-height: 30px;
+      padding: 4px 10px;
+      font-size: .74rem;
+      border-radius: 8px;
+    }
+    .btn-primary:active, .btn-success:active, .btn-secondary:active, .btn-danger:active {
+      transform: translateY(1px) scale(.98);
+    }
+
+    /* Notice Banner */
+    .notice-bar {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      margin: 0 0 12px;
+      padding: 10px 14px;
+      border: 1px solid rgba(99, 102, 241, .15);
+      border-radius: var(--radius);
+      color: #334155;
+      background: linear-gradient(120deg, rgba(238, 242, 255, .95), rgba(255, 255, 255, .9));
+      box-shadow: var(--shadow-sm);
+    }
+    .notice-icon {
+      display: grid;
+      width: 28px;
+      height: 28px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 9px;
+      color: var(--primary);
+      background: #ffffff;
+      font-size: .9rem;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, .15);
+    }
+    .notice-content { min-width: 0; flex: 1; }
+    .notice-title {
+      display: block;
+      margin-bottom: 2px;
+      color: var(--primary);
+      font-size: .7rem;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+    }
+    .notice-text {
+      overflow-wrap: anywhere;
+      font-size: 1.15rem;
+      font-weight: 750;
+      line-height: 1.35;
+      color: #1e293b;
+    }
+
+    /* Dashboard Cards */
+    .dashboard {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 10px;
+      margin: 0 0 14px;
+    }
+    .stat-card {
+      position: relative;
+      overflow: hidden;
+      padding: 14px 16px;
+      border: 1.5px solid rgba(255, 255, 255, .9);
+      border-radius: var(--radius);
+      background: var(--surface);
+      box-shadow: var(--shadow-sm);
+      backdrop-filter: blur(16px);
+      transition: transform .2s ease, box-shadow .2s ease;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
+    }
+    .stat-card::after {
+      content: "";
+      position: absolute;
+      right: -16px;
+      top: -20px;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      opacity: .8;
+      pointer-events: none;
+    }
+    .stat-card.offjt {
+      border-color: rgba(59, 130, 246, .25);
+      background: linear-gradient(135deg, rgba(255, 255, 255, .95), rgba(239, 246, 255, .85));
+    }
+    .stat-card.offjt::after { background: rgba(59, 130, 246, .12); }
     .stat-card.offjt .stat-title { color: #1d4ed8; }
-    .stat-card.ojt { border-color: rgba(240,95,117,.25); background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(255,241,243,.8)); }
-    .stat-card.ojt::after { background: rgba(240,95,117,.15); }
-    .stat-card.ojt .stat-title { color: #e11d48; }
-    .stat-card.dday { border-color: rgba(79,70,229,.25); background: linear-gradient(135deg, rgba(255,255,255,.9), rgba(243,240,255,.8)); }
-    .stat-card.dday::after { background: rgba(79,70,229,.15); }
-    .stat-card.dday .stat-title { color: #4338ca; }
-    .stat-title { display: flex; align-items: center; gap: 5px; font-size: .84rem; font-weight: 850; letter-spacing: -.02em; line-height: 1.2; }
-    .stat-title::before { content: ""; display: inline-block; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
-    .stat-value { position: relative; z-index: 1; margin: 4px 0 2px; color: var(--ink); font-size: 1.45rem; font-weight: 900; letter-spacing: -.05em; text-align: center; line-height: 1.2; }
-    .stat-card.dday .stat-value { color: var(--primary); }
-    .stat-desc { color: #475569; font-size: .8rem; font-weight: 750; letter-spacing: -.01em; line-height: 1.2; }
-    #stat-dday-title { color: #3730a3; font-weight: 850; font-size: .84rem; }
 
-    .calendar-workspace { padding: 14px 10px 10px; border: 1px solid #e2e8f0; border-radius: var(--radius-lg); background: #ffffff; box-shadow: 0 4px 16px rgba(15, 23, 42, .04); }
-    .calendar-toolbar { display: grid; gap: 12px; padding: 2px 2px 14px; }
-    .toolbar-left { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-    .view-tabs { display: grid; grid-template-columns: repeat(3, 1fr); padding: 4px; gap: 3px; border-radius: 13px; background: #eff1f7; width: 100%; max-width: 260px; }
-    .tab-btn { min-height: 36px; padding: 7px 6px; border-radius: 9px; color: var(--ink-soft); background: transparent; font-size: .78rem; font-weight: 800; transition: color .2s ease, background .2s ease, box-shadow .2s ease, transform .2s ease; white-space: nowrap; }
-    .tab-btn.active { color: var(--ink); background: #fff; box-shadow: 0 3px 9px rgba(30,41,59,.08); }
-    .btn-save-image { display: inline-flex; align-items: center; justify-content: center; gap: 6px; min-height: 36px; padding: 7px 12px; border: 1.5px solid #d4dbff; border-radius: 11px; color: var(--primary); background: #eef2ff; font-size: .78rem; font-weight: 850; letter-spacing: -.02em; transition: all .2s ease; cursor: pointer; box-shadow: 0 2px 6px rgba(79, 70, 229, .06); white-space: nowrap; }
-    .btn-save-image:hover { background: var(--primary); color: #fff; border-color: var(--primary); transform: translateY(-1px); box-shadow: 0 6px 16px rgba(79, 70, 229, .22); }
+    .stat-card.ojt {
+      border-color: rgba(244, 63, 94, .25);
+      background: linear-gradient(135deg, rgba(255, 255, 255, .95), rgba(255, 241, 242, .85));
+    }
+    .stat-card.ojt::after { background: rgba(244, 63, 94, .12); }
+    .stat-card.ojt .stat-title { color: #e11d48; }
+
+    .stat-card.dday {
+      border-color: rgba(99, 102, 241, .25);
+      background: linear-gradient(135deg, rgba(255, 255, 255, .95), rgba(238, 242, 255, .85));
+    }
+    .stat-card.dday::after { background: rgba(99, 102, 241, .14); }
+    .stat-card.dday .stat-title { color: #4338ca; }
+
+    .stat-title {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .84rem;
+      font-weight: 850;
+      letter-spacing: -.02em;
+    }
+    .stat-title::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+    }
+    .stat-value {
+      margin: 6px 0 2px;
+      color: var(--ink);
+      font-size: 1.55rem;
+      font-weight: 900;
+      letter-spacing: -.04em;
+      text-align: center;
+      line-height: 1.2;
+    }
+    .stat-card.dday .stat-value { color: var(--primary); }
+    .stat-desc {
+      color: #64748b;
+      font-size: .8rem;
+      font-weight: 700;
+      text-align: center;
+    }
+    #stat-dday-title { color: #4338ca; font-weight: 850; }
+
+    /* Calendar Workspace */
+    .calendar-workspace {
+      padding: 16px 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: var(--radius-lg);
+      background: #ffffff;
+      box-shadow: var(--shadow-sm);
+    }
+    .calendar-toolbar {
+      display: grid;
+      gap: 12px;
+      padding: 0 2px 14px;
+    }
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .view-tabs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      padding: 4px;
+      gap: 3px;
+      border-radius: 12px;
+      background: #f1f5f9;
+      width: 100%;
+      max-width: 260px;
+    }
+    .tab-btn {
+      min-height: 34px;
+      padding: 6px 8px;
+      border-radius: 9px;
+      color: var(--ink-soft);
+      background: transparent;
+      font-size: .78rem;
+      font-weight: 800;
+      transition: all .2s ease;
+      white-space: nowrap;
+    }
+    .tab-btn.active {
+      color: var(--ink);
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, .08);
+    }
+
+    .btn-save-image {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      min-height: 36px;
+      padding: 7px 13px;
+      border: 1.5px solid #c7d2fe;
+      border-radius: var(--radius-sm);
+      color: var(--primary);
+      background: #eef2ff;
+      font-size: .78rem;
+      font-weight: 850;
+      transition: all .2s ease;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, .06);
+      white-space: nowrap;
+    }
+    .btn-save-image:hover {
+      background: var(--primary);
+      color: #fff;
+      border-color: var(--primary);
+      transform: translateY(-1px);
+      box-shadow: 0 6px 16px rgba(79, 70, 229, .22);
+    }
     .btn-save-image:active { transform: translateY(1px) scale(.97); }
-    .btn-save-image svg { width: 15px; height: 15px; flex-shrink: 0; }
-    .calendar-nav { display: flex; align-items: center; justify-content: center; gap: 14px; min-width: 260px; }
-    .calendar-nav h2 { min-width: 0; text-align: center; color: var(--ink); font-size: 1.45rem; font-weight: 850; letter-spacing: -.035em; line-height: 1.2; }
-    .calendar-nav .btn-secondary { display: grid; place-items: center; width: 50px; height: 50px; min-height: 50px; padding: 0; border: 1.5px solid rgba(133, 148, 178, .26); border-radius: 16px; background: #fff; box-shadow: 0 4px 14px rgba(30, 41, 59, .06); color: var(--ink); font-size: 0; transition: all .2s cubic-bezier(0.4, 0, 0.2, 1); }
-    .calendar-nav .btn-secondary:hover { background: #f4f6ff; border-color: rgba(79, 70, 229, .4); color: var(--primary); transform: translateY(-1px) scale(1.05); box-shadow: 0 8px 22px rgba(79, 70, 229, .18); }
-    .calendar-nav .btn-secondary:active { transform: translateY(1px) scale(.95); }
-    #previous-period-btn::before { content: "‹"; font-size: 2.4rem; font-weight: 400; line-height: 1; margin-top: -3px; }
-    #next-period-btn::before { content: "›"; font-size: 2.4rem; font-weight: 400; line-height: 1; margin-top: -3px; }
-    .legend-panel { display: flex; flex-wrap: wrap; gap: 7px 12px; padding: 0 2px 13px; color: var(--ink-soft); font-size: .68rem; font-weight: 700; }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 14px;
+      min-width: 260px;
+    }
+    .calendar-nav h2 {
+      min-width: 0;
+      text-align: center;
+      color: var(--ink);
+      font-size: 1.45rem;
+      font-weight: 850;
+      letter-spacing: -.035em;
+    }
+    .calendar-nav .nav-arrow-btn {
+      display: grid;
+      place-items: center;
+      width: 44px;
+      height: 44px;
+      min-height: 44px;
+      padding: 0;
+      border: 1.5px solid rgba(148, 163, 184, .3);
+      border-radius: 14px;
+      background: #fff;
+      box-shadow: var(--shadow-sm);
+      color: #334155;
+      font-size: 1.5rem;
+      transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .calendar-nav .nav-arrow-btn:hover {
+      background: #eef2ff;
+      border-color: var(--primary);
+      color: var(--primary);
+      transform: translateY(-1px) scale(1.06);
+      box-shadow: 0 6px 18px rgba(79, 70, 229, .15);
+    }
+    .calendar-nav .nav-arrow-btn:active { transform: translateY(1px) scale(.95); }
+
+    /* Legends & Filters */
+    .legend-panel {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 7px 14px;
+      padding: 0 4px 12px;
+      color: var(--ink-soft);
+      font-size: .72rem;
+      font-weight: 700;
+    }
     .legend-item { display: inline-flex; align-items: center; gap: 5px; }
-    .legend-color { width: 8px; height: 8px; border-radius: 50%; }
-    .filter-panel { display: flex; flex-wrap: nowrap; gap: 7px; overflow-x: auto; padding: 0 2px 13px; scrollbar-width: none; }
+    .legend-color { width: 9px; height: 9px; border-radius: 50%; }
+
+    .filter-panel {
+      display: flex;
+      flex-wrap: nowrap;
+      gap: 7px;
+      overflow-x: auto;
+      padding: 0 4px 14px;
+      scrollbar-width: none;
+    }
     .filter-panel::-webkit-scrollbar { display: none; }
-    .filter-chip { flex: 0 0 auto; min-height: 33px; padding: 6px 10px; border: 1px solid var(--line); border-radius: 999px; color: var(--ink-soft); background: #fff; font-size: .72rem; font-weight: 750; transition: all .2s ease; }
-    .filter-chip.active { border-color: var(--primary); color: #fff; background: var(--primary); box-shadow: 0 5px 12px rgba(79,70,229,.2); }
-    .calendar-scroll { overflow-x: auto; padding-bottom: 4px; scrollbar-color: #d9deeb transparent; scrollbar-width: thin; }
-    .calendar-grid { display: grid; grid-template-columns: repeat(7, minmax(101px, 1fr)); gap: 6px; min-width: 755px; }
-    .day-header { padding: 7px 4px; border-radius: 10px; color: var(--ink-soft); background: #f2f4f8; text-align: center; font-size: .7rem; font-weight: 800; }
-    .day-header:nth-child(1) { color: var(--red-ojt); background: #fff2f4; }
-    .day-header:nth-child(7) { color: var(--blue-offjt); background: #eff5ff; }
-    .calendar-cell { min-height: 93px; padding: 6px 8px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff; box-shadow: none; }
-    .view-week-1 .calendar-cell { min-height: 176px; }
-    .view-week-2 .calendar-cell { min-height: 110px; }
-    .calendar-cell.other-month { opacity: .45; background: #f8fafc; }
-    .calendar-cell.today { border: 2px solid var(--primary); background: #f4f6ff; box-shadow: none; }
-    .cell-header { display: flex; align-items: center; min-height: 19px; margin-bottom: 4px; }
-    .cell-number { color: var(--ink); font-size: .78rem; font-weight: 850; }
+    .filter-chip {
+      flex: 0 0 auto;
+      min-height: 32px;
+      padding: 6px 12px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      color: #475569;
+      background: #fff;
+      font-size: .74rem;
+      font-weight: 750;
+      transition: all .2s ease;
+    }
+    .filter-chip:hover {
+      border-color: #cbd5e1;
+      background: #f8fafc;
+    }
+    .filter-chip.active {
+      border-color: var(--primary);
+      color: #fff;
+      background: var(--primary);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, .22);
+    }
+
+    /* Calendar Grid */
+    .calendar-scroll {
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-color: #cbd5e1 transparent;
+      scrollbar-width: thin;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, minmax(104px, 1fr));
+      gap: 6px;
+      min-width: 755px;
+    }
+    .day-header {
+      padding: 8px 4px;
+      border-radius: 10px;
+      color: var(--ink-soft);
+      background: #f8fafc;
+      text-align: center;
+      font-size: .72rem;
+      font-weight: 800;
+    }
+    .day-header:nth-child(1) { color: var(--red-ojt); background: #fff1f2; }
+    .day-header:nth-child(7) { color: var(--blue-offjt); background: #eff6ff; }
+
+    .calendar-cell {
+      min-height: 98px;
+      padding: 6px 8px;
+      border: 1.5px dashed #94a3b8;
+      border-radius: 12px;
+      background: #ffffff;
+      cursor: pointer;
+      transition: all .16s cubic-bezier(0.16, 1, 0.3, 1);
+      position: relative;
+    }
+    .calendar-cell:hover {
+      border-color: var(--primary);
+      border-style: dashed;
+      background: #f8faff;
+      box-shadow: 0 4px 14px rgba(79, 70, 229, .12);
+      transform: translateY(-1.5px);
+    }
+    .view-week-1 .calendar-cell { min-height: 180px; }
+    .view-week-2 .calendar-cell { min-height: 115px; }
+    .calendar-cell.other-month {
+      opacity: .45;
+      background: #f8fafc;
+      border-color: #cbd5e1;
+    }
+    .calendar-cell.today {
+      border: 2.5px solid var(--primary);
+      background: #f5f7ff;
+    }
+    .cell-header {
+      display: flex;
+      align-items: center;
+      min-height: 20px;
+      margin-bottom: 4px;
+    }
+    .cell-number {
+      color: var(--ink);
+      font-size: .8rem;
+      font-weight: 850;
+    }
     .calendar-cell:nth-child(7n + 8) .cell-number { color: var(--red-ojt); }
     .calendar-cell:nth-child(7n + 14) .cell-number { color: var(--blue-offjt); }
-    .today-badge { margin-left: 5px; padding: 2px 5px; border-radius: 999px; color: #fff; background: var(--primary); font-size: .58rem; font-weight: 800; }
-    .event-badge { display: flex; align-items: flex-start; justify-content: space-between; gap: 4px; margin-bottom: 3px; padding: 4px 6px; border-radius: 8px; color: #fff; font-size: .67rem; font-weight: 700; line-height: 1.3; overflow-wrap: anywhere; box-shadow: 0 2px 4px rgba(30,41,59,.06); }
+    .today-badge {
+      margin-left: 5px;
+      padding: 2px 6px;
+      border-radius: 999px;
+      color: #fff;
+      background: var(--primary);
+      font-size: .6rem;
+      font-weight: 800;
+    }
+
+    /* Event Badges */
+    .event-badge {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 4px;
+      margin-bottom: 4px;
+      padding: 4px 7px;
+      border-radius: 8px;
+      color: #fff;
+      font-size: .7rem;
+      font-weight: 750;
+      line-height: 1.3;
+      overflow-wrap: anywhere;
+      box-shadow: 0 1px 3px rgba(15, 23, 42, .08);
+      transition: transform .15s ease;
+    }
+    .event-badge:hover { transform: scale(1.01); }
     .event-badge.off-jt { background: var(--blue-offjt); }
     .event-badge.ojt { background: var(--red-ojt); }
     .event-badge.special { background: var(--purple-special); }
     .event-badge.special-afterschool { background: var(--green-special); }
     .event-badge.general { background: var(--gray-general); }
-    .event-badge.holiday { border: 1px solid #fec8d1; color: #c13750; background: #fff3f5; }
-    .del-btn { width: 16px; height: 16px; flex: 0 0 auto; padding: 0; border-radius: 50%; color: inherit; background: rgba(0,0,0,.15); font-size: .8rem; line-height: 1; }
-    .holiday .del-btn { background: rgba(193,55,80,.12); }
+    .event-badge.holiday {
+      border: 1px solid #fecdd3;
+      color: #be123c;
+      background: #fff1f2;
+    }
+    .del-btn {
+      width: 17px;
+      height: 17px;
+      flex: 0 0 auto;
+      padding: 0;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: inherit;
+      background: rgba(0, 0, 0, .18);
+      font-size: .85rem;
+      line-height: 1;
+      transition: background .15s ease;
+    }
+    .del-btn:hover { background: rgba(0, 0, 0, .35); }
+    .holiday .del-btn { background: rgba(190, 18, 60, .12); }
+    .holiday .del-btn:hover { background: rgba(190, 18, 60, .25); }
 
-    .admin-panel { display: none; margin-top: 16px; padding: 16px 10px 10px; border: 1px solid rgba(79,70,229,.16); border-radius: var(--radius-lg); background: rgba(245,245,255,.68); }
-    .admin-header { display: flex; align-items: center; gap: 9px; margin-bottom: 12px; padding: 0 4px; }
-    .admin-header::before { content: ""; width: 9px; height: 9px; border-radius: 50%; background: var(--primary); box-shadow: 0 0 0 5px rgba(79,70,229,.12); }
-    .admin-header h3 { font-size: .92rem; letter-spacing: -.03em; }
-    .admin-card { margin-bottom: 10px; padding: 14px; border: 1px solid rgba(255,255,255,.9); border-radius: var(--radius); background: rgba(255,255,255,.8); box-shadow: var(--shadow-sm); }
-    .admin-card:last-child { margin-bottom: 0; }
-    .admin-card h4 { margin-bottom: 12px; font-size: .86rem; letter-spacing: -.02em; }
-    .admin-grid { display: grid; gap: 10px; }
-    .form-group { display: grid; gap: 6px; }
-    .form-group label, .admin-list-label { color: var(--ink-soft); font-size: .71rem; font-weight: 750; }
-    input, select { width: 100%; min-height: 42px; padding: 9px 11px; border: 1px solid var(--line); border-radius: 11px; color: var(--ink); background: #fff; box-shadow: inset 0 1px 1px rgba(30,41,59,.02); }
-    input:focus, select:focus { border-color: rgba(79,70,229,.7); }
-    .inline-form { display: flex; gap: 8px; }
-    .inline-form input { min-width: 0; }
-    .admin-dday-wrap { margin-top: 13px; }
-    #admin-dday-list { max-height: 190px; overflow-y: auto; margin-top: 7px; padding: 8px; border: 1px solid var(--line); border-radius: 12px; background: rgba(248,249,252,.8); }
-    .dday-list { display: grid; gap: 7px; }
-    .dday-list-item { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 9px; border: 1px solid rgba(220,225,236,.9); border-radius: 10px; background: #fff; }
-    .dday-list-copy { min-width: 0; }
-    .dday-list-date { display: block; color: var(--red-ojt); font-size: .68rem; font-weight: 800; }
-    .dday-list-title { display: block; overflow-wrap: anywhere; font-size: .76rem; }
+    /* Modal Backdrop & Common Cards (+20% Spacious Scale) */
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      background: rgba(15, 23, 42, .6);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      animation: fadeIn .2s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    #confirm-modal {
+      z-index: 20000 !important;
+      background: rgba(15, 23, 42, .75);
+    }
+    #confirm-modal .modal-card {
+      z-index: 20001 !important;
+      box-shadow: 0 25px 60px -5px rgba(0, 0, 0, .45);
+    }
+    .modal-card {
+      position: relative;
+      width: min(100%, 550px);
+      max-height: 90vh;
+      overflow-y: auto;
+      padding: 28px 30px;
+      border: 1px solid rgba(255, 255, 255, .95);
+      border-radius: var(--radius-xl);
+      background: #ffffff;
+      box-shadow: var(--shadow-modal);
+      animation: popIn .25s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .modal-card-sm { width: min(100%, 480px); }
+    .modal-card-lg { width: min(100%, 650px); }
+    .modal-card-xl { width: min(100%, 840px); }
 
-    .loading-mask { position: fixed; inset: 0; z-index: 9999; display: flex; align-items: center; justify-content: center; padding: 24px; color: var(--ink); background: rgba(246,247,251,.86); font-size: .9rem; font-weight: 800; backdrop-filter: blur(10px); }
-    .loading-mask span { display: inline-flex; align-items: center; gap: 9px; padding: 12px 15px; border: 1px solid rgba(255,255,255,.85); border-radius: 14px; background: rgba(255,255,255,.85); box-shadow: var(--shadow-lg); }
-    .loading-mask span::before { content: ""; width: 14px; height: 14px; border: 2px solid #d9ddf0; border-top-color: var(--primary); border-radius: 50%; animation: spin .8s linear infinite; }
-    .site-footer { width: min(100% - 32px, 1210px); margin: 0 auto 26px; color: var(--ink-soft); text-align: center; font-size: .7rem; }
+    .modal-close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      color: #94a3b8;
+      background: #f1f5f9;
+      transition: all .15s ease;
+      z-index: 2;
+    }
+    .modal-close-btn:hover {
+      color: #0f172a;
+      background: #e2e8f0;
+    }
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+    .modal-icon-badge {
+      display: grid;
+      width: 52px;
+      height: 52px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 16px;
+      color: var(--primary);
+      background: #eef2ff;
+      border: 1px solid #e0e7ff;
+    }
+    .modal-icon-badge.danger {
+      color: var(--danger);
+      background: #fef2f2;
+      border-color: #fee2e2;
+    }
+    .modal-title {
+      font-size: 1.35rem;
+      font-weight: 850;
+      letter-spacing: -.03em;
+      color: #0f172a;
+    }
+    .modal-subtitle {
+      margin-top: 4px;
+      color: #64748b;
+      font-size: .92rem;
+      line-height: 1.45;
+    }
+    .modal-body { margin-bottom: 20px; }
+    .modal-label {
+      display: block;
+      margin-bottom: 7px;
+      color: #475569;
+      font-size: .84rem;
+      font-weight: 750;
+    }
+    .password-input-wrapper {
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .password-input-wrapper input {
+      padding-right: 48px;
+      font-size: 1rem;
+    }
+    .password-toggle-btn {
+      position: absolute;
+      right: 12px;
+      display: grid;
+      place-items: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      color: #94a3b8;
+      transition: color .15s ease;
+    }
+    .password-toggle-btn:hover { color: #334155; }
+    .modal-error-text {
+      margin-top: 10px;
+      color: #e11d48;
+      font-size: .84rem;
+      font-weight: 700;
+      animation: shake .3s ease;
+    }
+    .confirm-content-box {
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 1px solid #fecdd3;
+      background: #fff1f2;
+      color: #9f1239;
+      font-size: .92rem;
+      font-weight: 700;
+      line-height: 1.45;
+      overflow-wrap: anywhere;
+    }
+    .modal-footer {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      gap: 12px;
+    }
 
-    @keyframes rise { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
+    /* Admin Operations Tabs & Modal Elements */
+    .admin-badge {
+      padding: 4px 10px;
+      border-radius: 999px;
+      font-size: .75rem;
+      font-weight: 800;
+      color: var(--primary);
+      background: #e0e7ff;
+    }
+    .admin-tabs {
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
+      padding: 6px;
+      background: #f1f5f9;
+      border-radius: 14px;
+    }
+    .admin-tab-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 40px;
+      padding: 8px 18px;
+      border-radius: 10px;
+      font-size: .88rem;
+      font-weight: 800;
+      color: #64748b;
+      background: transparent;
+      transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+      cursor: pointer;
+    }
+    .admin-tab-btn:hover {
+      color: #0f172a;
+      background: rgba(255, 255, 255, .7);
+    }
+    .admin-tab-btn.active {
+      color: var(--primary);
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, .1);
+    }
+    .admin-tab-pane {
+      display: none;
+      animation: fadeIn .25s cubic-bezier(0.16, 1, 0.3, 1) both;
+    }
+    .admin-tab-pane.active {
+      display: block;
+    }
+
+    /* Modern Form Layouts & Card Styling */
+    .admin-card {
+      position: relative;
+      padding: 22px 24px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: var(--radius);
+      background: #ffffff;
+      box-shadow: 0 4px 16px rgba(15, 23, 42, .03);
+    }
+    .admin-card.card-highlight {
+      background: linear-gradient(145deg, #ffffff, #f8faff);
+      border-color: #dbeafe;
+    }
+    .admin-card-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .admin-card-icon {
+      display: grid;
+      place-items: center;
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      font-size: 1.15rem;
+      background: #eef2ff;
+      flex-shrink: 0;
+    }
+    .admin-card h4 {
+      font-size: 1.05rem;
+      font-weight: 850;
+      color: #0f172a;
+      line-height: 1.3;
+    }
+    .admin-card p.card-desc {
+      margin-top: 3px;
+      color: #64748b;
+      font-size: .84rem;
+      font-weight: 550;
+      line-height: 1.45;
+    }
+    
+    .admin-two-col {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 16px;
+    }
+    @media (min-width: 720px) {
+      .admin-two-col {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    
+    .form-stack {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+    .form-row-2 {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 540px) {
+      .form-row-2 {
+        grid-template-columns: 1fr 1fr;
+      }
+    }
+    .form-group {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .form-group label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #334155;
+      font-size: .84rem;
+      font-weight: 750;
+    }
+    .btn-block {
+      width: 100%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    input, select {
+      width: 100%;
+      min-height: 48px;
+      padding: 10px 14px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 12px;
+      color: var(--ink);
+      background: #fff;
+      font-size: .94rem;
+      transition: border-color .15s ease, box-shadow .15s ease;
+    }
+    input:focus, select:focus {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(79, 70, 229, .15);
+      outline: none;
+    }
+    
+    #admin-dday-list {
+      max-height: 280px;
+      overflow-y: auto;
+      margin-top: 4px;
+      padding: 6px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      background: #f8fafc;
+    }
+    .dday-list { display: grid; gap: 8px; }
+    .dday-list-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: var(--shadow-sm);
+      transition: all .15s ease;
+    }
+    .dday-list-item:hover {
+      border-color: #cbd5e1;
+      box-shadow: var(--shadow-md);
+    }
+    .dday-list-copy { min-width: 0; flex: 1; }
+    .dday-list-date {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 8px;
+      border-radius: 6px;
+      color: #be123c;
+      background: #fff1f2;
+      font-size: .78rem;
+      font-weight: 800;
+    }
+    .dday-list-title {
+      display: block;
+      margin-top: 5px;
+      overflow-wrap: anywhere;
+      font-size: .92rem;
+      font-weight: 750;
+      color: #1e293b;
+    }
+
+    /* Date Events Detail Modal Specifics */
+    .date-events-section { margin-bottom: 20px; }
+    .date-section-heading {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 10px;
+      font-size: .94rem;
+      font-weight: 800;
+      color: #334155;
+    }
+    .date-events-list {
+      display: grid;
+      gap: 10px;
+      max-height: 260px;
+      overflow-y: auto;
+      padding-right: 2px;
+    }
+    .date-event-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 14px;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      background: #f8fafc;
+      transition: all .15s ease;
+    }
+    .date-event-item:hover {
+      border-color: #cbd5e1;
+      background: #ffffff;
+      box-shadow: var(--shadow-sm);
+    }
+    .date-event-item.editing {
+      border-color: var(--primary);
+      background: #f5f7ff;
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, .18);
+    }
+    .date-event-main {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      min-width: 0;
+      flex: 1;
+    }
+    .date-event-type-badge {
+      display: inline-block;
+      flex-shrink: 0;
+      padding: 4px 10px;
+      border-radius: 8px;
+      font-size: .74rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .date-event-title {
+      font-size: .92rem;
+      font-weight: 750;
+      color: #1e293b;
+      overflow-wrap: anywhere;
+    }
+    .date-event-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+
+    .date-empty-box {
+      padding: 28px 18px;
+      border: 1.5px dashed #cbd5e1;
+      border-radius: 14px;
+      text-align: center;
+      color: #94a3b8;
+      font-size: .92rem;
+      font-weight: 700;
+      background: #fafbff;
+    }
+
+    .date-form-box {
+      padding: 18px 20px;
+      border: 1px solid #e2e8f0;
+      border-radius: 16px;
+      background: #f8faff;
+    }
+    .date-form-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 14px;
+    }
+    .date-form-title {
+      font-size: .98rem;
+      font-weight: 800;
+      color: var(--primary);
+    }
+    .non-admin-callout {
+      padding: 16px 18px;
+      border: 1px solid #e0e7ff;
+      border-radius: 14px;
+      background: #eef2ff;
+      color: #3730a3;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      font-size: .88rem;
+      font-weight: 750;
+    }
+
+    /* Floating Toast Stack */
+    .toast-container {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      z-index: 10001;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      max-width: calc(100vw - 40px);
+      width: 420px;
+      pointer-events: none;
+    }
+    .toast {
+      pointer-events: auto;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 18px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, .96);
+      border: 1px solid rgba(226, 232, 240, .95);
+      box-shadow: 0 12px 28px -5px rgba(15, 23, 42, .14), 0 8px 12px -6px rgba(15, 23, 42, .08);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      animation: toastIn .3s cubic-bezier(0.16, 1, 0.3, 1) both;
+      color: #1e293b;
+      font-size: .92rem;
+      font-weight: 750;
+      line-height: 1.4;
+    }
+    .toast.toast-exit {
+      animation: toastOut .25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    .toast-icon {
+      display: grid;
+      width: 30px;
+      height: 30px;
+      flex: 0 0 auto;
+      place-items: center;
+      border-radius: 50%;
+    }
+    .toast-success .toast-icon { background: #dcfce7; color: #16a34a; }
+    .toast-error .toast-icon { background: #fee2e2; color: #dc2626; }
+    .toast-warning .toast-icon { background: #fef3c7; color: #d97706; }
+    .toast-info .toast-icon { background: #e0e7ff; color: #4f46e5; }
+    .toast-message { flex: 1; min-width: 0; overflow-wrap: anywhere; }
+    .toast-close-btn {
+      width: 26px;
+      height: 26px;
+      flex: 0 0 auto;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #94a3b8;
+      font-size: 1.2rem;
+      line-height: 1;
+      transition: all .15s ease;
+    }
+    .toast-close-btn:hover { color: #0f172a; background: #f1f5f9; }
+
+    /* Loading Mask */
+    .loading-mask {
+      position: fixed;
+      inset: 0;
+      z-index: 9999;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      color: var(--ink);
+      background: rgba(248, 250, 252, .88);
+      font-size: .95rem;
+      font-weight: 800;
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .loading-mask span {
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      padding: 16px 24px;
+      border: 1px solid rgba(255, 255, 255, .9);
+      border-radius: var(--radius);
+      background: #ffffff;
+      box-shadow: var(--shadow-lg);
+    }
+    .loading-mask span::before {
+      content: "";
+      width: 18px;
+      height: 18px;
+      border: 2.5px solid #e2e8f0;
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+
+    /* Modern Premium Footer */
+    .site-footer {
+      width: min(100% - 24px, 1220px);
+      margin: 10px auto 36px;
+      padding: 0 4px;
+    }
+    .footer-card {
+      padding: 24px 28px;
+      border: 1px solid rgba(255, 255, 255, .85);
+      border-radius: var(--radius-lg);
+      background: rgba(255, 255, 255, .68);
+      backdrop-filter: blur(16px);
+      -webkit-backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-sm);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+    }
+    .footer-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 16px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid rgba(148, 163, 184, .18);
+    }
+    .footer-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .footer-logo {
+      display: grid;
+      place-items: center;
+      width: 38px;
+      height: 38px;
+      border-radius: 12px;
+      color: #fff;
+      font-weight: 900;
+      font-size: 1rem;
+      background: linear-gradient(135deg, var(--primary), #8b5cf6);
+      box-shadow: 0 4px 12px rgba(79, 70, 229, .25);
+    }
+    .footer-title {
+      display: block;
+      font-size: .95rem;
+      font-weight: 850;
+      color: var(--ink);
+      letter-spacing: -.02em;
+    }
+    .footer-subtitle {
+      margin-top: 2px;
+      font-size: .78rem;
+      color: var(--ink-soft);
+      font-weight: 600;
+    }
+    .footer-badges {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-wrap: wrap;
+    }
+    .footer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 5px 12px;
+      border: 1px solid rgba(148, 163, 184, .25);
+      border-radius: 999px;
+      background: rgba(255, 255, 255, .8);
+      color: #475569;
+      font-size: .74rem;
+      font-weight: 750;
+      box-shadow: var(--shadow-sm);
+    }
+    .footer-badge .live-dot {
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: #10b981;
+      box-shadow: 0 0 0 2px rgba(16, 185, 129, .25);
+    }
+    .footer-bottom {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 10px;
+      font-size: .78rem;
+      color: var(--ink-soft);
+      font-weight: 600;
+    }
+    .footer-copy { color: #64748b; font-weight: 650; }
+    .footer-meta {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      color: #94a3b8;
+    }
+    .footer-dot { opacity: .6; }
+
+    /* Animations */
+    @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes popIn { from { opacity: 0; transform: scale(.94) translateY(8px); } to { opacity: 1; transform: scale(1) translateY(0); } }
+    @keyframes toastIn { from { opacity: 0; transform: translateY(-12px) scale(.96); } to { opacity: 1; transform: translateY(0) scale(1); } }
+    @keyframes toastOut { from { opacity: 1; transform: translateY(0) scale(1); } to { opacity: 0; transform: translateY(-12px) scale(.96); } }
     @keyframes spin { to { transform: rotate(360deg); } }
+    @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: .8; } }
+    @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
+
+    /* Responsive */
     @media (min-width: 640px) {
-      .app-shell { width: min(100% - 36px, 1210px); padding: 12px; }
-      .topbar { min-height: 42px; }
-      .hero { grid-template-columns: 1fr auto; align-items: end; padding: 14px 10px 12px; }
-      .dashboard { grid-template-columns: repeat(3, 1fr); gap: 8px; }
-      .calendar-workspace { padding: 14px 12px; }
+      .app-shell { width: min(100% - 36px, 1220px); padding: 16px; }
+      .hero { grid-template-columns: 1fr auto; align-items: end; padding: 16px 12px 14px; }
+      .dashboard { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .calendar-workspace { padding: 16px 14px; }
       .calendar-toolbar { grid-template-columns: 1fr auto; align-items: center; }
-      .toolbar-left { display: flex; align-items: center; gap: 8px; flex-wrap: nowrap; }
-      .view-tabs { width: 260px; }
+      .toolbar-left { flex-wrap: nowrap; }
       .calendar-nav { grid-column: 2; grid-row: 1; min-width: 320px; }
-      .legend-panel { padding-top: 2px; }
-      .admin-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .admin-grid .form-group:last-child { grid-column: 1 / -1; }
     }
     @media (min-width: 960px) {
-      .app-shell { margin-top: 14px; padding: 14px; }
-      .hero { padding: 16px 12px 14px; }
-      .calendar-workspace { padding: 16px 14px; }
+      .app-shell { margin-top: 18px; padding: 18px; }
+      .hero { padding: 18px 14px 16px; }
+      .calendar-workspace { padding: 18px 16px; }
       .calendar-grid { grid-template-columns: repeat(7, minmax(0, 1fr)); min-width: 0; gap: 8px; }
-      .calendar-cell { min-height: 104px; padding: 7px 8px; }
-      .view-week-1 .calendar-cell { min-height: 216px; }
-      .view-week-2 .calendar-cell { min-height: 130px; }
-      .event-badge { font-size: .73rem; }
-      .admin-panel { padding: 16px; }
-      .admin-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+      .calendar-cell { min-height: 108px; padding: 7px 8px; }
+      .view-week-1 .calendar-cell { min-height: 220px; }
+      .view-week-2 .calendar-cell { min-height: 135px; }
+      .event-badge { font-size: .74rem; }
     }
     @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; }
+      *, *::before, *::after {
+        scroll-behavior: auto !important;
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
     }
   </style>
 </head>
 <body>
   <a class="skip-link" href="#calendar-workspace">일정표로 바로 이동</a>
-  <div id="loading" class="loading-mask" role="status" aria-live="polite"><span>일정 정보를 불러오는 중입니다</span></div>
+  
+  <!-- Loading Mask -->
+  <div id="loading" class="loading-mask" role="status" aria-live="polite">
+    <span>일정 정보를 불러오는 중입니다</span>
+  </div>
 
+  <!-- Floating Toast Notifications -->
+  <div id="toast-container" class="toast-container" aria-live="polite" aria-atomic="true"></div>
+
+  <!-- Admin Login Modal -->
+  <div id="login-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="login-modal-title" style="display: none;">
+    <div class="modal-card modal-card-sm">
+      <button type="button" class="modal-close-btn" id="login-modal-close" aria-label="닫기">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <div class="modal-header">
+        <div class="modal-icon-badge">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        </div>
+        <div>
+          <h3 id="login-modal-title" class="modal-title">관리자 보안 인증</h3>
+          <p class="modal-subtitle">도제학교 일정 및 공지 수정을 위해 비밀번호를 입력하세요.</p>
+        </div>
+      </div>
+      <form id="login-form" onsubmit="return false;">
+        <div class="modal-body">
+          <div class="modal-input-group">
+            <label for="admin-password-input" class="modal-label">관리자 비밀번호</label>
+            <div class="password-input-wrapper">
+              <input type="password" id="admin-password-input" placeholder="비밀번호 입력" autocomplete="current-password" required>
+              <button type="button" class="password-toggle-btn" id="password-toggle-btn" aria-label="비밀번호 표시 전환">
+                <svg id="eye-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+              </button>
+            </div>
+            <p id="login-error-msg" class="modal-error-text" style="display: none;"></p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-secondary" id="login-modal-cancel" style="min-height: 44px; padding: 10px 18px;">취소</button>
+          <button type="submit" class="btn-primary" id="login-submit-btn" style="min-height: 44px; padding: 10px 20px;">인증 및 로그인</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Admin Edit Tools Modal (관리자 편집 도구 팝업 창) -->
+  <div id="admin-tools-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="admin-tools-modal-title" style="display: none;">
+    <div class="modal-card modal-card-xl">
+      <button type="button" class="modal-close-btn" id="admin-tools-modal-close" aria-label="닫기">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <div class="modal-header" style="margin-bottom: 18px;">
+        <div class="modal-icon-badge">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 10px;">
+            <h3 id="admin-tools-modal-title" class="modal-title">관리자 편집 도구</h3>
+            <span class="admin-badge">Admin Mode</span>
+          </div>
+          <p class="modal-subtitle">공지사항, D-Day 마일스톤 및 교육 일정을 실시간으로 관리합니다.</p>
+        </div>
+      </div>
+
+      <!-- Tab Navigation inside Modal -->
+      <div class="admin-tabs" role="tablist" aria-label="관리자 도구 탭" style="margin-bottom: 18px;">
+        <button class="admin-tab-btn active" id="admin-tab-btn-notice" type="button" role="tab" aria-selected="true" data-tab="notice">
+          <span>📢</span>
+          <span>공지사항 관리</span>
+        </button>
+        <button class="admin-tab-btn" id="admin-tab-btn-dday" type="button" role="tab" aria-selected="false" data-tab="dday">
+          <span>🎯</span>
+          <span>마일스톤 (D-Day)</span>
+        </button>
+        <button class="admin-tab-btn" id="admin-tab-btn-event" type="button" role="tab" aria-selected="false" data-tab="event">
+          <span>📅</span>
+          <span>신규 일정 등록</span>
+        </button>
+      </div>
+
+      <div class="modal-body" style="margin-bottom: 0;">
+        <!-- Tab Pane 1: 공지사항 관리 -->
+        <div class="admin-tab-pane active" id="admin-tab-pane-notice" role="tabpanel" aria-labelledby="admin-tab-btn-notice">
+          <div class="admin-card card-highlight">
+            <div class="admin-card-header">
+              <div class="admin-card-icon">📢</div>
+              <div>
+                <h4>실시간 상단 공지사항 수정</h4>
+                <p class="card-desc">달력 화면 상단 배너에 표시될 긴급 공지나 학사 알림 문구를 관리합니다. 수정 즉시 실시간 반영됩니다.</p>
+              </div>
+            </div>
+            <div class="form-stack">
+              <div class="form-group">
+                <label for="edit-notice-text">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+                  <span>공지 문구 입력</span>
+                </label>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                  <input type="text" id="edit-notice-text" maxlength="500" placeholder="화면 상단에 표시할 공지 내용을 입력하세요." style="flex: 1; min-width: 260px;">
+                  <button class="btn-primary" id="update-notice-btn" type="button" style="min-height: 48px; padding: 10px 24px; white-space: nowrap;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
+                    <span>공지 저장</span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Pane 2: 학사 마일스톤 (D-Day) -->
+        <div class="admin-tab-pane" id="admin-tab-pane-dday" role="tabpanel" aria-labelledby="admin-tab-btn-dday">
+          <div class="admin-two-col">
+            <!-- Left: 신규 마일스톤 추가 -->
+            <div class="admin-card card-highlight">
+              <div class="admin-card-header">
+                <div class="admin-card-icon">🎯</div>
+                <div>
+                  <h4>신규 마일스톤 추가</h4>
+                  <p class="card-desc">목표 날짜와 명칭을 지정하여 상단 대시보드에 D-Day를 자동 계산하여 안내합니다.</p>
+                </div>
+              </div>
+              <div class="form-stack">
+                <div class="form-group">
+                  <label for="add-dday-date">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>목표 날짜</span>
+                  </label>
+                  <input type="date" id="add-dday-date">
+                </div>
+                <div class="form-group">
+                  <label for="add-dday-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    <span>마일스톤 명칭</span>
+                  </label>
+                  <input type="text" id="add-dday-title" maxlength="200" placeholder="예: 1차 도제역량평가, 외부평가">
+                </div>
+                <button class="btn-primary btn-block" id="add-dday-btn" type="button" style="min-height: 48px; margin-top: 4px;">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                  <span>마일스톤 등록하기</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Right: 등록된 마일스톤 목록 -->
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <div class="admin-card-icon">📋</div>
+                <div>
+                  <h4>등록된 마일스톤 목록</h4>
+                  <p class="card-desc">현재 설정된 학사 마일스톤 목록입니다. 삭제 시 D-Day가 재계산됩니다.</p>
+                </div>
+              </div>
+              <div id="admin-dday-list"></div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Tab Pane 3: 신규 일정 등록 -->
+        <div class="admin-tab-pane" id="admin-tab-pane-event" role="tabpanel" aria-labelledby="admin-tab-btn-event">
+          <div class="admin-card card-highlight">
+            <div class="admin-card-header">
+              <div class="admin-card-icon">📅</div>
+              <div>
+                <h4>신규 학사 / 훈련 일정 등록</h4>
+                <p class="card-desc">직접 날짜를 지정하여 일정을 등록합니다. (💡 달력의 날짜 셀을 직접 클릭하면 해당 날짜의 일정을 수정/삭제하거나 바로 추가할 수도 있습니다.)</p>
+              </div>
+            </div>
+            <div class="form-stack">
+              <div class="form-row-2">
+                <div class="form-group">
+                  <label for="admin-add-date">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>등록 날짜</span>
+                  </label>
+                  <input type="date" id="admin-add-date">
+                </div>
+                <div class="form-group">
+                  <label for="admin-add-type">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path><line x1="7" y1="7" x2="7.01" y2="7"></line></svg>
+                    <span>교육 분류</span>
+                  </label>
+                  <select id="admin-add-type">
+                    <option value="학사일정">학사일정</option>
+                    <option value="off-JT">교내 교육 (off-JT)</option>
+                    <option value="OJT">현장 훈련 (OJT)</option>
+                    <option value="특별수업">특별수업</option>
+                    <option value="국가공휴일">국가공휴일</option>
+                    <option value="휴업일">휴업일</option>
+                  </select>
+                </div>
+              </div>
+              <div class="form-group" id="admin-add-hour-group" style="display: none;">
+                <label for="admin-add-hour-select">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                  <span>이수 시간</span>
+                </label>
+                <div style="display: flex; gap: 10px;">
+                  <select id="admin-add-hour-select" style="flex: 1;">
+                    <option value="DEFAULT">기본값 (off-JT 7h / OJT 8h)</option>
+                    <option value="CUSTOM">직접 입력</option>
+                  </select>
+                  <input type="number" id="admin-add-hour-custom" min="1" max="24" inputmode="numeric" style="display: none; width: 140px;" placeholder="시간 (1~24)">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="admin-add-title">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="8" y1="6" x2="21" y2="6"></line><line x1="8" y1="12" x2="21" y2="12"></line><line x1="8" y1="18" x2="21" y2="18"></line><line x1="3" y1="6" x2="3.01" y2="6"></line><line x1="3" y1="12" x2="3.01" y2="12"></line><line x1="3" y1="18" x2="3.01" y2="18"></line></svg>
+                  <span>일정 명칭</span>
+                </label>
+                <input type="text" id="admin-add-title" maxlength="200" placeholder="예: 컴퓨터 시스템 실무 기초, 중간고사 등">
+              </div>
+              <button class="btn-primary btn-block" id="admin-add-event-btn" type="button" style="min-height: 48px; margin-top: 8px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                <span>일정 등록하기</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Date Events Detail & Edit Modal (날짜 클릭 시 팝업) -->
+  <div id="date-event-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="date-modal-title" style="display: none;">
+    <div class="modal-card modal-card-lg">
+      <button type="button" class="modal-close-btn" id="date-modal-close" aria-label="닫기">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
+      <div class="modal-header">
+        <div class="modal-icon-badge">
+          <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+        </div>
+        <div>
+          <div style="display: flex; align-items: center; gap: 8px;">
+            <h3 id="date-modal-title" class="modal-title">2026년 3월 1일</h3>
+            <span id="date-modal-today-badge" class="today-badge" style="display: none;">오늘</span>
+          </div>
+          <p class="modal-subtitle">이 날짜의 등록된 일정 확인 및 편집</p>
+        </div>
+      </div>
+      
+      <div class="modal-body">
+        <!-- Section: List of Events for Selected Date -->
+        <div class="date-events-section">
+          <div class="date-section-heading">
+            <span>📋 등록된 일정 (<span id="date-events-count">0</span>건)</span>
+          </div>
+          <div id="date-events-list" class="date-events-list"></div>
+        </div>
+
+        <!-- Section: Admin Edit / Add Form or Non-admin Callout -->
+        <div id="date-admin-area">
+          <div class="date-form-box" id="date-form-box">
+            <div class="date-form-header">
+              <span id="date-form-mode-title" class="date-form-title">➕ 새 일정 추가</span>
+              <button type="button" class="btn-sm btn-secondary" id="date-form-cancel-edit-btn" style="display: none;">수정 취소</button>
+            </div>
+            <form id="date-event-form" onsubmit="return false;">
+              <div class="form-stack">
+                <div class="form-row-2">
+                  <div class="form-group">
+                    <label for="date-input-type" class="modal-label">교육 분류</label>
+                    <select id="date-input-type">
+                      <option value="학사일정">학사일정</option>
+                      <option value="off-JT">교내 교육 (off-JT)</option>
+                      <option value="OJT">현장 훈련 (OJT)</option>
+                      <option value="특별수업">특별수업</option>
+                      <option value="국가공휴일">국가공휴일</option>
+                      <option value="휴업일">휴업일</option>
+                    </select>
+                  </div>
+                  <div class="form-group" id="date-hour-group" style="display: none;">
+                    <label for="date-hour-select" class="modal-label">이수 시간</label>
+                    <select id="date-hour-select">
+                      <option value="DEFAULT">기본값 (off-JT 7h / OJT 8h)</option>
+                      <option value="CUSTOM">직접 입력</option>
+                    </select>
+                    <input type="number" id="date-hour-custom" min="1" max="24" inputmode="numeric" style="display: none; margin-top: 6px;" placeholder="시간 (1~24)">
+                  </div>
+                </div>
+                <div class="form-group">
+                  <label for="date-input-title" class="modal-label">일정 명칭</label>
+                  <input type="text" id="date-input-title" maxlength="200" placeholder="예: 컴퓨터 네트워크 실습">
+                </div>
+                <button type="submit" class="btn-primary btn-block" id="date-form-submit-btn" style="min-height: 48px; margin-top: 4px;">
+                  <span id="date-form-submit-text">이 날짜에 일정 등록</span>
+                </button>
+              </div>
+            </form>
+          </div>
+
+          <div class="non-admin-callout" id="date-non-admin-box" style="display: none;">
+            <span>🔒 관리자로 로그인하면 일정을 등록/수정/삭제할 수 있습니다.</span>
+            <button type="button" class="btn-sm btn-primary" id="date-modal-login-btn" style="min-height: 34px; padding: 6px 14px;">로그인</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Custom Confirm Modal (Always top-most dialog) -->
+  <div id="confirm-modal" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="confirm-modal-title" style="display: none;">
+    <div class="modal-card modal-card-sm">
+      <div class="modal-header">
+        <div class="modal-icon-badge danger" id="confirm-modal-icon">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        </div>
+        <div>
+          <h3 id="confirm-modal-title" class="modal-title">확인</h3>
+          <p id="confirm-modal-subtitle" class="modal-subtitle">이 작업을 진행하시겠습니까?</p>
+        </div>
+      </div>
+      <div class="modal-body">
+        <div id="confirm-modal-content" class="confirm-content-box" style="display: none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn-secondary" id="confirm-modal-cancel" style="min-height: 44px; padding: 10px 18px;">취소</button>
+        <button type="button" class="btn-danger" id="confirm-modal-confirm" style="min-height: 44px; padding: 10px 20px;">확인</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Container -->
   <main class="app-shell" id="calendar-area">
     <header class="topbar">
       <a class="brand" href="#calendar-area" aria-label="성일정보고등학교 스마트 통합 일정표 처음으로">
         <span class="brand-mark" aria-hidden="true">S</span>
-        <span class="brand-copy"><strong>성일정보고등학교</strong><span>Learning operations</span></span>
+        <span class="brand-copy"><strong>성일정보고등학교</strong><span>Learning Operations</span></span>
       </a>
       <span class="topbar-status"><i aria-hidden="true"></i>Live sync</span>
     </header>
@@ -229,20 +1761,45 @@
         <p>교내 교육, 현장 훈련, 학사 마일스톤을 한 화면에서 자연스럽게 연결합니다.</p>
       </div>
       <div class="hero-actions">
-        <button class="btn-success" id="capture-btn-hero" type="button">일정표 저장</button>
-        <button class="btn-primary" id="login-toggle-btn" type="button">관리자 로그인</button>
+        <button class="btn-success" id="capture-btn-hero" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/><circle cx="12" cy="13" r="4"/></svg>
+          <span>일정표 저장</span>
+        </button>
+        <button class="btn-primary" id="login-toggle-btn" type="button">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+          <span id="login-btn-text">관리자 로그인</span>
+        </button>
+        <button class="btn-secondary" id="admin-tools-btn" type="button" aria-label="관리자 편집도구 팝업 열기">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+          <span>관리자 편집도구</span>
+        </button>
       </div>
     </section>
 
     <section class="notice-bar" aria-label="실시간 공지">
       <span class="notice-icon" aria-hidden="true">✦</span>
-      <div class="notice-content"><span class="notice-title">Notice</span><div id="notice-display" class="notice-text" aria-live="polite">학사 일정을 불러오는 중입니다...</div></div>
+      <div class="notice-content">
+        <span class="notice-title">Notice</span>
+        <div id="notice-display" class="notice-text" aria-live="polite">학사 일정을 불러오는 중입니다...</div>
+      </div>
     </section>
 
     <section class="dashboard" aria-label="현재 일정 요약">
-      <article class="stat-card offjt"><span class="stat-title">교내 교육 · OFF-JT</span><div class="stat-value" id="stat-offjt-days">0일 / 0시간</div><div class="stat-desc">현재 달력 화면 기준 합산</div></article>
-      <article class="stat-card ojt"><span class="stat-title">현장 훈련 · OJT</span><div class="stat-value" id="stat-ojt-days">0일 / 0시간</div><div class="stat-desc">현재 달력 화면 기준 합산</div></article>
-      <article class="stat-card dday"><span class="stat-title">다음 학사 마일스톤</span><div class="stat-value" id="stat-dday">D-0</div><div class="stat-desc" id="stat-dday-title">가까운 평가 일정 없음</div></article>
+      <article class="stat-card offjt">
+        <span class="stat-title">교내 교육 · OFF-JT</span>
+        <div class="stat-value" id="stat-offjt-days">0일 / 0시간</div>
+        <div class="stat-desc">현재 달력 화면 기준 합산</div>
+      </article>
+      <article class="stat-card ojt">
+        <span class="stat-title">현장 훈련 · OJT</span>
+        <div class="stat-value" id="stat-ojt-days">0일 / 0시간</div>
+        <div class="stat-desc">현재 달력 화면 기준 합산</div>
+      </article>
+      <article class="stat-card dday">
+        <span class="stat-title">다음 학사 마일스톤</span>
+        <div class="stat-value" id="stat-dday">D-0</div>
+        <div class="stat-desc" id="stat-dday-title">가까운 평가 일정 없음</div>
+      </article>
     </section>
 
     <section class="calendar-workspace" id="calendar-workspace" aria-labelledby="calendar-year-month">
@@ -259,9 +1816,9 @@
           </button>
         </div>
         <div class="calendar-nav">
-          <button class="btn-secondary" id="previous-period-btn" type="button" aria-label="이전 기간"></button>
+          <button class="nav-arrow-btn" id="previous-period-btn" type="button" aria-label="이전 기간">‹</button>
           <h2 id="calendar-year-month">일정을 준비하고 있어요</h2>
-          <button class="btn-secondary" id="next-period-btn" type="button" aria-label="다음 기간"></button>
+          <button class="nav-arrow-btn" id="next-period-btn" type="button" aria-label="다음 기간">›</button>
         </div>
       </div>
 
@@ -270,7 +1827,7 @@
         <span class="legend-item"><i class="legend-color" style="background:var(--red-ojt);"></i>현장 훈련</span>
         <span class="legend-item"><i class="legend-color" style="background:var(--green-special);"></i>방과후</span>
         <span class="legend-item"><i class="legend-color" style="background:var(--purple-special);"></i>특별수업</span>
-        <span class="legend-item"><i class="legend-color" style="background:#f6a3b2;"></i>휴업일·공휴일</span>
+        <span class="legend-item"><i class="legend-color" style="background:#f43f5e;"></i>휴업일·공휴일</span>
         <span class="legend-item"><i class="legend-color" style="background:var(--gray-general);"></i>일반 일정</span>
       </div>
       <div class="filter-panel" id="filter-container" aria-label="일정 분류 필터"></div>
@@ -278,37 +1835,41 @@
         <div class="calendar-grid" id="calendar-grid" aria-live="polite"></div>
       </div>
     </section>
-
-    <section class="admin-panel" id="admin-panel" aria-labelledby="admin-title">
-      <div class="admin-header"><h3 id="admin-title">관리자 편집 도구</h3></div>
-      <div class="admin-card">
-        <h4>공지 업데이트</h4>
-        <div class="inline-form"><label class="sr-only" for="edit-notice-text">공지 내용</label><input type="text" id="edit-notice-text" maxlength="500" placeholder="화면 상단에 표시할 공지 내용을 입력하세요."><button class="btn-primary" id="update-notice-btn" type="button">저장</button></div>
-      </div>
-      <div class="admin-card">
-        <h4>학사 마일스톤</h4>
-        <div class="admin-grid">
-          <div class="form-group"><label for="add-dday-date">목표 날짜</label><input type="date" id="add-dday-date"></div>
-          <div class="form-group"><label for="add-dday-title">마일스톤 이름</label><div class="inline-form"><input type="text" id="add-dday-title" maxlength="200" placeholder="예: 통합 역량평가"><button class="btn-primary" id="add-dday-btn" type="button">추가</button></div></div>
-        </div>
-        <div class="admin-dday-wrap"><span class="admin-list-label">등록된 마일스톤</span><div id="admin-dday-list"></div></div>
-      </div>
-      <div class="admin-card">
-        <h4>신규 일정 등록</h4>
-        <div class="admin-grid">
-          <div class="form-group"><label for="add-date">등록 날짜</label><input type="date" id="add-date"></div>
-          <div class="form-group"><label for="add-type">교육 분류</label><select id="add-type"><option value="학사일정">학사일정</option><option value="off-JT">교내 교육 (off-JT)</option><option value="OJT">현장 훈련 (OJT)</option><option value="특별수업">특별수업</option><option value="국가공휴일">국가공휴일</option><option value="휴업일">휴업일</option></select></div>
-          <div class="form-group" id="hour-input-group" style="display:none;"><label for="add-hour-select">이수 시간</label><select id="add-hour-select"><option value="DEFAULT">기본값 (off-JT 7h / OJT 8h)</option><option value="CUSTOM">직접 입력</option></select><input type="number" id="add-hour-custom" min="1" max="24" inputmode="numeric" style="display:none;" placeholder="시간 (1~24)"></div>
-          <div class="form-group"><label for="add-title">일정 명칭</label><input type="text" id="add-title" maxlength="200" placeholder="예: 컴퓨터 시스템 실무 기초"></div>
-        </div>
-        <button class="btn-success" id="add-event-btn" type="button" style="width:100%; margin-top:14px;">일정 등록하기</button>
-      </div>
-    </section>
   </main>
 
-  <footer class="site-footer"><p>© 2026 성일정보고등학교 · 도제학교 교육과정 통합 운영 시스템</p></footer>
+  <footer class="site-footer">
+    <div class="footer-card">
+      <div class="footer-top">
+        <div class="footer-brand">
+          <span class="footer-logo" aria-hidden="true">S</span>
+          <div>
+            <strong class="footer-title">성일정보고등학교 도제교육부</strong>
+            <p class="footer-subtitle">도제학교 학사 · 교내(off-JT) · 현장(OJT) 훈련 통합 운영 일정표</p>
+          </div>
+        </div>
+        <div class="footer-badges">
+          <span class="footer-badge">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+            일학습병행 도제학교 (3-12)
+          </span>
+          <span class="footer-badge">
+            <i class="live-dot" aria-hidden="true"></i> 실시간 클라우드 동기화
+          </span>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p class="footer-copy">© 2026 Seongil Information High School · All Rights Reserved.</p>
+        <div class="footer-meta">
+          <span>학사일정 v1.5</span>
+          <span class="footer-dot">·</span>
+          <span>Google Apps Script Live Sync</span>
+        </div>
+      </div>
+    </div>
+  </footer>
 
   <script>
+    const STORAGE_KEY_TOKEN = 'school_calendar_admin_token';
     let BACKEND_URL = '';
     let calendarData = {};
     let eventIndex = {};
@@ -320,10 +1881,107 @@
     let selectedFilters = new Set(['ALL']);
     let adminToken = '';
     let isAdmin = false;
+    let pendingOpenAdminTools = false;
 
+    // Date Modal State
+    let modalSelectedDate = '';
+    let modalEditEvent = null; // null for add mode, { id, title, type, day, sheetKey, rawTitle, hours } for edit mode
+
+    // Toast Notification System
+    function showToast(message, type = 'info', duration = 3500) {
+      const container = document.getElementById('toast-container');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      toast.className = `toast toast-${type}`;
+      
+      const icons = {
+        success: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>`,
+        error: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="15" y1="9" x2="9" y2="15"></line><line x1="9" y1="9" x2="15" y2="15"></line></svg>`,
+        warning: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>`,
+        info: `<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>`
+      };
+
+      toast.innerHTML = `
+        <div class="toast-icon">${icons[type] || icons.info}</div>
+        <div class="toast-message">${escapeHtml(message)}</div>
+        <button type="button" class="toast-close-btn" aria-label="닫기">×</button>
+      `;
+
+      const closeBtn = toast.querySelector('.toast-close-btn');
+      const removeToast = () => {
+        toast.classList.add('toast-exit');
+        setTimeout(() => toast.remove(), 250);
+      };
+      closeBtn.addEventListener('click', removeToast);
+
+      container.appendChild(toast);
+
+      if (duration > 0) {
+        setTimeout(removeToast, duration);
+      }
+    }
+
+    function escapeHtml(str) {
+      return String(str || '')
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+    }
+
+    // Custom Modern Confirm Dialog
+    function showConfirmDialog({ title, message, details, confirmText = '확인', cancelText = '취소', isDanger = true }) {
+      return new Promise((resolve) => {
+        const modal = document.getElementById('confirm-modal');
+        const titleEl = document.getElementById('confirm-modal-title');
+        const subtitleEl = document.getElementById('confirm-modal-subtitle');
+        const contentEl = document.getElementById('confirm-modal-content');
+        const confirmBtn = document.getElementById('confirm-modal-confirm');
+        const cancelBtn = document.getElementById('confirm-modal-cancel');
+        const iconBadge = document.getElementById('confirm-modal-icon');
+
+        titleEl.textContent = title || '확인';
+        subtitleEl.textContent = message || '계속 진행하시겠습니까?';
+        
+        if (details) {
+          contentEl.textContent = details;
+          contentEl.style.display = 'block';
+        } else {
+          contentEl.style.display = 'none';
+        }
+        
+        confirmBtn.textContent = confirmText;
+        confirmBtn.className = isDanger ? 'btn-danger' : 'btn-primary';
+        if (iconBadge) {
+          iconBadge.className = isDanger ? 'modal-icon-badge danger' : 'modal-icon-badge';
+        }
+
+        modal.style.display = 'flex';
+
+        const handleConfirm = () => { cleanup(); resolve(true); };
+        const handleCancel = () => { cleanup(); resolve(false); };
+        const handleKeyDown = (e) => { if (e.key === 'Escape') handleCancel(); };
+
+        function cleanup() {
+          modal.style.display = 'none';
+          confirmBtn.removeEventListener('click', handleConfirm);
+          cancelBtn.removeEventListener('click', handleCancel);
+          window.removeEventListener('keydown', handleKeyDown);
+        }
+
+        confirmBtn.addEventListener('click', handleConfirm);
+        cancelBtn.addEventListener('click', handleCancel);
+        window.addEventListener('keydown', handleKeyDown);
+      });
+    }
+
+    // App Initialization
     window.addEventListener('DOMContentLoaded', async () => {
       bindControls();
-      document.getElementById('add-date').value = toIsoDate(baseDate);
+      initAdminTabs();
+      restoreAdminSession();
       try {
         const cfgRes = await fetch('school_project_05_gas.json');
         if (!cfgRes.ok) throw new Error('설정 파일을 불러오지 못했습니다.');
@@ -331,18 +1989,67 @@
         BACKEND_URL = cfgData.gas_url;
         await loadServerData();
       } catch (error) {
-        alert('🚨 설정 데이터 로드 실패! 웹 서빙 인프라 혹은 gas_url 주소를 검증하세요.');
+        showToast('설정 데이터 로드 실패: gas_url 주소를 확인하세요.', 'error', 5000);
       } finally {
         document.getElementById('loading').style.display = 'none';
       }
     });
+
+    function restoreAdminSession() {
+      try {
+        const savedToken = localStorage.getItem(STORAGE_KEY_TOKEN);
+        if (savedToken) {
+          adminToken = savedToken;
+          isAdmin = true;
+          applyAdminStateToUI(true);
+        }
+      } catch (e) {}
+    }
+
+    function applyAdminStateToUI(active) {
+      const loginText = document.getElementById('login-btn-text');
+      const loginBtn = document.getElementById('login-toggle-btn');
+      const toolsBtn = document.getElementById('admin-tools-btn');
+
+      if (active) {
+        loginText.textContent = '관리자 로그아웃';
+        loginBtn.className = 'btn-danger';
+        if (toolsBtn) toolsBtn.classList.add('admin-active');
+      } else {
+        loginText.textContent = '관리자 로그인';
+        loginBtn.className = 'btn-primary';
+        if (toolsBtn) toolsBtn.classList.remove('admin-active');
+        closeAdminToolsModal();
+      }
+    }
 
     function bindControls() {
       const captureBtn = document.getElementById('capture-btn');
       if (captureBtn) captureBtn.addEventListener('click', saveAsImage);
       const heroCaptureBtn = document.getElementById('capture-btn-hero');
       if (heroCaptureBtn) heroCaptureBtn.addEventListener('click', saveAsImage);
-      document.getElementById('login-toggle-btn').addEventListener('click', toggleLoginModal);
+      
+      document.getElementById('login-toggle-btn').addEventListener('click', handleLoginButtonClick);
+      document.getElementById('admin-tools-btn').addEventListener('click', handleAdminToolsButtonClick);
+      document.getElementById('login-modal-close').addEventListener('click', closeLoginModal);
+      document.getElementById('login-modal-cancel').addEventListener('click', closeLoginModal);
+      document.getElementById('login-form').addEventListener('submit', handleLoginSubmit);
+      document.getElementById('password-toggle-btn').addEventListener('click', togglePasswordVisibility);
+
+      // Admin Tools Modal Controls
+      document.getElementById('admin-tools-modal-close').addEventListener('click', closeAdminToolsModal);
+
+      // Date Event Modal Controls
+      document.getElementById('date-modal-close').addEventListener('click', closeDateEventModal);
+      document.getElementById('date-modal-login-btn').addEventListener('click', () => {
+        closeDateEventModal();
+        openLoginModal();
+      });
+      document.getElementById('date-event-form').addEventListener('submit', handleDateFormSubmit);
+      document.getElementById('date-input-type').addEventListener('change', (e) => handleDateTypeChange(e.target.value));
+      document.getElementById('date-hour-select').addEventListener('change', (e) => handleDateHourSelect(e.target.value));
+      document.getElementById('date-form-cancel-edit-btn').addEventListener('click', cancelDateEditMode);
+
       document.getElementById('tab-month').addEventListener('click', () => switchView('month'));
       document.getElementById('tab-week-1').addEventListener('click', () => switchView('week1'));
       document.getElementById('tab-week-2').addEventListener('click', () => switchView('week2'));
@@ -350,9 +2057,123 @@
       document.getElementById('next-period-btn').addEventListener('click', () => moveTime(1));
       document.getElementById('update-notice-btn').addEventListener('click', updateNotice);
       document.getElementById('add-dday-btn').addEventListener('click', addDDay);
-      document.getElementById('add-event-btn').addEventListener('click', addEvent);
-      document.getElementById('add-type').addEventListener('change', (event) => handleTypeChange(event.target.value));
-      document.getElementById('add-hour-select').addEventListener('change', (event) => handleHourSelect(event.target.value));
+
+      // Admin Add Event Tab Controls
+      document.getElementById('admin-add-type').addEventListener('change', (e) => {
+        const val = e.target.value;
+        const grp = document.getElementById('admin-add-hour-group');
+        if (val === 'off-JT' || val === 'OJT') {
+          grp.style.display = 'flex';
+        } else {
+          grp.style.display = 'none';
+          document.getElementById('admin-add-hour-custom').style.display = 'none';
+          document.getElementById('admin-add-hour-select').value = 'DEFAULT';
+        }
+      });
+      document.getElementById('admin-add-hour-select').addEventListener('change', (e) => {
+        document.getElementById('admin-add-hour-custom').style.display = e.target.value === 'CUSTOM' ? 'block' : 'none';
+      });
+      document.getElementById('admin-add-event-btn').addEventListener('click', handleAdminAddEvent);
+
+      // Close modals on Esc or backdrop click
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          if (document.getElementById('admin-tools-modal').style.display === 'flex') closeAdminToolsModal();
+          if (document.getElementById('date-event-modal').style.display === 'flex') closeDateEventModal();
+          if (document.getElementById('login-modal').style.display === 'flex') closeLoginModal();
+        }
+      });
+
+      document.getElementById('admin-tools-modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('admin-tools-modal')) closeAdminToolsModal();
+      });
+      document.getElementById('date-event-modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('date-event-modal')) closeDateEventModal();
+      });
+      document.getElementById('login-modal').addEventListener('click', (e) => {
+        if (e.target === document.getElementById('login-modal')) closeLoginModal();
+      });
+    }
+
+    function handleAdminToolsButtonClick() {
+      if (isAdmin) {
+        openAdminToolsModal();
+      } else {
+        pendingOpenAdminTools = true;
+        openLoginModal();
+        showToast('관리자 인증 후 편집 도구 팝업이 열립니다.', 'info', 3000);
+      }
+    }
+
+    function openAdminToolsModal() {
+      const modal = document.getElementById('admin-tools-modal');
+      modal.style.display = 'flex';
+      renderAdminDDayList();
+    }
+
+    function closeAdminToolsModal() {
+      document.getElementById('admin-tools-modal').style.display = 'none';
+    }
+
+    // Admin Panel Tabs Navigation
+    function initAdminTabs() {
+      const tabBtns = document.querySelectorAll('.admin-tab-btn');
+      tabBtns.forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const tabKey = btn.dataset.tab;
+          tabBtns.forEach((b) => {
+            b.classList.remove('active');
+            b.setAttribute('aria-selected', 'false');
+          });
+          document.querySelectorAll('.admin-tab-pane').forEach((p) => p.classList.remove('active'));
+
+          btn.classList.add('active');
+          btn.setAttribute('aria-selected', 'true');
+          const targetPane = document.getElementById(`admin-tab-pane-${tabKey}`);
+          if (targetPane) targetPane.classList.add('active');
+        });
+      });
+    }
+
+    async function handleAdminAddEvent() {
+      const date = document.getElementById('admin-add-date').value;
+      const type = document.getElementById('admin-add-type').value;
+      const title = document.getElementById('admin-add-title').value.trim();
+
+      if (!parseIsoDate(date)) {
+        showToast('올바른 등록 날짜를 선택하세요.', 'warning');
+        document.getElementById('admin-add-date').focus();
+        return;
+      }
+      if (!title) {
+        showToast('일정 명칭을 입력하세요.', 'warning');
+        document.getElementById('admin-add-title').focus();
+        return;
+      }
+
+      let hours = null;
+      if (type === 'off-JT' || type === 'OJT') {
+        const isCustom = document.getElementById('admin-add-hour-select').value === 'CUSTOM';
+        hours = isCustom ? Number(document.getElementById('admin-add-hour-custom').value) : (type === 'off-JT' ? 7 : 8);
+        if (!Number.isInteger(hours) || hours < 1 || hours > 24) {
+          showToast('이수 시간은 1~24 사이의 정수로 입력하세요.', 'warning');
+          return;
+        }
+      }
+
+      const result = await sendAdminRequest({
+        action: 'add_event',
+        date,
+        type,
+        title,
+        hours
+      });
+
+      if (result) {
+        showToast('신규 일정이 성공적으로 등록되었습니다.', 'success');
+        document.getElementById('admin-add-title').value = '';
+        await loadServerData();
+      }
     }
 
     async function loadServerData() {
@@ -373,8 +2194,13 @@
         renderFilterChips();
         renderActiveView();
         if (isAdmin) renderAdminDDayList();
+        
+        // If Date Modal is currently open, refresh its list
+        if (document.getElementById('date-event-modal').style.display === 'flex' && modalSelectedDate) {
+          refreshDateModalEventsList();
+        }
       } catch (error) {
-        alert('구글 API 데이터 동기화 과정 중 장애가 발생했습니다.\n스프레드시트 공유 권한 혹은 GAS 배포 상태를 재점검하세요.');
+        showToast('구글 시트 동기화 실패: GAS 배포 상태 및 권한을 확인하세요.', 'error', 5000);
       }
     }
 
@@ -395,7 +2221,7 @@
       return eventIndex[sheetKey]?.get(day) || [];
     }
 
-    // 2. 뷰 전환 및 날짜 이동 로직
+    // View Switching & Navigation
     function switchView(viewType) {
       currentView = viewType;
       if (viewType === 'week1' || viewType === 'week2') {
@@ -440,7 +2266,7 @@
       calculateDDay(); 
     }
 
-    // 3. 카테고리 필터링 (다중 선택 지원)
+    // Category Multi-Select Filtering
     function renderFilterChips() {
       const container = document.getElementById('filter-container');
       container.replaceChildren();
@@ -479,7 +2305,7 @@
       renderActiveView();
     }
 
-    // 4. 월간 달력 렌더링
+    // Calendar Month Rendering
     function appendCellHeader(cell, label, isToday) {
       const header = document.createElement('div');
       header.className = 'cell-header';
@@ -521,13 +2347,22 @@
       const todayObj = new Date();
 
       for(let i = firstDayIdx - 1; i >= 0; i--) {
-        const cell = document.createElement('div'); cell.className = 'calendar-cell other-month';
-        appendCellHeader(cell, prevLastDate - i, false);
+        const d = prevLastDate - i;
+        const cell = document.createElement('div');
+        cell.className = 'calendar-cell other-month';
+        appendCellHeader(cell, d, false);
+        
+        const prevMonth = currentMonth === 1 ? 12 : currentMonth - 1;
+        const prevYear = currentMonth === 1 ? currentYear - 1 : currentYear;
+        const prevDateIso = `${prevYear}-${String(prevMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        cell.title = `${prevYear}년 ${prevMonth}월 ${d}일 일정 확인 및 관리`;
+        cell.addEventListener('click', () => openDateEventModal(prevDateIso));
         grid.appendChild(cell);
       }
 
       for(let d = 1; d <= lastDate; d++) {
-        const cell = document.createElement('div'); cell.className = 'calendar-cell';
+        const cell = document.createElement('div');
+        cell.className = 'calendar-cell';
         
         let isToday = false;
         if(todayObj.getFullYear() === currentYear && (todayObj.getMonth() + 1) === currentMonth && todayObj.getDate() === d) {
@@ -535,6 +2370,10 @@
         }
 
         appendCellHeader(cell, d, isToday);
+
+        const dateIso = `${currentYear}-${String(currentMonth).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+        cell.title = `${currentYear}년 ${currentMonth}월 ${d}일 일정 확인 및 관리 (클릭)`;
+        cell.addEventListener('click', () => openDateEventModal(dateIso));
 
         const dayEvents = getDayEvents(currentSheetKey, d);
         processEventsToCell(dayEvents, cell, currentSheetKey, d, offjtDays, ojtDays, hoursObj);
@@ -544,15 +2383,22 @@
       const totalCells = firstDayIdx + lastDate;
       const nextEmptyCells = (7 - (totalCells % 7)) % 7;
       for(let i = 1; i <= nextEmptyCells; i++) {
-        const cell = document.createElement('div'); cell.className = 'calendar-cell other-month';
+        const cell = document.createElement('div');
+        cell.className = 'calendar-cell other-month';
         appendCellHeader(cell, i, false);
+        
+        const nextMonth = currentMonth === 12 ? 1 : currentMonth + 1;
+        const nextYear = currentMonth === 12 ? currentYear + 1 : currentYear;
+        const nextDateIso = `${nextYear}-${String(nextMonth).padStart(2, '0')}-${String(i).padStart(2, '0')}`;
+        cell.title = `${nextYear}년 ${nextMonth}월 ${i}일 일정 확인 및 관리`;
+        cell.addEventListener('click', () => openDateEventModal(nextDateIso));
         grid.appendChild(cell);
       }
 
       updateDashBoardStats(offjtDays.size, hoursObj.offjt, ojtDays.size, hoursObj.ojt);
     }
 
-    // 5. 주간 달력 렌더링
+    // Calendar Week Rendering (1 or 2 weeks)
     function renderCalendarWeek(weeksCount = 1) {
       const grid = document.getElementById('calendar-grid');
       grid.replaceChildren();
@@ -564,7 +2410,7 @@
       endOfWeek.setDate(startOfWeek.getDate() + (totalDays - 1));
       
       const startStr = `${startOfWeek.getFullYear() !== endOfWeek.getFullYear() ? startOfWeek.getFullYear() + '년 ' : ''}${startOfWeek.getMonth() + 1}월 ${startOfWeek.getDate()}일`;
-      const endStr = `${endOfWeek.getFullYear() !== startOfWeek.getFullYear() ? endOfWeek.getFullYear() + '년 ' : ''}${endOfWeek.getMonth() + 1}월 ${endOfWeek.getDate()}일`;
+      const endStr = `${endOfWeek.getFullYear() !== endOfWeek.getFullYear() ? endOfWeek.getFullYear() + '년 ' : ''}${endOfWeek.getMonth() + 1}월 ${endOfWeek.getDate()}일`;
       const labelSuffix = weeksCount === 2 ? ' (2주간)' : '';
       document.getElementById('calendar-year-month').textContent = `${startStr} ~ ${endStr}${labelSuffix}`;
 
@@ -582,7 +2428,8 @@
         const cDate = new Date(startOfWeek); cDate.setDate(startOfWeek.getDate() + i);
         const iYear = cDate.getFullYear(), iMonth = cDate.getMonth() + 1, iDay = cDate.getDate();
         const sheetKey = `${iYear}.${iMonth}`;
-        const cell = document.createElement('div'); cell.className = 'calendar-cell';
+        const cell = document.createElement('div');
+        cell.className = 'calendar-cell';
         if (iMonth !== baseDate.getMonth() + 1) cell.classList.add('other-month');
 
         let isToday = false;
@@ -592,6 +2439,10 @@
 
         appendCellHeader(cell, `${iMonth}/${iDay}`, isToday);
 
+        const dateIso = `${iYear}-${String(iMonth).padStart(2, '0')}-${String(iDay).padStart(2, '0')}`;
+        cell.title = `${iYear}년 ${iMonth}월 ${iDay}일 일정 확인 및 관리 (클릭)`;
+        cell.addEventListener('click', () => openDateEventModal(dateIso));
+
         const dayEvents = getDayEvents(sheetKey, iDay);
         processEventsToCell(dayEvents, cell, sheetKey, iDay, offjtDays, ojtDays, hoursObj);
         grid.appendChild(cell);
@@ -599,7 +2450,7 @@
       updateDashBoardStats(offjtDays.size, hoursObj.offjt, ojtDays.size, hoursObj.ojt);
     }
 
-    // 6. 셀 일정 파싱 및 삭제 로직
+    // Cell Event Badges & Calculation
     function processEventsToCell(dayEvents, cell, sheetKey, d, offjtDays, ojtDays, hoursObj) {
       dayEvents.forEach((ev) => {
         const typeClean = ev.type ? ev.type.replace(/[-\s]/g, '').toUpperCase() : '';
@@ -613,7 +2464,7 @@
         const holidayKeywords = ['재량휴업일', '휴업일', '공휴일', '대체공휴일', '국가공휴일', '국경일', '법정공휴일', '명절'];
         const isHoliday = holidayKeywords.some(keyword => typeClean.includes(keyword) || titleClean.includes(keyword) || ev.type === keyword);
 
-        // 이수시간 파싱 및 합산
+        // Calculate hours and active days
         if(isOffJt && !isHoliday) {
           offjtDays.add(d); 
           const match = ev.title.match(/\((\d+)\)\s*$/);
@@ -639,27 +2490,11 @@
         const title = document.createElement('span');
         title.textContent = ev.title;
         badge.appendChild(title);
-
-        if (isAdmin) {
-          const deleteButton = document.createElement('button');
-          deleteButton.type = 'button';
-          deleteButton.className = 'del-btn';
-          deleteButton.style.display = 'flex';
-          deleteButton.textContent = '×';
-          deleteButton.setAttribute('aria-label', `${ev.title} 일정 삭제`);
-          deleteButton.dataset.sheetKey = sheetKey;
-          deleteButton.dataset.day = String(d);
-          deleteButton.dataset.type = ev.type;
-          deleteButton.dataset.title = ev.title;
-          deleteButton.dataset.eventId = ev.id;
-          deleteButton.addEventListener('click', deleteEvent);
-          badge.appendChild(deleteButton);
-        }
         cell.appendChild(badge);
       });
     }
 
-    // 7. 대시보드 통계 및 디데이 업데이트
+    // Dashboard Statistics & D-Day
     function updateDashBoardStats(offJtDaysCount, offJtHoursCount, ojtDaysCount, ojtHoursCount) {
       document.getElementById('stat-offjt-days').textContent = `${offJtDaysCount}일 / ${offJtHoursCount}시간`;
       document.getElementById('stat-ojt-days').textContent = `${ojtDaysCount}일 / ${ojtHoursCount}시간`;
@@ -685,7 +2520,311 @@
       }
     }
 
-    // 8. 관리자 로직 (로그인, 공지, 디데이, 일정 추가/삭제)
+    // Date Event Modal Logic (날짜 클릭 시 팝업 상세 & 편집)
+    function openDateEventModal(dateIso) {
+      modalSelectedDate = dateIso;
+      modalEditEvent = null;
+
+      const dateObj = parseIsoDate(dateIso);
+      if (!dateObj) return;
+
+      const daysOfWeek = ['일', '월', '화', '수', '목', '금', '토'];
+      const dayName = daysOfWeek[dateObj.getDay()];
+      const formattedTitle = `${dateObj.getFullYear()}년 ${dateObj.getMonth() + 1}월 ${dateObj.getDate()}일 (${dayName})`;
+      
+      document.getElementById('date-modal-title').textContent = formattedTitle;
+
+      const today = new Date();
+      const isToday = today.getFullYear() === dateObj.getFullYear() && today.getMonth() === dateObj.getMonth() && today.getDate() === dateObj.getDate();
+      document.getElementById('date-modal-today-badge').style.display = isToday ? 'inline-block' : 'none';
+
+      // Update Form and Admin Callout view
+      document.getElementById('date-form-box').style.display = isAdmin ? 'block' : 'none';
+      document.getElementById('date-non-admin-box').style.display = isAdmin ? 'none' : 'flex';
+
+      resetDateFormToAddMode();
+      refreshDateModalEventsList();
+
+      document.getElementById('date-event-modal').style.display = 'flex';
+    }
+
+    function closeDateEventModal() {
+      document.getElementById('date-event-modal').style.display = 'none';
+      modalSelectedDate = '';
+      modalEditEvent = null;
+    }
+
+    function getEventsForIsoDate(dateIso) {
+      const parsed = parseIsoDate(dateIso);
+      if (!parsed) return [];
+      const sheetKey = `${parsed.getFullYear()}.${parsed.getMonth() + 1}`;
+      const day = parsed.getDate();
+      const events = getDayEvents(sheetKey, day);
+      return events.map(ev => ({ ...ev, sheetKey, day, date: dateIso }));
+    }
+
+    function refreshDateModalEventsList() {
+      const listContainer = document.getElementById('date-events-list');
+      const countEl = document.getElementById('date-events-count');
+      if (!listContainer) return;
+      listContainer.replaceChildren();
+
+      const events = getEventsForIsoDate(modalSelectedDate);
+      countEl.textContent = String(events.length);
+
+      if (events.length === 0) {
+        const emptyBox = document.createElement('div');
+        emptyBox.className = 'date-empty-box';
+        emptyBox.textContent = '이 날짜에 등록된 일정이 없습니다.';
+        listContainer.appendChild(emptyBox);
+        return;
+      }
+
+      events.forEach((ev) => {
+        const item = document.createElement('div');
+        item.className = 'date-event-item';
+        if (modalEditEvent && modalEditEvent.id === ev.id) {
+          item.classList.add('editing');
+        }
+
+        const mainInfo = document.createElement('div');
+        mainInfo.className = 'date-event-main';
+
+        const typeBadge = document.createElement('span');
+        typeBadge.className = 'date-event-type-badge';
+        
+        let bgColor = 'var(--gray-general)';
+        if (ev.type === 'off-JT') bgColor = 'var(--blue-offjt)';
+        else if (ev.type === 'OJT') bgColor = 'var(--red-ojt)';
+        else if (ev.type === '특별수업') bgColor = 'var(--purple-special)';
+        else if (ev.type === '국가공휴일' || ev.type === '휴업일') bgColor = 'var(--red-ojt)';
+        
+        typeBadge.style.backgroundColor = bgColor;
+        typeBadge.textContent = ev.type;
+
+        const titleSpan = document.createElement('span');
+        titleSpan.className = 'date-event-title';
+        titleSpan.textContent = ev.title;
+
+        mainInfo.append(typeBadge, titleSpan);
+        item.appendChild(mainInfo);
+
+        if (isAdmin) {
+          const actionsDiv = document.createElement('div');
+          actionsDiv.className = 'date-event-actions';
+
+          // Edit button
+          const editBtn = document.createElement('button');
+          editBtn.type = 'button';
+          editBtn.className = 'btn-sm btn-secondary';
+          editBtn.style.cssText = 'min-height:34px; padding:6px 12px; font-size:0.8rem;';
+          editBtn.innerHTML = '✏️ 수정';
+          editBtn.title = '이 일정 수정하기';
+          editBtn.addEventListener('click', () => startEditDateEvent(ev));
+
+          // Delete button
+          const delBtn = document.createElement('button');
+          delBtn.type = 'button';
+          delBtn.className = 'btn-sm btn-danger';
+          delBtn.style.cssText = 'min-height:34px; padding:6px 12px; font-size:0.8rem;';
+          delBtn.innerHTML = '🗑️ 삭제';
+          delBtn.title = '이 일정 삭제하기';
+          delBtn.addEventListener('click', () => deleteDateEventFromModal(ev));
+
+          actionsDiv.append(editBtn, delBtn);
+          item.appendChild(actionsDiv);
+        }
+
+        listContainer.appendChild(item);
+      });
+    }
+
+    function handleDateTypeChange(value) {
+      const group = document.getElementById('date-hour-group');
+      if (value === 'off-JT' || value === 'OJT') {
+        group.style.display = 'flex';
+      } else {
+        group.style.display = 'none';
+        document.getElementById('date-hour-custom').style.display = 'none';
+        document.getElementById('date-hour-select').value = 'DEFAULT';
+      }
+    }
+
+    function handleDateHourSelect(value) {
+      document.getElementById('date-hour-custom').style.display = value === 'CUSTOM' ? 'block' : 'none';
+    }
+
+    function resetDateFormToAddMode() {
+      modalEditEvent = null;
+      document.getElementById('date-form-mode-title').textContent = '➕ 새 일정 추가';
+      document.getElementById('date-form-submit-text').textContent = '이 날짜에 일정 등록';
+      document.getElementById('date-form-cancel-edit-btn').style.display = 'none';
+      document.getElementById('date-input-title').value = '';
+      document.getElementById('date-input-type').value = '학사일정';
+      handleDateTypeChange('학사일정');
+    }
+
+    function startEditDateEvent(ev) {
+      modalEditEvent = ev;
+      document.getElementById('date-form-mode-title').textContent = `✏️ 일정 수정 중`;
+      document.getElementById('date-form-submit-text').textContent = '💾 수정 내용 저장';
+      document.getElementById('date-form-cancel-edit-btn').style.display = 'inline-flex';
+
+      // Parse title and hours
+      let rawTitle = ev.title;
+      let hours = null;
+      const match = ev.title.match(/^(.*?)\s*\((\d+)\)\s*$/);
+      if (match) {
+        rawTitle = match[1].trim();
+        hours = Number(match[2]);
+      }
+
+      document.getElementById('date-input-title').value = rawTitle;
+      document.getElementById('date-input-type').value = ev.type || '학사일정';
+      handleDateTypeChange(ev.type || '학사일정');
+
+      if (ev.type === 'off-JT' || ev.type === 'OJT') {
+        const isDefaultHour = (ev.type === 'off-JT' && hours === 7) || (ev.type === 'OJT' && hours === 8) || hours === null;
+        if (isDefaultHour) {
+          document.getElementById('date-hour-select').value = 'DEFAULT';
+          document.getElementById('date-hour-custom').style.display = 'none';
+        } else {
+          document.getElementById('date-hour-select').value = 'CUSTOM';
+          document.getElementById('date-hour-custom').style.display = 'block';
+          document.getElementById('date-hour-custom').value = String(hours);
+        }
+      }
+
+      refreshDateModalEventsList();
+      document.getElementById('date-input-title').focus();
+    }
+
+    function cancelDateEditMode() {
+      resetDateFormToAddMode();
+      refreshDateModalEventsList();
+    }
+
+    async function handleDateFormSubmit(e) {
+      if (e) e.preventDefault();
+      if (!isAdmin || !adminToken) {
+        showToast('관리자 로그인이 필요합니다.', 'warning');
+        return;
+      }
+
+      const title = document.getElementById('date-input-title').value.trim();
+      const type = document.getElementById('date-input-type').value;
+
+      if (!title) {
+        showToast('일정 명칭을 입력하세요.', 'warning');
+        document.getElementById('date-input-title').focus();
+        return;
+      }
+
+      let hours = null;
+      if (type === 'off-JT' || type === 'OJT') {
+        const isCustom = document.getElementById('date-hour-select').value === 'CUSTOM';
+        hours = isCustom ? Number(document.getElementById('date-hour-custom').value) : (type === 'off-JT' ? 7 : 8);
+        if (!Number.isInteger(hours) || hours < 1 || hours > 24) {
+          showToast('이수 시간은 1~24 사이의 숫자로 입력하세요.', 'warning');
+          return;
+        }
+      }
+
+      const submitBtn = document.getElementById('date-form-submit-btn');
+      submitBtn.disabled = true;
+
+      try {
+        if (modalEditEvent) {
+          // Edit existing event
+          let result;
+          try {
+            // Attempt update_event
+            result = await sendAdminRequest({
+              action: 'update_event',
+              date: modalSelectedDate,
+              oldDate: modalSelectedDate,
+              oldType: modalEditEvent.type,
+              oldTitle: modalEditEvent.title,
+              newDate: modalSelectedDate,
+              newType: type,
+              newTitle: title,
+              hours: hours,
+              eventId: modalEditEvent.id
+            });
+          } catch (updateErr) {
+            // Fallback to delete + add
+            await sendAdminRequest({
+              action: 'delete_event',
+              date: modalSelectedDate,
+              type: modalEditEvent.type,
+              title: modalEditEvent.title,
+              eventId: modalEditEvent.id
+            });
+            result = await sendAdminRequest({
+              action: 'add_event',
+              date: modalSelectedDate,
+              title: title,
+              type: type,
+              hours: hours
+            });
+          }
+
+          if (result) {
+            showToast('일정이 성공적으로 수정되었습니다.', 'success');
+            resetDateFormToAddMode();
+            await loadServerData();
+          }
+        } else {
+          // Add new event
+          const result = await sendAdminRequest({
+            action: 'add_event',
+            date: modalSelectedDate,
+            title: title,
+            type: type,
+            hours: hours
+          });
+
+          if (result) {
+            showToast('새 일정이 성공적으로 등록되었습니다.', 'success');
+            document.getElementById('date-input-title').value = '';
+            await loadServerData();
+          }
+        }
+      } catch (err) {
+        showToast(`처리 실패: ${err.message}`, 'error');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    }
+
+    async function deleteDateEventFromModal(ev) {
+      const confirmed = await showConfirmDialog({
+        title: '일정 삭제 확인',
+        message: '해당 일정을 삭제하시겠습니까?',
+        details: `[${ev.type}] ${ev.title} (${ev.date})`,
+        confirmText: '일정 삭제',
+        isDanger: true
+      });
+      if (!confirmed) return;
+
+      const result = await sendAdminRequest({
+        action: 'delete_event',
+        date: ev.date,
+        type: ev.type,
+        title: ev.title,
+        eventId: ev.id
+      });
+
+      if (result) {
+        showToast('일정이 안전하게 삭제되었습니다.', 'success');
+        if (modalEditEvent && modalEditEvent.id === ev.id) {
+          resetDateFormToAddMode();
+        }
+        await loadServerData();
+      }
+    }
+
+    // Backend Request Handler
     async function postJson(payload) {
       if (!BACKEND_URL) throw new Error('백엔드 주소가 설정되지 않았습니다.');
       const response = await fetch(BACKEND_URL, {
@@ -700,49 +2839,130 @@
       return result;
     }
 
-    async function toggleLoginModal() {
+    async function handleLoginButtonClick() {
       if (isAdmin) {
+        const confirmed = await showConfirmDialog({
+          title: '관리자 로그아웃',
+          message: '관리자 모드를 종료하고 로그아웃하시겠습니까?',
+          confirmText: '로그아웃',
+          isDanger: false
+        });
+        if (!confirmed) return;
+
         const token = adminToken;
         endAdminSession();
-        try { await postJson({ action: 'logout', token }); } catch (error) { /* 로컬 세션은 즉시 종료 */ }
-        alert('🔓 안전하게 로그아웃 되었습니다.');
+        try { await postJson({ action: 'logout', token }); } catch (error) {}
+        showToast('안전하게 로그아웃되었습니다.', 'info');
         return;
       }
 
-      const password = prompt('관리자 보안 인증 비밀번호를 입력하세요:');
-      if (!password) return;
+      openLoginModal();
+    }
 
-      document.getElementById('loading').style.display = 'flex';
+    function openLoginModal() {
+      const modal = document.getElementById('login-modal');
+      const passwordInput = document.getElementById('admin-password-input');
+      const errorMsg = document.getElementById('login-error-msg');
+      passwordInput.value = '';
+      errorMsg.style.display = 'none';
+      modal.style.display = 'flex';
+      setTimeout(() => passwordInput.focus(), 100);
+    }
+
+    function closeLoginModal() {
+      document.getElementById('login-modal').style.display = 'none';
+      pendingOpenAdminTools = false;
+    }
+
+    function togglePasswordVisibility() {
+      const passwordInput = document.getElementById('admin-password-input');
+      const isPassword = passwordInput.type === 'password';
+      passwordInput.type = isPassword ? 'text' : 'password';
+      
+      const eyeIcon = document.getElementById('eye-icon');
+      eyeIcon.innerHTML = isPassword
+        ? '<path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"></path><line x1="1" y1="1" x2="23" y2="23"></line>'
+        : '<path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>';
+    }
+
+    async function handleLoginSubmit(e) {
+      if (e) e.preventDefault();
+      const passwordInput = document.getElementById('admin-password-input');
+      const errorMsg = document.getElementById('login-error-msg');
+      const submitBtn = document.getElementById('login-submit-btn');
+      const password = passwordInput.value.trim();
+
+      if (!password) {
+        errorMsg.textContent = '비밀번호를 입력하세요.';
+        errorMsg.style.display = 'block';
+        passwordInput.focus();
+        return;
+      }
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = '인증 중...';
+      errorMsg.style.display = 'none';
+
       try {
         const result = await postJson({ action: 'verify', password });
         if (!result.token) throw new Error('인증 토큰을 받지 못했습니다.');
+        
         adminToken = result.token;
         isAdmin = true;
-        document.getElementById('admin-panel').style.display = 'block';
-        document.getElementById('login-toggle-btn').textContent = '🔓 관리자 로그아웃';
-        document.getElementById('login-toggle-btn').className = 'btn-danger';
+        
+        try {
+          localStorage.setItem(STORAGE_KEY_TOKEN, adminToken);
+        } catch (storageErr) {}
+
+        applyAdminStateToUI(true);
+        closeLoginModal();
         renderActiveView();
         renderAdminDDayList();
-        alert('✅ 인증 성공! 관리자 전용 편집 기능이 활성화되었습니다.');
+        
+        if (document.getElementById('date-event-modal').style.display === 'flex') {
+          document.getElementById('date-form-box').style.display = 'block';
+          document.getElementById('date-non-admin-box').style.display = 'none';
+          refreshDateModalEventsList();
+        }
+        
+        showToast('관리자 인증 성공! 세션이 유지됩니다.', 'success');
+
+        if (pendingOpenAdminTools) {
+          pendingOpenAdminTools = false;
+          openAdminToolsModal();
+        }
       } catch (error) {
-        alert(`인증 실패: ${error.message}`);
+        errorMsg.textContent = error.message || '비밀번호가 올바르지 않습니다.';
+        errorMsg.style.display = 'block';
+        passwordInput.focus();
       } finally {
-        document.getElementById('loading').style.display = 'none';
+        submitBtn.disabled = false;
+        submitBtn.textContent = '인증 및 로그인';
       }
     }
 
     function endAdminSession() {
       isAdmin = false;
       adminToken = '';
-      document.getElementById('admin-panel').style.display = 'none';
-      document.getElementById('login-toggle-btn').textContent = '🔒 관리자 로그인';
-      document.getElementById('login-toggle-btn').className = 'btn-primary';
+      try {
+        localStorage.removeItem(STORAGE_KEY_TOKEN);
+      } catch (e) {}
+
+      applyAdminStateToUI(false);
+      closeAdminToolsModal();
+      
+      if (document.getElementById('date-event-modal').style.display === 'flex') {
+        document.getElementById('date-form-box').style.display = 'none';
+        document.getElementById('date-non-admin-box').style.display = 'flex';
+        refreshDateModalEventsList();
+      }
+      
       renderActiveView();
     }
 
     async function sendAdminRequest(payload) {
       if (!isAdmin || !adminToken) {
-        alert('관리자 로그인이 필요합니다.');
+        showToast('관리자 로그인이 필요합니다.', 'warning');
         return null;
       }
 
@@ -750,8 +2970,12 @@
       try {
         return await postJson({ ...payload, token: adminToken });
       } catch (error) {
-        if (error.message.includes('세션')) endAdminSession();
-        alert(`처리 실패: ${error.message}`);
+        if (error.message.includes('세션') || error.message.includes('인증')) {
+          endAdminSession();
+          showToast('관리자 세션이 만료되었습니다. 다시 로그인해 주세요.', 'warning');
+        } else {
+          showToast(`처리 실패: ${error.message}`, 'error');
+        }
         return null;
       } finally {
         document.getElementById('loading').style.display = 'none';
@@ -760,11 +2984,11 @@
 
     async function updateNotice() {
       const newNotice = document.getElementById('edit-notice-text').value.trim();
-      if (!newNotice) return alert('공지 내용을 입력하세요.');
+      if (!newNotice) return showToast('공지 내용을 입력하세요.', 'warning');
       const result = await sendAdminRequest({ action: 'update_notice', newNotice });
       if (result) {
         document.getElementById('notice-display').textContent = result.notice;
-        alert('✅ 즉시 반영되었습니다.');
+        showToast('공지사항이 즉시 반영되었습니다.', 'success');
       }
     }
 
@@ -774,9 +2998,9 @@
       listContainer.replaceChildren();
 
       if (milestonesData.length === 0) {
-        const empty = document.createElement('p');
-        empty.textContent = '등록된 디데이가 없습니다.';
-        empty.style.cssText = 'font-size:0.85rem; color:#A0AEC0; text-align:center; padding:10px;';
+        const empty = document.createElement('div');
+        empty.className = 'date-empty-box';
+        empty.textContent = '등록된 마일스톤(D-Day)이 없습니다.';
         listContainer.appendChild(empty);
         return;
       }
@@ -786,20 +3010,26 @@
       milestonesData.forEach((milestone) => {
         const item = document.createElement('div');
         item.className = 'dday-list-item';
+        
         const copy = document.createElement('div');
         copy.className = 'dday-list-copy';
+        
         const date = document.createElement('span');
         date.className = 'dday-list-date';
-        date.textContent = milestone.date;
+        date.innerHTML = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span>${escapeHtml(milestone.date)}</span>`;
+        
         const title = document.createElement('span');
         title.className = 'dday-list-title';
         title.textContent = milestone.title;
+        
         const deleteButton = document.createElement('button');
         deleteButton.type = 'button';
-        deleteButton.className = 'btn-danger';
-        deleteButton.style.cssText = 'padding:6px 12px; font-size:0.8rem; border-radius:6px; flex-shrink:0; white-space:nowrap;';
-        deleteButton.textContent = '삭제';
+        deleteButton.className = 'btn-sm btn-danger';
+        deleteButton.style.cssText = 'min-height:34px; padding:6px 12px; font-size:0.8rem; border-radius:8px; flex-shrink:0; white-space:nowrap;';
+        deleteButton.innerHTML = '🗑️ 삭제';
+        deleteButton.title = `${milestone.title} 마일스톤 삭제`;
         deleteButton.addEventListener('click', () => deleteDDay(milestone));
+        
         copy.append(date, title);
         item.append(copy, deleteButton);
         list.appendChild(item);
@@ -810,59 +3040,28 @@
     async function addDDay() {
       const date = document.getElementById('add-dday-date').value;
       const title = document.getElementById('add-dday-title').value.trim();
-      if (!parseIsoDate(date) || !title) return alert('날짜와 디데이 명칭을 확인하세요.');
+      if (!parseIsoDate(date) || !title) return showToast('목표 날짜와 디데이 명칭을 입력하세요.', 'warning');
       const result = await sendAdminRequest({ action: 'add_dday', date, title });
       if (result) {
         document.getElementById('add-dday-title').value = '';
-        alert('✅ 추가 완료');
+        showToast('디데이 마일스톤이 등록되었습니다.', 'success');
         await loadServerData();
       }
     }
 
     async function deleteDDay(milestone) {
-      if (!confirm(`⚠️ 삭제하시겠습니까?\n[${milestone.date}] ${milestone.title}`)) return;
+      const confirmed = await showConfirmDialog({
+        title: '디데이 마일스톤 삭제',
+        message: '해당 마일스톤을 삭제하시겠습니까?',
+        details: `[${milestone.date}] ${milestone.title}`,
+        confirmText: '삭제하기',
+        isDanger: true
+      });
+      if (!confirmed) return;
+
       const result = await sendAdminRequest({ action: 'delete_dday', ...milestone });
       if (result) {
-        alert('✅ 삭제 완료');
-        await loadServerData();
-      }
-    }
-
-    function handleTypeChange(value) {
-      const group = document.getElementById('hour-input-group');
-      if (value === 'off-JT' || value === 'OJT') {
-        group.style.display = 'flex';
-      } else {
-        group.style.display = 'none';
-        document.getElementById('add-hour-custom').style.display = 'none';
-        document.getElementById('add-hour-select').value = 'DEFAULT';
-      }
-    }
-
-    function handleHourSelect(value) {
-      document.getElementById('add-hour-custom').style.display = value === 'CUSTOM' ? 'block' : 'none';
-    }
-
-    async function addEvent() {
-      const date = document.getElementById('add-date').value;
-      const title = document.getElementById('add-title').value.trim();
-      const type = document.getElementById('add-type').value;
-      if (!parseIsoDate(date) || !title) return alert('날짜와 명칭을 기입하세요.');
-
-      let hours = null;
-      if (type === 'off-JT' || type === 'OJT') {
-        const isCustom = document.getElementById('add-hour-select').value === 'CUSTOM';
-        hours = isCustom ? Number(document.getElementById('add-hour-custom').value) : (type === 'off-JT' ? 7 : 8);
-        if (!Number.isInteger(hours) || hours < 1 || hours > 24) {
-          return alert('이수 시간은 1~24 사이의 숫자로 입력하세요.');
-        }
-      }
-
-      const result = await sendAdminRequest({ action: 'add_event', date, title, type, hours });
-      if (result) {
-        document.getElementById('add-title').value = '';
-        document.getElementById('add-hour-custom').value = '';
-        alert('✅ 일정 기입 완료');
+        showToast('디데이 마일스톤이 삭제되었습니다.', 'success');
         await loadServerData();
       }
     }
@@ -877,7 +3076,15 @@
       const type = button.dataset.type;
       const title = button.dataset.title;
 
-      if (!confirm(`⚠️ 정말로 이 일정을 삭제하시겠습니까?\n[${type}] ${title}`)) return;
+      const confirmed = await showConfirmDialog({
+        title: '일정 삭제 확인',
+        message: '해당 일정을 삭제하시겠습니까?',
+        details: `[${type}] ${title} (${date})`,
+        confirmText: '일정 삭제',
+        isDanger: true
+      });
+      if (!confirmed) return;
+
       const result = await sendAdminRequest({
         action: 'delete_event',
         date,
@@ -886,7 +3093,7 @@
         eventId: button.dataset.eventId
       });
       if (result) {
-        alert('✅ 안전하게 삭제되었습니다.');
+        showToast('일정이 안전하게 삭제되었습니다.', 'success');
         await loadServerData();
       }
     }
@@ -902,6 +3109,7 @@
       return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
     }
 
+    // High-Resolution Image Export
     let captureLibraryPromise;
     function loadCaptureLibrary() {
       if (window.html2canvas) return Promise.resolve(window.html2canvas);
@@ -920,13 +3128,9 @@
 
     async function saveAsImage() {
       const target = document.getElementById('calendar-workspace') || document.getElementById('calendar-area');
-      const adminPanel = document.getElementById('admin-panel');
       const captureBtn = document.getElementById('capture-btn');
-      
-      const originalAdminDisplay = adminPanel ? adminPanel.style.display : 'none';
       const originalBtnDisplay = captureBtn ? captureBtn.style.display : '';
       
-      if (isAdmin && adminPanel) adminPanel.style.display = 'none';
       if (captureBtn) captureBtn.style.display = 'none';
 
       const loadingEl = document.getElementById('loading');
@@ -989,11 +3193,11 @@
         link.download = `성일정보고_달력_${viewName}_${periodStr}.png`;
         link.href = canvas.toDataURL('image/png');
         link.click();
+        showToast('일정표 이미지가 성공적으로 저장되었습니다.', 'success');
       } catch (error) {
-        alert('이미지 생성에 실패했습니다. 잠시 후 다시 시도하세요.');
+        showToast('이미지 생성에 실패했습니다. 잠시 후 다시 시도하세요.', 'error');
       } finally {
         if (captureBtn) captureBtn.style.display = originalBtnDisplay;
-        if (isAdmin && adminPanel) adminPanel.style.display = originalAdminDisplay;
         if (loadingSpan) loadingSpan.textContent = originalLoadingText;
         if (loadingEl) loadingEl.style.display = 'none';
       }
