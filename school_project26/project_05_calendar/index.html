@@ -363,22 +363,25 @@
     .dashboard {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 10px;
-      margin: 0 0 14px;
+      gap: 12px;
+      margin: 0 0 16px;
     }
     .stat-card {
       position: relative;
       overflow: hidden;
-      padding: 14px 16px;
+      padding: 16px 18px;
       border: 1.5px solid rgba(255, 255, 255, .9);
       border-radius: var(--radius);
       background: var(--surface);
       box-shadow: var(--shadow-sm);
       backdrop-filter: blur(16px);
-      transition: transform .2s ease, box-shadow .2s ease;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .stat-card:hover {
-      transform: translateY(-2px);
+      transform: translateY(-3px);
       box-shadow: var(--shadow-md);
     }
     .stat-card::after {
@@ -386,52 +389,86 @@
       position: absolute;
       right: -16px;
       top: -20px;
-      width: 80px;
-      height: 80px;
+      width: 90px;
+      height: 90px;
       border-radius: 50%;
       opacity: .8;
       pointer-events: none;
     }
     .stat-card.offjt {
-      border-color: rgba(59, 130, 246, .25);
-      background: linear-gradient(135deg, rgba(255, 255, 255, .95), rgba(239, 246, 255, .85));
+      border-color: rgba(59, 130, 246, .35);
+      background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
     }
     .stat-card.offjt::after { background: rgba(59, 130, 246, .12); }
-    .stat-card.offjt .stat-title { color: #1d4ed8; }
+    .stat-card.offjt .stat-title {
+      color: #1d4ed8;
+      background: rgba(219, 234, 254, .7);
+      border-color: rgba(147, 197, 253, .6);
+    }
+    .stat-card.offjt .stat-desc {
+      color: #1e40af;
+      background: rgba(239, 246, 255, .9);
+      border: 1px solid rgba(191, 219, 254, .8);
+    }
 
     .stat-card.ojt {
-      border-color: rgba(244, 63, 94, .25);
-      background: linear-gradient(135deg, rgba(255, 255, 255, .95), rgba(255, 241, 242, .85));
+      border-color: rgba(244, 63, 94, .35);
+      background: linear-gradient(135deg, #ffffff 0%, #fff1f2 100%);
     }
     .stat-card.ojt::after { background: rgba(244, 63, 94, .12); }
-    .stat-card.ojt .stat-title { color: #e11d48; }
+    .stat-card.ojt .stat-title {
+      color: #e11d48;
+      background: rgba(255, 228, 230, .7);
+      border-color: rgba(254, 205, 211, .6);
+    }
+    .stat-card.ojt .stat-desc {
+      color: #9f1239;
+      background: rgba(255, 241, 242, .9);
+      border: 1px solid rgba(254, 205, 211, .8);
+    }
 
     .stat-card.dday {
-      border-color: rgba(99, 102, 241, .25);
-      background: linear-gradient(135deg, rgba(255, 255, 255, .95), rgba(238, 242, 255, .85));
+      border-color: rgba(99, 102, 241, .35);
+      background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
     }
     .stat-card.dday::after { background: rgba(99, 102, 241, .14); }
-    .stat-card.dday .stat-title { color: #4338ca; }
+    .stat-card.dday .stat-title {
+      color: #4338ca;
+      background: rgba(224, 231, 255, .75);
+      border-color: rgba(199, 210, 254, .7);
+    }
+    .stat-card.dday .stat-desc {
+      color: #3730a3;
+      background: rgba(238, 242, 255, .95);
+      border: 1px solid rgba(199, 210, 254, .9);
+      font-weight: 850;
+    }
 
     .stat-title {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: .84rem;
+      gap: 7px;
+      padding: 4px 10px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      font-size: .86rem;
       font-weight: 850;
       letter-spacing: -.02em;
+      width: fit-content;
+      line-height: 1.2;
     }
     .stat-title::before {
       content: "";
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: currentColor;
+      box-shadow: 0 0 6px currentColor;
     }
     .stat-value {
-      margin: 6px 0 2px;
+      margin: 10px 0 8px;
       color: var(--ink);
-      font-size: 1.55rem;
+      font-size: 1.65rem;
       font-weight: 900;
       letter-spacing: -.04em;
       text-align: center;
@@ -439,12 +476,23 @@
     }
     .stat-card.dday .stat-value { color: var(--primary); }
     .stat-desc {
-      color: #64748b;
-      font-size: .8rem;
-      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: .82rem;
+      font-weight: 750;
       text-align: center;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
     }
-    #stat-dday-title { color: #4338ca; font-weight: 850; }
+    #stat-dday-title {
+      color: #3730a3;
+      font-weight: 850;
+      font-size: .86rem;
+    }
 
     /* Calendar Workspace */
     .calendar-workspace {
@@ -1561,8 +1609,10 @@
         grid-template-columns: 1fr;
         gap: 8px;
       }
-      .stat-card { padding: 12px 14px; }
-      .stat-value { font-size: 1.35rem; }
+      .stat-card { padding: 14px 14px; }
+      .stat-value { font-size: 1.45rem; margin: 8px 0 6px; }
+      .stat-title { font-size: 0.82rem; }
+      .stat-desc { font-size: 0.8rem; padding: 5px 8px; }
       .calendar-workspace {
         padding: 12px 10px;
         border-radius: 18px;
@@ -2239,7 +2289,7 @@
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
           <span id="login-btn-text">관리자 로그인</span>
         </button>
-        <button class="btn-secondary" id="admin-tools-btn" type="button" aria-label="관리자 편집도구 팝업 열기">
+        <button class="btn-secondary" id="admin-tools-btn" type="button" aria-label="관리자 편집도구 팝업 열기" style="display: none;">
           <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
           <span>관리자 편집도구</span>
         </button>
@@ -2490,11 +2540,17 @@
       if (active) {
         loginText.textContent = '관리자 로그아웃';
         loginBtn.className = 'btn-danger';
-        if (toolsBtn) toolsBtn.classList.add('admin-active');
+        if (toolsBtn) {
+          toolsBtn.style.display = 'inline-flex';
+          toolsBtn.classList.add('admin-active');
+        }
       } else {
         loginText.textContent = '관리자 로그인';
         loginBtn.className = 'btn-primary';
-        if (toolsBtn) toolsBtn.classList.remove('admin-active');
+        if (toolsBtn) {
+          toolsBtn.style.display = 'none';
+          toolsBtn.classList.remove('admin-active');
+        }
         closeAdminToolsModal();
       }
     }
