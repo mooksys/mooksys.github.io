@@ -316,69 +316,188 @@
       transform: translateY(1px) scale(.98);
     }
 
-    /* Notice Banner */
+    /* Notice Banner & Colorful Event Badges */
     .notice-bar {
       display: flex;
-      align-items: flex-start;
-      gap: 10px;
-      margin: 0 0 12px;
+      align-items: center;
+      gap: 12px;
+      margin: 0 0 14px;
       padding: 10px 14px;
-      border: 1px solid rgba(99, 102, 241, .15);
+      border: 1.5px solid rgba(99, 102, 241, .2);
       border-radius: var(--radius);
       color: #334155;
-      background: linear-gradient(120deg, rgba(238, 242, 255, .95), rgba(255, 255, 255, .9));
+      background: linear-gradient(120deg, rgba(238, 242, 255, .95), rgba(255, 255, 255, .95));
       box-shadow: var(--shadow-sm);
+      min-height: 52px;
     }
     .notice-icon {
       display: grid;
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       flex: 0 0 auto;
       place-items: center;
-      border-radius: 9px;
+      border-radius: 10px;
       color: var(--primary);
       background: #ffffff;
-      font-size: .9rem;
-      box-shadow: 0 2px 6px rgba(79, 70, 229, .15);
+      font-size: .95rem;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, .18);
     }
-    .notice-content { min-width: 0; flex: 1; }
+    .notice-content {
+      min-width: 0;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
     .notice-title {
-      display: block;
-      margin-bottom: 2px;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
       color: var(--primary);
-      font-size: .7rem;
-      font-weight: 800;
+      font-size: .72rem;
+      font-weight: 850;
       letter-spacing: .06em;
       text-transform: uppercase;
+      width: fit-content;
     }
     .notice-text {
       overflow-wrap: anywhere;
-      font-size: 1.15rem;
+      font-size: 1rem;
       font-weight: 750;
-      line-height: 1.35;
+      line-height: 1.4;
       color: #1e293b;
+      width: 100%;
+    }
+    .notice-badges-wrap {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px 10px;
+      width: 100%;
+    }
+    .notice-event-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 13px 5px 8px;
+      border-radius: 999px;
+      font-size: .88rem;
+      font-weight: 800;
+      letter-spacing: -.02em;
+      line-height: 1.3;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, .04);
+      transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+      user-select: none;
+      border: 1px solid;
+    }
+    .notice-event-badge:hover {
+      transform: translateY(-1px) scale(1.02);
+      box-shadow: 0 4px 12px rgba(15, 23, 42, .08);
+    }
+    .notice-badge-icon {
+      display: grid;
+      place-items: center;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
+      flex-shrink: 0;
+    }
+    .notice-badge-icon svg {
+      margin-left: 1.5px;
+    }
+    .notice-badge-text {
+      overflow-wrap: anywhere;
+    }
+
+    /* Colorful Schemes for Notice Badges */
+    .notice-badge-blue {
+      background: linear-gradient(135deg, #eff6ff, #dbeafe);
+      color: #1d4ed8;
+      border-color: #bfdbfe;
+    }
+    .notice-badge-blue .notice-badge-icon {
+      color: #2563eb;
+    }
+
+    .notice-badge-purple {
+      background: linear-gradient(135deg, #f5f3ff, #ede9fe);
+      color: #6d28d9;
+      border-color: #ddd6fe;
+    }
+    .notice-badge-purple .notice-badge-icon {
+      color: #7c3aed;
+    }
+
+    .notice-badge-emerald {
+      background: linear-gradient(135deg, #ecfdf5, #d1fae5);
+      color: #047857;
+      border-color: #a7f3d0;
+    }
+    .notice-badge-emerald .notice-badge-icon {
+      color: #059669;
+    }
+
+    .notice-badge-rose {
+      background: linear-gradient(135deg, #fff1f2, #ffe4e6);
+      color: #be123c;
+      border-color: #fecdd3;
+    }
+    .notice-badge-rose .notice-badge-icon {
+      color: #e11d48;
+    }
+
+    .notice-badge-amber {
+      background: linear-gradient(135deg, #fffbeb, #fef3c7);
+      color: #b45309;
+      border-color: #fde68a;
+    }
+    .notice-badge-amber .notice-badge-icon {
+      color: #d97706;
+    }
+
+    .notice-badge-indigo {
+      background: linear-gradient(135deg, #eef2ff, #e0e7ff);
+      color: #4338ca;
+      border-color: #c7d2fe;
+    }
+    .notice-badge-indigo .notice-badge-icon {
+      color: #4f46e5;
+    }
+
+    .notice-badge-cyan {
+      background: linear-gradient(135deg, #ecfeff, #cffafe);
+      color: #0e7490;
+      border-color: #a5f3fc;
+    }
+    .notice-badge-cyan .notice-badge-icon {
+      color: #0891b2;
     }
 
     /* Dashboard Cards */
     .dashboard {
       display: grid;
-      grid-template-columns: 1fr;
-      gap: 10px;
-      margin: 0 0 14px;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin: 0 0 16px;
     }
     .stat-card {
       position: relative;
       overflow: hidden;
-      padding: 14px 16px;
+      padding: 16px 18px;
       border: 1.5px solid rgba(255, 255, 255, .9);
       border-radius: var(--radius);
       background: var(--surface);
       box-shadow: var(--shadow-sm);
       backdrop-filter: blur(16px);
-      transition: transform .2s ease, box-shadow .2s ease;
+      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
     }
     .stat-card:hover {
-      transform: translateY(-2px);
+      transform: translateY(-3px);
       box-shadow: var(--shadow-md);
     }
     .stat-card::after {
@@ -386,52 +505,86 @@
       position: absolute;
       right: -16px;
       top: -20px;
-      width: 80px;
-      height: 80px;
+      width: 90px;
+      height: 90px;
       border-radius: 50%;
       opacity: .8;
       pointer-events: none;
     }
     .stat-card.offjt {
-      border-color: rgba(59, 130, 246, .25);
-      background: linear-gradient(135deg, rgba(255, 255, 255, .95), rgba(239, 246, 255, .85));
+      border-color: rgba(59, 130, 246, .35);
+      background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
     }
     .stat-card.offjt::after { background: rgba(59, 130, 246, .12); }
-    .stat-card.offjt .stat-title { color: #1d4ed8; }
+    .stat-card.offjt .stat-title {
+      color: #1d4ed8;
+      background: rgba(219, 234, 254, .7);
+      border-color: rgba(147, 197, 253, .6);
+    }
+    .stat-card.offjt .stat-desc {
+      color: #1e40af;
+      background: rgba(239, 246, 255, .9);
+      border: 1px solid rgba(191, 219, 254, .8);
+    }
 
     .stat-card.ojt {
-      border-color: rgba(244, 63, 94, .25);
-      background: linear-gradient(135deg, rgba(255, 255, 255, .95), rgba(255, 241, 242, .85));
+      border-color: rgba(244, 63, 94, .35);
+      background: linear-gradient(135deg, #ffffff 0%, #fff1f2 100%);
     }
     .stat-card.ojt::after { background: rgba(244, 63, 94, .12); }
-    .stat-card.ojt .stat-title { color: #e11d48; }
+    .stat-card.ojt .stat-title {
+      color: #e11d48;
+      background: rgba(255, 228, 230, .7);
+      border-color: rgba(254, 205, 211, .6);
+    }
+    .stat-card.ojt .stat-desc {
+      color: #9f1239;
+      background: rgba(255, 241, 242, .9);
+      border: 1px solid rgba(254, 205, 211, .8);
+    }
 
     .stat-card.dday {
-      border-color: rgba(99, 102, 241, .25);
-      background: linear-gradient(135deg, rgba(255, 255, 255, .95), rgba(238, 242, 255, .85));
+      border-color: rgba(99, 102, 241, .35);
+      background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
     }
     .stat-card.dday::after { background: rgba(99, 102, 241, .14); }
-    .stat-card.dday .stat-title { color: #4338ca; }
+    .stat-card.dday .stat-title {
+      color: #4338ca;
+      background: rgba(224, 231, 255, .75);
+      border-color: rgba(199, 210, 254, .7);
+    }
+    .stat-card.dday .stat-desc {
+      color: #3730a3;
+      background: rgba(238, 242, 255, .95);
+      border: 1px solid rgba(199, 210, 254, .9);
+      font-weight: 850;
+    }
 
     .stat-title {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 6px;
-      font-size: .84rem;
+      gap: 7px;
+      padding: 4px 10px;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      font-size: .86rem;
       font-weight: 850;
       letter-spacing: -.02em;
+      width: fit-content;
+      line-height: 1.2;
     }
     .stat-title::before {
       content: "";
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       border-radius: 50%;
       background: currentColor;
+      box-shadow: 0 0 6px currentColor;
     }
     .stat-value {
-      margin: 6px 0 2px;
+      margin: 10px 0 8px;
       color: var(--ink);
-      font-size: 1.55rem;
+      font-size: 1.65rem;
       font-weight: 900;
       letter-spacing: -.04em;
       text-align: center;
@@ -439,12 +592,23 @@
     }
     .stat-card.dday .stat-value { color: var(--primary); }
     .stat-desc {
-      color: #64748b;
-      font-size: .8rem;
-      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      font-size: .82rem;
+      font-weight: 750;
       text-align: center;
+      line-height: 1.35;
+      overflow-wrap: anywhere;
     }
-    #stat-dday-title { color: #4338ca; font-weight: 850; }
+    #stat-dday-title {
+      color: #3730a3;
+      font-weight: 850;
+      font-size: .86rem;
+    }
 
     /* Calendar Workspace */
     .calendar-workspace {
@@ -612,9 +776,9 @@
     }
     .calendar-grid {
       display: grid;
-      grid-template-columns: repeat(7, minmax(104px, 1fr));
+      grid-template-columns: repeat(7, minmax(0, 1fr));
       gap: 6px;
-      min-width: 755px;
+      min-width: 0;
     }
     .day-header {
       padding: 8px 4px;
@@ -1520,8 +1684,8 @@
     .cell-weekday { display: none; }
     .mobile-view-hint { display: none; }
 
-    /* Responsive */
-    @media (max-width: 768px) {
+    /* Responsive (Mobile View below 800px) */
+    @media (max-width: 799px) {
       .app-shell {
         width: min(100% - 14px, 1220px);
         margin: 6px auto 18px;
@@ -1561,8 +1725,10 @@
         grid-template-columns: 1fr;
         gap: 8px;
       }
-      .stat-card { padding: 12px 14px; }
-      .stat-value { font-size: 1.35rem; }
+      .stat-card { padding: 14px 14px; }
+      .stat-value { font-size: 1.45rem; margin: 8px 0 6px; }
+      .stat-title { font-size: 0.82rem; }
+      .stat-desc { font-size: 0.8rem; padding: 5px 8px; }
       .calendar-workspace {
         padding: 12px 10px;
         border-radius: 18px;
@@ -1978,7 +2144,7 @@
               <div class="admin-card-icon">📢</div>
               <div>
                 <h4>실시간 상단 공지사항 수정</h4>
-                <p class="card-desc">달력 화면 상단 배너에 표시될 긴급 공지나 학사 알림 문구를 관리합니다. 수정 즉시 실시간 반영됩니다.</p>
+                <p class="card-desc">달력 화면 상단 배너에 표시될 알림 문구를 관리합니다. '▶' 기호로 일정을 구분하여 입력하면 다채로운 색상의 버튼 뱃지로 자동 변환되어 표시됩니다.</p>
               </div>
             </div>
             <div class="form-stack">
@@ -1988,7 +2154,7 @@
                   <span>공지 문구 입력</span>
                 </label>
                 <div class="form-action-row">
-                  <input type="text" id="edit-notice-text" maxlength="500" placeholder="화면 상단에 표시할 공지 내용을 입력하세요.">
+                  <input type="text" id="edit-notice-text" maxlength="500" placeholder="예: ▶제4과목 내부평가(9/16) ▶SQLD 원서접수(10/20) ▶외부평가">
                   <button class="btn-primary" id="update-notice-btn" type="button">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
                     <span>공지 저장</span>
@@ -2404,6 +2570,87 @@
         .replace(/'/g, '&#039;');
     }
 
+    // Notice Banner Renderer (Transforms ▶ markers into colorful badge buttons)
+    function renderNotice(noticeText) {
+      const noticeDisplay = document.getElementById('notice-display');
+      if (!noticeDisplay) return;
+      noticeDisplay.replaceChildren();
+
+      const rawText = (noticeText || '').trim();
+      if (!rawText) {
+        noticeDisplay.textContent = '등록된 공지사항이 없습니다.';
+        return;
+      }
+
+      // Check if text has ▶, ▷, ►, or • markers
+      if (/[▶▷►•]/.test(rawText)) {
+        const parts = rawText.split(/[▶▷►•]/).map(s => s.trim()).filter(Boolean);
+        if (parts.length > 0) {
+          const wrap = document.createElement('div');
+          wrap.className = 'notice-badges-wrap';
+
+          const colorSchemes = [
+            'notice-badge-indigo',
+            'notice-badge-rose',
+            'notice-badge-emerald',
+            'notice-badge-purple',
+            'notice-badge-amber',
+            'notice-badge-cyan',
+            'notice-badge-blue'
+          ];
+
+          parts.forEach((part, idx) => {
+            const badge = document.createElement('span');
+            const themeClass = colorSchemes[idx % colorSchemes.length];
+            badge.className = `notice-event-badge ${themeClass}`;
+
+            const icon = document.createElement('span');
+            icon.className = 'notice-badge-icon';
+            icon.setAttribute('aria-hidden', 'true');
+            icon.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>`;
+
+            const text = document.createElement('span');
+            text.className = 'notice-badge-text';
+            text.textContent = part;
+
+            badge.append(icon, text);
+            wrap.appendChild(badge);
+          });
+
+          noticeDisplay.appendChild(wrap);
+          return;
+        }
+      }
+
+      // If text has line breaks without ▶
+      const lines = rawText.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      if (lines.length > 1) {
+        const wrap = document.createElement('div');
+        wrap.className = 'notice-badges-wrap';
+        const colorSchemes = ['notice-badge-indigo', 'notice-badge-rose', 'notice-badge-emerald', 'notice-badge-purple'];
+        lines.forEach((line, idx) => {
+          const badge = document.createElement('span');
+          badge.className = `notice-event-badge ${colorSchemes[idx % colorSchemes.length]}`;
+          const icon = document.createElement('span');
+          icon.className = 'notice-badge-icon';
+          icon.setAttribute('aria-hidden', 'true');
+          icon.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>`;
+          const text = document.createElement('span');
+          text.className = 'notice-badge-text';
+          text.textContent = line;
+          badge.append(icon, text);
+          wrap.appendChild(badge);
+        });
+        noticeDisplay.appendChild(wrap);
+        return;
+      }
+
+      // Plain string
+      const plainSpan = document.createElement('span');
+      plainSpan.textContent = rawText;
+      noticeDisplay.appendChild(plainSpan);
+    }
+
     // Custom Modern Confirm Dialog
     function showConfirmDialog({ title, message, details, confirmText = '확인', cancelText = '취소', isDanger = true }) {
       return new Promise((resolve) => {
@@ -2455,7 +2702,7 @@
       bindControls();
       initAdminTabs();
       restoreAdminSession();
-      if (window.innerWidth <= 640) {
+      if (window.innerWidth < 800) {
         switchView('week1');
       }
       try {
@@ -2671,7 +2918,7 @@
         filterTypes = json.types || [];
         milestonesData = (json.milestones || []).slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
 
-        document.getElementById('notice-display').textContent = json.notice || '등록된 공지사항이 없습니다.';
+        renderNotice(json.notice || '등록된 공지사항이 없습니다.');
         document.getElementById('edit-notice-text').value = json.notice || '';
         renderFilterChips();
         renderActiveView();
@@ -3498,7 +3745,7 @@
       if (!newNotice) return showToast('공지 내용을 입력하세요.', 'warning');
       const result = await sendAdminRequest({ action: 'update_notice', newNotice });
       if (result) {
-        document.getElementById('notice-display').textContent = result.notice;
+        renderNotice(result.notice);
         showToast('공지사항이 즉시 반영되었습니다.', 'success');
       }
     }
