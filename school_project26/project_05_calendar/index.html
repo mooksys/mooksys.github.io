@@ -879,26 +879,32 @@
       background: #e0e7ff;
     }
     .admin-tabs {
-      display: flex;
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
       gap: 6px;
-      flex-wrap: wrap;
       padding: 6px;
       background: #f1f5f9;
       border-radius: 14px;
+      width: 100%;
     }
     .admin-tab-btn {
-      display: inline-flex;
+      display: flex;
       align-items: center;
-      gap: 8px;
-      min-height: 40px;
-      padding: 8px 18px;
+      justify-content: center;
+      gap: 6px;
+      min-height: 42px;
+      padding: 8px 10px;
       border-radius: 10px;
-      font-size: .88rem;
+      font-size: .84rem;
       font-weight: 800;
       color: #64748b;
       background: transparent;
       transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
       cursor: pointer;
+      white-space: nowrap;
+      text-align: center;
+      border: 1px solid transparent;
+      width: 100%;
     }
     .admin-tab-btn:hover {
       color: #0f172a;
@@ -908,6 +914,17 @@
       color: var(--primary);
       background: #ffffff;
       box-shadow: 0 2px 8px rgba(15, 23, 42, .1);
+      border-color: rgba(79, 70, 229, .2);
+    }
+    .admin-tab-icon {
+      font-size: 0.95rem;
+      line-height: 1;
+      flex-shrink: 0;
+    }
+    .admin-tab-text {
+      font-size: inherit;
+      font-weight: inherit;
+      line-height: 1;
     }
     .admin-tab-pane {
       display: none;
@@ -1006,6 +1023,35 @@
       justify-content: center;
       gap: 8px;
     }
+    .form-action-row {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      width: 100%;
+    }
+    .form-action-row input {
+      flex: 1 1 200px;
+      min-width: 0;
+    }
+    .form-action-row button {
+      min-height: 48px;
+      padding: 10px 22px;
+      white-space: nowrap;
+    }
+    .form-hour-row {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .form-hour-row select {
+      flex: 1 1 180px;
+      min-width: 0;
+    }
+    .form-hour-row input {
+      flex: 0 0 130px;
+      min-width: 0;
+    }
 
     input, select {
       width: 100%;
@@ -1025,8 +1071,6 @@
     }
     
     #admin-dday-list {
-      max-height: 280px;
-      overflow-y: auto;
       margin-top: 4px;
       padding: 6px;
       border: 1.5px solid #e2e8f0;
@@ -1069,6 +1113,86 @@
       font-size: .92rem;
       font-weight: 750;
       color: #1e293b;
+    }
+    .dday-pagination-wrap {
+      margin-top: 10px;
+      padding: 10px 4px 4px;
+      border-top: 1px dashed #e2e8f0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 6px;
+    }
+    .dday-pagination {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      width: 100%;
+      flex-wrap: wrap;
+    }
+    .btn-page-nav {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      min-height: 34px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid #cbd5e1;
+      background: #ffffff;
+      color: #334155;
+      font-size: 0.78rem;
+      font-weight: 750;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+    .btn-page-nav:hover:not(:disabled) {
+      border-color: var(--primary);
+      color: var(--primary);
+      background: #f8faff;
+    }
+    .btn-page-nav:disabled {
+      opacity: .45;
+      cursor: not-allowed;
+      border-color: #e2e8f0;
+      background: #f8fafc;
+    }
+    .dday-page-pills {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .dday-page-pill {
+      display: grid;
+      place-items: center;
+      min-width: 32px;
+      height: 32px;
+      padding: 0 6px;
+      border-radius: 8px;
+      border: 1px solid #e2e8f0;
+      background: #ffffff;
+      color: #475569;
+      font-size: 0.8rem;
+      font-weight: 800;
+      cursor: pointer;
+      transition: all .15s ease;
+    }
+    .dday-page-pill:hover {
+      border-color: #cbd5e1;
+      color: #0f172a;
+      background: #f1f5f9;
+    }
+    .dday-page-pill.active {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: #ffffff;
+      box-shadow: 0 2px 6px rgba(79, 70, 229, .25);
+    }
+    .dday-page-meta {
+      font-size: 0.74rem;
+      font-weight: 650;
+      color: #94a3b8;
     }
 
     /* Date Events Detail Modal Specifics */
@@ -1390,8 +1514,352 @@
     @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.15); opacity: .8; } }
     @keyframes shake { 0%, 100% { transform: translateX(0); } 20%, 60% { transform: translateX(-4px); } 40%, 80% { transform: translateX(4px); } }
 
+    /* Mobile & Agenda Specialized Styling */
+    .agenda-empty-msg { display: none; }
+    .cell-date-wrap { display: flex; align-items: center; gap: 6px; }
+    .cell-weekday { display: none; }
+    .mobile-view-hint { display: none; }
+
     /* Responsive */
-    @media (min-width: 640px) {
+    @media (max-width: 768px) {
+      .app-shell {
+        width: min(100% - 14px, 1220px);
+        margin: 6px auto 18px;
+        padding: 10px;
+        border-radius: 18px;
+      }
+      .topbar {
+        padding: 2px 2px 8px;
+      }
+      .brand-copy strong { font-size: 0.88rem; }
+      .brand-copy span { font-size: 0.62rem; }
+      .hero {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 8px 4px 12px;
+      }
+      .title-area h1 {
+        font-size: 1.45rem;
+        letter-spacing: -.03em;
+      }
+      .title-area p { font-size: 0.82rem; }
+      .hero-actions {
+        display: flex;
+        flex-wrap: wrap;
+        width: 100%;
+        gap: 6px;
+      }
+      .hero-actions button {
+        flex: 1 1 calc(50% - 6px);
+        min-height: 40px;
+        font-size: 0.78rem;
+        padding: 6px 8px;
+      }
+      .hero-actions #admin-tools-btn { flex: 1 1 100%; }
+      .dashboard {
+        grid-template-columns: 1fr;
+        gap: 8px;
+      }
+      .stat-card { padding: 12px 14px; }
+      .stat-value { font-size: 1.35rem; }
+      .calendar-workspace {
+        padding: 12px 10px;
+        border-radius: 18px;
+      }
+      .calendar-toolbar {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding-bottom: 10px;
+      }
+      .toolbar-left {
+        width: 100%;
+        flex-direction: column;
+        gap: 8px;
+      }
+      .view-tabs {
+        width: 100%;
+        max-width: 100%;
+      }
+      .btn-save-image {
+        width: 100%;
+        min-height: 38px;
+      }
+      .calendar-nav {
+        width: 100%;
+        justify-content: space-between;
+        min-width: 0;
+      }
+      .calendar-nav h2 { font-size: 1.12rem; }
+      .mobile-view-hint {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+        margin: 0 0 10px;
+        padding: 8px 12px;
+        border-radius: 10px;
+        background: #f1f5f9;
+        color: #475569;
+        font-size: 0.75rem;
+        font-weight: 650;
+      }
+      .mobile-view-hint strong { color: var(--primary); }
+
+      /* Transform 1-Week & 2-Week into Mobile Vertical Agenda Card List */
+      .calendar-grid.view-week-1,
+      .calendar-grid.view-week-2 {
+        display: flex !important;
+        flex-direction: column !important;
+        min-width: 0 !important;
+        gap: 10px;
+      }
+      .calendar-grid.view-week-1 > .day-header,
+      .calendar-grid.view-week-2 > .day-header {
+        display: none;
+      }
+      .calendar-grid.view-week-1 .calendar-cell,
+      .calendar-grid.view-week-2 .calendar-cell {
+        min-height: auto !important;
+        padding: 12px 14px !important;
+        border-radius: 14px;
+        background: #ffffff;
+        border: 1.5px solid #e2e8f0;
+        box-shadow: 0 2px 6px rgba(15, 23, 42, .03);
+      }
+      .calendar-grid.view-week-1 .calendar-cell:hover,
+      .calendar-grid.view-week-2 .calendar-cell:hover {
+        border-color: var(--primary);
+        background: #f8faff;
+      }
+      .calendar-grid.view-week-1 .calendar-cell.today,
+      .calendar-grid.view-week-2 .calendar-cell.today {
+        border: 2px solid var(--primary) !important;
+        background: #f5f7ff;
+      }
+      .calendar-grid.view-week-1 .cell-header,
+      .calendar-grid.view-week-2 .cell-header {
+        border-bottom: 1px dashed #e2e8f0;
+        padding-bottom: 6px;
+        margin-bottom: 8px;
+        justify-content: space-between;
+      }
+      .calendar-grid.view-week-1 .cell-weekday,
+      .calendar-grid.view-week-2 .cell-weekday {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 26px;
+        height: 26px;
+        border-radius: 7px;
+        background: #f1f5f9;
+        font-size: 0.78rem;
+        font-weight: 850;
+        color: #475569;
+      }
+      .calendar-grid.view-week-1 .cell-weekday.cell-weekday-0,
+      .calendar-grid.view-week-2 .cell-weekday.cell-weekday-0 {
+        color: #e11d48;
+        background: #fff1f2;
+      }
+      .calendar-grid.view-week-1 .cell-weekday.cell-weekday-6,
+      .calendar-grid.view-week-2 .cell-weekday.cell-weekday-6 {
+        color: #2563eb;
+        background: #eff6ff;
+      }
+      .calendar-grid.view-week-1 .cell-number,
+      .calendar-grid.view-week-2 .cell-number {
+        font-size: 0.95rem;
+        font-weight: 850;
+        color: #0f172a;
+      }
+      .calendar-grid.view-week-1 .event-badge,
+      .calendar-grid.view-week-2 .event-badge {
+        padding: 8px 12px;
+        font-size: 0.82rem;
+        border-radius: 8px;
+        margin-bottom: 6px;
+      }
+      .calendar-grid.view-week-1 .agenda-empty-msg,
+      .calendar-grid.view-week-2 .agenda-empty-msg {
+        display: block;
+        color: #94a3b8;
+        font-size: 0.78rem;
+        font-weight: 600;
+        padding: 4px 2px;
+      }
+
+      /* Month View Mobile Scroll & Sizing */
+      .calendar-grid:not(.view-week-1):not(.view-week-2) {
+        min-width: 680px;
+      }
+
+      /* Modals on Mobile */
+      .modal-backdrop {
+        padding: 10px;
+        align-items: center;
+      }
+      .modal-card, .modal-card-sm, .modal-card-lg, .modal-card-xl {
+        width: 100% !important;
+        max-height: 90vh;
+        padding: 18px 14px !important;
+        border-radius: 18px !important;
+      }
+      .modal-close-btn {
+        top: 12px;
+        right: 12px;
+        width: 32px;
+        height: 32px;
+      }
+      .modal-header {
+        gap: 10px;
+        margin-bottom: 14px;
+        padding-right: 34px;
+      }
+      .modal-icon-badge {
+        width: 40px;
+        height: 40px;
+        border-radius: 12px;
+        flex-shrink: 0;
+      }
+      .modal-icon-badge svg {
+        width: 20px;
+        height: 20px;
+      }
+      .modal-title {
+        font-size: 1.1rem;
+        line-height: 1.25;
+      }
+      .modal-subtitle {
+        font-size: 0.78rem;
+        margin-top: 2px;
+      }
+      .admin-tabs {
+        display: grid !important;
+        grid-template-columns: repeat(3, 1fr) !important;
+        gap: 4px !important;
+        padding: 4px !important;
+        margin-bottom: 14px !important;
+        border-radius: 12px !important;
+        width: 100% !important;
+      }
+      .admin-tab-btn {
+        display: flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 4px !important;
+        min-height: 38px !important;
+        padding: 6px 2px !important;
+        font-size: 0.76rem !important;
+        border-radius: 8px !important;
+        white-space: nowrap !important;
+        text-align: center !important;
+        width: 100% !important;
+      }
+      .admin-tab-icon {
+        font-size: 0.9rem !important;
+      }
+      .admin-card {
+        padding: 14px 12px !important;
+        border-radius: 14px;
+      }
+      .admin-card-header {
+        gap: 10px;
+        margin-bottom: 12px;
+      }
+      .admin-card-icon {
+        width: 30px;
+        height: 30px;
+        font-size: 1rem;
+        border-radius: 8px;
+      }
+      .admin-card h4 {
+        font-size: 0.95rem;
+      }
+      .admin-card p.card-desc {
+        font-size: 0.76rem;
+      }
+      .form-stack {
+        gap: 10px;
+      }
+      .form-row-2, .admin-two-col {
+        grid-template-columns: 1fr !important;
+        gap: 10px !important;
+      }
+      .form-action-row button {
+        width: 100%;
+      }
+      .form-hour-row select {
+        flex: 1 1 140px;
+      }
+      .form-hour-row input {
+        flex: 1 1 100px;
+      }
+      .form-group label {
+        font-size: 0.78rem;
+      }
+      input, select {
+        min-height: 44px !important;
+        padding: 8px 12px !important;
+        font-size: 0.88rem !important;
+        border-radius: 10px !important;
+      }
+      #admin-dday-list {
+        padding: 4px;
+        border-radius: 12px;
+      }
+      .dday-list-item {
+        padding: 10px 12px;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .dday-list-copy {
+        flex: 1 1 160px;
+        min-width: 0;
+      }
+      .dday-list-title {
+        font-size: 0.85rem;
+      }
+      .dday-list-date {
+        font-size: 0.72rem;
+      }
+      .date-form-box {
+        padding: 14px 12px !important;
+        border-radius: 14px;
+      }
+      .date-event-item {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        padding: 10px 12px;
+      }
+      .date-event-main {
+        width: 100%;
+      }
+      .date-event-actions {
+        width: 100%;
+        display: flex;
+        gap: 6px;
+        justify-content: flex-end;
+      }
+      .date-event-actions button {
+        flex: 1 1 50%;
+        min-height: 36px;
+      }
+      .footer-card { padding: 18px 16px; gap: 14px; }
+      .footer-top {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 12px;
+      }
+      .footer-bottom {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 6px;
+      }
+    }
+
+    @media (min-width: 769px) {
       .app-shell { width: min(100% - 36px, 1220px); padding: 16px; }
       .hero { grid-template-columns: 1fr auto; align-items: end; padding: 16px 12px 14px; }
       .dashboard { grid-template-columns: repeat(3, 1fr); gap: 10px; }
@@ -1487,18 +1955,18 @@
       </div>
 
       <!-- Tab Navigation inside Modal -->
-      <div class="admin-tabs" role="tablist" aria-label="관리자 도구 탭" style="margin-bottom: 18px;">
+      <div class="admin-tabs" role="tablist" aria-label="관리자 도구 탭" style="margin-bottom: 16px;">
         <button class="admin-tab-btn active" id="admin-tab-btn-notice" type="button" role="tab" aria-selected="true" data-tab="notice">
-          <span>📢</span>
-          <span>공지사항 관리</span>
+          <span class="admin-tab-icon">📢</span>
+          <span class="admin-tab-text">공지 관리</span>
         </button>
         <button class="admin-tab-btn" id="admin-tab-btn-dday" type="button" role="tab" aria-selected="false" data-tab="dday">
-          <span>🎯</span>
-          <span>마일스톤 (D-Day)</span>
+          <span class="admin-tab-icon">🎯</span>
+          <span class="admin-tab-text">D-Day</span>
         </button>
         <button class="admin-tab-btn" id="admin-tab-btn-event" type="button" role="tab" aria-selected="false" data-tab="event">
-          <span>📅</span>
-          <span>신규 일정 등록</span>
+          <span class="admin-tab-icon">📅</span>
+          <span class="admin-tab-text">일정 등록</span>
         </button>
       </div>
 
@@ -1519,9 +1987,9 @@
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
                   <span>공지 문구 입력</span>
                 </label>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap;">
-                  <input type="text" id="edit-notice-text" maxlength="500" placeholder="화면 상단에 표시할 공지 내용을 입력하세요." style="flex: 1; min-width: 260px;">
-                  <button class="btn-primary" id="update-notice-btn" type="button" style="min-height: 48px; padding: 10px 24px; white-space: nowrap;">
+                <div class="form-action-row">
+                  <input type="text" id="edit-notice-text" maxlength="500" placeholder="화면 상단에 표시할 공지 내용을 입력하세요.">
+                  <button class="btn-primary" id="update-notice-btn" type="button">
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
                     <span>공지 저장</span>
                   </button>
@@ -1618,12 +2086,12 @@
                   <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                   <span>이수 시간</span>
                 </label>
-                <div style="display: flex; gap: 10px;">
-                  <select id="admin-add-hour-select" style="flex: 1;">
+                <div class="form-hour-row">
+                  <select id="admin-add-hour-select">
                     <option value="DEFAULT">기본값 (off-JT 7h / OJT 8h)</option>
                     <option value="CUSTOM">직접 입력</option>
                   </select>
-                  <input type="number" id="admin-add-hour-custom" min="1" max="24" inputmode="numeric" style="display: none; width: 140px;" placeholder="시간 (1~24)">
+                  <input type="number" id="admin-add-hour-custom" min="1" max="24" inputmode="numeric" style="display: none;" placeholder="시간 (1~24)">
                 </div>
               </div>
               <div class="form-group">
@@ -1695,11 +2163,13 @@
                   </div>
                   <div class="form-group" id="date-hour-group" style="display: none;">
                     <label for="date-hour-select" class="modal-label">이수 시간</label>
-                    <select id="date-hour-select">
-                      <option value="DEFAULT">기본값 (off-JT 7h / OJT 8h)</option>
-                      <option value="CUSTOM">직접 입력</option>
-                    </select>
-                    <input type="number" id="date-hour-custom" min="1" max="24" inputmode="numeric" style="display: none; margin-top: 6px;" placeholder="시간 (1~24)">
+                    <div class="form-hour-row">
+                      <select id="date-hour-select">
+                        <option value="DEFAULT">기본값 (off-JT 7h / OJT 8h)</option>
+                        <option value="CUSTOM">직접 입력</option>
+                      </select>
+                      <input type="number" id="date-hour-custom" min="1" max="24" inputmode="numeric" style="display: none;" placeholder="시간 (1~24)">
+                    </div>
                   </div>
                 </div>
                 <div class="form-group">
@@ -1831,6 +2301,9 @@
         <span class="legend-item"><i class="legend-color" style="background:var(--gray-general);"></i>일반 일정</span>
       </div>
       <div class="filter-panel" id="filter-container" aria-label="일정 분류 필터"></div>
+      <div class="mobile-view-hint" id="mobile-view-hint" aria-hidden="true">
+        <span>💡 <strong>모바일 팁</strong>: 상단 <strong>1주간</strong> 탭을 누르면 세로 카드 리스트로 더욱 편리하게 보실 수 있습니다.</span>
+      </div>
       <div class="calendar-scroll" tabindex="0" role="region" aria-label="가로로 스크롤할 수 있는 일정표">
         <div class="calendar-grid" id="calendar-grid" aria-live="polite"></div>
       </div>
@@ -1982,6 +2455,9 @@
       bindControls();
       initAdminTabs();
       restoreAdminSession();
+      if (window.innerWidth <= 640) {
+        switchView('week1');
+      }
       try {
         const cfgRes = await fetch('school_project_05_gas.json');
         if (!cfgRes.ok) throw new Error('설정 파일을 불러오지 못했습니다.');
@@ -2187,7 +2663,7 @@
         calendarData = json.data || {};
         eventIndex = buildEventIndex(calendarData);
         filterTypes = json.types || [];
-        milestonesData = json.milestones || [];
+        milestonesData = (json.milestones || []).slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
 
         document.getElementById('notice-display').textContent = json.notice || '등록된 공지사항이 없습니다.';
         document.getElementById('edit-notice-text').value = json.notice || '';
@@ -2241,6 +2717,11 @@
       if (viewType === 'week1') grid.classList.add('view-week-1');
       else if (viewType === 'week2') grid.classList.add('view-week-2');
       
+      const mobileHint = document.getElementById('mobile-view-hint');
+      if (mobileHint) {
+        mobileHint.style.display = viewType === 'month' ? '' : 'none';
+      }
+
       renderActiveView();
     }
 
@@ -2306,13 +2787,26 @@
     }
 
     // Calendar Month Rendering
-    function appendCellHeader(cell, label, isToday) {
+    function appendCellHeader(cell, label, isToday, weekdayInfo) {
       const header = document.createElement('div');
       header.className = 'cell-header';
-      const number = document.createElement('div');
+
+      const dateWrap = document.createElement('div');
+      dateWrap.className = 'cell-date-wrap';
+
+      if (weekdayInfo) {
+        const weekdaySpan = document.createElement('span');
+        weekdaySpan.className = `cell-weekday cell-weekday-${weekdayInfo.dayIdx}`;
+        weekdaySpan.textContent = weekdayInfo.dayName;
+        dateWrap.appendChild(weekdaySpan);
+      }
+
+      const number = document.createElement('span');
       number.className = 'cell-number';
       number.textContent = label;
-      header.appendChild(number);
+      dateWrap.appendChild(number);
+      header.appendChild(dateWrap);
+
       if (isToday) {
         const badge = document.createElement('div');
         badge.className = 'today-badge';
@@ -2437,10 +2931,12 @@
           cell.classList.add('today'); isToday = true;
         }
 
-        appendCellHeader(cell, `${iMonth}/${iDay}`, isToday);
+        const dayIdx = cDate.getDay();
+        const dayName = weekLabels[dayIdx];
+        appendCellHeader(cell, `${iMonth}월 ${iDay}일`, isToday, { dayIdx, dayName });
 
         const dateIso = `${iYear}-${String(iMonth).padStart(2, '0')}-${String(iDay).padStart(2, '0')}`;
-        cell.title = `${iYear}년 ${iMonth}월 ${iDay}일 일정 확인 및 관리 (클릭)`;
+        cell.title = `${iYear}년 ${iMonth}월 ${iDay}일 (${dayName}) 일정 확인 및 관리 (클릭)`;
         cell.addEventListener('click', () => openDateEventModal(dateIso));
 
         const dayEvents = getDayEvents(sheetKey, iDay);
@@ -2452,6 +2948,7 @@
 
     // Cell Event Badges & Calculation
     function processEventsToCell(dayEvents, cell, sheetKey, d, offjtDays, ojtDays, hoursObj) {
+      let visibleCount = 0;
       dayEvents.forEach((ev) => {
         const typeClean = ev.type ? ev.type.replace(/[-\s]/g, '').toUpperCase() : '';
         const titleClean = ev.title ? ev.title.replace(/[-\s]/g, '').toUpperCase() : '';
@@ -2476,6 +2973,7 @@
         }
 
         if (!selectedFilters.has('ALL') && !selectedFilters.has(ev.type)) return;
+        visibleCount++;
 
         const badge = document.createElement('div');
         let cls = 'general'; 
@@ -2492,6 +2990,13 @@
         badge.appendChild(title);
         cell.appendChild(badge);
       });
+
+      if (visibleCount === 0) {
+        const emptyMsg = document.createElement('div');
+        emptyMsg.className = 'agenda-empty-msg';
+        emptyMsg.textContent = '등록된 일정이 없습니다.';
+        cell.appendChild(emptyMsg);
+      }
     }
 
     // Dashboard Statistics & D-Day
@@ -2992,12 +3497,15 @@
       }
     }
 
+    let ddayCurrentPage = 1;
+    const DDAY_PAGE_SIZE = 4;
+
     function renderAdminDDayList() {
       const listContainer = document.getElementById('admin-dday-list');
       if (!listContainer) return;
       listContainer.replaceChildren();
 
-      if (milestonesData.length === 0) {
+      if (!milestonesData || milestonesData.length === 0) {
         const empty = document.createElement('div');
         empty.className = 'date-empty-box';
         empty.textContent = '등록된 마일스톤(D-Day)이 없습니다.';
@@ -3005,9 +3513,24 @@
         return;
       }
 
+      const sortedMilestones = (milestonesData || []).slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+      const totalItems = sortedMilestones.length;
+      const totalPages = Math.max(1, Math.ceil(totalItems / DDAY_PAGE_SIZE));
+
+      if (ddayCurrentPage > totalPages) {
+        ddayCurrentPage = totalPages;
+      }
+      if (ddayCurrentPage < 1) {
+        ddayCurrentPage = 1;
+      }
+
+      const startIndex = (ddayCurrentPage - 1) * DDAY_PAGE_SIZE;
+      const endIndex = Math.min(startIndex + DDAY_PAGE_SIZE, totalItems);
+      const currentMilestones = sortedMilestones.slice(startIndex, endIndex);
+
       const list = document.createElement('div');
       list.className = 'dday-list';
-      milestonesData.forEach((milestone) => {
+      currentMilestones.forEach((milestone) => {
         const item = document.createElement('div');
         item.className = 'dday-list-item';
         
@@ -3035,6 +3558,71 @@
         list.appendChild(item);
       });
       listContainer.appendChild(list);
+
+      // Pagination Control
+      if (totalPages > 1) {
+        const paginationWrap = document.createElement('div');
+        paginationWrap.className = 'dday-pagination-wrap';
+
+        const pagination = document.createElement('div');
+        pagination.className = 'dday-pagination';
+
+        // Prev button
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button';
+        prevBtn.className = 'btn-page-nav';
+        prevBtn.disabled = ddayCurrentPage === 1;
+        prevBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg><span>이전</span>`;
+        prevBtn.addEventListener('click', () => {
+          if (ddayCurrentPage > 1) {
+            ddayCurrentPage--;
+            renderAdminDDayList();
+          }
+        });
+        pagination.appendChild(prevBtn);
+
+        // Page number pills
+        const pillsWrap = document.createElement('div');
+        pillsWrap.className = 'dday-page-pills';
+        for (let p = 1; p <= totalPages; p++) {
+          const pill = document.createElement('button');
+          pill.type = 'button';
+          pill.className = `dday-page-pill ${p === ddayCurrentPage ? 'active' : ''}`;
+          pill.textContent = String(p);
+          pill.setAttribute('aria-label', `${p} 페이지`);
+          const targetPage = p;
+          pill.addEventListener('click', () => {
+            ddayCurrentPage = targetPage;
+            renderAdminDDayList();
+          });
+          pillsWrap.appendChild(pill);
+        }
+        pagination.appendChild(pillsWrap);
+
+        // Next button
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button';
+        nextBtn.className = 'btn-page-nav';
+        nextBtn.disabled = ddayCurrentPage === totalPages;
+        nextBtn.innerHTML = `<span>다음</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
+        nextBtn.addEventListener('click', () => {
+          if (ddayCurrentPage < totalPages) {
+            ddayCurrentPage++;
+            renderAdminDDayList();
+          }
+        });
+        pagination.appendChild(nextBtn);
+
+        paginationWrap.appendChild(pagination);
+
+        // Meta info
+        const metaInfo = document.createElement('div');
+        metaInfo.className = 'dday-page-meta';
+        metaInfo.textContent = `총 ${totalItems}개 중 ${startIndex + 1}~${endIndex}개 표시 (${ddayCurrentPage} / ${totalPages} 페이지)`;
+        paginationWrap.appendChild(metaInfo);
+
+        listContainer.appendChild(paginationWrap);
+      }
     }
 
     async function addDDay() {
@@ -3044,6 +3632,7 @@
       const result = await sendAdminRequest({ action: 'add_dday', date, title });
       if (result) {
         document.getElementById('add-dday-title').value = '';
+        ddayCurrentPage = 1;
         showToast('디데이 마일스톤이 등록되었습니다.', 'success');
         await loadServerData();
       }
