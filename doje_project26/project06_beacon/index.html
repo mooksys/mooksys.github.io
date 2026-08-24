@@ -9,26 +9,21 @@
     <meta name="theme-color" content="#0b1120" />
     <title>2026 Doje Beacon System</title>
 
-    <!--
-      flatpickr 는 vendor/ 로 자체 호스팅합니다 (v4.6.13 고정).
-      CDN 에서 받으면 브라우저 추적방지 기능이 서드파티 저장소 접근을 막으며
-      콘솔에 "Tracking Prevention blocked access to storage" 경고를 남기고,
-      학교망에서 CDN 이 막히면 날짜 선택기 자체가 동작하지 않습니다.
-      기존 URL 은 버전 미고정(npm/flatpickr = 항상 최신)이라 예고 없이
-      동작이 바뀔 수 있었던 문제도 함께 해소됩니다.
-    -->
-    <link rel="stylesheet" href="vendor/flatpickr/flatpickr.min.css" />
-    <script src="vendor/flatpickr/flatpickr.min.js"></script>
-    <script src="vendor/flatpickr/l10n-ko.js"></script>
+    <!-- Pretendard 가변 폰트 (공식 CDN) -->
+    <link
+      rel="stylesheet"
+      as="style"
+      crossorigin
+      href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css"
+    />
 
-    <!--
-      Pretendard 도 자체 호스팅합니다 (v1.3.8 가변 폰트 1.97MB 단일 파일).
-      이것으로 외부 도메인 요청이 완전히 사라져 추적방지 경고도 없어집니다.
-      폰트를 받는 동안에는 font-display:swap 으로 아래 폰트 스택이 먼저 그려집니다.
-    -->
-    <link rel="preload" as="font" type="font/woff2"
-          href="vendor/pretendard/PretendardVariable.woff2" crossorigin />
-    <link rel="stylesheet" href="vendor/pretendard/pretendard.css" />
+    <!-- Flatpickr 캘린더 (공식 CDN v4.6.13) -->
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.css"
+    />
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/flatpickr.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr@4.6.13/dist/l10n/ko.js"></script>
 
     <style>
       :root {
@@ -560,17 +555,17 @@
         transform: translateY(-1px);
       }
 
-      /* ── 확인 필요 알림 카드 모던 리디자인 ── */
+      /* ── 확인 필요 알림 카드 모던 리디자인 & 토글 아코디언 ── */
       .alert-box {
         position: relative;
         border-radius: var(--r-xl);
-        padding: 16px 18px;
-        margin-bottom: 14px;
+        padding: 14px 18px;
+        margin-bottom: 12px;
         text-align: left;
         background: var(--accent-tint);
         border: 1.5px solid var(--accent-line);
-        box-shadow: 0 4px 16px -4px var(--accent-shadow-soft, rgba(0, 0, 0, 0.03));
-        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+        box-shadow: 0 4px 14px -4px var(--accent-shadow-soft, rgba(0, 0, 0, 0.03));
+        transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
         overflow: hidden;
       }
       .alert-box::before {
@@ -583,8 +578,8 @@
         background: var(--accent);
       }
       .alert-box:hover {
-        box-shadow: 0 8px 24px -4px var(--accent-shadow);
-        transform: translateY(-2px);
+        box-shadow: 0 6px 20px -4px var(--accent-shadow);
+        border-color: var(--accent);
       }
       .alert-head {
         display: flex;
@@ -593,11 +588,19 @@
         margin-bottom: 12px;
         padding-bottom: 8px;
         border-bottom: 1px dashed var(--accent-line);
+        cursor: pointer;
+        user-select: none;
+        transition: margin-bottom 0.22s ease, padding-bottom 0.22s ease;
       }
       .alert-head-left {
         display: flex;
         align-items: center;
         gap: 10px;
+      }
+      .alert-head-right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
       }
       .alert-icon {
         display: inline-flex;
@@ -622,7 +625,7 @@
       .alert-count-badge {
         font-size: 11.5px;
         font-weight: 800;
-        padding: 2px 9px;
+        padding: 3px 10px;
         border-radius: var(--r-pill);
         background: #ffffff;
         color: var(--accent-text);
@@ -634,6 +637,38 @@
         border-color: #a7f3d0;
         background: #ecfdf5;
       }
+      .alert-toggle-icon {
+        display: inline-grid;
+        place-items: center;
+        width: 24px;
+        height: 24px;
+        border-radius: 8px;
+        background: #ffffff;
+        border: 1px solid var(--accent-line);
+        color: var(--accent-text);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.18s ease;
+      }
+      .alert-toggle-icon svg {
+        width: 13px;
+        height: 13px;
+      }
+      .alert-box:hover .alert-toggle-icon {
+        background: var(--accent-tint);
+      }
+
+      /* 접힘(Collapsed) 상태 */
+      .alert-box.is-collapsed .alert-head {
+        margin-bottom: 0;
+        padding-bottom: 0;
+        border-bottom: none;
+      }
+      .alert-box.is-collapsed .alert-toggle-icon {
+        transform: rotate(-90deg);
+      }
+      .alert-box.is-collapsed .alert-body {
+        display: none;
+      }
 
       .alert-body {
         font-size: 13px;
@@ -641,11 +676,23 @@
         color: var(--text-light);
         word-break: keep-all;
         line-height: 1.5;
+        padding-top: 4px;
         padding-left: 2px;
         display: flex;
         flex-wrap: wrap;
         gap: 8px;
         align-items: center;
+        animation: alertBodyIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+      @keyframes alertBodyIn {
+        from {
+          opacity: 0;
+          transform: translateY(-6px);
+        }
+        to {
+          opacity: 1;
+          transform: none;
+        }
       }
 
       /* ── 학생 칩 버튼 (이름(학번) 태그 스타일) ── */
@@ -1422,18 +1469,22 @@
       }
 
       /* ── 교사 메인 탭 바 (프리미엄 세그먼트 컨트롤) ── */
+      /* ── 교사 메인 탭 바 (프리미엄 세그먼트 컨트롤) ── */
       .tab-bar {
+        position: relative;
         display: grid;
         grid-template-columns: repeat(4, 1fr);
-        gap: 6px;
+        gap: 0;
         margin-bottom: 22px;
         background: linear-gradient(180deg, #f8fafc, #f1f5f9);
         border: 1px solid #e2e8f0;
-        padding: 6px;
+        padding: 5px;
         border-radius: 18px;
         box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.04), 0 2px 6px rgba(0, 0, 0, 0.02);
       }
       .tab-btn {
+        position: relative;
+        z-index: 1;
         padding: 9px 4px;
         border: 1px solid transparent;
         border-radius: 13px;
@@ -1453,6 +1504,22 @@
         gap: 6px;
         user-select: none;
         white-space: nowrap;
+      }
+      /* 데스크톱: 탭 버튼 사이 세로 점선 구분선 */
+      .tab-btn:not(:last-child)::after {
+        content: "";
+        position: absolute;
+        right: 0;
+        top: 22%;
+        bottom: 22%;
+        width: 0;
+        border-right: 1.5px dashed #cbd5e1;
+        pointer-events: none;
+        transition: opacity 0.2s ease;
+      }
+      .tab-btn.active::after,
+      .tab-btn:has(+ .tab-btn.active)::after {
+        opacity: 0;
       }
       .tab-ico-wrap {
         width: 26px;
@@ -1810,25 +1877,51 @@
         height: 15px;
       }
 
+      /* 학생 테이블 정보 셀 (학번+이름) */
+      .student-info-cell {
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+        text-align: left;
+        min-width: 0;
+      }
+      .student-info-cell .s-name {
+        font-weight: 800;
+        font-size: 13.5px;
+        color: #0f172a;
+        letter-spacing: -0.02em;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .student-info-cell .s-id {
+        font-size: 11px;
+        font-weight: 700;
+        color: #64748b;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.01em;
+      }
+
       /* 학생 테이블 기준시간 타임 뱃지 */
       .time-range-badge {
         display: inline-flex;
         align-items: center;
-        gap: 4px;
-        padding: 3px 8px;
+        gap: 3px;
+        padding: 3px 7px;
         border-radius: var(--r-pill);
         background: #f8fafc;
         border: 1px solid #e2e8f0;
-        font-size: 12px;
+        font-size: 11.5px;
         font-weight: 700;
         font-variant-numeric: tabular-nums;
+        white-space: nowrap;
       }
       .time-range-badge .t-in {
         color: #047857;
       }
       .time-range-badge .t-sep {
         color: #94a3b8;
-        font-size: 11px;
+        font-size: 10px;
       }
       .time-range-badge .t-out {
         color: #b45309;
@@ -1836,21 +1929,22 @@
 
       /* 학생 관리 액션 버튼 그룹 (수정, PW초기화, 삭제) */
       .student-action-group {
-        display: flex;
+        display: inline-flex;
         align-items: center;
-        justify-content: center;
-        gap: 6px;
-        flex-wrap: wrap;
+        justify-content: flex-end;
+        gap: 4px;
+        flex-wrap: nowrap;
+        white-space: nowrap;
       }
       .student-action-btn {
         width: auto;
         min-height: unset;
         display: inline-flex;
         align-items: center;
-        gap: 4px;
-        padding: 5px 10px;
-        border-radius: 9px;
-        font-size: 11.5px;
+        gap: 3px;
+        padding: 5px 8px;
+        border-radius: 8px;
+        font-size: 11px;
         font-weight: 700;
         letter-spacing: -0.01em;
         cursor: pointer;
@@ -1860,10 +1954,11 @@
         white-space: nowrap;
         font-family: inherit;
         user-select: none;
+        flex-shrink: 0;
       }
       .student-action-btn svg {
-        width: 12px;
-        height: 12px;
+        width: 11px;
+        height: 11px;
         flex-shrink: 0;
       }
       .student-action-btn.edit {
@@ -1926,22 +2021,55 @@
       }
 
       @media (max-width: 540px) {
-        /* 좁은 화면에서 탭 4개를 한 줄에 밀어넣으면 마지막 탭이 잘립니다.
-           가로 스크롤(잘림을 숨길 뿐 발견하기 어려움) 대신 2×2로 접어
-           네 개가 항상 보이게 합니다. */
+        /* 좁은 화면에서 탭 4개를 2×2로 정갈하게 배치하고 십자(+) 점선 구분선 적용 */
         .tab-bar {
+          position: relative;
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 5px;
+          gap: 0;
+          padding: 6px;
+        }
+        /* 데스크톱 세로 점선 비활성화 */
+        .tab-btn:not(:last-child)::after {
+          display: none;
+        }
+        /* 2×2 십자(+) 점선 구분선 */
+        .tab-bar::before {
+          content: "";
+          position: absolute;
+          top: 50%;
+          left: 12px;
+          right: 12px;
+          height: 0;
+          border-top: 1.5px dashed #cbd5e1;
+          pointer-events: none;
+          z-index: 0;
+        }
+        .tab-bar::after {
+          content: "";
+          position: absolute;
+          left: 50%;
+          top: 12px;
+          bottom: 12px;
+          width: 0;
+          border-left: 1.5px dashed #cbd5e1;
+          pointer-events: none;
+          z-index: 0;
         }
         .tab-btn {
+          position: relative;
+          z-index: 1;
           width: 100%;
           min-width: 0;
-          padding: 11px 4px;
+          padding: 12px 6px;
           font-size: 12.5px;
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
+          border-radius: 13px;
+        }
+        .tab-btn.active {
+          z-index: 2;
         }
         .student-form-grid {
           grid-template-columns: 1fr;
@@ -1953,17 +2081,26 @@
           padding: 6px 7px;
           min-width: 32px;
         }
-        /* 학생 목록은 열이 4개라 좁은 화면에서 가장 빡빡합니다.
-           셀·버튼 여백을 회수해 관리 버튼 3개가 한 줄에 들어가게 합니다. */
+        /* 학생 목록 테이블 최적화 (3열 레이아웃 및 1줄 버튼 고정) */
         #tab-students th,
         #tab-students td {
-          padding: 11px 6px;
+          padding: 9px 5px;
         }
         .student-action-group {
-          gap: 4px;
+          gap: 3px;
+          flex-wrap: nowrap;
         }
         .student-action-btn {
-          padding: 7px 6px;
+          padding: 4px 6px;
+          font-size: 10.5px;
+          gap: 2px;
+        }
+        .student-action-btn svg {
+          width: 10px;
+          height: 10px;
+        }
+        .time-range-badge {
+          padding: 2.5px 5px;
           font-size: 10.5px;
         }
       }
@@ -3665,13 +3802,20 @@
           <div id="subtab-panel-alerts" class="dash-subtab-panel active">
             <div style="margin-bottom: 10px">
               <!-- 1. 입실 미입력 학생 -->
-              <div class="alert-box box-red">
-                <div class="alert-head">
+              <div class="alert-box box-red is-collapsed" id="alertBoxIn">
+                <div class="alert-head" onclick="toggleAlertBox('alertBoxIn')" role="button" tabindex="0" aria-expanded="false" title="클릭하여 목록 펼치기/접기">
                   <div class="alert-head-left">
                     <span class="alert-icon">🚪</span>
                     <span class="alert-title-text">입실 미입력 학생</span>
                   </div>
-                  <span class="alert-count-badge is-zero" id="unrecordedInCount">0명</span>
+                  <div class="alert-head-right">
+                    <span class="alert-count-badge is-zero" id="unrecordedInCount">0명</span>
+                    <span class="alert-toggle-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </span>
+                  </div>
                 </div>
                 <div class="alert-body" id="unrecordedInList">
                   데이터 불러오는 중...
@@ -3679,13 +3823,20 @@
               </div>
 
               <!-- 2. 퇴실 미입력 학생 -->
-              <div class="alert-box box-orange">
-                <div class="alert-head">
+              <div class="alert-box box-orange is-collapsed" id="alertBoxOut">
+                <div class="alert-head" onclick="toggleAlertBox('alertBoxOut')" role="button" tabindex="0" aria-expanded="false" title="클릭하여 목록 펼치기/접기">
                   <div class="alert-head-left">
                     <span class="alert-icon">🚶</span>
                     <span class="alert-title-text">퇴실 미입력 학생</span>
                   </div>
-                  <span class="alert-count-badge is-zero" id="unrecordedOutCount">0명</span>
+                  <div class="alert-head-right">
+                    <span class="alert-count-badge is-zero" id="unrecordedOutCount">0명</span>
+                    <span class="alert-toggle-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </span>
+                  </div>
                 </div>
                 <div class="alert-body" id="unrecordedOutList">
                   데이터 불러오는 중...
@@ -3693,13 +3844,20 @@
               </div>
 
               <!-- 3. 지각 학생 -->
-              <div class="alert-box box-rose">
-                <div class="alert-head">
+              <div class="alert-box box-rose is-collapsed" id="alertBoxLate">
+                <div class="alert-head" onclick="toggleAlertBox('alertBoxLate')" role="button" tabindex="0" aria-expanded="false" title="클릭하여 목록 펼치기/접기">
                   <div class="alert-head-left">
                     <span class="alert-icon">⏰</span>
                     <span class="alert-title-text">지각 학생</span>
                   </div>
-                  <span class="alert-count-badge is-zero" id="lateCountBadge">0명</span>
+                  <div class="alert-head-right">
+                    <span class="alert-count-badge is-zero" id="lateCountBadge">0명</span>
+                    <span class="alert-toggle-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </span>
+                  </div>
                 </div>
                 <div class="alert-body" id="lateList">
                   데이터 불러오는 중...
@@ -3707,13 +3865,20 @@
               </div>
 
               <!-- 4. 조퇴 학생 -->
-              <div class="alert-box box-purple">
-                <div class="alert-head">
+              <div class="alert-box box-purple is-collapsed" id="alertBoxEarly">
+                <div class="alert-head" onclick="toggleAlertBox('alertBoxEarly')" role="button" tabindex="0" aria-expanded="false" title="클릭하여 목록 펼치기/접기">
                   <div class="alert-head-left">
                     <span class="alert-icon">🏃</span>
                     <span class="alert-title-text">조퇴 학생</span>
                   </div>
-                  <span class="alert-count-badge is-zero" id="earlyCountBadge">0명</span>
+                  <div class="alert-head-right">
+                    <span class="alert-count-badge is-zero" id="earlyCountBadge">0명</span>
+                    <span class="alert-toggle-icon">
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                    </span>
+                  </div>
                 </div>
                 <div class="alert-body" id="earlyList">
                   데이터 불러오는 중...
@@ -3791,15 +3956,14 @@
             <table>
               <thead>
                 <tr>
-                  <th>학번</th>
-                  <th>이름</th>
+                  <th style="text-align: left; padding-left: 16px;">학생 정보</th>
                   <th>기준시간</th>
-                  <th>관리</th>
+                  <th style="text-align: right; padding-right: 18px;">관리</th>
                 </tr>
               </thead>
               <tbody id="studentManageContent">
                 <tr>
-                  <td colspan="4">데이터를 불러오는 중...</td>
+                  <td colspan="3">데이터를 불러오는 중...</td>
                 </tr>
               </tbody>
             </table>
@@ -4951,14 +5115,16 @@
         const curM = new Date().getMonth() + 1;
         document.getElementById("reportMonth").value = isOjtMonth(curM) ? curM : 3;
 
-        fpCalendar = flatpickr("#calendarTrigger", {
-          locale: "ko",
-          disableMobile: true,
-          defaultDate: currentAdminDate,
-          onChange(selectedDates) {
-            if (selectedDates.length > 0) pickDate(selectedDates[0]);
-          },
-        });
+        if (typeof flatpickr !== "undefined") {
+          fpCalendar = flatpickr("#calendarTrigger", {
+            locale: "ko",
+            disableMobile: true,
+            defaultDate: currentAdminDate,
+            onChange(selectedDates) {
+              if (selectedDates.length > 0) pickDate(selectedDates[0]);
+            },
+          });
+        }
 
         fetchAdminData(false);
         startAutoRefresh();
@@ -4996,6 +5162,17 @@
         if (btnRecords) btnRecords.classList.toggle("active", !isAlerts);
         if (panelAlerts) panelAlerts.classList.toggle("active", isAlerts);
         if (panelRecords) panelRecords.classList.toggle("active", !isAlerts);
+      }
+
+      // ── 확인 필요 알림 카드 아코디언 토글 ───────────────────────────
+      function toggleAlertBox(boxId) {
+        const box = document.getElementById(boxId);
+        if (!box) return;
+        const isCollapsed = box.classList.toggle("is-collapsed");
+        const head = box.querySelector(".alert-head");
+        if (head) {
+          head.setAttribute("aria-expanded", String(!isCollapsed));
+        }
       }
 
       // ✅ 자동 새로고침 함수 분리
@@ -5169,7 +5346,7 @@
 
         if (allStudents.length === 0) {
           tbody.innerHTML =
-            '<tr><td colspan="4" style="padding:24px;color:#94a3b8;">등록된 학생이 없습니다.</td></tr>';
+            '<tr><td colspan="3" style="padding:24px;color:#94a3b8;">등록된 학생이 없습니다.</td></tr>';
           document.getElementById("studentPagination").innerHTML = "";
           return;
         }
@@ -5179,8 +5356,12 @@
           .slice(start, start + STUDENTS_PER_PAGE)
           .map(
             (student) => `<tr>
-              <td><span style="font-weight: 800; color: #1e293b; letter-spacing: -0.01em;">${esc(student.id)}</span></td>
-              <td><span style="font-weight: 700; color: #0f172a;">${esc(student.name)}</span></td>
+              <td style="text-align: left; padding: 11px 12px 11px 16px;">
+                <div class="student-info-cell">
+                  <span class="s-name">${esc(student.name)}</span>
+                  <span class="s-id">${esc(student.id)}</span>
+                </div>
+              </td>
               <td>
                 <div class="time-range-badge">
                   <span class="t-in">${esc(student.inTime || "-")}</span>
@@ -5188,7 +5369,7 @@
                   <span class="t-out">${esc(student.outTime || "-")}</span>
                 </div>
               </td>
-              <td>
+              <td style="text-align: right; padding-right: 14px;">
                 <div class="student-action-group">
                   <button class="student-action-btn edit" data-id="${esc(student.id)}" onclick="beginEditStudent(this.dataset.id)" title="학생 정보 수정">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
@@ -5201,7 +5382,7 @@
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                       <path d="M21 2l-2 2m-1.5 1.5L16 7l-1.5-1.5L13 7l-1.5-1.5L10 7l-1.5-1.5L7 7l-1.5-1.5L4 7a5 5 0 1 0 7.07 7.07l1.41-1.41"/>
                     </svg>
-                    <span>PW 초기화</span>
+                    <span>PW</span>
                   </button>
                   <button class="student-action-btn delete" data-id="${esc(student.id)}" onclick="deleteStudentFromAdmin(this.dataset.id)" title="학생 삭제">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
