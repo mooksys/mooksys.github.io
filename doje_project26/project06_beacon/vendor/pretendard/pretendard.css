@@ -1,0 +1,19 @@
+/*
+ * Pretendard v1.3.8 — 자체 호스팅용 @font-face
+ * https://github.com/orioncactus/pretendard (SIL Open Font License 1.1)
+ *
+ * 가변(variable) 폰트 한 개로 100~900 전 굵기를 처리합니다.
+ * static 방식으로 필요한 굵기(400/600/700/800)만 받아도 2.99MB 인 반면
+ * 가변 폰트는 1.97MB 한 파일이라 더 가볍고 요청도 한 번뿐입니다.
+ *
+ * font-family 를 원본과 같은 'Pretendard' 로 두어, index.html 의
+ * 폰트 스택을 그대로 쓸 수 있게 했습니다.
+ */
+@font-face {
+  font-family: "Pretendard";
+  font-weight: 45 920;
+  font-style: normal;
+  /* 폰트를 받는 동안 대체 폰트로 먼저 그려 화면이 비지 않게 합니다 */
+  font-display: swap;
+  src: url("./PretendardVariable.woff2") format("woff2");
+}
