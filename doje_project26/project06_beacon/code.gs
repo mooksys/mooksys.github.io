@@ -240,6 +240,12 @@ function doPost(e) {
         response = generateMonthlyReport(sheets.users, sheets.attend, sheets.blockedDates, req.year, req.month);
         break;
       }
+      case 'setOfficialAbsence': {
+        const sv = verifySessionToken(sheets.sessions, req.token, req.id, '교사');
+        if (!sv.valid) { response = { success: false, msg: sv.msg }; break; }
+        response = setOfficialAbsence(sheets.users, sheets.attend, req.studentId, req.date, req.reason, req.cancel);
+        break;
+      }
       default:
         response = { success: false, msg: '알 수 없는 요청입니다.' };
     }
@@ -1462,14 +1468,14 @@ function generateMonthlyReport(userSheet, attendSheet, blockedSheet, year, month
 
   const summary = {};
   studentList.forEach(s => {
-    summary[s.id] = { name: s.name, normal: 0, late: 0, early: 0, absent: 0, records: {} };
+    summary[s.id] = { name: s.name, normal: 0, late: 0, early: 0, official: 0, absent: 0, records: {} };
   });
 
   monthData.forEach(r => {
     const sid    = r[ACOL.ID].toString().trim();
     const date   = r[ACOL.DATE].toString().trim();
     const type   = r[ACOL.TYPE];
-    const status = r[ACOL.STATUS];
+    const status = (r[ACOL.STATUS] || '').toString().trim();
     const time   = timeObjectToHHMM(r[ACOL.TIME]);
     if (!summary[sid]) return;
     if (!scheduledDateSet.has(date)) return; // 비실습일·차단일·미래 기록 제외
@@ -1478,8 +1484,9 @@ function generateMonthlyReport(userSheet, attendSheet, blockedSheet, year, month
     summary[sid].records[date][type] = { time, status };
 
     if (type === '입실') {
-      if (status === '지각')      summary[sid].late++;
-      else if (status === '정상') summary[sid].normal++;
+      if (status === '공결' || status.startsWith('공결')) summary[sid].official++;
+      else if (status === '지각')                        summary[sid].late++;
+      else if (status === '정상')                        summary[sid].normal++;
     }
     if (type === '퇴실' && status === '조퇴') summary[sid].early++;
   });
@@ -1883,6 +1890,106 @@ function getBlockedDates(blockedSheet) {
   return { success: true, dates };
 }
 
+// 공결(출석 인정 - 대회 출전, 자격증, 병결 등) 등록/취소 (교사 전용)
+function setOfficialAbsence(userSheet, attendSheet, studentId, dateStr, reason, cancel = false) {
+  const v = validateAll([
+    [studentId, PATTERN.ID, '학번'],
+    [dateStr,   PATTERN.DATE, '날짜'],
+  ]);
+  if (!v.ok) return { success: false, msg: v.msg };
+
+  const sId = studentId.toString().trim();
+  const dStr = dateStr.toString().trim();
+  const reasonText = (reason || '대회 출전').toString().trim();
+
+  const locked = runWithScriptLock(() => {
+    // 1. 학생 정보 조회
+    const userData = userSheet.getDataRange().getDisplayValues();
+    const userValues = userSheet.getDataRange().getValues();
+    let student = null;
+    for (let i = 1; i < userData.length; i++) {
+      if (userData[i][COL.ID].toString().trim() === sId && userData[i][COL.ROLE].toString().trim() === '학생') {
+        student = {
+          name: userData[i][COL.NAME].toString().trim(),
+          inTime: timeObjectToHHMM(userValues[i][COL.IN_TIME]) || '09:00',
+          outTime: timeObjectToHHMM(userValues[i][COL.OUT_TIME]) || '18:00',
+        };
+        break;
+      }
+    }
+    if (!student) {
+      return { success: false, msg: '해당 학생을 찾을 수 없습니다.' };
+    }
+
+    // 2. Attendance 시트에서 해당 날짜, 학생의 기존 기록 탐색
+    const attendRange = attendSheet.getDataRange();
+    const attendData = attendRange.getDisplayValues();
+    const existingRowIndices = [];
+
+    for (let i = 1; i < attendData.length; i++) {
+      if (attendData[i][ACOL.ID].toString().trim() === sId &&
+          attendData[i][ACOL.DATE].toString().trim() === dStr) {
+        existingRowIndices.push(i + 1); // 1-based sheet row index
+      }
+    }
+
+    // 3. 취소 요청인 경우 기존 공결 행 삭제
+    if (cancel) {
+      if (existingRowIndices.length === 0) {
+        return { success: false, msg: '해당 날짜에 등록된 출결 기록이 없습니다.' };
+      }
+      for (let k = existingRowIndices.length - 1; k >= 0; k--) {
+        attendSheet.deleteRow(existingRowIndices[k]);
+      }
+      return { success: true, msg: `${student.name} 학생의 ${dStr} 공결 기록을 취소(삭제)했습니다.` };
+    }
+
+    // 4. 등록 요청인 경우 (기존 기록 삭제 후 공결 2개 행 추가)
+    if (existingRowIndices.length > 0) {
+      for (let k = existingRowIndices.length - 1; k >= 0; k--) {
+        attendSheet.deleteRow(existingRowIndices[k]);
+      }
+    }
+
+    const dayIndex = new Date(dStr.replace(/-/g, '/')).getDay();
+    const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+    const dayName = dayNames[dayIndex] || '화';
+
+    const inTimeStamp = `${student.inTime}:00`;
+    const outTimeStamp = `${student.outTime}:00`;
+    const statusText = `공결(${reasonText})`;
+
+    attendSheet.appendRow([
+      inTimeStamp,
+      dStr,
+      dayName,
+      sId,
+      student.name,
+      '입실',
+      student.inTime,
+      statusText,
+    ]);
+
+    attendSheet.appendRow([
+      outTimeStamp,
+      dStr,
+      dayName,
+      sId,
+      student.name,
+      '퇴실',
+      student.outTime,
+      statusText,
+    ]);
+
+    return {
+      success: true,
+      msg: `${student.name} 학생 ${dStr} 공결(출석 인정: ${reasonText}) 처리 완료`,
+    };
+  });
+
+  return locked.acquired ? locked.value : lockBusyResponse();
+}
+
 // HTML 이스케이프.
 // 학번·이름은 등록 API에서 패턴 검증을 거치지만, 시트에 직접 입력한 행은
 // 그 검증을 통과하지 않습니다. 레포트는 브라우저에서 렌더되므로 출력 시점에
@@ -1897,7 +2004,6 @@ function escapeHtml(value) {
 }
 
 // 레포트 HTML 빌더
-// 레포트 HTML 빌더
 function buildReportHtml(year, month, dates, students, summary, dayNames) {
   const title = `${year}년 ${month}월 도제반 출석 현황 레포트`;
 
@@ -1911,21 +2017,37 @@ function buildReportHtml(year, month, dates, students, summary, dayNames) {
   }).join('');
 
   let rows = students.map(s => {
-    const rec  = summary[s.id] || { normal: 0, late: 0, early: 0, absent: 0, records: {} };
+    const rec  = summary[s.id] || { normal: 0, late: 0, early: 0, official: 0, absent: 0, records: {} };
     let cells  = fieldDates.map(d => {
       const dayRec = rec.records[d] || {};
       const inRec  = dayRec['입실'];
       const outRec = dayRec['퇴실'];
       let cell = '';
       if (inRec) {
-        const inColor  = inRec.status  === '지각' ? '#e11d48' : '#059669';
-        cell += `<div style="color:${inColor};font-weight:700;font-size:9px;line-height:1.15;">▲${escapeHtml(inRec.time)}</div>`;
+        const isOfficial = inRec.status && inRec.status.startsWith('공결');
+        let inColor = '#059669';
+        let inLabel = `▲${escapeHtml(inRec.time)}`;
+        if (isOfficial) {
+          inColor = '#7c3aed';
+          inLabel = `▲공결`;
+        } else if (inRec.status === '지각') {
+          inColor = '#e11d48';
+        }
+        cell += `<div style="color:${inColor};font-weight:700;font-size:9px;line-height:1.15;">${inLabel}</div>`;
       } else {
         cell += `<div style="color:#cbd5e1;font-size:9px;line-height:1.15;">▲-</div>`;
       }
       if (outRec) {
-        const outColor = outRec.status === '조퇴' ? '#d97706' : '#2563eb';
-        cell += `<div style="color:${outColor};font-weight:700;font-size:9px;line-height:1.15;">▼${escapeHtml(outRec.time)}</div>`;
+        const isOfficial = outRec.status && outRec.status.startsWith('공결');
+        let outColor = '#2563eb';
+        let outLabel = `▼${escapeHtml(outRec.time)}`;
+        if (isOfficial) {
+          outColor = '#7c3aed';
+          outLabel = `▼인정`;
+        } else if (outRec.status === '조퇴') {
+          outColor = '#d97706';
+        }
+        cell += `<div style="color:${outColor};font-weight:700;font-size:9px;line-height:1.15;">${outLabel}</div>`;
       } else {
         cell += `<div style="color:#cbd5e1;font-size:9px;line-height:1.15;">▼-</div>`;
       }
@@ -1938,6 +2060,7 @@ function buildReportHtml(year, month, dates, students, summary, dayNames) {
       <td style="padding:3px 1px;text-align:center;border:1px solid #cbd5e1;color:#059669;font-weight:800;font-size:9.5px;">${rec.normal}</td>
       <td style="padding:3px 1px;text-align:center;border:1px solid #cbd5e1;color:#e11d48;font-weight:800;font-size:9.5px;">${rec.late}</td>
       <td style="padding:3px 1px;text-align:center;border:1px solid #cbd5e1;color:#d97706;font-weight:800;font-size:9.5px;">${rec.early}</td>
+      <td style="padding:3px 1px;text-align:center;border:1px solid #cbd5e1;color:#7c3aed;font-weight:800;font-size:9.5px;">${rec.official || 0}</td>
       <td style="padding:3px 1px;text-align:center;border:1px solid #cbd5e1;color:#64748b;font-weight:800;font-size:9.5px;">${rec.absent}</td>
       ${cells}
     </tr>`;
@@ -2032,11 +2155,12 @@ function buildReportHtml(year, month, dates, students, summary, dayNames) {
     <thead>
       <tr>
         <th style="min-width:36px;">학번</th>
-        <th style="min-width:42px;">이름</th>
-        <th style="color:#86efac;min-width:22px;">정상</th>
-        <th style="color:#fca5a5;min-width:22px;">지각</th>
-        <th style="color:#fde68a;min-width:22px;">조퇴</th>
-        <th style="color:#cbd5e1;min-width:22px;">결석</th>
+        <th style="min-width:40px;">이름</th>
+        <th style="color:#86efac;min-width:20px;">정상</th>
+        <th style="color:#fca5a5;min-width:20px;">지각</th>
+        <th style="color:#fde68a;min-width:20px;">조퇴</th>
+        <th style="color:#d8b4fe;min-width:20px;">공결</th>
+        <th style="color:#cbd5e1;min-width:20px;">결석</th>
         ${dateCols}
       </tr>
     </thead>
@@ -2044,9 +2168,10 @@ function buildReportHtml(year, month, dates, students, summary, dayNames) {
   </table>
   <div class="legend">
     ▲ 입실 &nbsp;|&nbsp; ▼ 퇴실 &nbsp;|&nbsp;
+    <span style="color:#059669;font-weight:700;">초록=정상</span> &nbsp;
     <span style="color:#e11d48;font-weight:700;">빨강=지각</span> &nbsp;
     <span style="color:#d97706;font-weight:700;">주황=조퇴</span> &nbsp;
-    <span style="color:#059669;font-weight:700;">초록=정상</span>
+    <span style="color:#7c3aed;font-weight:700;">보라=공결(인정)</span>
     &nbsp;|&nbsp; 생성일시: ${Utilities.formatDate(new Date(), 'GMT+9', 'yyyy-MM-dd HH:mm')}
   </div>
 </div>

@@ -711,10 +711,16 @@
         transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
         user-select: none;
       }
-      .student-chip:hover {
+      .student-chip.is-clickable {
+        cursor: pointer;
+      }
+      .student-chip.is-clickable:hover {
         transform: translateY(-2px);
         box-shadow: 0 6px 14px -2px var(--accent-shadow);
         border-color: var(--accent);
+      }
+      .student-chip.is-clickable:active {
+        transform: translateY(0);
       }
       .student-chip .chip-name {
         font-weight: 800;
@@ -736,6 +742,13 @@
         letter-spacing: -0.01em;
         margin-left: 2px;
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.15);
+      }
+
+      /* 공결/출석 인정 상태 배지 */
+      .bg-official {
+        background: #f5f3ff !important;
+        color: #7c3aed !important;
+        border: 1px solid #ddd6fe !important;
       }
 
       /* 정상/완료 상태 뱃지 카드 */
@@ -4228,6 +4241,54 @@
       </div>
     </div>
 
+    <!-- ───────── 공결 / 출석 인정 모달 ───────── -->
+    <div id="officialAbsenceModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
+      <div class="modal-box">
+        <div class="popup-icon-wrap" style="background: #f5f3ff; color: #7c3aed; border: 1px solid #ddd6fe; margin-bottom: 12px;">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="width:26px; height:26px;">
+            <circle cx="12" cy="8" r="7"></circle>
+            <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
+          </svg>
+        </div>
+        <h3 style="margin-top: 0; margin-bottom: 4px; font-size: 17px; font-weight: 800; color: #0f172a;">🏅 출석 인정 (공결) 등록</h3>
+        <p style="font-size: 13px; color: #64748b; margin-bottom: 16px; line-height: 1.5;">
+          <strong id="officialAbsenceStudentName" style="color: #0f172a; font-size: 14px;"></strong> (<span id="officialAbsenceStudentId"></span>) 학생<br>
+          <span id="officialAbsenceDateText" style="font-weight: 700; color: #2563eb;"></span>
+        </p>
+
+        <div class="input-group" style="text-align: left;">
+          <label for="officialAbsenceReasonSelect">인정 사유 선택</label>
+          <select id="officialAbsenceReasonSelect" onchange="handleOfficialAbsenceReasonChange()" style="width:100%; padding:11px 12px; border:1.5px solid #cbd5e1; border-radius:12px; font-size:13.5px; font-weight:600; font-family:inherit; background:#fff; outline:none;">
+            <option value="대회 출전">🏆 대회 출전 (기능경기대회 등)</option>
+            <option value="자격증 시험">📜 자격증 시험 응시</option>
+            <option value="병결(공결)">🏥 병결 (진단서/처방전)</option>
+            <option value="외부 교육/면접">🏢 외부 기업 교육 / 채용 면접</option>
+            <option value="경조사">👨‍👩‍👧 경조사</option>
+            <option value="custom">✍️ 기타 사유 (직접 입력)</option>
+          </select>
+        </div>
+
+        <div class="input-group hidden" id="officialAbsenceCustomGroup" style="text-align: left;">
+          <label for="officialAbsenceCustomReason">직접 입력 사유</label>
+          <input type="text" id="officialAbsenceCustomReason" placeholder="예: 현장견학, 학교행사 등" maxlength="30" />
+        </div>
+
+        <div id="officialAbsenceMsg" class="msg-error" style="margin-bottom: 12px;"></div>
+
+        <div class="modal-actions" style="gap: 8px;">
+          <button class="btn-secondary" onclick="closeOfficialAbsenceModal()" style="margin-bottom: 0;">
+            닫기
+          </button>
+          <button class="btn-danger hidden" id="officialAbsenceCancelBtn" onclick="cancelOfficialAbsence()" style="margin-bottom: 0; background:#fee2e2; color:#dc2626; border-color:#fca5a5;">
+            공결 취소
+          </button>
+          <button class="btn-primary" id="officialAbsenceSubmitBtn" onclick="submitOfficialAbsence()" style="margin-bottom: 0; background: linear-gradient(135deg, #8b5cf6, #6d28d9); border-color: #6d28d9;">
+            인정 등록
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- ── 전역 모던 팝업 (Alert / Confirm) ── -->
     <div id="appModal" class="modal-overlay hidden" role="dialog" aria-modal="true">
       <div class="modal-box modal-popup-box">
@@ -5518,6 +5579,161 @@
         if (res.success) await fetchAdminData(true);
       }
 
+      // ── 공결 / 출석 인정 관리 ──────────────────────────────────────────
+      let currentOfficialStudentId = null;
+      let currentOfficialStudentName = null;
+
+      function openOfficialAbsenceModal(studentId, studentName, existingStatus = "") {
+        currentOfficialStudentId = studentId;
+        currentOfficialStudentName = studentName;
+
+        const targetDateStr = formatDateForCompare(currentAdminDate);
+        const days = ["일", "월", "화", "수", "목", "금", "토"];
+        const dayIdx = currentAdminDate.getDay();
+
+        document.getElementById("officialAbsenceStudentName").textContent = studentName;
+        document.getElementById("officialAbsenceStudentId").textContent = studentId;
+        document.getElementById("officialAbsenceDateText").textContent = `📅 ${targetDateStr} (${days[dayIdx]})`;
+        document.getElementById("officialAbsenceMsg").textContent = "";
+
+        const select = document.getElementById("officialAbsenceReasonSelect");
+        const customGroup = document.getElementById("officialAbsenceCustomGroup");
+        const customInput = document.getElementById("officialAbsenceCustomReason");
+        const cancelBtn = document.getElementById("officialAbsenceCancelBtn");
+
+        customInput.value = "";
+        customGroup.classList.add("hidden");
+
+        // 기존에 등록된 공결인지 판별
+        const isExistingOfficial = existingStatus && existingStatus.startsWith("공결");
+        if (isExistingOfficial) {
+          cancelBtn.classList.remove("hidden");
+          document.getElementById("officialAbsenceSubmitBtn").textContent = "사유 변경";
+          const matched = existingStatus.match(/^공결\((.*)\)$/);
+          const reason = matched ? matched[1] : "대회 출전";
+          let hasOption = false;
+          for (let i = 0; i < select.options.length; i++) {
+            if (select.options[i].value === reason) {
+              select.selectedIndex = i;
+              hasOption = true;
+              break;
+            }
+          }
+          if (!hasOption) {
+            select.value = "custom";
+            customGroup.classList.remove("hidden");
+            customInput.value = reason;
+          }
+        } else {
+          cancelBtn.classList.add("hidden");
+          document.getElementById("officialAbsenceSubmitBtn").textContent = "인정 등록";
+          select.selectedIndex = 0;
+        }
+
+        document.getElementById("officialAbsenceModal").classList.remove("hidden");
+      }
+
+      function closeOfficialAbsenceModal() {
+        document.getElementById("officialAbsenceModal").classList.add("hidden");
+        currentOfficialStudentId = null;
+        currentOfficialStudentName = null;
+      }
+
+      function handleOfficialAbsenceReasonChange() {
+        const select = document.getElementById("officialAbsenceReasonSelect");
+        const customGroup = document.getElementById("officialAbsenceCustomGroup");
+        const isCustom = select.value === "custom";
+        customGroup.classList.toggle("hidden", !isCustom);
+        if (isCustom) {
+          document.getElementById("officialAbsenceCustomReason").focus();
+        }
+      }
+
+      async function submitOfficialAbsence() {
+        if (!currentOfficialStudentId) return;
+
+        const select = document.getElementById("officialAbsenceReasonSelect");
+        let reason = select.value;
+        if (reason === "custom") {
+          reason = document.getElementById("officialAbsenceCustomReason").value.trim();
+          if (!reason) {
+            document.getElementById("officialAbsenceMsg").textContent = "사유를 직접 입력해주세요.";
+            return;
+          }
+        }
+
+        const targetDateStr = formatDateForCompare(currentAdminDate);
+        const submitBtn = document.getElementById("officialAbsenceSubmitBtn");
+        const origText = submitBtn.textContent;
+        submitBtn.disabled = true;
+        submitBtn.textContent = "처리 중...";
+        document.getElementById("officialAbsenceMsg").textContent = "";
+
+        const res = await callAPI({
+          action: "setOfficialAbsence",
+          id: userInfo.id,
+          studentId: currentOfficialStudentId,
+          date: targetDateStr,
+          reason: reason,
+          cancel: false,
+        });
+
+        submitBtn.disabled = false;
+        submitBtn.textContent = origText;
+
+        if (res.success) {
+          closeOfficialAbsenceModal();
+          await fetchAdminData(true);
+          await showAppAlert(res.msg || "출석 인정(공결) 처리가 완료되었습니다.", {
+            title: "공결 처리 완료",
+            type: "success",
+          });
+        } else {
+          document.getElementById("officialAbsenceMsg").textContent = res.msg || "처리 실패";
+        }
+      }
+
+      async function cancelOfficialAbsence() {
+        if (!currentOfficialStudentId) return;
+        const targetDateStr = formatDateForCompare(currentAdminDate);
+
+        const ok = await showConfirm(
+          `${currentOfficialStudentName} 학생의 ${targetDateStr} 공결(출석 인정)을 취소할까요?`,
+          {
+            title: "공결 등록 취소",
+            confirmText: "공결 취소",
+            danger: true,
+          }
+        );
+        if (!ok) return;
+
+        const cancelBtn = document.getElementById("officialAbsenceCancelBtn");
+        cancelBtn.disabled = true;
+        cancelBtn.textContent = "취소 중...";
+
+        const res = await callAPI({
+          action: "setOfficialAbsence",
+          id: userInfo.id,
+          studentId: currentOfficialStudentId,
+          date: targetDateStr,
+          cancel: true,
+        });
+
+        cancelBtn.disabled = false;
+        cancelBtn.textContent = "공결 취소";
+
+        if (res.success) {
+          closeOfficialAbsenceModal();
+          await fetchAdminData(true);
+          await showAppAlert(res.msg || "공결 등록이 취소되었습니다.", {
+            title: "취소 완료",
+            type: "info",
+          });
+        } else {
+          document.getElementById("officialAbsenceMsg").textContent = res.msg || "취소 실패";
+        }
+      }
+
       function renderDashboard() {
         const days = ["일", "월", "화", "수", "목", "금", "토"];
         const targetDateStr = formatDateForCompare(currentAdminDate);
@@ -5616,12 +5832,15 @@
         document.getElementById("countLate").innerText = statLate + "명";
         document.getElementById("countEarly").innerText = statEarly + "명";
 
-        // 학생 칩(버튼) 생성 헬퍼
-        const renderChip = (name, id, time) => {
+        // 학생 칩(버튼) 생성 헬퍼 (클릭하여 공결/출석 인정 등록 가능)
+        const renderChip = (name, id, time, isClickable = true, tooltip = "클릭하여 공결(출석 인정) 등록") => {
           const timeBadge = time
             ? `<span class="chip-time">${esc(time)}</span>`
             : "";
-          return `<span class="student-chip"><span class="chip-name">${esc(name)}</span><span class="chip-id">(${esc(id)})</span>${timeBadge}</span>`;
+          const clickAttr = isClickable
+            ? `onclick="openOfficialAbsenceModal('${esc(id)}', '${esc(name)}')" title="${tooltip}"`
+            : "";
+          return `<span class="student-chip ${isClickable ? 'is-clickable' : ''}" ${clickAttr}><span class="chip-name">${esc(name)}</span><span class="chip-id">(${esc(id)})</span>${timeBadge}</span>`;
         };
 
         // 헬퍼: 카운트 뱃지 업데이트
@@ -5640,7 +5859,7 @@
         document.getElementById("unrecordedInList").innerHTML =
           unrecordedInStudents.length
             ? unrecordedInStudents
-                .map((s) => renderChip(s.name, s.id))
+                .map((s) => renderChip(s.name, s.id, null, true, "클릭하여 공결(출석 인정) 등록"))
                 .join("")
             : "<span class='empty-status-card'>✓ 전원 입실 완료</span>";
 
@@ -5652,7 +5871,7 @@
         document.getElementById("unrecordedOutList").innerHTML =
           unrecordedOutStudents.length
             ? unrecordedOutStudents
-                .map((s) => renderChip(s.name, s.id))
+                .map((s) => renderChip(s.name, s.id, null, true, "클릭하여 공결(출석 인정) 등록"))
                 .join("")
             : "<span class='empty-status-card'>✓ 전원 퇴실 완료</span>";
 
@@ -5660,7 +5879,7 @@
         updateCountBadge("lateCountBadge", lateStudents.length);
         document.getElementById("lateList").innerHTML = lateStudents.length
           ? lateStudents
-              .map((s) => renderChip(s.name, s.id, s.time))
+              .map((s) => renderChip(s.name, s.id, s.time, true, "클릭하여 공결(출석 인정) 변경"))
               .join("")
           : "<span class='empty-status-card'>✓ 지각자 없음</span>";
 
@@ -5668,7 +5887,7 @@
         updateCountBadge("earlyCountBadge", earlyStudents.length);
         document.getElementById("earlyList").innerHTML = earlyStudents.length
           ? earlyStudents
-              .map((s) => renderChip(s.name, s.id, s.time))
+              .map((s) => renderChip(s.name, s.id, s.time, true, "클릭하여 공결(출석 인정) 변경"))
               .join("")
           : "<span class='empty-status-card'>✓ 조퇴자 없음</span>";
 
@@ -5711,18 +5930,20 @@
         let html = "";
         pageData.forEach((r) => {
           const type = r[5];
-          const status = r[7];
+          const status = (r[7] || "").toString().trim();
           const studentId = r[3].trim();
           const studentName = r[4].trim();
-          const badgeClass =
-            status === "지각"
+          const isOfficial = status && status.startsWith("공결");
+          const badgeClass = isOfficial
+            ? "bg-official"
+            : status === "지각"
               ? "bg-late"
               : status === "조퇴"
                 ? "bg-early"
                 : "bg-normal";
           const cleanTime = formatTimeHHMM(r[0]);
 
-          html += `<tr>
+          html += `<tr style="${isOfficial ? 'cursor:pointer;' : ''}" ${isOfficial ? `onclick="openOfficialAbsenceModal('${esc(studentId)}', '${esc(studentName)}', '${esc(status)}')" title="클릭하여 공결 정보 수정/취소"` : ''}>
             <td><strong>${esc(studentId)}</strong><br>
                 <span style="font-size:11px;color:#64748b">${esc(studentName)}</span></td>
             <td style="font-weight:700; color:${type === "입실" ? "#10b981" : "#f59e0b"}">${esc(type)}</td>
