@@ -585,52 +585,71 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
+        gap: 6px;
         margin-bottom: 12px;
         padding-bottom: 8px;
         border-bottom: 1px dashed var(--accent-line);
         cursor: pointer;
         user-select: none;
         transition: margin-bottom 0.22s ease, padding-bottom 0.22s ease;
+        min-width: 0;
       }
       .alert-head-left {
         display: flex;
         align-items: center;
-        gap: 10px;
+        gap: 8px;
+        flex-shrink: 0;
+      }
+      .alert-filter-tabs-container {
+        flex: 1 1 auto;
+        display: flex;
+        align-items: center;
+        min-width: 0;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        margin: 0 4px;
+      }
+      .alert-filter-tabs-container::-webkit-scrollbar {
+        display: none;
       }
       .alert-head-right {
         display: flex;
         align-items: center;
-        gap: 8px;
+        gap: 6px;
+        flex-shrink: 0;
       }
       .alert-icon {
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        width: 32px;
-        height: 32px;
+        width: 30px;
+        height: 30px;
         flex-shrink: 0;
-        border-radius: 10px;
-        font-size: 15px;
+        border-radius: 9px;
+        font-size: 14px;
         background: #ffffff;
         box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06), inset 0 0 0 1px var(--accent-line);
       }
       .alert-title-text {
         margin: 0;
         font-weight: 800;
-        font-size: 14px;
+        font-size: 13.5px;
         color: var(--accent-text);
         letter-spacing: -0.02em;
         line-height: 1.3;
+        white-space: nowrap;
       }
       .alert-count-badge {
-        font-size: 11.5px;
+        font-size: 11px;
         font-weight: 800;
-        padding: 3px 10px;
+        padding: 3px 8px;
         border-radius: var(--r-pill);
         background: #ffffff;
         color: var(--accent-text);
         border: 1px solid var(--accent-line);
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+        white-space: nowrap;
       }
       .alert-count-badge.is-zero {
         color: #059669;
@@ -648,6 +667,7 @@
         color: var(--accent-text);
         box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
         transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), background 0.18s ease;
+        flex-shrink: 0;
       }
       .alert-toggle-icon svg {
         width: 13px;
@@ -683,6 +703,63 @@
         gap: 8px;
         align-items: center;
         animation: alertBodyIn 0.24s cubic-bezier(0.16, 1, 0.3, 1) both;
+      }
+
+      /* ── 헤더 내부 일체형 시간대별 필터 탭 바 ── */
+      .alert-filter-tabs {
+        display: inline-flex;
+        align-items: center;
+        flex-wrap: nowrap;
+        gap: 4px;
+        margin-bottom: 0;
+        padding: 1px 0;
+        border-bottom: none;
+        width: auto;
+      }
+      .alert-filter-tab {
+        width: auto !important;
+        min-width: unset !important;
+        flex: 0 0 auto !important;
+        display: inline-flex !important;
+        align-items: center;
+        gap: 3px;
+        padding: 3px 8px !important;
+        min-height: unset !important;
+        margin-bottom: 0 !important;
+        border-radius: var(--r-pill) !important;
+        font-size: 11px;
+        font-weight: 700;
+        border: 1px solid var(--accent-line);
+        background: #ffffff;
+        color: var(--accent-text);
+        cursor: pointer;
+        transition: all 0.18s cubic-bezier(0.16, 1, 0.3, 1);
+        user-select: none;
+        font-family: inherit;
+        box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+        white-space: nowrap;
+      }
+      .alert-filter-tab:hover:not(.active) {
+        background: var(--accent-tint);
+        transform: translateY(-1px);
+        box-shadow: 0 2px 5px var(--accent-shadow-soft);
+      }
+      .alert-filter-tab.active {
+        background: var(--accent) !important;
+        color: #ffffff !important;
+        border-color: transparent !important;
+        box-shadow: 0 2px 6px var(--accent-shadow);
+      }
+      .alert-filter-tab .tab-badge {
+        font-size: 9.5px;
+        padding: 1px 4px;
+        border-radius: var(--r-pill);
+        background: rgba(0, 0, 0, 0.08);
+        font-weight: 800;
+      }
+      .alert-filter-tab.active .tab-badge {
+        background: rgba(255, 255, 255, 0.28);
+        color: #ffffff;
       }
       @keyframes alertBodyIn {
         from {
@@ -2115,6 +2192,45 @@
         .time-range-badge {
           padding: 2.5px 5px;
           font-size: 10.5px;
+        }
+
+        /* ── 모바일 (480px / 450px 이하) 알림 카드 헤더 2단 스마트 레이아웃 ── */
+        .alert-head {
+          flex-wrap: wrap;
+          gap: 6px 0;
+          padding-bottom: 6px;
+        }
+        .alert-head-left {
+          order: 1;
+          flex: 0 0 auto;
+        }
+        .alert-head-right {
+          order: 2;
+          flex: 0 0 auto;
+          margin-left: auto;
+        }
+        .alert-filter-tabs-container {
+          order: 3;
+          width: 100%;
+          flex: 0 0 100%;
+          margin: 4px 0 0 0;
+          padding-top: 5px;
+          border-top: 1px dashed var(--accent-line);
+        }
+        .alert-filter-tabs-container:empty {
+          display: none;
+          margin: 0;
+          padding: 0;
+          border-top: none;
+        }
+        .alert-filter-tabs {
+          width: 100%;
+          gap: 5px;
+          padding-bottom: 2px;
+        }
+        .alert-filter-tab {
+          padding: 3.5px 8px !important;
+          font-size: 11px;
         }
       }
 
@@ -3819,8 +3935,9 @@
                 <div class="alert-head" onclick="toggleAlertBox('alertBoxIn')" role="button" tabindex="0" aria-expanded="false" title="클릭하여 목록 펼치기/접기">
                   <div class="alert-head-left">
                     <span class="alert-icon">🚪</span>
-                    <span class="alert-title-text">입실 미입력 학생</span>
+                    <span class="alert-title-text">입실 미입력</span>
                   </div>
+                  <div class="alert-filter-tabs-container" id="inFilterTabs" onclick="event.stopPropagation()"></div>
                   <div class="alert-head-right">
                     <span class="alert-count-badge is-zero" id="unrecordedInCount">0명</span>
                     <span class="alert-toggle-icon">
@@ -3840,8 +3957,9 @@
                 <div class="alert-head" onclick="toggleAlertBox('alertBoxOut')" role="button" tabindex="0" aria-expanded="false" title="클릭하여 목록 펼치기/접기">
                   <div class="alert-head-left">
                     <span class="alert-icon">🚶</span>
-                    <span class="alert-title-text">퇴실 미입력 학생</span>
+                    <span class="alert-title-text">퇴실 미입력</span>
                   </div>
+                  <div class="alert-filter-tabs-container" id="outFilterTabs" onclick="event.stopPropagation()"></div>
                   <div class="alert-head-right">
                     <span class="alert-count-badge is-zero" id="unrecordedOutCount">0명</span>
                     <span class="alert-toggle-icon">
@@ -4532,6 +4650,9 @@
       let selectedBlockDate = null;
       // 수동 차단 목록에서 선택된 달 ('yyyy-MM'). null 이면 달력의 현재 달을 씁니다.
       let blockedListMonth = null;
+      // 알림 카드 입/퇴실 시간대 다중 필터 상태 (Set: 비어있으면 전체 표시)
+      let selectedInTimeFilters = new Set();
+      let selectedOutTimeFilters = new Set();
       // 레포트 상태
       let reportHtmlContent = "";
       // 미리보기 배율: 'fit'(폭 맞춤) | 'full'(100%)
@@ -5734,6 +5855,37 @@
         }
       }
 
+      // ── 알림 카드 시간대별 필터 칩 다중 선택 (Toggle) ──────────────────
+      function toggleInTimeFilter(time) {
+        if (selectedInTimeFilters.has(time)) {
+          selectedInTimeFilters.delete(time);
+        } else {
+          selectedInTimeFilters.add(time);
+        }
+        const box = document.getElementById("alertBoxIn");
+        if (box && box.classList.contains("is-collapsed")) {
+          box.classList.remove("is-collapsed");
+          const head = box.querySelector(".alert-head");
+          if (head) head.setAttribute("aria-expanded", "true");
+        }
+        renderDashboard();
+      }
+
+      function toggleOutTimeFilter(time) {
+        if (selectedOutTimeFilters.has(time)) {
+          selectedOutTimeFilters.delete(time);
+        } else {
+          selectedOutTimeFilters.add(time);
+        }
+        const box = document.getElementById("alertBoxOut");
+        if (box && box.classList.contains("is-collapsed")) {
+          box.classList.remove("is-collapsed");
+          const head = box.querySelector(".alert-head");
+          if (head) head.setAttribute("aria-expanded", "true");
+        }
+        renderDashboard();
+      }
+
       function renderDashboard() {
         const days = ["일", "월", "화", "수", "목", "금", "토"];
         const targetDateStr = formatDateForCompare(currentAdminDate);
@@ -5856,24 +6008,122 @@
           (s) => !recordedInIds.has(s.id),
         );
         updateCountBadge("unrecordedInCount", unrecordedInStudents.length);
-        document.getElementById("unrecordedInList").innerHTML =
-          unrecordedInStudents.length
+
+        // 입실 기준시간 고유 목록 추출 & 시간순 정렬
+        const inTimes = [...new Set(allStudents.map((s) => s.inTime || "09:00"))].sort();
+        for (const t of selectedInTimeFilters) {
+          if (!inTimes.includes(t)) selectedInTimeFilters.delete(t);
+        }
+
+        // 1-1. 헤더 내부 입실시간별 탭 생성 ([전체] 제외, 다중 선택 토글)
+        const inTabsEl = document.getElementById("inFilterTabs");
+        if (inTabsEl) {
+          if (unrecordedInStudents.length > 0 && inTimes.length > 1) {
+            inTabsEl.innerHTML = `
+              <div class="alert-filter-tabs">
+                ${inTimes
+                  .map((t) => {
+                    const cnt = unrecordedInStudents.filter(
+                      (s) => (s.inTime || "09:00") === t,
+                    ).length;
+                    const isSelected = selectedInTimeFilters.has(t);
+                    return `<button type="button" class="alert-filter-tab ${isSelected ? "active" : ""}" onclick="event.stopPropagation(); toggleInTimeFilter('${esc(t)}')" title="${esc(t)} 선택/해제">
+                      ${esc(t)} <span class="tab-badge">${cnt}</span>
+                    </button>`;
+                  })
+                  .join("")}
+              </div>
+            `;
+          } else {
+            inTabsEl.innerHTML = "";
+          }
+        }
+
+        const filteredInStudents =
+          selectedInTimeFilters.size === 0
             ? unrecordedInStudents
-                .map((s) => renderChip(s.name, s.id, null, true, "클릭하여 공결(출석 인정) 등록"))
-                .join("")
-            : "<span class='empty-status-card'>✓ 전원 입실 완료</span>";
+            : unrecordedInStudents.filter((s) =>
+                selectedInTimeFilters.has(s.inTime || "09:00"),
+              );
+
+        // 1-2. 바디 내부 학생 칩 목록
+        document.getElementById("unrecordedInList").innerHTML =
+          unrecordedInStudents.length === 0
+            ? "<span class='empty-status-card'>✓ 전원 입실 완료</span>"
+            : (filteredInStudents.length === 0
+                ? `<div style="font-size:12px; color:#94a3b8; padding:8px 4px; width:100%;">선택한 시간대의 입실 미입력 학생이 없습니다.</div>`
+                : filteredInStudents
+                    .map((s) =>
+                      renderChip(
+                        s.name,
+                        s.id,
+                        s.inTime,
+                        true,
+                        "클릭하여 공결(출석 인정) 등록",
+                      ),
+                    )
+                    .join(""));
 
         // 2. 퇴실 미입력 학생
         const unrecordedOutStudents = allStudents.filter(
           (s) => !recordedOutIds.has(s.id),
         );
         updateCountBadge("unrecordedOutCount", unrecordedOutStudents.length);
-        document.getElementById("unrecordedOutList").innerHTML =
-          unrecordedOutStudents.length
+
+        // 퇴실 기준시간 고유 목록 추출 & 시간순 정렬
+        const outTimes = [...new Set(allStudents.map((s) => s.outTime || "18:00"))].sort();
+        for (const t of selectedOutTimeFilters) {
+          if (!outTimes.includes(t)) selectedOutTimeFilters.delete(t);
+        }
+
+        // 2-1. 헤더 내부 퇴실시간별 탭 생성 ([전체] 제외, 다중 선택 토글)
+        const outTabsEl = document.getElementById("outFilterTabs");
+        if (outTabsEl) {
+          if (unrecordedOutStudents.length > 0 && outTimes.length > 1) {
+            outTabsEl.innerHTML = `
+              <div class="alert-filter-tabs">
+                ${outTimes
+                  .map((t) => {
+                    const cnt = unrecordedOutStudents.filter(
+                      (s) => (s.outTime || "18:00") === t,
+                    ).length;
+                    const isSelected = selectedOutTimeFilters.has(t);
+                    return `<button type="button" class="alert-filter-tab ${isSelected ? "active" : ""}" onclick="event.stopPropagation(); toggleOutTimeFilter('${esc(t)}')" title="${esc(t)} 선택/해제">
+                      ${esc(t)} <span class="tab-badge">${cnt}</span>
+                    </button>`;
+                  })
+                  .join("")}
+              </div>
+            `;
+          } else {
+            outTabsEl.innerHTML = "";
+          }
+        }
+
+        const filteredOutStudents =
+          selectedOutTimeFilters.size === 0
             ? unrecordedOutStudents
-                .map((s) => renderChip(s.name, s.id, null, true, "클릭하여 공결(출석 인정) 등록"))
-                .join("")
-            : "<span class='empty-status-card'>✓ 전원 퇴실 완료</span>";
+            : unrecordedOutStudents.filter((s) =>
+                selectedOutTimeFilters.has(s.outTime || "18:00"),
+              );
+
+        // 2-2. 바디 내부 학생 칩 목록
+        document.getElementById("unrecordedOutList").innerHTML =
+          unrecordedOutStudents.length === 0
+            ? "<span class='empty-status-card'>✓ 전원 퇴실 완료</span>"
+            : (filteredOutStudents.length === 0
+                ? `<div style="font-size:12px; color:#94a3b8; padding:8px 4px; width:100%;">선택한 시간대의 퇴실 미입력 학생이 없습니다.</div>`
+                : filteredOutStudents
+                    .map((s) =>
+                      renderChip(
+                        s.name,
+                        s.id,
+                        s.outTime,
+                        true,
+                        "클릭하여 공결(출석 인정) 등록",
+                      ),
+                    )
+                    .join(""));
 
         // 3. 지각 학생
         updateCountBadge("lateCountBadge", lateStudents.length);
