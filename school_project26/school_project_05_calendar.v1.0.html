@@ -2307,27 +2307,16 @@
             </div>
 
             <!-- Right: 등록된 공지 목록 -->
+            <!-- Right: 등록된 공지 목록 -->
             <div class="admin-card">
               <div class="admin-card-header">
                 <div class="admin-card-icon">📋</div>
-                <div style="flex: 1;">
-                  <div style="display: flex; align-items: center; justify-content: space-between;">
-                    <h4>등록된 공지 목록 (<span id="admin-notice-count">0</span>건)</h4>
-                    <button type="button" id="admin-notice-raw-toggle" style="background: none; border: none; font-size: .74rem; color: var(--primary); cursor: pointer; text-decoration: underline; font-weight: 750;">전문(텍스트) 편집</button>
-                  </div>
+                <div>
+                  <h4>등록된 공지 목록 (<span id="admin-notice-count">0</span>건)</h4>
                   <p class="card-desc">현재 구글시트에 등록된 공지 목록입니다. (4개씩 페이징)</p>
                 </div>
               </div>
               <div id="admin-notice-list"></div>
-
-              <!-- 일괄 전문 편집창 (기본 숨김) -->
-              <div id="admin-notice-raw-wrap" style="display: none; margin-top: 10px; padding: 10px; border: 1.5px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
-                <label for="edit-notice-text" style="font-size: .76rem; font-weight: 800; color: #64748b; margin-bottom: 6px; display: block;">전체 공지 원문 일괄 저장 ('▶' 기호 구분)</label>
-                <textarea id="edit-notice-text" rows="3" style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px; font-size: .82rem; resize: vertical; box-sizing: border-box;" placeholder="▶항목1 ▶항목2"></textarea>
-                <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
-                  <button class="btn-primary btn-sm" id="update-notice-raw-btn" type="button">일괄 저장하기</button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
@@ -3040,11 +3029,6 @@
           cancelEditNoticeItem();
         }
       });
-      document.getElementById('admin-notice-raw-toggle').addEventListener('click', () => {
-        const wrap = document.getElementById('admin-notice-raw-wrap');
-        wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
-      });
-      document.getElementById('update-notice-raw-btn').addEventListener('click', updateNoticeRaw);
 
       document.getElementById('add-dday-btn').addEventListener('click', addDDay);
       document.getElementById('cancel-dday-btn').addEventListener('click', cancelEditDDay);
@@ -3249,8 +3233,6 @@
         }
         noticesData = sortItemsUpcomingFirst(noticesData);
         renderNotice(json.notice || '등록된 공지사항이 없습니다.');
-        const rawEl = document.getElementById('edit-notice-text');
-        if (rawEl) rawEl.value = json.notice || '';
         renderFilterChips();
         renderActiveView();
         if (isAdmin) {
@@ -3535,6 +3517,19 @@
       updateDashBoardStats(offjtDays.size, hoursObj.offjt, ojtDays.size, hoursObj.ojt, afterschoolDays.size, hoursObj.afterschool);
     }
 
+    function getEventHours(ev, defaultHours) {
+      if (typeof ev.hours === 'number' && !isNaN(ev.hours)) {
+        return ev.hours;
+      }
+      if (ev.title) {
+        const match = ev.title.match(/\((\d+)\)/);
+        if (match) {
+          return parseInt(match[1], 10);
+        }
+      }
+      return defaultHours;
+    }
+
     // Cell Event Badges & Calculation
     function processEventsToCell(dayEvents, cell, sheetKey, d, offjtDays, ojtDays, afterschoolDays, hoursObj) {
       let visibleCount = 0;
@@ -3553,18 +3548,15 @@
         // Calculate hours and active days
         if(isOffJt && !isHoliday) {
           offjtDays.add(d); 
-          const match = ev.title.match(/\((\d+)\)\s*$/);
-          hoursObj.offjt += match ? parseInt(match[1], 10) : 7; 
+          hoursObj.offjt += getEventHours(ev, 7); 
         } else if(isOjt && !isHoliday) {
           ojtDays.add(d); 
-          const match = ev.title.match(/\((\d+)\)\s*$/);
-          hoursObj.ojt += match ? parseInt(match[1], 10) : 8; 
+          hoursObj.ojt += getEventHours(ev, 8); 
         }
 
         if(isAfterSchool && !isHoliday) {
           afterschoolDays.add(d);
-          const match = ev.title.match(/\((\d+)\)\s*$/);
-          hoursObj.afterschool += match ? parseInt(match[1], 10) : 2;
+          hoursObj.afterschool += getEventHours(ev, 2);
         }
 
         if (!selectedFilters.has('ALL') && !selectedFilters.has(ev.type)) return;
@@ -3775,12 +3767,16 @@
       document.getElementById('date-form-cancel-edit-btn').style.display = 'inline-flex';
 
       // Parse title and hours
-      let rawTitle = ev.title;
-      let hours = null;
-      const match = ev.title.match(/^(.*?)\s*\((\d+)\)\s*$/);
+      let rawTitle = ev.title || '';
+      let hours = typeof ev.hours === 'number' && !isNaN(ev.hours) ? ev.hours : null;
+      const match = rawTitle.match(/\((\d+)\)/);
       if (match) {
-        rawTitle = match[1].trim();
-        hours = Number(match[2]);
+        if (hours === null) {
+          hours = Number(match[1]);
+        }
+        if (/\s*\(\d+\)\s*$/.test(rawTitle)) {
+          rawTitle = rawTitle.replace(/\s*\(\d+\)\s*$/, '').trim();
+        }
       }
 
       document.getElementById('date-input-title').value = rawTitle;
@@ -4157,10 +4153,6 @@
       const totalItems = noticesData.length;
       if (countSpan) countSpan.textContent = totalItems;
 
-      // Also sync raw textarea
-      const rawTextarea = document.getElementById('edit-notice-text');
-      if (rawTextarea) rawTextarea.value = currentNoticeRaw;
-
       if (totalItems === 0) {
         noticeCurrentPage = 1;
         const empty = document.createElement('div');
@@ -4450,23 +4442,6 @@
         renderNotice(currentNoticeRaw);
         cancelEditNoticeItem();
         showToast('공지사항이 삭제되어 구글 시트에 반영되었습니다.', 'success');
-      }
-    }
-
-    async function updateNoticeRaw() {
-      const newNotice = document.getElementById('edit-notice-text').value.trim();
-      const result = await sendAdminRequest({ action: 'update_notice', newNotice });
-      if (result) {
-        currentNoticeRaw = result.notice || newNotice;
-        if (Array.isArray(result.notices)) {
-          noticesData = result.notices;
-        } else {
-          noticesData = parseNoticeItems(currentNoticeRaw);
-        }
-        renderNotice(currentNoticeRaw);
-        renderAdminNoticeList();
-        cancelEditNoticeItem();
-        showToast('공지사항 전문이 일괄 반영되었습니다.', 'success');
       }
     }
 
