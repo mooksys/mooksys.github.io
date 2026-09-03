@@ -82,7 +82,14 @@ const els = {
   previewTheme: byId("preview-theme"),
   previewContent: byId("preview-content"),
   toast: byId("toast"),
-  loader: byId("loader")
+  loader: byId("loader"),
+  confirmModal: byId("confirm-modal"),
+  confirmModalTitle: byId("confirm-modal-title"),
+  confirmModalMessage: byId("confirm-modal-message"),
+  confirmModalIconWrap: byId("confirm-modal-icon-wrap"),
+  confirmModalIcon: byId("confirm-modal-icon"),
+  confirmModalConfirm: byId("confirm-modal-confirm"),
+  confirmModalCancel: byId("confirm-modal-cancel")
 };
 
 document.addEventListener("DOMContentLoaded", init);
@@ -135,6 +142,16 @@ function setupEvents() {
       els.search.value = "";
       applySearch();
     }
+  });
+
+  document.querySelectorAll("[data-jump]").forEach(button => {
+    button.addEventListener("click", () => {
+      const targetTab = byId(button.dataset.jump);
+      if (targetTab) {
+        activateTab(targetTab);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+    });
   });
 }
 
@@ -270,7 +287,14 @@ function handleUnauthorized(message = "보안 세션이 만료되었습니다. �
 }
 
 async function handleLogout() {
-  if (!window.confirm("Morning Note에서 로그아웃할까요?")) return;
+  const confirmed = await showConfirmModal({
+    title: "로그아웃",
+    message: "Morning Note에서 로그아웃할까요?",
+    confirmText: "로그아웃",
+    cancelText: "취소",
+    isDanger: false
+  });
+  if (!confirmed) return;
   const token = getSessionToken();
   showLoader(true);
   try {
@@ -372,11 +396,14 @@ function renderCalendar() {
 
   const header = document.createElement("div");
   header.className = "calendar-header";
-  const previous = createCalendarNav("←", "이전 달", () => changeCalendarMonth(-1));
   const title = document.createElement("strong");
   title.textContent = `${state.calYear}년 ${state.calMonth + 1}월`;
-  const next = createCalendarNav("→", "다음 달", () => changeCalendarMonth(1));
-  header.append(previous, title, next);
+  const navContainer = document.createElement("div");
+  navContainer.className = "calendar-nav-group";
+  const previous = createCalendarNav("‹", "이전 달", () => changeCalendarMonth(-1));
+  const next = createCalendarNav("›", "다음 달", () => changeCalendarMonth(1));
+  navContainer.append(previous, next);
+  header.append(title, navContainer);
 
   const grid = document.createElement("div");
   grid.className = "calendar-grid";
@@ -610,7 +637,14 @@ function editPost(id) {
 }
 
 async function deletePost(id) {
-  if (!window.confirm("이 알림을 삭제할까요? 삭제한 기록은 복구할 수 없습니다.")) return;
+  const confirmed = await showConfirmModal({
+    title: "알림 삭제",
+    message: "이 알림을 삭제할까요? 삭제한 기록은 복구할 수 없습니다.",
+    confirmText: "삭제하기",
+    cancelText: "취소",
+    isDanger: true
+  });
+  if (!confirmed) return;
   showLoader(true);
   try {
     const result = await apiRequest({ action: "delete", token: getSessionToken(), id: String(id) });
@@ -799,11 +833,11 @@ async function downloadAnnouncementImage(item) {
 }
 
 function renderAnnouncementCanvas(item) {
-  const width = 1100;
-  const cardX = 55;
-  const cardY = 50;
-  const cardWidth = 990;
-  const contentWidth = 840;
+  const width = 850;
+  const cardX = 40;
+  const cardY = 40;
+  const cardWidth = 770;
+  const contentWidth = 674;
   const fontFamily = APPLE_CANVAS_FONT_STACK;
   const themeValue = String(item.테마 || "기본 테마");
   const theme = THEME_OPTIONS.find(option => option.value === themeValue);
@@ -814,14 +848,14 @@ function renderAnnouncementCanvas(item) {
   if (!measureContext) throw new Error("Canvas를 사용할 수 없습니다.");
 
   const typography = {
-    body: `600 31px ${fontFamily}`,
-    badge: `700 21px ${fontFamily}`,
-    lineHeight: 51
+    body: `600 25px ${fontFamily}`,
+    badge: `700 17px ${fontFamily}`,
+    lineHeight: 42
   };
   const lines = layoutCanvasContent(measureContext, String(item.내용 || ""), contentWidth, typography);
-  const contentHeight = Math.max(170, lines.length * typography.lineHeight);
-  const cardHeight = 174 + contentHeight + 132;
-  const height = Math.min(12000, Math.max(620, cardHeight + 100));
+  const contentHeight = Math.max(140, lines.length * typography.lineHeight);
+  const cardHeight = 148 + contentHeight + 112;
+  const height = Math.min(10000, Math.max(500, cardHeight + 80));
 
   const canvas = document.createElement("canvas");
   canvas.width = width;
@@ -832,66 +866,67 @@ function renderAnnouncementCanvas(item) {
   drawCanvasBackground(context, width, height);
   context.save();
   context.shadowColor = "rgba(31, 37, 57, 0.14)";
-  context.shadowBlur = 34;
-  context.shadowOffsetY = 12;
-  roundedRect(context, cardX, cardY, cardWidth, height - 100, 30);
+  context.shadowBlur = 28;
+  context.shadowOffsetY = 10;
+  roundedRect(context, cardX, cardY, cardWidth, height - 80, 24);
   context.fillStyle = "#ffffff";
   context.fill();
   context.restore();
 
   context.save();
-  roundedRect(context, cardX, cardY, 14, height - 100, 7);
+  roundedRect(context, cardX, cardY, 11, height - 80, 5.5);
   context.fillStyle = accent;
   context.fill();
   context.restore();
 
   context.fillStyle = "#15171c";
-  context.font = `700 27px ${fontFamily}`;
+  context.font = `700 23px ${fontFamily}`;
   context.textBaseline = "alphabetic";
   context.fillText(
     formatKoreanDate(String(item.날짜 || ""), { includeYear: true, includeWeekday: true }),
-    cardX + 62,
-    cardY + 83
+    cardX + 48,
+    cardY + 68
   );
 
-  drawThemePill(context, themeValue, accent, cardX + cardWidth - 62, cardY + 56, fontFamily);
+  drawThemePill(context, themeValue, accent, cardX + cardWidth - 48, cardY + 46, fontFamily);
 
-  const contentStartY = cardY + 154;
-  drawCanvasContent(context, lines, cardX + 62, contentStartY, typography);
+  const contentStartY = cardY + 128;
+  drawCanvasContent(context, lines, cardX + 48, contentStartY, typography);
 
-  const footerY = height - 130;
+  const footerY = height - 105;
   context.strokeStyle = "rgba(24, 29, 39, 0.10)";
   context.lineWidth = 1;
   context.beginPath();
-  context.moveTo(cardX + 62, footerY - 28);
-  context.lineTo(cardX + cardWidth - 62, footerY - 28);
+  context.moveTo(cardX + 48, footerY - 20);
+  context.lineTo(cardX + cardWidth - 48, footerY - 20);
   context.stroke();
 
   context.fillStyle = "#8f96a3";
-  context.font = `600 17px ${fontFamily}`;
-  context.fillText("Morning Note · 도제 3-12", cardX + 62, footerY + 32);
+  context.font = `600 15px ${fontFamily}`;
+  context.fillText("Morning Note · 도제 3-12", cardX + 48, footerY + 24);
 
-  const avatarX = cardX + cardWidth - 252;
-  const avatarY = footerY + 8;
-  const avatarGradient = context.createLinearGradient(avatarX, avatarY, avatarX + 52, avatarY + 52);
+  const avatarRadius = 21;
+  const avatarX = cardX + cardWidth - 215;
+  const avatarY = footerY + 4;
+  const avatarGradient = context.createLinearGradient(avatarX, avatarY, avatarX + 42, avatarY + 42);
   avatarGradient.addColorStop(0, "#776fff");
   avatarGradient.addColorStop(1, "#0a84ff");
   context.beginPath();
-  context.arc(avatarX + 26, avatarY + 26, 26, 0, Math.PI * 2);
+  context.arc(avatarX + avatarRadius, avatarY + avatarRadius, avatarRadius, 0, Math.PI * 2);
   context.fillStyle = avatarGradient;
   context.fill();
   context.fillStyle = "#ffffff";
-  context.font = `700 18px ${fontFamily}`;
+  context.font = `700 15px ${fontFamily}`;
   context.textAlign = "center";
-  context.fillText("이", avatarX + 26, avatarY + 33);
+  context.fillText("이", avatarX + avatarRadius, avatarY + avatarRadius + 5);
 
   context.textAlign = "left";
   context.fillStyle = "#8f96a3";
-  context.font = `600 14px ${fontFamily}`;
-  context.fillText("도제 3-12 담임", avatarX + 66, avatarY + 18);
+  context.font = `600 12px ${fontFamily}`;
+  context.fillText("도제 3-12 담임", avatarX + 50, avatarY + 14);
   context.fillStyle = "#626977";
-  context.font = `700 18px ${fontFamily}`;
-  context.fillText("이상호 선생님", avatarX + 66, avatarY + 43);
+  context.font = `700 15px ${fontFamily}`;
+  context.fillText("이상호 선생님", avatarX + 50, avatarY + 34);
   return canvas;
 }
 
@@ -903,28 +938,28 @@ function drawCanvasBackground(context, width, height) {
   violetGlow.addColorStop(0, "rgba(99, 91, 255, 0.14)");
   violetGlow.addColorStop(1, "rgba(99, 91, 255, 0)");
   context.fillStyle = violetGlow;
-  context.fillRect(0, 0, width, Math.min(height, 1100));
+  context.fillRect(0, 0, width, Math.min(height, 850));
 
   const blueGlow = context.createRadialGradient(width, height, 0, width, height, width * 0.8);
   blueGlow.addColorStop(0, "rgba(10, 132, 255, 0.10)");
   blueGlow.addColorStop(1, "rgba(10, 132, 255, 0)");
   context.fillStyle = blueGlow;
-  context.fillRect(0, Math.max(0, height - 1000), width, Math.min(height, 1000));
+  context.fillRect(0, Math.max(0, height - 850), width, Math.min(height, 850));
 }
 
 function drawThemePill(context, label, color, rightX, topY, fontFamily) {
-  context.font = `700 18px ${fontFamily}`;
-  const textWidth = Math.min(280, context.measureText(label).width);
-  const pillWidth = textWidth + 34;
-  const pillHeight = 42;
+  context.font = `700 15px ${fontFamily}`;
+  const textWidth = Math.min(240, context.measureText(label).width);
+  const pillWidth = textWidth + 28;
+  const pillHeight = 36;
   const x = rightX - pillWidth;
-  roundedRect(context, x, topY, pillWidth, pillHeight, 21);
+  roundedRect(context, x, topY, pillWidth, pillHeight, 18);
   context.fillStyle = hexToRgba(color, 0.11);
   context.fill();
   context.fillStyle = color;
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.fillText(label, x + pillWidth / 2, topY + pillHeight / 2 + 1, pillWidth - 20);
+  context.fillText(label, x + pillWidth / 2, topY + pillHeight / 2 + 1, pillWidth - 16);
   context.textAlign = "left";
   context.textBaseline = "alphabetic";
 }
@@ -969,8 +1004,8 @@ function layoutCanvasContent(context, content, maxWidth, typography) {
   while ((match = pattern.exec(content)) !== null) {
     pushText(content.slice(cursor, match.index));
     context.font = typography.badge;
-    const displayText = fitTextToWidth(context, match[1], maxWidth - 34);
-    pushRun("badge", displayText, context.measureText(displayText).width + 34);
+    const displayText = fitTextToWidth(context, match[1], maxWidth - 28);
+    pushRun("badge", displayText, context.measureText(displayText).width + 28);
     cursor = match.index + match[0].length;
   }
   pushText(content.slice(cursor));
@@ -981,17 +1016,17 @@ function layoutCanvasContent(context, content, maxWidth, typography) {
 function drawCanvasContent(context, lines, startX, startY, typography) {
   lines.forEach((line, index) => {
     let x = startX;
-    const baselineY = startY + index * typography.lineHeight + 31;
+    const baselineY = startY + index * typography.lineHeight + 26;
     line.forEach(run => {
       if (run.type === "badge") {
-        const top = baselineY - 29;
-        roundedRect(context, x, top, run.width - 4, 36, 18);
+        const top = baselineY - 24;
+        roundedRect(context, x, top, run.width - 4, 30, 15);
         context.fillStyle = "rgba(99, 91, 255, 0.11)";
         context.fill();
         context.fillStyle = "#635bff";
         context.font = typography.badge;
         context.textBaseline = "middle";
-        context.fillText(run.text, x + 15, top + 18);
+        context.fillText(run.text, x + 12, top + 15);
         context.textBaseline = "alphabetic";
       } else {
         context.fillStyle = "#2c3038";
@@ -1075,4 +1110,70 @@ function showLoader(show) {
   const isVisible = state.loaderDepth > 0;
   els.loader.hidden = !isVisible;
   els.dashboard.setAttribute("aria-busy", String(isVisible));
+}
+
+function showConfirmModal({
+  title = "확인",
+  message = "계속 진행할까요?",
+  confirmText = "확인",
+  cancelText = "취소",
+  isDanger = false
+} = {}) {
+  return new Promise(resolve => {
+    if (!els.confirmModal) {
+      resolve(window.confirm(message));
+      return;
+    }
+
+    els.confirmModalTitle.textContent = title;
+    els.confirmModalMessage.textContent = message;
+    els.confirmModalConfirm.textContent = confirmText;
+    els.confirmModalCancel.textContent = cancelText;
+
+    if (isDanger) {
+      els.confirmModalIconWrap.classList.add("modal-icon-wrapper--danger");
+      els.confirmModalConfirm.className = "button button--danger";
+      els.confirmModalIcon.innerHTML = `
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="15" y1="9" x2="9" y2="15"></line>
+        <line x1="9" y1="9" x2="15" y2="15"></line>
+      `;
+    } else {
+      els.confirmModalIconWrap.classList.remove("modal-icon-wrapper--danger");
+      els.confirmModalConfirm.className = "button button--primary";
+      els.confirmModalIcon.innerHTML = `
+        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+        <polyline points="16 17 21 12 16 7"></polyline>
+        <line x1="21" y1="12" x2="9" y2="12"></line>
+      `;
+    }
+
+    els.confirmModal.hidden = false;
+    const previouslyFocused = document.activeElement;
+    requestAnimationFrame(() => els.confirmModalConfirm.focus());
+
+    function cleanup(result) {
+      els.confirmModal.hidden = true;
+      els.confirmModalConfirm.removeEventListener("click", onConfirm);
+      els.confirmModalCancel.removeEventListener("click", onCancel);
+      document.removeEventListener("keydown", onKeydown);
+      if (previouslyFocused && typeof previouslyFocused.focus === "function") {
+        previouslyFocused.focus();
+      }
+      resolve(result);
+    }
+
+    function onConfirm() { cleanup(true); }
+    function onCancel() { cleanup(false); }
+    function onKeydown(event) {
+      if (event.key === "Escape") {
+        event.preventDefault();
+        cleanup(false);
+      }
+    }
+
+    els.confirmModalConfirm.addEventListener("click", onConfirm);
+    els.confirmModalCancel.addEventListener("click", onCancel);
+    document.addEventListener("keydown", onKeydown);
+  });
 }
