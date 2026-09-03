@@ -10,16 +10,54 @@ const MAX_NOTICE_LENGTH = 500;
 const MAX_TITLE_LENGTH = 200;
 const ALLOWED_EVENT_TYPES = ['학사일정', 'off-JT', 'OJT', '특별수업', '국가공휴일', '휴업일'];
 
+/**
+ * 스프레드시트 열릴 때 상단 커스텀 메뉴 추가
+ */
+function onOpen() {
+  try {
+    SpreadsheetApp.getUi()
+      .createMenu('📅 캘린더 관리')
+      .addItem('📢 공지사항 시트 자동 생성 및 동기화', 'createNoticeSheetNow')
+      .addToUi();
+  } catch (e) {
+    // UI 컨텍스트가 아닐 경우 무시
+  }
+}
+
+/**
+ * [수동 실행용] 공지사항 시트 즉시 생성 및 데이터 마이그레이션 함수
+ * Apps Script 편집기에서 이 함수를 선택하고 [실행]을 누르거나,
+ * 스프레드시트 상단 메뉴 [📅 캘린더 관리 > 📢 공지사항 시트 자동 생성 및 동기화]를 누르면
+ * 스프레드시트에 '공지사항' 시트가 즉시 생성되고 기존 12건의 공지사항이 A열(날짜), B열(내용)로 자동 채워집니다.
+ */
+function createNoticeSheetNow() {
+  const ss = getSpreadsheet_();
+  const noticeSheet = getOrCreateNoticeSheet_(ss);
+  const configSheet = ss.getSheetByName('설정');
+  const rawNotice = configSheet ? String(configSheet.getRange('B1').getValue() || '').trim() : '';
+  const parsedItems = parseNoticeItemsFromRaw_(rawNotice);
+  
+  if (parsedItems.length > 0) {
+    if (noticeSheet.getLastRow() > 1) {
+      noticeSheet.deleteRows(2, noticeSheet.getLastRow() - 1);
+    }
+    const rows = parsedItems.map(function(p) {
+      return [p.date, p.title, Utilities.getUuid()];
+    });
+    noticeSheet.getRange(2, 1, rows.length, 3).setNumberFormat('@').setValues(rows);
+  }
+  return '공지사항 시트 생성 및 ' + parsedItems.length + '건 동기화 완료!';
+}
+
 function doGet() {
   try {
     const ss = getSpreadsheet_();
     const result = { data: {}, types: [], notice: '', milestones: [] };
     const typeSet = {};
 
-    const configSheet = ss.getSheetByName('설정');
-    if (configSheet) {
-      result.notice = String(configSheet.getRange('B1').getValue() || '').trim();
-    }
+    const noticeData = readNotices_(ss);
+    result.notices = noticeData.items;
+    result.notice = noticeData.rawText;
 
     result.milestones = readMilestones_(ss);
 
@@ -68,6 +106,15 @@ function doPost(e) {
         case 'update_notice':
           result = updateNotice_(ss, payload);
           break;
+        case 'add_notice':
+          result = addNoticeItem_(ss, payload);
+          break;
+        case 'update_notice_item':
+          result = updateNoticeItem_(ss, payload);
+          break;
+        case 'delete_notice':
+          result = deleteNoticeItem_(ss, payload);
+          break;
         case 'add_event':
           result = addEvent_(ss, payload);
           break;
@@ -79,6 +126,9 @@ function doPost(e) {
           break;
         case 'add_dday':
           result = addMilestone_(ss, payload);
+          break;
+        case 'update_dday':
+          result = updateMilestone_(ss, payload);
           break;
         case 'delete_dday':
           result = deleteMilestone_(ss, payload);
@@ -268,6 +318,206 @@ function storedDateToIso_(value, timezone) {
     : '';
 }
 
+function readNotices_(ss) {
+  let sheet = ss.getSheetByName('공지사항');
+  const timezone = ss.getSpreadsheetTimeZone();
+
+  // 1. 공지사항 시트가 이미 존재하고 데이터가 있는 경우
+  if (sheet && sheet.getLastRow() > 1) {
+    const width = Math.max(3, sheet.getLastColumn());
+    const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, width).getValues();
+    const items = values.reduce((acc, row, idx) => {
+      const date = row[0] ? storedDateToIso_(row[0], timezone) : '';
+      const title = String(row[1] || '').trim();
+      if (!title) return acc;
+      const id = isEventId_(row[2]) ? row[2] : Utilities.getUuid();
+      acc.push({ id: id, date: date, title: title });
+      return acc;
+    }, []);
+
+    const rawText = items.map(function(it) {
+      if (it.date) {
+        const parts = it.date.split('-');
+        const m = parseInt(parts[1], 10);
+        const d = parseInt(parts[2], 10);
+        if (!it.title.includes(m + '/' + d) && !it.title.includes(it.date)) {
+          return '▶' + it.title + '(' + m + '/' + d + ')';
+        }
+      }
+      return '▶' + it.title;
+    }).join(' ');
+
+    return { items: items, rawText: rawText };
+  }
+
+  // 2. 공지사항 시트가 없거나 빈 경우: 기존 '설정' 시트 B1에서 읽어와 자동으로 '공지사항' 시트 생성 및 채우기
+  const configSheet = ss.getSheetByName('설정');
+  const rawNotice = configSheet ? String(configSheet.getRange('B1').getValue() || '').trim() : '';
+  const parsedItems = parseNoticeItemsFromRaw_(rawNotice);
+
+  try {
+    const noticeSheet = getOrCreateNoticeSheet_(ss);
+    if (parsedItems.length > 0 && noticeSheet.getLastRow() <= 1) {
+      const rows = parsedItems.map(function(p) {
+        return [p.date, p.title, Utilities.getUuid()];
+      });
+      noticeSheet.getRange(2, 1, rows.length, 3).setNumberFormat('@').setValues(rows);
+    }
+  } catch (e) {
+    // 예외 발생 시 안전 무시 (조회 보장)
+  }
+
+  return { items: parsedItems, rawText: rawNotice };
+}
+
+function parseNoticeItemsFromRaw_(rawText) {
+  if (!rawText) return [];
+  let parts = [];
+  if (/[▶▷►•]/.test(rawText)) {
+    parts = rawText.split(/[▶▷►•]/).map(function(s) { return s.trim(); }).filter(Boolean);
+  } else {
+    parts = rawText.split(/\r?\n/).map(function(s) { return s.trim(); }).filter(Boolean);
+  }
+
+  var today = new Date();
+  var currentMonth = today.getMonth();
+
+  return parts.map(function(p, idx) {
+    var clean = p.replace(/^[▶▷►•\s]+/, '').trim();
+    var regex = /(?:(\d{4})[-/.년]\s*)?(\d{1,2})[-/.월]\s*(\d{1,2})일?/g;
+    var dates = [];
+    var m;
+    while ((m = regex.exec(clean)) !== null) {
+      var y = m[1] ? parseInt(m[1], 10) : today.getFullYear();
+      var month = parseInt(m[2], 10) - 1;
+      var day = parseInt(m[3], 10);
+      if (month >= 0 && month <= 11 && day >= 1 && day <= 31) {
+        if (!m[1] && currentMonth >= 8 && month <= 1) {
+          y = today.getFullYear() + 1;
+        }
+        dates.push([y, String(month + 1).padStart(2, '0'), String(day).padStart(2, '0')].join('-'));
+      }
+    }
+    var date = dates.length > 0 ? dates[dates.length - 1] : '';
+
+    var title = clean;
+    var parenDateMatch = clean.match(/^(.+?)\s*\(\d{1,2}\/\d{1,2}\)$/);
+    if (parenDateMatch) {
+      title = parenDateMatch[1].trim();
+    }
+
+    return {
+      id: Utilities ? Utilities.getUuid() : 'notice-item-' + (idx + 1),
+      date: date,
+      title: title
+    };
+  });
+}
+
+function syncNoticeSheetToConfig_(ss, items) {
+  let sheet = ss.getSheetByName('설정');
+  if (!sheet) {
+    sheet = ss.insertSheet('설정');
+    sheet.getRange('A1').setValue('Notice');
+  }
+  const rawText = items.map(function(it) {
+    if (it.date) {
+      const parts = it.date.split('-');
+      const m = parseInt(parts[1], 10);
+      const d = parseInt(parts[2], 10);
+      if (!it.title.includes(m + '/' + d) && !it.title.includes(it.date)) {
+        return '▶' + it.title + '(' + m + '/' + d + ')';
+      }
+    }
+    return '▶' + it.title;
+  }).join(' ');
+
+  sheet.getRange('B1').setValue(rawText);
+  return rawText;
+}
+
+function getOrCreateNoticeSheet_(ss) {
+  let sheet = ss.getSheetByName('공지사항');
+  if (!sheet) {
+    sheet = ss.insertSheet('공지사항');
+    sheet.getRange(1, 1, 1, 3).setValues([['공지 날짜', '공지 내용', '__id']]);
+    sheet.getRange(1, 1, 1, 2).setFontWeight('bold').setBackground('#f1f5f9');
+    sheet.setColumnWidth(1, 120);
+    sheet.setColumnWidth(2, 450);
+  } else {
+    const idHeader = String(sheet.getRange(1, 3).getValue() || '').trim();
+    if (!idHeader) sheet.getRange(1, 3).setValue('__id');
+  }
+  sheet.hideColumns(3);
+  return sheet;
+}
+
+function addNoticeItem_(ss, payload) {
+  const date = payload.date ? parseIsoDate_(payload.date).iso : '';
+  const title = requireText_(payload.title, '공지 내용', MAX_TITLE_LENGTH, false);
+  const sheet = getOrCreateNoticeSheet_(ss);
+  const id = Utilities.getUuid();
+  const row = Math.max(1, sheet.getLastRow()) + 1;
+  sheet.getRange(row, 1, 1, 3).setNumberFormat('@').setValues([[date, title, id]]);
+
+  const noticeData = readNotices_(ss);
+  syncNoticeSheetToConfig_(ss, noticeData.items);
+
+  return { item: { id: id, date: date, title: title }, notice: noticeData.rawText, notices: noticeData.items };
+}
+
+function updateNoticeItem_(ss, payload) {
+  const id = requireText_(payload.id, '공지 식별자', 100, false);
+  const date = payload.date ? parseIsoDate_(payload.date).iso : '';
+  const title = requireText_(payload.title, '공지 내용', MAX_TITLE_LENGTH, false);
+  const sheet = ss.getSheetByName('공지사항');
+  if (!sheet || sheet.getLastRow() <= 1) throw new Error('수정할 공지사항 시트가 없습니다.');
+
+  const width = Math.max(3, sheet.getLastColumn());
+  const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, width).getValues();
+  let targetRow = null;
+
+  for (let i = 0; i < values.length; i++) {
+    if (values[i][2] === id || (['legacy-notice', sheet.getSheetId(), i + 2].join(':') === id)) {
+      targetRow = i + 2;
+      break;
+    }
+  }
+
+  if (!targetRow) throw new Error('해당 공지사항을 찾을 수 없습니다.');
+  sheet.getRange(targetRow, 1, 1, 3).setNumberFormat('@').setValues([[date, title, id]]);
+
+  const noticeData = readNotices_(ss);
+  syncNoticeSheetToConfig_(ss, noticeData.items);
+
+  return { item: { id: id, date: date, title: title }, notice: noticeData.rawText, notices: noticeData.items };
+}
+
+function deleteNoticeItem_(ss, payload) {
+  const id = requireText_(payload.id, '공지 식별자', 100, false);
+  const sheet = ss.getSheetByName('공지사항');
+  if (!sheet || sheet.getLastRow() <= 1) throw new Error('삭제할 공지사항이 없습니다.');
+
+  const width = Math.max(3, sheet.getLastColumn());
+  const values = sheet.getRange(2, 1, sheet.getLastRow() - 1, width).getValues();
+  let targetRow = null;
+
+  for (let i = 0; i < values.length; i++) {
+    if (values[i][2] === id || (['legacy-notice', sheet.getSheetId(), i + 2].join(':') === id)) {
+      targetRow = i + 2;
+      break;
+    }
+  }
+
+  if (!targetRow) throw new Error('삭제할 공지사항을 찾을 수 없습니다.');
+  sheet.deleteRow(targetRow);
+
+  const noticeData = readNotices_(ss);
+  syncNoticeSheetToConfig_(ss, noticeData.items);
+
+  return { deleted: true, notice: noticeData.rawText, notices: noticeData.items };
+}
+
 function updateNotice_(ss, payload) {
   const notice = requireText_(payload.newNotice, '공지 내용', MAX_NOTICE_LENGTH, true);
   let sheet = ss.getSheetByName('설정');
@@ -276,7 +526,21 @@ function updateNotice_(ss, payload) {
     sheet.getRange('A1').setValue('Notice');
   }
   sheet.getRange('B1').setValue(notice);
-  return { notice: notice };
+
+  // Re-sync 공지사항 sheet
+  const parsed = parseNoticeItemsFromRaw_(notice);
+  const noticeSheet = getOrCreateNoticeSheet_(ss);
+  if (noticeSheet.getLastRow() > 1) {
+    noticeSheet.deleteRows(2, noticeSheet.getLastRow() - 1);
+  }
+  if (parsed.length > 0) {
+    const rows = parsed.map(function(p) {
+      return [p.date, p.title, Utilities.getUuid()];
+    });
+    noticeSheet.getRange(2, 1, rows.length, 3).setNumberFormat('@').setValues(rows);
+  }
+
+  return { notice: notice, notices: parsed };
 }
 
 function addEvent_(ss, payload) {
@@ -434,6 +698,20 @@ function deleteMilestone_(ss, payload) {
   if (!targetRow) throw new Error('디데이 정보가 변경되었습니다. 새로고침 후 다시 시도하세요.');
   sheet.deleteRow(targetRow);
   return { deleted: true };
+}
+
+function updateMilestone_(ss, payload) {
+  const id = requireText_(payload.id, '디데이 식별자', 100, false);
+  const newDate = parseIsoDate_(payload.date).iso;
+  const newTitle = requireText_(payload.title, '디데이 명칭', MAX_TITLE_LENGTH, false);
+  const sheet = ss.getSheetByName('디데이');
+  if (!sheet || sheet.getLastRow() <= 1) throw new Error('수정할 디데이가 없습니다.');
+
+  const targetRow = findMilestoneRow_(sheet, id, payload.oldDate || newDate, payload.oldTitle || newTitle, ss.getSpreadsheetTimeZone());
+  if (!targetRow) throw new Error('디데이 정보가 변경되었습니다. 새로고침 후 다시 시도하세요.');
+
+  sheet.getRange(targetRow, 1, 1, 3).setNumberFormat('@').setValues([[newDate, newTitle, id]]);
+  return { milestone: { id: id, date: newDate, title: newTitle } };
 }
 
 function getOrCreateMilestoneSheet_(ss) {
