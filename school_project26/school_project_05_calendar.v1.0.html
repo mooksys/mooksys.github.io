@@ -105,9 +105,9 @@
     }
     .skip-link:focus { top: 1rem; }
 
-    /* Layout Shell */
+    /* Layout Shell (Default Width: 1024px) */
     .app-shell {
-      width: min(100% - 24px, 1220px);
+      width: min(100% - 24px, 1024px);
       margin: 12px auto 28px;
       padding: 12px;
       border: 1px solid rgba(255, 255, 255, .8);
@@ -475,19 +475,19 @@
       color: #0891b2;
     }
 
-    /* Dashboard Cards */
+    /* Dashboard Cards (Golden Balance for 1024px shell ~88px height) */
     .dashboard {
       display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 12px;
-      margin: 0 0 16px;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 10px;
+      margin: 0 0 12px;
     }
     .stat-card {
       position: relative;
       overflow: hidden;
-      padding: 16px 18px;
+      padding: 11px 14px;
       border: 1.5px solid rgba(255, 255, 255, .9);
-      border-radius: var(--radius);
+      border-radius: 15px;
       background: var(--surface);
       box-shadow: var(--shadow-sm);
       backdrop-filter: blur(16px);
@@ -497,18 +497,18 @@
       justify-content: space-between;
     }
     .stat-card:hover {
-      transform: translateY(-3px);
+      transform: translateY(-2px);
       box-shadow: var(--shadow-md);
     }
     .stat-card::after {
       content: "";
       position: absolute;
-      right: -16px;
-      top: -20px;
-      width: 90px;
-      height: 90px;
+      right: -10px;
+      top: -12px;
+      width: 68px;
+      height: 68px;
       border-radius: 50%;
-      opacity: .8;
+      opacity: .7;
       pointer-events: none;
     }
     .stat-card.offjt {
@@ -543,6 +543,22 @@
       border: 1px solid rgba(254, 205, 211, .8);
     }
 
+    .stat-card.afterschool {
+      border-color: rgba(16, 185, 129, .35);
+      background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%);
+    }
+    .stat-card.afterschool::after { background: rgba(16, 185, 129, .12); }
+    .stat-card.afterschool .stat-title {
+      color: #047857;
+      background: rgba(209, 250, 229, .75);
+      border-color: rgba(167, 243, 208, .7);
+    }
+    .stat-card.afterschool .stat-desc {
+      color: #065f46;
+      background: rgba(236, 253, 245, .9);
+      border: 1px solid rgba(167, 243, 208, .8);
+    }
+
     .stat-card.dday {
       border-color: rgba(99, 102, 241, .35);
       background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
@@ -563,11 +579,11 @@
     .stat-title {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      padding: 4px 10px;
+      gap: 5px;
+      padding: 2.5px 8px;
       border: 1px solid transparent;
-      border-radius: 8px;
-      font-size: .86rem;
+      border-radius: 6px;
+      font-size: .75rem;
       font-weight: 850;
       letter-spacing: -.02em;
       width: fit-content;
@@ -575,18 +591,18 @@
     }
     .stat-title::before {
       content: "";
-      width: 7px;
-      height: 7px;
+      width: 5px;
+      height: 5px;
       border-radius: 50%;
       background: currentColor;
-      box-shadow: 0 0 6px currentColor;
+      box-shadow: 0 0 5px currentColor;
     }
     .stat-value {
-      margin: 10px 0 8px;
+      margin: 4px 0 3px;
       color: var(--ink);
-      font-size: 1.65rem;
+      font-size: 1.30rem;
       font-weight: 900;
-      letter-spacing: -.04em;
+      letter-spacing: -.035em;
       text-align: center;
       line-height: 1.2;
     }
@@ -595,19 +611,19 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 8px;
-      font-size: .82rem;
+      gap: 5px;
+      padding: 3.5px 6px;
+      border-radius: 6px;
+      font-size: .73rem;
       font-weight: 750;
       text-align: center;
-      line-height: 1.35;
+      line-height: 1.25;
       overflow-wrap: anywhere;
     }
     #stat-dday-title {
       color: #3730a3;
       font-weight: 850;
-      font-size: .86rem;
+      font-size: .76rem;
     }
 
     /* Calendar Workspace */
@@ -786,7 +802,7 @@
       color: var(--ink-soft);
       background: #f8fafc;
       text-align: center;
-      font-size: .72rem;
+      font-size: 11px;
       font-weight: 800;
     }
     .day-header:nth-child(1) { color: var(--red-ojt); background: #fff1f2; }
@@ -801,6 +817,7 @@
       cursor: pointer;
       transition: all .16s cubic-bezier(0.16, 1, 0.3, 1);
       position: relative;
+      font-size: 11px;
     }
     .calendar-cell:hover {
       border-color: var(--primary);
@@ -828,7 +845,7 @@
     }
     .cell-number {
       color: var(--ink);
-      font-size: .8rem;
+      font-size: 11px;
       font-weight: 850;
     }
     .calendar-cell:nth-child(7n + 8) .cell-number { color: var(--red-ojt); }
@@ -853,9 +870,9 @@
       padding: 4px 7px;
       border-radius: 8px;
       color: #fff;
-      font-size: .7rem;
+      font-size: 11px;
       font-weight: 750;
-      line-height: 1.3;
+      line-height: 1.35;
       overflow-wrap: anywhere;
       box-shadow: 0 1px 3px rgba(15, 23, 42, .08);
       transition: transform .15s ease;
@@ -1234,6 +1251,98 @@
       outline: none;
     }
     
+    /* Notice Admin Management Cards */
+    #admin-notice-list {
+      margin-top: 6px;
+      padding: 8px;
+      border: 1.5px solid #e2e8f0;
+      border-radius: 14px;
+      background: #f8fafc;
+    }
+    .notice-admin-list { display: grid; gap: 8px; }
+    .notice-admin-item {
+      display: flex;
+      flex-direction: column;
+      gap: 7px;
+      padding: 11px 13px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #ffffff;
+      box-shadow: var(--shadow-sm);
+      transition: all .15s ease;
+    }
+    .notice-admin-item:hover {
+      border-color: #cbd5e1;
+      box-shadow: var(--shadow-md);
+    }
+    .notice-admin-item.editing {
+      border-color: var(--primary);
+      background: #f5f7ff;
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, .2);
+    }
+    .notice-admin-header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 10px;
+      width: 100%;
+    }
+    .notice-admin-text {
+      font-size: .88rem;
+      font-weight: 750;
+      color: #1e293b;
+      line-height: 1.4;
+      word-break: keep-all;
+      overflow-wrap: break-word;
+      flex: 1;
+      min-width: 0;
+    }
+    .notice-admin-footer-row {
+      display: flex;
+      align-items: center;
+      justify-content: flex-end; /* 오른쪽 정렬 */
+      gap: 6px;
+      width: 100%;
+      padding-top: 4px;
+      border-top: 1px dashed #f1f5f9;
+    }
+    .notice-status-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 2px 7px;
+      border-radius: 999px;
+      font-size: .7rem;
+      font-weight: 800;
+      line-height: 1.2;
+    }
+    .notice-status-pill.current-month {
+      color: #065f46;
+      background: #d1fae5;
+      border: 1px solid #a7f3d0;
+    }
+    .notice-status-pill.future {
+      color: #1e40af;
+      background: #dbeafe;
+      border: 1px solid #bfdbfe;
+    }
+    .notice-status-pill.past {
+      color: #64748b;
+      background: #f1f5f9;
+      border: 1px solid #e2e8f0;
+    }
+    .notice-status-pill.no-date {
+      color: #6b21a8;
+      background: #f3e8ff;
+      border: 1px solid #e9d5ff;
+    }
+    .notice-admin-actions {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    
     #admin-dday-list {
       margin-top: 4px;
       padding: 6px;
@@ -1257,6 +1366,11 @@
     .dday-list-item:hover {
       border-color: #cbd5e1;
       box-shadow: var(--shadow-md);
+    }
+    .dday-list-item.editing {
+      border-color: var(--primary);
+      background: #f5f7ff;
+      box-shadow: 0 0 0 2px rgba(79, 70, 229, .2);
     }
     .dday-list-copy { min-width: 0; flex: 1; }
     .dday-list-date {
@@ -1567,13 +1681,14 @@
     }
 
     /* Modern Premium Footer */
+    /* Modern Premium Footer (Slim 20% reduced height) */
     .site-footer {
-      width: min(100% - 24px, 1220px);
-      margin: 10px auto 36px;
+      width: min(100% - 24px, 1024px);
+      margin: 8px auto 28px;
       padding: 0 4px;
     }
     .footer-card {
-      padding: 24px 28px;
+      padding: 16px 24px;
       border: 1px solid rgba(255, 255, 255, .85);
       border-radius: var(--radius-lg);
       background: rgba(255, 255, 255, .68);
@@ -1582,44 +1697,44 @@
       box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 12px;
     }
     .footer-top {
       display: flex;
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 16px;
-      padding-bottom: 16px;
+      gap: 12px;
+      padding-bottom: 12px;
       border-bottom: 1px solid rgba(148, 163, 184, .18);
     }
     .footer-brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 10px;
     }
     .footer-logo {
       display: grid;
       place-items: center;
-      width: 38px;
-      height: 38px;
-      border-radius: 12px;
+      width: 32px;
+      height: 32px;
+      border-radius: 10px;
       color: #fff;
       font-weight: 900;
-      font-size: 1rem;
+      font-size: .88rem;
       background: linear-gradient(135deg, var(--primary), #8b5cf6);
-      box-shadow: 0 4px 12px rgba(79, 70, 229, .25);
+      box-shadow: 0 3px 10px rgba(79, 70, 229, .22);
     }
     .footer-title {
       display: block;
-      font-size: .95rem;
+      font-size: .9rem;
       font-weight: 850;
       color: var(--ink);
       letter-spacing: -.02em;
     }
     .footer-subtitle {
-      margin-top: 2px;
-      font-size: .78rem;
+      margin-top: 1px;
+      font-size: .75rem;
       color: var(--ink-soft);
       font-weight: 600;
     }
@@ -1633,12 +1748,12 @@
       display: inline-flex;
       align-items: center;
       gap: 6px;
-      padding: 5px 12px;
+      padding: 4px 10px;
       border: 1px solid rgba(148, 163, 184, .25);
       border-radius: 999px;
       background: rgba(255, 255, 255, .8);
       color: #475569;
-      font-size: .74rem;
+      font-size: .72rem;
       font-weight: 750;
       box-shadow: var(--shadow-sm);
     }
@@ -1654,8 +1769,8 @@
       align-items: center;
       justify-content: space-between;
       flex-wrap: wrap;
-      gap: 10px;
-      font-size: .78rem;
+      gap: 8px;
+      font-size: .75rem;
       color: var(--ink-soft);
       font-weight: 600;
     }
@@ -1687,7 +1802,7 @@
     /* Responsive (Mobile View below 800px) */
     @media (max-width: 799px) {
       .app-shell {
-        width: min(100% - 14px, 1220px);
+        width: min(100% - 14px, 1024px);
         margin: 6px auto 18px;
         padding: 10px;
         border-radius: 18px;
@@ -1722,13 +1837,13 @@
       }
       .hero-actions #admin-tools-btn { flex: 1 1 100%; }
       .dashboard {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
         gap: 8px;
       }
-      .stat-card { padding: 14px 14px; }
-      .stat-value { font-size: 1.45rem; margin: 8px 0 6px; }
-      .stat-title { font-size: 0.82rem; }
-      .stat-desc { font-size: 0.8rem; padding: 5px 8px; }
+      .stat-card { padding: 10px 12px; }
+      .stat-value { font-size: 1.25rem; margin: 4px 0 3px; }
+      .stat-title { font-size: 0.75rem; padding: 2px 7px; }
+      .stat-desc { font-size: 0.73rem; padding: 3px 6px; }
       .calendar-workspace {
         padding: 12px 10px;
         border-radius: 18px;
@@ -1989,6 +2104,20 @@
       .dday-list-date {
         font-size: 0.72rem;
       }
+      .notice-admin-item {
+        padding: 10px 12px;
+        gap: 8px;
+        flex-wrap: wrap;
+      }
+      .notice-admin-copy {
+        flex: 1 1 100%;
+        min-width: 0;
+        flex-wrap: wrap;
+        gap: 6px;
+      }
+      .notice-admin-meta {
+        margin-left: auto;
+      }
       .date-form-box {
         padding: 14px 12px !important;
         border-radius: 14px;
@@ -2012,23 +2141,24 @@
         flex: 1 1 50%;
         min-height: 36px;
       }
-      .footer-card { padding: 18px 16px; gap: 14px; }
+      .footer-card { padding: 14px 14px; gap: 10px; }
       .footer-top {
         flex-direction: column;
         align-items: flex-start;
-        gap: 12px;
+        gap: 10px;
+        padding-bottom: 10px;
       }
       .footer-bottom {
         flex-direction: column;
         align-items: flex-start;
-        gap: 6px;
+        gap: 4px;
       }
     }
 
     @media (min-width: 769px) {
-      .app-shell { width: min(100% - 36px, 1220px); padding: 16px; }
+      .app-shell { width: min(100% - 36px, 1024px); padding: 16px; }
       .hero { grid-template-columns: 1fr auto; align-items: end; padding: 16px 12px 14px; }
-      .dashboard { grid-template-columns: repeat(3, 1fr); gap: 10px; }
+      .dashboard { grid-template-columns: repeat(4, 1fr); gap: 10px; }
       .calendar-workspace { padding: 16px 14px; }
       .calendar-toolbar { grid-template-columns: 1fr auto; align-items: center; }
       .toolbar-left { flex-wrap: nowrap; }
@@ -2042,7 +2172,7 @@
       .calendar-cell { min-height: 108px; padding: 7px 8px; }
       .view-week-1 .calendar-cell { min-height: 220px; }
       .view-week-2 .calendar-cell { min-height: 135px; }
-      .event-badge { font-size: .74rem; }
+      .event-badge { font-size: 11px; }
     }
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
@@ -2137,28 +2267,65 @@
       </div>
 
       <div class="modal-body" style="margin-bottom: 0;">
-        <!-- Tab Pane 1: 공지사항 관리 -->
+        <!-- Tab Pane 1: 공지사항 관리 (D-Day와 동일한 입력 및 구글시트 연동) -->
         <div class="admin-tab-pane active" id="admin-tab-pane-notice" role="tabpanel" aria-labelledby="admin-tab-btn-notice">
-          <div class="admin-card card-highlight">
-            <div class="admin-card-header">
-              <div class="admin-card-icon">📢</div>
-              <div>
-                <h4>실시간 상단 공지사항 수정</h4>
-                <p class="card-desc">달력 화면 상단 배너에 표시될 알림 문구를 관리합니다. '▶' 기호로 일정을 구분하여 입력하면 다채로운 색상의 버튼 뱃지로 자동 변환되어 표시됩니다.</p>
+          <div class="admin-two-col">
+            <!-- Left: 신규 공지 등록 / 수정 폼 -->
+            <div class="admin-card card-highlight">
+              <div class="admin-card-header">
+                <div class="admin-card-icon">📢</div>
+                <div>
+                  <h4 id="admin-notice-form-title">신규 공지사항 등록</h4>
+                  <p class="card-desc">공지 날짜와 내용을 입력하여 구글 스프레드시트와 실시간 연동 관리합니다.</p>
+                </div>
+              </div>
+              <div class="form-stack">
+                <div class="form-group">
+                  <label for="admin-notice-date">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+                    <span>공지 날짜 (목표/예정일)</span>
+                  </label>
+                  <input type="date" id="admin-notice-date">
+                </div>
+                <div class="form-group">
+                  <label for="admin-notice-title">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                    <span>공지 내용</span>
+                  </label>
+                  <input type="text" id="admin-notice-title" maxlength="200" placeholder="예: 제4과목 내부평가, SQLD 원서접수">
+                </div>
+                <div style="display: flex; gap: 8px; margin-top: 4px;">
+                  <button class="btn-primary btn-block" id="admin-notice-submit-btn" type="button" style="min-height: 48px; flex: 1;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round" id="admin-notice-submit-icon"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span id="admin-notice-submit-text">공지 등록하기</span>
+                  </button>
+                  <button class="btn-secondary" id="admin-notice-cancel-btn" type="button" style="display: none; min-height: 48px; padding: 0 16px; white-space: nowrap;">
+                    <span>수정 취소</span>
+                  </button>
+                </div>
               </div>
             </div>
-            <div class="form-stack">
-              <div class="form-group">
-                <label for="edit-notice-text">
-                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
-                  <span>공지 문구 입력</span>
-                </label>
-                <div class="form-action-row">
-                  <input type="text" id="edit-notice-text" maxlength="500" placeholder="예: ▶제4과목 내부평가(9/16) ▶SQLD 원서접수(10/20) ▶외부평가">
-                  <button class="btn-primary" id="update-notice-btn" type="button">
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path><polyline points="17 21 17 13 7 13 7 21"></polyline><polyline points="7 3 7 8 15 8"></polyline></svg>
-                    <span>공지 저장</span>
-                  </button>
+
+            <!-- Right: 등록된 공지 목록 -->
+            <div class="admin-card">
+              <div class="admin-card-header">
+                <div class="admin-card-icon">📋</div>
+                <div style="flex: 1;">
+                  <div style="display: flex; align-items: center; justify-content: space-between;">
+                    <h4>등록된 공지 목록 (<span id="admin-notice-count">0</span>건)</h4>
+                    <button type="button" id="admin-notice-raw-toggle" style="background: none; border: none; font-size: .74rem; color: var(--primary); cursor: pointer; text-decoration: underline; font-weight: 750;">전문(텍스트) 편집</button>
+                  </div>
+                  <p class="card-desc">현재 구글시트에 등록된 공지 목록입니다. (4개씩 페이징)</p>
+                </div>
+              </div>
+              <div id="admin-notice-list"></div>
+
+              <!-- 일괄 전문 편집창 (기본 숨김) -->
+              <div id="admin-notice-raw-wrap" style="display: none; margin-top: 10px; padding: 10px; border: 1.5px solid #e2e8f0; border-radius: 12px; background: #ffffff;">
+                <label for="edit-notice-text" style="font-size: .76rem; font-weight: 800; color: #64748b; margin-bottom: 6px; display: block;">전체 공지 원문 일괄 저장 ('▶' 기호 구분)</label>
+                <textarea id="edit-notice-text" rows="3" style="width: 100%; border: 1px solid #cbd5e1; border-radius: 8px; padding: 8px; font-size: .82rem; resize: vertical; box-sizing: border-box;" placeholder="▶항목1 ▶항목2"></textarea>
+                <div style="display: flex; justify-content: flex-end; margin-top: 6px;">
+                  <button class="btn-primary btn-sm" id="update-notice-raw-btn" type="button">일괄 저장하기</button>
                 </div>
               </div>
             </div>
@@ -2173,7 +2340,7 @@
               <div class="admin-card-header">
                 <div class="admin-card-icon">🎯</div>
                 <div>
-                  <h4>신규 마일스톤 추가</h4>
+                  <h4 id="admin-dday-form-title">신규 마일스톤 추가</h4>
                   <p class="card-desc">목표 날짜와 명칭을 지정하여 상단 대시보드에 D-Day를 자동 계산하여 안내합니다.</p>
                 </div>
               </div>
@@ -2192,10 +2359,15 @@
                   </label>
                   <input type="text" id="add-dday-title" maxlength="200" placeholder="예: 1차 도제역량평가, 외부평가">
                 </div>
-                <button class="btn-primary btn-block" id="add-dday-btn" type="button" style="min-height: 48px; margin-top: 4px;">
-                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
-                  <span>마일스톤 등록하기</span>
-                </button>
+                <div style="display: flex; gap: 8px; margin-top: 4px;">
+                  <button class="btn-primary btn-block" id="add-dday-btn" type="button" style="min-height: 48px; flex: 1;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    <span id="add-dday-btn-text">마일스톤 등록하기</span>
+                  </button>
+                  <button class="btn-secondary" id="cancel-dday-btn" type="button" style="display: none; min-height: 48px; padding: 0 16px; white-space: nowrap;">
+                    <span>수정 취소</span>
+                  </button>
+                </div>
               </div>
             </div>
 
@@ -2431,6 +2603,11 @@
         <div class="stat-value" id="stat-ojt-days">0일 / 0시간</div>
         <div class="stat-desc">현재 달력 화면 기준 합산</div>
       </article>
+      <article class="stat-card afterschool">
+        <span class="stat-title">방과후 수업</span>
+        <div class="stat-value" id="stat-afterschool-days">0일 / 0시간</div>
+        <div class="stat-desc">현재 달력 화면 기준 합산</div>
+      </article>
       <article class="stat-card dday">
         <span class="stat-title">다음 학사 마일스톤</span>
         <div class="stat-value" id="stat-dday">D-0</div>
@@ -2570,7 +2747,50 @@
         .replace(/'/g, '&#039;');
     }
 
-    // Notice Banner Renderer (Transforms ▶ markers into colorful badge buttons)
+    // Notice Month & Expiration Checker (Shows only notices belonging to the current system month and not yet expired)
+    function isNoticeItemInCurrentMonth(text) {
+      if (!text) return false;
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const currentYear = today.getFullYear();
+      const currentMonth = today.getMonth(); // 0-indexed (0=Jan, 8=Sep)
+
+      // Matches (YYYY[-/.년]) M[-/.월] D[일]
+      const regex = /(?:(\d{4})[-/.년]\s*)?(\d{1,2})[-/.월]\s*(\d{1,2})일?/g;
+      let dates = [];
+      let m;
+      while ((m = regex.exec(text)) !== null) {
+        let y = m[1] ? parseInt(m[1], 10) : currentYear;
+        const month = parseInt(m[2], 10) - 1;
+        const day = parseInt(m[3], 10);
+        if (month >= 0 && month <= 11 && day >= 1 && day <= 31) {
+          if (!m[1] && currentMonth >= 8 && month <= 1) {
+            y = currentYear + 1;
+          }
+          dates.push(new Date(y, month, day));
+        }
+      }
+
+      // Plain notices without date are always displayed
+      if (dates.length === 0) return true;
+
+      const startDate = dates[0];
+      const endDate = dates[dates.length - 1];
+      startDate.setHours(0, 0, 0, 0);
+      endDate.setHours(0, 0, 0, 0);
+
+      // 1. Exclude if already past (ended before today)
+      if (endDate < today) return false;
+
+      // 2. Check if the notice belongs to the current system month
+      const startOfMonth = new Date(currentYear, currentMonth, 1);
+      const endOfMonth = new Date(currentYear, currentMonth + 1, 0, 23, 59, 59, 999);
+
+      // Event range overlaps with current month
+      return (startDate <= endOfMonth && endDate >= startOfMonth);
+    }
+
+    // Notice Banner Renderer (Transforms ▶ markers into colorful badge buttons, filters by current month)
     function renderNotice(noticeText) {
       const noticeDisplay = document.getElementById('notice-display');
       if (!noticeDisplay) return;
@@ -2585,7 +2805,10 @@
       // Check if text has ▶, ▷, ►, or • markers
       if (/[▶▷►•]/.test(rawText)) {
         const parts = rawText.split(/[▶▷►•]/).map(s => s.trim()).filter(Boolean);
-        if (parts.length > 0) {
+        // Exclude items that are not in the current month or already past
+        const activeParts = parts.filter(part => isNoticeItemInCurrentMonth(part));
+
+        if (activeParts.length > 0) {
           const wrap = document.createElement('div');
           wrap.className = 'notice-badges-wrap';
 
@@ -2599,7 +2822,7 @@
             'notice-badge-blue'
           ];
 
-          parts.forEach((part, idx) => {
+          activeParts.forEach((part, idx) => {
             const badge = document.createElement('span');
             const themeClass = colorSchemes[idx % colorSchemes.length];
             badge.className = `notice-event-badge ${themeClass}`;
@@ -2619,36 +2842,49 @@
 
           noticeDisplay.appendChild(wrap);
           return;
+        } else {
+          noticeDisplay.textContent = '이번 달 진행 예정인 공지사항 일정이 없습니다.';
+          return;
         }
       }
 
       // If text has line breaks without ▶
       const lines = rawText.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
       if (lines.length > 1) {
-        const wrap = document.createElement('div');
-        wrap.className = 'notice-badges-wrap';
-        const colorSchemes = ['notice-badge-indigo', 'notice-badge-rose', 'notice-badge-emerald', 'notice-badge-purple'];
-        lines.forEach((line, idx) => {
-          const badge = document.createElement('span');
-          badge.className = `notice-event-badge ${colorSchemes[idx % colorSchemes.length]}`;
-          const icon = document.createElement('span');
-          icon.className = 'notice-badge-icon';
-          icon.setAttribute('aria-hidden', 'true');
-          icon.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>`;
-          const text = document.createElement('span');
-          text.className = 'notice-badge-text';
-          text.textContent = line;
-          badge.append(icon, text);
-          wrap.appendChild(badge);
-        });
-        noticeDisplay.appendChild(wrap);
-        return;
+        const activeLines = lines.filter(line => isNoticeItemInCurrentMonth(line));
+        if (activeLines.length > 0) {
+          const wrap = document.createElement('div');
+          wrap.className = 'notice-badges-wrap';
+          const colorSchemes = ['notice-badge-indigo', 'notice-badge-rose', 'notice-badge-emerald', 'notice-badge-purple'];
+          activeLines.forEach((line, idx) => {
+            const badge = document.createElement('span');
+            badge.className = `notice-event-badge ${colorSchemes[idx % colorSchemes.length]}`;
+            const icon = document.createElement('span');
+            icon.className = 'notice-badge-icon';
+            icon.setAttribute('aria-hidden', 'true');
+            icon.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>`;
+            const text = document.createElement('span');
+            text.className = 'notice-badge-text';
+            text.textContent = line;
+            badge.append(icon, text);
+            wrap.appendChild(badge);
+          });
+          noticeDisplay.appendChild(wrap);
+          return;
+        } else {
+          noticeDisplay.textContent = '이번 달 진행 예정인 공지사항 일정이 없습니다.';
+          return;
+        }
       }
 
       // Plain string
-      const plainSpan = document.createElement('span');
-      plainSpan.textContent = rawText;
-      noticeDisplay.appendChild(plainSpan);
+      if (isNoticeItemInCurrentMonth(rawText)) {
+        const plainSpan = document.createElement('span');
+        plainSpan.textContent = rawText;
+        noticeDisplay.appendChild(plainSpan);
+      } else {
+        noticeDisplay.textContent = '이번 달 진행 예정인 공지사항 일정이 없습니다.';
+      }
     }
 
     // Custom Modern Confirm Dialog
@@ -2784,8 +3020,50 @@
       document.getElementById('tab-week-2').addEventListener('click', () => switchView('week2'));
       document.getElementById('previous-period-btn').addEventListener('click', () => moveTime(-1));
       document.getElementById('next-period-btn').addEventListener('click', () => moveTime(1));
-      document.getElementById('update-notice-btn').addEventListener('click', updateNotice);
+      
+      // Notice Admin Item-based Controls (Date + Title inputs)
+      document.getElementById('admin-notice-submit-btn').addEventListener('click', submitNoticeItem);
+      document.getElementById('admin-notice-cancel-btn').addEventListener('click', cancelEditNoticeItem);
+      document.getElementById('admin-notice-title').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          submitNoticeItem();
+        } else if (e.key === 'Escape') {
+          cancelEditNoticeItem();
+        }
+      });
+      document.getElementById('admin-notice-date').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          document.getElementById('admin-notice-title').focus();
+        } else if (e.key === 'Escape') {
+          cancelEditNoticeItem();
+        }
+      });
+      document.getElementById('admin-notice-raw-toggle').addEventListener('click', () => {
+        const wrap = document.getElementById('admin-notice-raw-wrap');
+        wrap.style.display = wrap.style.display === 'none' ? 'block' : 'none';
+      });
+      document.getElementById('update-notice-raw-btn').addEventListener('click', updateNoticeRaw);
+
       document.getElementById('add-dday-btn').addEventListener('click', addDDay);
+      document.getElementById('cancel-dday-btn').addEventListener('click', cancelEditDDay);
+      document.getElementById('add-dday-title').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          addDDay();
+        } else if (e.key === 'Escape') {
+          cancelEditDDay();
+        }
+      });
+      document.getElementById('add-dday-date').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+          e.preventDefault();
+          document.getElementById('add-dday-title').focus();
+        } else if (e.key === 'Escape') {
+          cancelEditDDay();
+        }
+      });
 
       // Admin Add Event Tab Controls
       document.getElementById('admin-add-type').addEventListener('change', (e) => {
@@ -2837,6 +3115,7 @@
     function openAdminToolsModal() {
       const modal = document.getElementById('admin-tools-modal');
       modal.style.display = 'flex';
+      renderAdminNoticeList();
       renderAdminDDayList();
     }
 
@@ -2918,11 +3197,21 @@
         filterTypes = json.types || [];
         milestonesData = (json.milestones || []).slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
 
+        currentNoticeRaw = json.notice || '';
+        if (Array.isArray(json.notices)) {
+          noticesData = json.notices.slice();
+        } else {
+          noticesData = parseNoticeItems(currentNoticeRaw);
+        }
         renderNotice(json.notice || '등록된 공지사항이 없습니다.');
-        document.getElementById('edit-notice-text').value = json.notice || '';
+        const rawEl = document.getElementById('edit-notice-text');
+        if (rawEl) rawEl.value = json.notice || '';
         renderFilterChips();
         renderActiveView();
-        if (isAdmin) renderAdminDDayList();
+        if (isAdmin) {
+          renderAdminNoticeList();
+          renderAdminDDayList();
+        }
         
         // If Date Modal is currently open, refresh its list
         if (document.getElementById('date-event-modal').style.display === 'flex' && modalSelectedDate) {
@@ -3088,7 +3377,8 @@
 
       let offjtDays = new Set();  
       let ojtDays = new Set();    
-      let hoursObj = { offjt: 0, ojt: 0 };
+      let afterschoolDays = new Set();
+      let hoursObj = { offjt: 0, ojt: 0, afterschool: 0 };
 
       const currentSheetKey = `${currentYear}.${currentMonth}`;
       const todayObj = new Date();
@@ -3123,7 +3413,7 @@
         cell.addEventListener('click', () => openDateEventModal(dateIso));
 
         const dayEvents = getDayEvents(currentSheetKey, d);
-        processEventsToCell(dayEvents, cell, currentSheetKey, d, offjtDays, ojtDays, hoursObj);
+        processEventsToCell(dayEvents, cell, currentSheetKey, d, offjtDays, ojtDays, afterschoolDays, hoursObj);
         grid.appendChild(cell);
       }
 
@@ -3142,7 +3432,7 @@
         grid.appendChild(cell);
       }
 
-      updateDashBoardStats(offjtDays.size, hoursObj.offjt, ojtDays.size, hoursObj.ojt);
+      updateDashBoardStats(offjtDays.size, hoursObj.offjt, ojtDays.size, hoursObj.ojt, afterschoolDays.size, hoursObj.afterschool);
     }
 
     // Calendar Week Rendering (1 or 2 weeks)
@@ -3168,7 +3458,8 @@
 
       let offjtDays = new Set();  
       let ojtDays = new Set();
-      let hoursObj = { offjt: 0, ojt: 0 };
+      let afterschoolDays = new Set();
+      let hoursObj = { offjt: 0, ojt: 0, afterschool: 0 };
       const todayObj = new Date();
 
       for (let i = 0; i < totalDays; i++) {
@@ -3193,14 +3484,14 @@
         cell.addEventListener('click', () => openDateEventModal(dateIso));
 
         const dayEvents = getDayEvents(sheetKey, iDay);
-        processEventsToCell(dayEvents, cell, sheetKey, iDay, offjtDays, ojtDays, hoursObj);
+        processEventsToCell(dayEvents, cell, sheetKey, iDay, offjtDays, ojtDays, afterschoolDays, hoursObj);
         grid.appendChild(cell);
       }
-      updateDashBoardStats(offjtDays.size, hoursObj.offjt, ojtDays.size, hoursObj.ojt);
+      updateDashBoardStats(offjtDays.size, hoursObj.offjt, ojtDays.size, hoursObj.ojt, afterschoolDays.size, hoursObj.afterschool);
     }
 
     // Cell Event Badges & Calculation
-    function processEventsToCell(dayEvents, cell, sheetKey, d, offjtDays, ojtDays, hoursObj) {
+    function processEventsToCell(dayEvents, cell, sheetKey, d, offjtDays, ojtDays, afterschoolDays, hoursObj) {
       let visibleCount = 0;
       dayEvents.forEach((ev) => {
         const typeClean = ev.type ? ev.type.replace(/[-\s]/g, '').toUpperCase() : '';
@@ -3223,6 +3514,12 @@
           ojtDays.add(d); 
           const match = ev.title.match(/\((\d+)\)\s*$/);
           hoursObj.ojt += match ? parseInt(match[1], 10) : 8; 
+        }
+
+        if(isAfterSchool && !isHoliday) {
+          afterschoolDays.add(d);
+          const match = ev.title.match(/\((\d+)\)\s*$/);
+          hoursObj.afterschool += match ? parseInt(match[1], 10) : 2;
         }
 
         if (!selectedFilters.has('ALL') && !selectedFilters.has(ev.type)) return;
@@ -3253,9 +3550,13 @@
     }
 
     // Dashboard Statistics & D-Day
-    function updateDashBoardStats(offJtDaysCount, offJtHoursCount, ojtDaysCount, ojtHoursCount) {
+    function updateDashBoardStats(offJtDaysCount, offJtHoursCount, ojtDaysCount, ojtHoursCount, afterschoolDaysCount = 0, afterschoolHoursCount = 0) {
       document.getElementById('stat-offjt-days').textContent = `${offJtDaysCount}일 / ${offJtHoursCount}시간`;
       document.getElementById('stat-ojt-days').textContent = `${ojtDaysCount}일 / ${ojtHoursCount}시간`;
+      const afterschoolEl = document.getElementById('stat-afterschool-days');
+      if (afterschoolEl) {
+        afterschoolEl.textContent = `${afterschoolDaysCount}일 / ${afterschoolHoursCount}시간`;
+      }
     }
 
     function calculateDDay() {
@@ -3740,18 +4041,383 @@
       }
     }
 
-    async function updateNotice() {
+    // Notice Items State for Admin Management (Structured like D-Day Milestones)
+    let currentNoticeRaw = '';
+    let noticesData = []; // Array of { id, date, title }
+    let editingNoticeIndex = -1;
+    let noticeCurrentPage = 1;
+    const NOTICE_PAGE_SIZE = 4;
+
+    function parseNoticeItems(rawText) {
+      if (!rawText) return [];
+      let parts = [];
+      if (/[▶▷►•]/.test(rawText)) {
+        parts = rawText.split(/[▶▷►•]/).map(s => s.trim()).filter(Boolean);
+      } else {
+        parts = rawText.split(/\r?\n/).map(s => s.trim()).filter(Boolean);
+      }
+
+      const today = new Date();
+      return parts.map((p, idx) => {
+        const clean = p.replace(/^[▶▷►•\s]+/, '').trim();
+        // Extract date from (YYYY-MM-DD) or (M/D) or (M.D)
+        const regex = /(?:(\d{4})[-/.년]\s*)?(\d{1,2})[-/.월]\s*(\d{1,2})일?/g;
+        let dates = [];
+        let m;
+        while ((m = regex.exec(clean)) !== null) {
+          const y = m[1] ? parseInt(m[1], 10) : today.getFullYear();
+          const month = String(parseInt(m[2], 10)).padStart(2, '0');
+          const day = String(parseInt(m[3], 10)).padStart(2, '0');
+          dates.push(`${y}-${month}-${day}`);
+        }
+        const date = dates.length > 0 ? dates[dates.length - 1] : '';
+        let title = clean;
+        const parenMatch = clean.match(/^(.+?)\s*\(([^)]+)\)$/);
+        if (parenMatch && dates.length > 0) {
+          title = parenMatch[1].trim();
+        }
+
+        return {
+          id: `notice-item-${idx + 1}`,
+          date: date,
+          title: title
+        };
+      });
+    }
+
+    function stringifyNoticeItems(items) {
+      if (!items || items.length === 0) return '';
+      return items.map(it => {
+        if (it.date) {
+          const parts = it.date.split('-');
+          const m = parseInt(parts[1], 10);
+          const d = parseInt(parts[2], 10);
+          if (!it.title.includes(m + '/' + d) && !it.title.includes(it.date)) {
+            return `▶${it.title}(${m}/${d})`;
+          }
+        }
+        return `▶${it.title}`;
+      }).join(' ');
+    }
+
+    function renderAdminNoticeList() {
+      const listContainer = document.getElementById('admin-notice-list');
+      const countSpan = document.getElementById('admin-notice-count');
+      if (!listContainer) return;
+      listContainer.replaceChildren();
+
+      const totalItems = noticesData.length;
+      if (countSpan) countSpan.textContent = totalItems;
+
+      // Also sync raw textarea
+      const rawTextarea = document.getElementById('edit-notice-text');
+      if (rawTextarea) rawTextarea.value = currentNoticeRaw;
+
+      if (totalItems === 0) {
+        noticeCurrentPage = 1;
+        const empty = document.createElement('div');
+        empty.className = 'date-empty-box';
+        empty.textContent = '등록된 공지사항이 없습니다. 좌측 입력창에서 신규 공지를 등록해 보세요.';
+        listContainer.appendChild(empty);
+        return;
+      }
+
+      const totalPages = Math.max(1, Math.ceil(totalItems / NOTICE_PAGE_SIZE));
+      if (noticeCurrentPage > totalPages) noticeCurrentPage = totalPages;
+      if (noticeCurrentPage < 1) noticeCurrentPage = 1;
+
+      const startIndex = (noticeCurrentPage - 1) * NOTICE_PAGE_SIZE;
+      const endIndex = Math.min(startIndex + NOTICE_PAGE_SIZE, totalItems);
+      const currentItems = noticesData.slice(startIndex, endIndex);
+
+      const listWrap = document.createElement('div');
+      listWrap.className = 'notice-admin-list';
+
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const currentMonth = today.getMonth();
+
+      currentItems.forEach((item, relIdx) => {
+        const index = startIndex + relIdx;
+        const itemEl = document.createElement('div');
+        itemEl.className = 'notice-admin-item';
+        if (editingNoticeIndex === index) {
+          itemEl.classList.add('editing');
+        }
+
+        // 1. 상단 행: 공지 내용 텍스트(좌측) + 액션 버튼(우측)
+        const headerRow = document.createElement('div');
+        headerRow.className = 'notice-admin-header-row';
+
+        const textEl = document.createElement('span');
+        textEl.className = 'notice-admin-text';
+        textEl.textContent = item.title;
+
+        const actions = document.createElement('div');
+        actions.className = 'notice-admin-actions';
+
+        // Edit button
+        const editBtn = document.createElement('button');
+        editBtn.type = 'button';
+        editBtn.className = 'btn-secondary btn-sm';
+        editBtn.innerHTML = `<span>수정</span>`;
+        editBtn.title = '이 공지 문구 수정';
+        editBtn.addEventListener('click', () => startEditNoticeItem(index));
+
+        // Delete button
+        const delBtn = document.createElement('button');
+        delBtn.type = 'button';
+        delBtn.className = 'btn-danger btn-sm';
+        delBtn.innerHTML = `<span>삭제</span>`;
+        delBtn.title = '이 공지 삭제';
+        delBtn.addEventListener('click', () => deleteNoticeItem(index));
+
+        actions.append(editBtn, delBtn);
+        headerRow.append(textEl, actions);
+
+        // 2. 하단 행: 날짜 옆으로 상태 배지(pill) 배치하고 오른쪽 정렬!
+        const footerRow = document.createElement('div');
+        footerRow.className = 'notice-admin-footer-row';
+
+        // Date Badge (Styled like D-Day date badge)
+        const dateBadge = document.createElement('span');
+        dateBadge.className = 'dday-list-date';
+        dateBadge.style.cssText = 'padding: 2px 7px; font-size: .75rem; border-radius: 6px; font-weight: 800;';
+        if (item.date) {
+          dateBadge.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span>${item.date}</span>`;
+        } else {
+          dateBadge.style.background = '#f3e8ff';
+          dateBadge.style.color = '#6b21a8';
+          dateBadge.innerHTML = `<span>상시 공지</span>`;
+        }
+
+        // Status pill
+        const pill = document.createElement('span');
+        pill.className = 'notice-status-pill';
+
+        if (!item.date) {
+          pill.classList.add('no-date');
+          pill.textContent = '상시노출';
+        } else {
+          const parts = item.date.split('-');
+          const itemDate = new Date(parseInt(parts[0], 10), parseInt(parts[1], 10) - 1, parseInt(parts[2], 10));
+          itemDate.setHours(0, 0, 0, 0);
+
+          const startOfMonth = new Date(today.getFullYear(), currentMonth, 1);
+          const endOfMonth = new Date(today.getFullYear(), currentMonth + 1, 0, 23, 59, 59, 999);
+
+          if (itemDate < today) {
+            pill.classList.add('past');
+            pill.textContent = '종료/숨김';
+          } else if (itemDate <= endOfMonth && itemDate >= startOfMonth) {
+            pill.classList.add('current-month');
+            pill.textContent = `${currentMonth + 1}월 진행(노출)`;
+          } else {
+            pill.classList.add('future');
+            pill.textContent = '차기 예정(숨김)';
+          }
+        }
+
+        // 날짜 바로 옆에 상태 배지(pill) 배치하고 오른쪽 정렬 footerRow에 추가!
+        footerRow.append(dateBadge, pill);
+
+        itemEl.append(headerRow, footerRow);
+        listWrap.appendChild(itemEl);
+      });
+
+      listContainer.appendChild(listWrap);
+
+      // Pagination Control (when totalPages > 1)
+      if (totalPages > 1) {
+        const paginationWrap = document.createElement('div');
+        paginationWrap.className = 'dday-pagination-wrap';
+
+        const pagination = document.createElement('div');
+        pagination.className = 'dday-pagination';
+
+        // Prev button
+        const prevBtn = document.createElement('button');
+        prevBtn.type = 'button';
+        prevBtn.className = 'btn-page-nav';
+        prevBtn.disabled = noticeCurrentPage === 1;
+        prevBtn.innerHTML = `<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg><span>이전</span>`;
+        prevBtn.addEventListener('click', () => {
+          if (noticeCurrentPage > 1) {
+            noticeCurrentPage--;
+            renderAdminNoticeList();
+          }
+        });
+        pagination.appendChild(prevBtn);
+
+        // Page number pills
+        const pillsWrap = document.createElement('div');
+        pillsWrap.className = 'dday-page-pills';
+        for (let p = 1; p <= totalPages; p++) {
+          const pill = document.createElement('button');
+          pill.type = 'button';
+          pill.className = `dday-page-pill ${p === noticeCurrentPage ? 'active' : ''}`;
+          pill.textContent = String(p);
+          pill.setAttribute('aria-label', `${p} 페이지`);
+          const targetP = p;
+          pill.addEventListener('click', () => {
+            noticeCurrentPage = targetP;
+            renderAdminNoticeList();
+          });
+          pillsWrap.appendChild(pill);
+        }
+        pagination.appendChild(pillsWrap);
+
+        // Next button
+        const nextBtn = document.createElement('button');
+        nextBtn.type = 'button';
+        nextBtn.className = 'btn-page-nav';
+        nextBtn.disabled = noticeCurrentPage === totalPages;
+        nextBtn.innerHTML = `<span>다음</span><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>`;
+        nextBtn.addEventListener('click', () => {
+          if (noticeCurrentPage < totalPages) {
+            noticeCurrentPage++;
+            renderAdminNoticeList();
+          }
+        });
+        pagination.appendChild(nextBtn);
+
+        paginationWrap.appendChild(pagination);
+
+        // Page Info text
+        const pageInfo = document.createElement('span');
+        pageInfo.className = 'dday-pagination-info';
+        pageInfo.textContent = `전체 ${totalItems}건 중 ${startIndex + 1}-${endIndex} 표시 (페이지 ${noticeCurrentPage} / ${totalPages})`;
+        paginationWrap.appendChild(pageInfo);
+
+        listContainer.appendChild(paginationWrap);
+      }
+    }
+
+    function startEditNoticeItem(index) {
+      if (index < 0 || index >= noticesData.length) return;
+
+      editingNoticeIndex = index;
+      noticeCurrentPage = Math.floor(index / NOTICE_PAGE_SIZE) + 1;
+      const item = noticesData[index];
+
+      const dateInput = document.getElementById('admin-notice-date');
+      const titleInput = document.getElementById('admin-notice-title');
+      const submitText = document.getElementById('admin-notice-submit-text');
+      const formTitle = document.getElementById('admin-notice-form-title');
+      const cancelBtn = document.getElementById('admin-notice-cancel-btn');
+
+      dateInput.value = item.date || '';
+      titleInput.value = item.title || '';
+      submitText.textContent = '공지 수정 완료';
+      formTitle.textContent = `공지사항 수정 (#${index + 1}번째 항목)`;
+      cancelBtn.style.display = 'inline-flex';
+      titleInput.focus();
+      renderAdminNoticeList();
+    }
+
+    function cancelEditNoticeItem() {
+      editingNoticeIndex = -1;
+      const dateInput = document.getElementById('admin-notice-date');
+      const titleInput = document.getElementById('admin-notice-title');
+      const submitText = document.getElementById('admin-notice-submit-text');
+      const formTitle = document.getElementById('admin-notice-form-title');
+      const cancelBtn = document.getElementById('admin-notice-cancel-btn');
+
+      if (dateInput) dateInput.value = '';
+      if (titleInput) titleInput.value = '';
+      if (submitText) submitText.textContent = '공지 등록하기';
+      if (formTitle) formTitle.textContent = '신규 공지사항 등록';
+      if (cancelBtn) cancelBtn.style.display = 'none';
+      renderAdminNoticeList();
+    }
+
+    async function submitNoticeItem() {
+      const dateInput = document.getElementById('admin-notice-date');
+      const titleInput = document.getElementById('admin-notice-title');
+      const date = dateInput.value.trim();
+      const title = titleInput.value.trim().replace(/^[▶▷►•\s]+/, '');
+
+      if (!title) {
+        showToast('공지 내용을 입력하세요.', 'warning');
+        titleInput.focus();
+        return;
+      }
+
+      const isEdit = editingNoticeIndex >= 0;
+      let targetId = isEdit ? noticesData[editingNoticeIndex].id : null;
+
+      if (isEdit) {
+        noticesData[editingNoticeIndex] = { id: targetId || `notice-item-${Date.now()}`, date, title };
+      } else {
+        noticesData.push({ id: `notice-item-${Date.now()}`, date, title });
+        noticeCurrentPage = Math.ceil(noticesData.length / NOTICE_PAGE_SIZE);
+      }
+
+      const newNotice = stringifyNoticeItems(noticesData);
+      const res = await sendAdminRequest({ action: 'update_notice', newNotice });
+      if (res) {
+        currentNoticeRaw = res.notice || newNotice;
+        if (Array.isArray(res.notices) && res.notices.length > 0) {
+          noticesData = res.notices;
+        }
+        renderNotice(currentNoticeRaw);
+        cancelEditNoticeItem();
+        showToast(isEdit ? '공지사항이 수정되어 구글 시트에 저장되었습니다.' : '신규 공지가 구글 시트에 등록되었습니다.', 'success');
+      }
+    }
+
+    async function deleteNoticeItem(index) {
+      if (index < 0 || index >= noticesData.length) return;
+
+      const item = noticesData[index];
+      const confirmed = await AppDialog.confirm({
+        title: '공지사항 삭제 확인',
+        message: '선택하신 공지사항을 삭제하시겠습니까?',
+        details: `[삭제 대상] ${item.date ? `(${item.date}) ` : ''}${item.title}`,
+        confirmText: '삭제하기',
+        cancelText: '취소',
+        isDanger: true
+      });
+
+      if (!confirmed) return;
+
+      noticesData.splice(index, 1);
+      const nextTotalPages = Math.max(1, Math.ceil(noticesData.length / NOTICE_PAGE_SIZE));
+      if (noticeCurrentPage > nextTotalPages) noticeCurrentPage = nextTotalPages;
+
+      const newNotice = stringifyNoticeItems(noticesData);
+      const res = await sendAdminRequest({ action: 'update_notice', newNotice });
+      if (res) {
+        currentNoticeRaw = res.notice || newNotice;
+        if (Array.isArray(res.notices)) {
+          noticesData = res.notices;
+        }
+        renderNotice(currentNoticeRaw);
+        cancelEditNoticeItem();
+        showToast('공지사항이 삭제되어 구글 시트에 반영되었습니다.', 'success');
+      }
+    }
+
+    async function updateNoticeRaw() {
       const newNotice = document.getElementById('edit-notice-text').value.trim();
-      if (!newNotice) return showToast('공지 내용을 입력하세요.', 'warning');
       const result = await sendAdminRequest({ action: 'update_notice', newNotice });
       if (result) {
-        renderNotice(result.notice);
-        showToast('공지사항이 즉시 반영되었습니다.', 'success');
+        currentNoticeRaw = result.notice || newNotice;
+        if (Array.isArray(result.notices)) {
+          noticesData = result.notices;
+        } else {
+          noticesData = parseNoticeItems(currentNoticeRaw);
+        }
+        renderNotice(currentNoticeRaw);
+        renderAdminNoticeList();
+        cancelEditNoticeItem();
+        showToast('공지사항 전문이 일괄 반영되었습니다.', 'success');
       }
     }
 
     let ddayCurrentPage = 1;
     const DDAY_PAGE_SIZE = 4;
+    let editingDDayId = null;
 
     function renderAdminDDayList() {
       const listContainer = document.getElementById('admin-dday-list');
@@ -3783,9 +4449,13 @@
 
       const list = document.createElement('div');
       list.className = 'dday-list';
-      currentMilestones.forEach((milestone) => {
+      currentMilestones.forEach((milestone, relIdx) => {
+        const index = startIndex + relIdx;
         const item = document.createElement('div');
         item.className = 'dday-list-item';
+        if (editingDDayId === milestone.id) {
+          item.classList.add('editing');
+        }
         
         const copy = document.createElement('div');
         copy.className = 'dday-list-copy';
@@ -3798,16 +4468,28 @@
         title.className = 'dday-list-title';
         title.textContent = milestone.title;
         
+        copy.append(date, title);
+
+        const actions = document.createElement('div');
+        actions.className = 'dday-list-actions';
+        actions.style.cssText = 'display: inline-flex; align-items: center; gap: 6px; flex-shrink: 0;';
+
+        const editButton = document.createElement('button');
+        editButton.type = 'button';
+        editButton.className = 'btn-secondary btn-sm';
+        editButton.innerHTML = `<span>수정</span>`;
+        editButton.title = `${milestone.title} 마일스톤 수정`;
+        editButton.addEventListener('click', () => startEditDDay(milestone, index));
+
         const deleteButton = document.createElement('button');
         deleteButton.type = 'button';
-        deleteButton.className = 'btn-sm btn-danger';
-        deleteButton.style.cssText = 'min-height:34px; padding:6px 12px; font-size:0.8rem; border-radius:8px; flex-shrink:0; white-space:nowrap;';
-        deleteButton.innerHTML = '🗑️ 삭제';
+        deleteButton.className = 'btn-danger btn-sm';
+        deleteButton.innerHTML = `<span>삭제</span>`;
         deleteButton.title = `${milestone.title} 마일스톤 삭제`;
         deleteButton.addEventListener('click', () => deleteDDay(milestone));
         
-        copy.append(date, title);
-        item.append(copy, deleteButton);
+        actions.append(editButton, deleteButton);
+        item.append(copy, actions);
         list.appendChild(item);
       });
       listContainer.appendChild(list);
@@ -3878,25 +4560,75 @@
       }
     }
 
+    function startEditDDay(milestone, index) {
+      editingDDayId = milestone.id;
+      ddayCurrentPage = Math.floor(index / DDAY_PAGE_SIZE) + 1;
+
+      document.getElementById('add-dday-date').value = milestone.date;
+      document.getElementById('add-dday-title').value = milestone.title;
+      document.getElementById('add-dday-btn-text').textContent = '마일스톤 수정 완료';
+      document.getElementById('admin-dday-form-title').textContent = '마일스톤 수정';
+      document.getElementById('cancel-dday-btn').style.display = 'inline-flex';
+      document.getElementById('add-dday-title').focus();
+      renderAdminDDayList();
+    }
+
+    function cancelEditDDay() {
+      editingDDayId = null;
+      document.getElementById('add-dday-date').value = '';
+      document.getElementById('add-dday-title').value = '';
+      document.getElementById('add-dday-btn-text').textContent = '마일스톤 등록하기';
+      document.getElementById('admin-dday-form-title').textContent = '신규 마일스톤 추가';
+      document.getElementById('cancel-dday-btn').style.display = 'none';
+      renderAdminDDayList();
+    }
+
     async function addDDay() {
       const date = document.getElementById('add-dday-date').value;
       const title = document.getElementById('add-dday-title').value.trim();
       if (!parseIsoDate(date) || !title) return showToast('목표 날짜와 디데이 명칭을 입력하세요.', 'warning');
-      const result = await sendAdminRequest({ action: 'add_dday', date, title });
-      if (result) {
-        document.getElementById('add-dday-title').value = '';
-        ddayCurrentPage = 1;
-        showToast('디데이 마일스톤이 등록되었습니다.', 'success');
+
+      if (editingDDayId) {
+        // Edit Mode
+        const old = milestonesData.find(m => m.id === editingDDayId) || {};
+        let updated = false;
+        try {
+          const res = await sendAdminRequest({ action: 'update_dday', id: editingDDayId, date, title, oldDate: old.date, oldTitle: old.title });
+          if (res && res.success !== false) updated = true;
+        } catch (e) {
+          updated = false;
+        }
+
+        if (!updated) {
+          // Fallback: delete old and add new
+          await sendAdminRequest({ action: 'delete_dday', ...old });
+          await sendAdminRequest({ action: 'add_dday', date, title });
+        }
+
+        showToast('디데이 마일스톤이 수정되었습니다.', 'success');
+        cancelEditDDay();
         await loadServerData();
+      } else {
+        // Add Mode
+        const result = await sendAdminRequest({ action: 'add_dday', date, title });
+        if (result) {
+          document.getElementById('add-dday-title').value = '';
+          ddayCurrentPage = 1;
+          showToast('디데이 마일스톤이 등록되었습니다.', 'success');
+          await loadServerData();
+        }
       }
     }
 
     async function deleteDDay(milestone) {
-      const confirmed = await showConfirmDialog({
+      if (editingDDayId === milestone.id) cancelEditDDay();
+
+      const confirmed = await AppDialog.confirm({
         title: '디데이 마일스톤 삭제',
         message: '해당 마일스톤을 삭제하시겠습니까?',
         details: `[${milestone.date}] ${milestone.title}`,
         confirmText: '삭제하기',
+        cancelText: '취소',
         isDanger: true
       });
       if (!confirmed) return;
