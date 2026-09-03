@@ -3184,6 +3184,50 @@
       }
     }
 
+    // 공지 및 D-Day 정렬: 현재 날짜보다 지난 일정은 맨 뒤 페이지로 이동
+    function sortItemsUpcomingFirst(items, getDateFn) {
+      if (!Array.isArray(items) || items.length === 0) return [];
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayIso = [
+        today.getFullYear(),
+        String(today.getMonth() + 1).padStart(2, '0'),
+        String(today.getDate()).padStart(2, '0')
+      ].join('-');
+
+      const upcoming = [];
+      const past = [];
+      const noDate = [];
+
+      items.forEach(item => {
+        const d = getDateFn ? getDateFn(item) : (item && item.date);
+        if (!d) {
+          noDate.push(item);
+        } else if (d >= todayIso) {
+          upcoming.push(item);
+        } else {
+          past.push(item);
+        }
+      });
+
+      // 다가오는 일정: 날짜 오름차순 (가장 빠른 다가올 일정이 맨 앞 1페이지)
+      upcoming.sort((a, b) => {
+        const da = getDateFn ? getDateFn(a) : (a && a.date) || '';
+        const db = getDateFn ? getDateFn(b) : (b && b.date) || '';
+        return da.localeCompare(db);
+      });
+
+      // 이미 지난 과거 일정: 날짜 오름차순으로 정렬하여 맨 뒤 페이지에 순차 배치
+      past.sort((a, b) => {
+        const da = getDateFn ? getDateFn(a) : (a && a.date) || '';
+        const db = getDateFn ? getDateFn(b) : (b && b.date) || '';
+        return da.localeCompare(db);
+      });
+
+      // [다가오는 일정] ➔ [상시/날짜미지정] ➔ [지난 일정(맨 뒤 페이지)]
+      return [...upcoming, ...noDate, ...past];
+    }
+
     async function loadServerData() {
       if (!BACKEND_URL) return;
       try {
@@ -3195,7 +3239,7 @@
         calendarData = json.data || {};
         eventIndex = buildEventIndex(calendarData);
         filterTypes = json.types || [];
-        milestonesData = (json.milestones || []).slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+        milestonesData = sortItemsUpcomingFirst(json.milestones || []);
 
         currentNoticeRaw = json.notice || '';
         if (Array.isArray(json.notices)) {
@@ -3203,6 +3247,7 @@
         } else {
           noticesData = parseNoticeItems(currentNoticeRaw);
         }
+        noticesData = sortItemsUpcomingFirst(noticesData);
         renderNotice(json.notice || '등록된 공지사항이 없습니다.');
         const rawEl = document.getElementById('edit-notice-text');
         if (rawEl) rawEl.value = json.notice || '';
@@ -4106,6 +4151,9 @@
       if (!listContainer) return;
       listContainer.replaceChildren();
 
+      // 지난 일정은 맨 뒤 페이지로 가도록 최신 정렬 보장
+      noticesData = sortItemsUpcomingFirst(noticesData);
+
       const totalItems = noticesData.length;
       if (countSpan) countSpan.textContent = totalItems;
 
@@ -4349,8 +4397,14 @@
       if (isEdit) {
         noticesData[editingNoticeIndex] = { id: targetId || `notice-item-${Date.now()}`, date, title };
       } else {
-        noticesData.push({ id: `notice-item-${Date.now()}`, date, title });
-        noticeCurrentPage = Math.ceil(noticesData.length / NOTICE_PAGE_SIZE);
+        targetId = `notice-item-${Date.now()}`;
+        noticesData.push({ id: targetId, date, title });
+      }
+
+      noticesData = sortItemsUpcomingFirst(noticesData);
+      const newIdx = noticesData.findIndex(item => item.id === targetId);
+      if (newIdx >= 0) {
+        noticeCurrentPage = Math.floor(newIdx / NOTICE_PAGE_SIZE) + 1;
       }
 
       const newNotice = stringifyNoticeItems(noticesData);
@@ -4358,7 +4412,7 @@
       if (res) {
         currentNoticeRaw = res.notice || newNotice;
         if (Array.isArray(res.notices) && res.notices.length > 0) {
-          noticesData = res.notices;
+          noticesData = sortItemsUpcomingFirst(res.notices);
         }
         renderNotice(currentNoticeRaw);
         cancelEditNoticeItem();
@@ -4382,6 +4436,7 @@
       if (!confirmed) return;
 
       noticesData.splice(index, 1);
+      noticesData = sortItemsUpcomingFirst(noticesData);
       const nextTotalPages = Math.max(1, Math.ceil(noticesData.length / NOTICE_PAGE_SIZE));
       if (noticeCurrentPage > nextTotalPages) noticeCurrentPage = nextTotalPages;
 
@@ -4390,7 +4445,7 @@
       if (res) {
         currentNoticeRaw = res.notice || newNotice;
         if (Array.isArray(res.notices)) {
-          noticesData = res.notices;
+          noticesData = sortItemsUpcomingFirst(res.notices);
         }
         renderNotice(currentNoticeRaw);
         cancelEditNoticeItem();
@@ -4432,7 +4487,7 @@
         return;
       }
 
-      const sortedMilestones = (milestonesData || []).slice().sort((a, b) => (a.date || '').localeCompare(b.date || ''));
+      const sortedMilestones = sortItemsUpcomingFirst(milestonesData || []);
       const totalItems = sortedMilestones.length;
       const totalPages = Math.max(1, Math.ceil(totalItems / DDAY_PAGE_SIZE));
 
