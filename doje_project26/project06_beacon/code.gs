@@ -1,8 +1,20 @@
 /**
- * [GAS API 백엔드 - v3]
- * 추가 기능:
- *  7. 날짜 차단 — 교사 수동 ON/OFF + 공휴일 자동 차단 (BlockedDates 시트)
- *  8. 월간 PDF 레포트 — Google Drive 자동 저장 + 다운로드 URL 반환
+ * 2026 Doje Beacon System — GAS API 백엔드
+ *
+ * 도제반 현장실습 출결 관리 시스템의 서버 전체입니다.
+ * 프론트(index.html)는 doPost() 한 곳으로만 통신하며, 업무 규칙의 단일 출처는
+ * 이 파일의 상단 상수들입니다(getConfig 로 프론트에 내려보냅니다).
+ *
+ * 데이터는 같은 스프레드시트의 4개 시트에 저장합니다.
+ *   Users / Attendance / BlockedDates / Sessions
+ *
+ * 날짜 차단  : 교사 수동 ON/OFF + 고정 공휴일 자동 차단 (BlockedDates 시트)
+ * 월간 레포트: 집계 결과를 HTML 문자열로 반환합니다.
+ *              PDF 생성이나 Drive 저장은 하지 않습니다 — 교사가 브라우저
+ *              인쇄의 "PDF로 저장"으로 직접 내려받습니다.
+ *
+ * 스프레드시트를 열면 [출결 관리] 메뉴가 붙습니다(onOpen).
+ * 자세한 배포·운영 방법은 README.md 를 참조하세요.
  */
 
 // ── 열 인덱스 상수 (Users 시트) ──────────────────────────────────────
@@ -67,6 +79,25 @@ const FIXED_HOLIDAYS = {
   '01-01': '새해', '03-01': '삼일절', '05-05': '어린이날',
   '06-06': '현충일', '08-15': '광복절', '10-03': '개천절',
   '10-09': '한글날', '12-25': '크리스마스',
+};
+
+// ── 변동 공휴일 등록 후보 (연도별) ────────────────────────────────────
+//
+// 설날·추석·부처님오신날·대체공휴일·임시공휴일은 해마다 날짜가 달라서
+// FIXED_HOLIDAYS 로 둘 수 없습니다. 등록을 잊으면 그날 전원이 결석 처리되므로,
+// 시트 메뉴 [📅 변동 공휴일 일괄 등록]으로 BlockedDates 시트에 넣고
+// 교사가 화면에서 확인·수정할 수 있게 합니다.
+//
+// 여기 적힌 값은 '등록 후보'일 뿐이고 최종 판단은 BlockedDates 시트가 합니다.
+// 실습요일(화·수·목)에 걸리는 날만 적습니다 — 나머지 요일은 어차피 출석일이
+// 아니라서 차단할 대상이 없습니다.
+//
+// ⚠️ 매년 초 관보/공공데이터포털로 확인해 다음 해 항목을 추가하세요.
+const VARIABLE_HOLIDAYS_BY_YEAR = {
+  2026: {
+    '2026-06-03': '임시공휴일(제9회 전국동시지방선거)',
+    '2026-09-24': '추석 연휴',
+  },
 };
 
 // ── 레거시 초기 비밀번호 ──────────────────────────────────────────────
@@ -146,6 +177,11 @@ function doPost(e) {
 
   const action = req.action;
   let response = {};
+
+  // 세션 검증보다 먼저 겁니다. 그래야 토큰 없이 퍼붓는 호출도 걸러집니다.
+  if (exceedsRateLimit(action, req.id)) {
+    return jsonResponse({ success: false, msg: RATE_LIMIT_MSG });
+  }
 
   try {
     switch (action) {
@@ -250,7 +286,12 @@ function doPost(e) {
         response = { success: false, msg: '알 수 없는 요청입니다.' };
     }
   } catch (error) {
-    response = { success: false, msg: '서버 오류: ' + error.message };
+    // 예외 원문에는 시트 이름·범위·내부 함수명이 섞여 나옵니다.
+    // 학생·교사 화면에 그대로 띄울 내용이 아니고, 외부에 알려줄 이유도 없으므로
+    // 사용자에게는 일반화된 문구만 주고 상세는 실행 로그에만 남깁니다.
+    // (Apps Script 편집기의 [실행] 목록에서 확인할 수 있습니다)
+    Logger.log(`[doPost 오류] action=${action}\n${error.stack || error.message}`);
+    response = { success: false, msg: '서버 처리 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.' };
   }
 
   return jsonResponse(response);
@@ -282,7 +323,9 @@ function buildClientConfig() {
     lateGraceMinutes:          LATE_GRACE_MINUTES,
     dashboardLateAlertMinutes: DASHBOARD_LATE_ALERT_MINUTES,
     dayCloseMinutes:           REPORT_DAY_CLOSE_MINUTES,
-    sessionTimeoutMs:          SESSION_TTL_MS,
+    // 프론트는 더 이상 무활동 자동 로그아웃을 하지 않습니다(로그아웃 누를 때까지 유지).
+    // 서버 토큰 수명은 참고용으로만 내려보냅니다.
+    sessionTtlMs:              SESSION_TTL_MS,
     minPasswordLength:         PW_MIN_LENGTH,
     maxPasswordLength:         PW_MAX_LENGTH,
     // 새 비밀번호로 재사용을 막을 레거시 고정 초기 비밀번호
@@ -309,6 +352,71 @@ function runWithScriptLock(callback, waitMs) {
 
 function lockBusyResponse() {
   return { success: false, msg: LOCK_BUSY_MSG };
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 요청 빈도 제한
+//
+// 웹앱이 '모든 사용자' 접근이라 /exec 주소를 아는 사람은 누구나 호출할 수
+// 있습니다. 계정 잠금(5회)은 로그인에만 걸리므로, 무인증 액션을 반복 호출해
+// GAS 일일 할당량을 소진시키는 것은 막지 못합니다.
+//
+// 목적은 '악용 차단'이지 '정밀한 제어'가 아니므로 한도를 넉넉히 잡습니다.
+// 정상 사용의 몇 배 수준으로 두어, 학생 21명이 동시에 접속하거나 교사가
+// 새로고침을 연타해도 걸리지 않게 합니다.
+//
+// ⚠️ 한계 (알고 쓰는 것이 중요합니다)
+//  · GAS 는 클라이언트 IP 를 주지 않습니다. 그래서 id 기준으로만 나눌 수 있고,
+//    로그인 전 요청은 전부 하나의 'anon' 묶음을 공유합니다. 무인증 액션의
+//    한도를 특히 크게 잡은 이유입니다.
+//  · 캐시 읽기→쓰기가 원자적이지 않아 동시 요청에서는 실제보다 적게 셉니다.
+//    막으려면 잠금이 필요한데, 그러면 이 함수가 오히려 병목이 됩니다.
+//  · CacheService 는 언제든 값을 버릴 수 있습니다. 못 세면 통과시킵니다(fail-open).
+//    잠깐의 과다 호출보다 정상 사용자를 막는 쪽이 더 나쁩니다.
+// ─────────────────────────────────────────────────────────────────────
+const RATE_LIMIT_WINDOW_SEC = 60;
+const RATE_LIMIT_MSG = '요청이 너무 잦습니다. 잠시 후 다시 시도해주세요.';
+
+// perId: 같은 id(로그인 전이면 'anon' 공용) 기준 / global: 전체 합계 기준
+const RATE_LIMITS = {
+  login:             { perId: 10, global: 200 }, // 계정 잠금과 별개인 상위 한도
+  getConfig:         { perId: 60, global: 300 }, // 접속마다 1회. 21명 동시 접속도 여유
+  checkTodayBlocked: { perId: 60, global: 300 },
+  recordAttendance:  { perId: 10, global: 200 }, // 학생 1명이 하루 2번 누르는 동작
+  _default:          { perId: 60, global: 600 }, // 대시보드 폴링은 분당 2회 수준
+};
+
+function exceedsRateLimit(action, id) {
+  const limits = RATE_LIMITS[action] || RATE_LIMITS._default;
+
+  try {
+    const cache = CacheService.getScriptCache();
+    if (!cache) return false;
+
+    // 고정 창(fixed window). 창이 바뀌면 키가 바뀌어 자연히 초기화됩니다.
+    const window = Math.floor(new Date().getTime() / (RATE_LIMIT_WINDOW_SEC * 1000));
+    const who    = id ? String(id).trim().slice(0, 40) : 'anon';
+
+    const buckets = [
+      { key: `rl_${action}_${who}_${window}`,   limit: limits.perId },
+      { key: `rl_${action}_ALL_${window}`,      limit: limits.global },
+    ];
+
+    for (const bucket of buckets) {
+      const count = Number(cache.get(bucket.key)) || 0;
+      if (count >= bucket.limit) {
+        Logger.log(`[rate-limit] action=${action} id=${who} key=${bucket.key} count=${count}`);
+        return true;
+      }
+      // 창이 끝난 뒤에도 잠깐 남겨 경계에서 값이 사라지지 않게 합니다.
+      cache.put(bucket.key, String(count + 1), RATE_LIMIT_WINDOW_SEC * 2);
+    }
+    return false;
+  } catch (err) {
+    // 캐시가 말썽이면 제한을 포기하고 통과시킵니다.
+    Logger.log('[rate-limit] 캐시 오류로 제한을 건너뜁니다: ' + err.message);
+    return false;
+  }
 }
 
 // FAIL/LOCK/SALT/MUST_SETUP 열과 헤더를 1회 보장합니다.
@@ -372,11 +480,21 @@ function ensureBlockedDatesSheet(sheets) {
 // role 은 로그인 시점에 서버가 Users 시트에서 읽어 저장하므로,
 // 클라이언트가 id 값만으로 교사 권한을 위조할 수 없습니다.
 // ─────────────────────────────────────────────────────────────────────
-const SESSION_TTL_MS = 30 * 60 * 1000; // 30분 (프론트 세션타임아웃과 동일)
+// 로그인은 [로그아웃]을 누를 때까지 유지합니다.
+//
+// 예전에는 30분이었고 프론트의 무활동 자동 로그아웃과 짝을 이뤘습니다.
+// 그 타이머를 없앴으므로 서버 수명도 길게 잡습니다. 슬라이딩 갱신이 있어
+// 계속 쓰는 동안에는 만료되지 않고, 30일 넘게 손대지 않은 토큰만 정리됩니다.
+//
+// ⚠️ 이 값을 다시 짧게 줄이면 학생이 쓰는 도중에 튕깁니다.
+//    프론트에는 더 이상 만료를 미리 알려주는 장치가 없습니다.
+const SESSION_TTL_MS = 30 * 24 * 60 * 60 * 1000; // 30일
 
 // 만료시각은 매 요청마다 갱신하지 않고, 남은 시간이 이 값보다 짧을 때만
 // 다시 씁니다. 30초마다 폴링하는 교사 대시보드의 시트 쓰기를 크게 줄입니다.
-const SESSION_REFRESH_THRESHOLD_MS = 10 * 60 * 1000; // 10분
+// TTL 이 30일이므로 임계값도 함께 키웁니다 — 매일 쓰는 사용자라면
+// 시트 쓰기가 23일에 한 번꼴로만 일어납니다.
+const SESSION_REFRESH_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000; // 7일
 
 const SCOL = {
   TOKEN:   0,  // A: 토큰(UUID)
@@ -411,43 +529,62 @@ function createSessionToken(sessionSheet, id, role) {
 }
 
 // 세션 토큰 검증 (+ 필요시 role 확인) — 통과 시 만료시각을 슬라이딩 갱신
+//
+// 인증이 필요한 모든 요청이 이 함수를 거치므로, 여기서 전역 잠금을 잡으면
+// 그 뒤에 이어질 실제 작업의 잠금까지 더해 요청마다 두 번을 잡게 됩니다.
+// 교사 대시보드가 30초마다 폴링하는 상황과 겹치면 체감이 커집니다.
+//
+// 그래서 판정에 필요한 '읽기'는 잠금 없이 합니다. 토큰 조회는 멱등이고,
+// 살짝 오래된 값을 읽어도 결론이 달라지지 않습니다 —
+//   · 방금 만료된 세션을 유효로 볼 최대 시간은 슬라이딩 갱신 간격뿐이고,
+//   · 방금 로그아웃한 토큰은 행이 지워져 어차피 조회되지 않습니다.
+// 시트를 '쓰는' 두 경우(만료 행 삭제, 슬라이딩 갱신)만 잠금 안에서 처리하며,
+// 둘 다 실패해도 판정 결과에는 영향이 없으므로 조용히 넘어갑니다.
 function verifySessionToken(sessionSheet, token, id, requiredRole) {
   const invalidMsg = '세션이 유효하지 않습니다. 다시 로그인해주세요.';
   if (!sessionSheet || !token || !id) return { valid: false, msg: invalidMsg };
 
-  const locked = runWithScriptLock(() => {
-    const data  = sessionSheet.getDataRange().getValues();
-    const nowMs = new Date().getTime();
+  const data  = sessionSheet.getDataRange().getValues();
+  const nowMs = new Date().getTime();
 
-    for (let i = 1; i < data.length; i++) {
-      if (data[i][SCOL.TOKEN] !== token) continue;
+  for (let i = 1; i < data.length; i++) {
+    if (data[i][SCOL.TOKEN] !== token) continue;
 
-      const rowId     = data[i][SCOL.ID].toString().trim();
-      const rowRole   = data[i][SCOL.ROLE];
-      const expiresAt = Number(data[i][SCOL.EXPIRES]);
+    const rowId     = data[i][SCOL.ID].toString().trim();
+    const rowRole   = data[i][SCOL.ROLE];
+    const expiresAt = Number(data[i][SCOL.EXPIRES]);
+    const rowNumber = i + 1;
 
-      if (rowId !== id.toString().trim()) return { valid: false, msg: invalidMsg };
+    if (rowId !== id.toString().trim()) return { valid: false, msg: invalidMsg };
 
-      if (nowMs > expiresAt) {
-        sessionSheet.deleteRow(i + 1);
-        return { valid: false, msg: '세션이 만료되었습니다. 다시 로그인해주세요.' };
-      }
-      if (requiredRole && rowRole !== requiredRole) {
-        return { valid: false, msg: '권한이 없습니다. (교사 전용)' };
-      }
-
-      // 남은 시간이 충분하면 쓰기를 생략합니다 (슬라이딩 만료는 그대로 유지).
-      if (expiresAt - nowMs < SESSION_REFRESH_THRESHOLD_MS) {
-        sessionSheet.getRange(i + 1, SCOL.EXPIRES + 1).setValue(nowMs + SESSION_TTL_MS);
-      }
-      return { valid: true, role: rowRole };
+    if (nowMs > expiresAt) {
+      // 정리에 실패해도 판정은 '만료'로 그대로입니다.
+      // 남은 행은 다음 일일 배치(cleanupExpiredSessions)가 치웁니다.
+      runWithScriptLock(() => {
+        const check = sessionSheet.getRange(rowNumber, SCOL.TOKEN + 1).getValue();
+        if (check === token) sessionSheet.deleteRow(rowNumber);
+      });
+      return { valid: false, msg: '세션이 만료되었습니다. 다시 로그인해주세요.' };
     }
-    return { valid: false, msg: invalidMsg };
-  });
 
-  return locked.acquired
-    ? locked.value
-    : { valid: false, msg: LOCK_BUSY_MSG };
+    if (requiredRole && rowRole !== requiredRole) {
+      return { valid: false, msg: '권한이 없습니다. (교사 전용)' };
+    }
+
+    // 남은 시간이 충분하면 쓰기를 생략합니다 (슬라이딩 만료는 그대로 유지).
+    if (expiresAt - nowMs < SESSION_REFRESH_THRESHOLD_MS) {
+      // 갱신에 실패하면 이번 요청은 그냥 지나가고, 다음 요청에서 다시 시도합니다.
+      runWithScriptLock(() => {
+        const check = sessionSheet.getRange(rowNumber, SCOL.TOKEN + 1).getValue();
+        if (check === token) {
+          sessionSheet.getRange(rowNumber, SCOL.EXPIRES + 1).setValue(nowMs + SESSION_TTL_MS);
+        }
+      });
+    }
+    return { valid: true, role: rowRole };
+  }
+
+  return { valid: false, msg: invalidMsg };
 }
 
 // ─────────────────────────────────────────────────────────────────────
@@ -489,7 +626,7 @@ function cleanupExpiredSessionsUnsafe(sessionSheet) {
 // (그 외에는 스크립트 속성 값 하나만 읽으므로 비용이 거의 없습니다)
 function maybeCleanupExpiredSessions(sessionSheet) {
   if (!sessionSheet) return;
-  const todayStr = Utilities.formatDate(nowKST(), 'GMT+9', 'yyyy-MM-dd');
+  const todayStr = formatKST('yyyy-MM-dd');
   const props = PropertiesService.getScriptProperties();
   if (props.getProperty('lastSessionCleanupDate') === todayStr) return;
 
@@ -508,8 +645,7 @@ function dailySessionCleanup() {
   const locked = runWithScriptLock(() => cleanupExpiredSessionsUnsafe(sheets.sessions));
   if (locked.acquired) {
     PropertiesService.getScriptProperties()
-      .setProperty('lastSessionCleanupDate',
-                   Utilities.formatDate(nowKST(), 'GMT+9', 'yyyy-MM-dd'));
+      .setProperty('lastSessionCleanupDate', formatKST('yyyy-MM-dd'));
     Logger.log(`만료 세션 ${locked.value}건 삭제`);
   }
 }
@@ -557,7 +693,7 @@ function invalidateSessionToken(sessionSheet, token) {
 // ─────────────────────────────────────────────────────────────────────
 function maybeHidePastAttendanceRows(attendSheet) {
   if (!attendSheet) return;
-  const todayStr = Utilities.formatDate(nowKST(), 'GMT+9', 'yyyy-MM-dd');
+  const todayStr = formatKST('yyyy-MM-dd');
   const props = PropertiesService.getScriptProperties();
   if (props.getProperty('lastHiddenDate') === todayStr) return; // 오늘 이미 처리됨
 
@@ -609,7 +745,126 @@ function onOpen() {
     .addSeparator()
     .addItem('만료 세션 지금 정리', 'manualCleanupSessions')
     .addItem('세션 자동 정리 트리거 등록 (1회)', 'installSessionCleanupTrigger')
+    .addSeparator()
+    .addItem('📅 변동 공휴일 일괄 등록', 'manualRegisterVariableHolidays')
+    .addItem('🔐 비밀번호 페퍼 백업값 보기', 'manualShowPasswordPepper')
     .addToUi();
+}
+
+/**
+ * [변동 공휴일 일괄 등록] 구글 시트 메뉴에서 직접 실행
+ * - VARIABLE_HOLIDAYS_BY_YEAR 의 해당 연도 항목을 BlockedDates 시트에 넣습니다.
+ * - 이미 있는 날짜는 교사가 손댔을 수 있으므로 건드리지 않고 건너뜁니다.
+ */
+function manualRegisterVariableHolidays() {
+  const ui = SpreadsheetApp.getUi();
+  const sheets = getSheets();
+  if (!ensureBlockedDatesSheet(sheets)) {
+    ui.alert('오류', LOCK_BUSY_MSG, ui.ButtonSet.OK);
+    return;
+  }
+
+  const yearAnswer = ui.prompt(
+    '변동 공휴일 일괄 등록',
+    '등록할 연도를 입력하세요. (비워두면 올해)',
+    ui.ButtonSet.OK_CANCEL
+  );
+  if (yearAnswer.getSelectedButton() !== ui.Button.OK) return;
+
+  const typed = yearAnswer.getResponseText().trim();
+  const year  = typed ? parseInt(typed, 10) : parseInt(formatKST('yyyy'), 10);
+  if (!year || year < 2020 || year > 2099) {
+    ui.alert('오류', '연도는 2020~2099 사이여야 합니다.', ui.ButtonSet.OK);
+    return;
+  }
+
+  const table = VARIABLE_HOLIDAYS_BY_YEAR[year];
+  if (!table) {
+    ui.alert(
+      `${year}년 자료 없음`,
+      `${year}년 변동 공휴일이 code.gs 에 등록되어 있지 않습니다.\n\n` +
+      'VARIABLE_HOLIDAYS_BY_YEAR 상수에 해당 연도를 추가하거나,\n' +
+      '[날짜 차단] 화면에서 직접 등록해주세요.',
+      ui.ButtonSet.OK
+    );
+    return;
+  }
+
+  const locked = runWithScriptLock(() => {
+    const data     = sheets.blockedDates.getDataRange().getDisplayValues();
+    const existing = new Set();
+    for (let i = 1; i < data.length; i++) {
+      const d = cellAt(data[i], BCOL.DATE);
+      if (d) existing.add(d.trim());
+    }
+
+    const added   = [];
+    const skipped = [];
+    Object.keys(table).sort().forEach(dateStr => {
+      if (existing.has(dateStr)) {
+        skipped.push(`${dateStr} (${table[dateStr]})`);
+        return;
+      }
+      sheets.blockedDates.appendRow([dateStr, table[dateStr], 'TRUE']);
+      added.push(`${dateStr} (${table[dateStr]})`);
+    });
+    return { added, skipped };
+  });
+
+  if (!locked.acquired) {
+    ui.alert('오류', LOCK_BUSY_MSG, ui.ButtonSet.OK);
+    return;
+  }
+
+  const { added, skipped } = locked.value;
+  const lines = [];
+  lines.push(`${year}년 변동 공휴일 등록 결과`, '');
+  lines.push(added.length ? `✅ 추가 ${added.length}건`   : '✅ 추가된 항목 없음');
+  added.forEach(s => lines.push('   · ' + s));
+  if (skipped.length) {
+    lines.push('', `⏭️ 이미 등록되어 건너뜀 ${skipped.length}건`);
+    skipped.forEach(s => lines.push('   · ' + s));
+  }
+  lines.push('', '※ [날짜 차단] 화면에서 내용을 확인하고 필요하면 수정하세요.');
+  ui.alert('완료', lines.join('\n'), ui.ButtonSet.OK);
+}
+
+/**
+ * [비밀번호 페퍼 백업값 보기] 구글 시트 메뉴에서 직접 실행
+ *
+ * 페퍼는 스크립트 속성에만 있어서, 잃어버리면 모든 계정의 비밀번호 검증이
+ * 영구히 실패하고 시트의 해시로도 복구할 수 없습니다. 오프라인으로 1부
+ * 보관해두기 위한 조회 기능입니다.
+ *
+ * 스프레드시트 편집 권한이 있으면 Apps Script 편집기에서 스크립트 속성을
+ * 직접 열어볼 수 있으므로, 이 메뉴가 권한을 새로 넓혀주지는 않습니다.
+ */
+function manualShowPasswordPepper() {
+  const ui = SpreadsheetApp.getUi();
+  if (!ensurePasswordPepper()) {
+    ui.alert('오류', LOCK_BUSY_MSG, ui.ButtonSet.OK);
+    return;
+  }
+
+  const confirm = ui.alert(
+    '비밀번호 페퍼 백업',
+    '화면에 페퍼 원본이 표시됩니다.\n\n' +
+    '· 종이나 학교 문서 보관 체계에 오프라인으로 1부만 보관하세요.\n' +
+    '· 메신저·이메일로 전송하거나 시트 안에 붙여넣지 마세요.\n' +
+    '· 주변에 화면을 보는 사람이 없는지 확인하세요.\n\n' +
+    '계속할까요?',
+    ui.ButtonSet.YES_NO
+  );
+  if (confirm !== ui.Button.YES) return;
+
+  ui.alert(
+    '비밀번호 페퍼 (PW_PEPPER)',
+    getPasswordPepper() +
+    '\n\n⚠️ 이 값이 바뀌거나 사라지면 모든 계정이 로그인 불가 상태가 되며,\n' +
+    '   시트의 해시로는 복구할 수 없습니다.\n' +
+    '   스크립트를 다른 프로젝트로 옮길 때는 이 값도 함께 옮기세요.',
+    ui.ButtonSet.OK
+  );
 }
 
 /**
@@ -749,7 +1004,7 @@ function manualHidePastAttendanceRows() {
     SpreadsheetApp.getUi().alert('Attendance 시트를 찾을 수 없습니다.');
     return;
   }
-  const todayStr = Utilities.formatDate(nowKST(), 'GMT+9', 'yyyy-MM-dd');
+  const todayStr = formatKST('yyyy-MM-dd');
   const locked = runWithScriptLock(() => {
     hidePastAttendanceRows(sheets.attend, todayStr);
     PropertiesService.getScriptProperties().setProperty('lastHiddenDate', todayStr);
@@ -894,9 +1149,26 @@ function isInitialPw(role, pw) {
          (role === '교사' && pw === INITIAL_PW.TEACHER);
 }
 
-// 한국 시간 기준 현재 Date
-function nowKST() {
-  const nowStr = Utilities.formatDate(new Date(), 'GMT+9', 'yyyy-MM-dd HH:mm:ss');
+// KST 기준 문자열 포매팅. instant 는 '절대 시각'이어야 합니다 (기본값 new Date()).
+//
+// ⚠️ nowKST() 가 돌려준 Date 를 여기에 넘기지 마세요. nowKST() 는 이미 벽시계를
+//    KST 로 옮겨놓은 Date 라서, 여기서 GMT+9 로 한 번 더 변환하면 스크립트
+//    시간대가 Asia/Seoul 이 아닐 때 이중 변환으로 날짜가 어긋납니다.
+function formatKST(fmt, instant) {
+  return Utilities.formatDate(instant || new Date(), 'GMT+9', fmt);
+}
+
+// 한국 시간 기준 현재 Date.
+//
+// 반환된 Date 의 '지역 필드'(getDay/getHours/getMonth 등)는 스크립트 시간대와
+// 무관하게 항상 KST 벽시계 값입니다. 요일·시각 판정에는 이 함수를 쓰세요.
+// 반대로 이 Date 의 '절대 시각'은 스크립트 시간대에 따라 어긋날 수 있으므로,
+// 문자열이 필요하면 formatKST() 를 쓰세요.
+//
+// 같은 순간 기준으로 필드와 문자열을 함께 써야 할 때는 instant 를 넘겨서
+// 두 값이 자정 경계에서 갈라지지 않게 합니다.
+function nowKST(instant) {
+  const nowStr = formatKST('yyyy-MM-dd HH:mm:ss', instant);
   return new Date(nowStr.replace(/-/g, '/'));
 }
 
@@ -1245,8 +1517,7 @@ function changePw(userSheet, id, currentPw, newPw) {
 
 // 오늘 날짜 차단 여부 확인 (학생용)
 function checkTodayBlockedAction(blockedSheet) {
-  const now     = nowKST();
-  const dateStr = Utilities.formatDate(now, 'GMT+9', 'yyyy-MM-dd');
+  const dateStr = formatKST('yyyy-MM-dd');
   const result  = isDateBlocked(blockedSheet, dateStr);
   return { success: true, blocked: result.blocked, reason: result.reason || '', date: dateStr };
 }
@@ -1258,8 +1529,7 @@ function getStudentStatus(attendSheet, id) {
   const v = validate(id, PATTERN.ID, '학번/ID');
   if (!v.ok) return { success: false, msg: v.msg };
 
-  const now     = nowKST();
-  const dateStr = Utilities.formatDate(now, 'GMT+9', 'yyyy-MM-dd');
+  const dateStr = formatKST('yyyy-MM-dd');
 
   let inDone  = false;
   let outDone = false;
@@ -1294,8 +1564,11 @@ function recordAttendance(userSheet, attendSheet, blockedSheet, id, type) {
   if (!lock.tryLock(LOCK_WAIT_MS)) return lockBusyResponse();
 
   try {
-    const now         = nowKST();
-    const todayStr    = Utilities.formatDate(now, 'GMT+9', 'yyyy-MM-dd');
+    // 요일·시각 판정(필드)과 기록 문자열이 같은 순간을 가리키도록
+    // 하나의 instant 에서 둘 다 파생시킵니다.
+    const instant     = new Date();
+    const now         = nowKST(instant);
+    const todayStr    = formatKST('yyyy-MM-dd', instant);
     const dayIndex    = now.getDay();
     const dayNames    = ['일', '월', '화', '수', '목', '금', '토'];
     const currentMins = now.getHours() * 60 + now.getMinutes();
@@ -1379,7 +1652,7 @@ function recordAttendance(userSheet, attendSheet, blockedSheet, id, type) {
     if (type === '입실' && currentMins > (stdMins + LATE_GRACE_MINUTES)) status = '지각';
     if (type === '퇴실' && currentMins < stdMins)        status = '조퇴';
 
-    const timeStamp = Utilities.formatDate(now, 'GMT+9', 'HH:mm:ss');
+    const timeStamp = formatKST('HH:mm:ss', instant);
     attendSheet.appendRow([timeStamp, todayStr, dayNames[dayIndex], id, student.name, type, stdTime, status]);
 
     return { success: true, msg: `${type} 기록 완료 [${status}]` };
@@ -1403,8 +1676,8 @@ function getScheduledReportDates(year, month, blockedSheet, nowDate) {
   );
 
   const now         = nowDate || new Date();
-  const todayStr    = Utilities.formatDate(now, 'GMT+9', 'yyyy-MM-dd');
-  const currentMins = hhmmToMinutes(Utilities.formatDate(now, 'GMT+9', 'HH:mm'));
+  const todayStr    = formatKST('yyyy-MM-dd', now);
+  const currentMins = hhmmToMinutes(formatKST('HH:mm', now));
   const lastDay     = new Date(Date.UTC(year, month, 0)).getUTCDate();
   const dates       = [];
 
@@ -1457,10 +1730,7 @@ function generateMonthlyReport(userSheet, attendSheet, blockedSheet, year, month
     }
   }
 
-  const attendData = attendSheet.getDataRange().getDisplayValues();
-  const monthData  = attendData.filter((r, idx) =>
-    idx > 0 && r[ACOL.DATE] && r[ACOL.DATE].toString().startsWith(prefix)
-  );
+  const monthData = readAttendanceByMonth(attendSheet, prefix);
 
   // 기록 유무와 관계없이 월의 실제 실습일을 생성합니다.
   const dates            = getScheduledReportDates(y, m, blockedSheet, nowDate);
@@ -1501,25 +1771,23 @@ function generateMonthlyReport(userSheet, attendSheet, blockedSheet, year, month
   });
 
   const html     = buildReportHtml(y, m, dates, studentList, summary, dayNames);
+  // 화면 안내용 이름입니다. 서버는 파일을 만들지 않습니다.
+  // 교사가 브라우저 인쇄로 "PDF로 저장"을 했을 때 실제로 받게 될 이름과
+  // 맞추기 위해 .pdf 를 붙입니다 (buildReportHtml 의 <title> 참조).
   const fileName = `도제반_출석레포트_${prefix}.pdf`;
 
   return { success: true, html, fileName, scheduledDays: dates.length };
 }
 
 // ─────────────────────────────────────────────────────────────────────
-// 관리자(교사) 권한 검증
+// 교사 권한 검증은 verifySessionToken(sessions, token, id, '교사') 가 합니다.
+//
+// 예전에는 Users 시트의 ROLE 열을 직접 읽어 확인하는 verifyAdminRole() 이
+// 있었지만, 그 방식은 요청이 보낸 id 만 맞으면 통과해서 권한을 위조할 수
+// 있었습니다. 지금은 로그인 시점에 서버가 Sessions 시트에 적어둔 role 을
+// 기준으로 검증하므로, 새 교사 전용 액션을 추가할 때도 시트를 다시 읽지 말고
+// doPost 의 기존 분기와 똑같이 verifySessionToken 을 쓰세요.
 // ─────────────────────────────────────────────────────────────────────
-function verifyAdminRole(userSheet, id) {
-  if (!id) return false;
-  const data = userSheet.getDataRange().getDisplayValues();
-  for (let i = 1; i < data.length; i++) {
-    if (data[i][COL.ID].trim() === id.toString().trim() &&
-        data[i][COL.ROLE].trim() === '교사') {
-      return true;
-    }
-  }
-  return false;
-}
 
 // ─────────────────────────────────────────────────────────────────────
 // 특정 날짜의 출결 기록만 읽어옵니다.
@@ -1528,6 +1796,39 @@ function verifyAdminRole(userSheet, id) {
 // 기록은 append 순서라 같은 날짜가 연속으로 모여 있으므로, 시트가 몇 년치로
 // 커져도 실제로 읽는 양은 하루치에 머뭅니다.
 // ─────────────────────────────────────────────────────────────────────
+// 한 달치 출결 기록만 읽습니다.
+//
+// 전체 시트를 8열 통째로 읽으면 학년이 쌓일수록 월간 레포트가 느려지므로,
+// readAttendanceByDate() 와 같은 방식으로 날짜 열 1개만 훑어 해당 월이
+// 걸쳐 있는 행 범위를 먼저 좁힌 뒤 그 구간만 읽습니다.
+//
+// 공결 등록처럼 지난 날짜가 뒤늦게 append 되어 날짜 순서가 어긋나 있어도,
+// 최초·최종 위치로 구간을 잡고 읽은 뒤 한 번 더 거르므로 누락되지 않습니다.
+function readAttendanceByMonth(attendSheet, prefix) {
+  const lastRow = attendSheet.getLastRow();
+  if (lastRow < 2) return [];
+
+  const dateColumn = attendSheet
+    .getRange(2, ACOL.DATE + 1, lastRow - 1, 1)
+    .getDisplayValues();
+
+  const inMonth = (val) => val.toString().trim().startsWith(prefix);
+
+  let first = -1;
+  let last  = -1;
+  for (let i = 0; i < dateColumn.length; i++) {
+    if (!inMonth(dateColumn[i][0])) continue;
+    if (first < 0) first = i;
+    last = i;
+  }
+  if (first < 0) return [];
+
+  return attendSheet
+    .getRange(first + 2, 1, last - first + 1, 8)
+    .getDisplayValues()
+    .filter(row => inMonth(row[ACOL.DATE]));
+}
+
 function readAttendanceByDate(attendSheet, dateStr) {
   const lastRow = attendSheet.getLastRow();
   if (lastRow < 2) return [];
@@ -1563,7 +1864,7 @@ function getAdminData(userSheet, attendSheet, blockedSheet, dateStr) {
   const requested = dateStr === null || dateStr === undefined ? '' : dateStr.toString().trim();
   const targetDate = PATTERN.DATE.test(requested)
     ? requested
-    : Utilities.formatDate(nowKST(), 'GMT+9', 'yyyy-MM-dd');
+    : formatKST('yyyy-MM-dd');
 
   const attendanceRecords = readAttendanceByDate(attendSheet, targetDate);
 
@@ -2172,7 +2473,7 @@ function buildReportHtml(year, month, dates, students, summary, dayNames) {
     <span style="color:#e11d48;font-weight:700;">빨강=지각</span> &nbsp;
     <span style="color:#d97706;font-weight:700;">주황=조퇴</span> &nbsp;
     <span style="color:#7c3aed;font-weight:700;">보라=공결(인정)</span>
-    &nbsp;|&nbsp; 생성일시: ${Utilities.formatDate(new Date(), 'GMT+9', 'yyyy-MM-dd HH:mm')}
+    &nbsp;|&nbsp; 생성일시: ${formatKST('yyyy-MM-dd HH:mm')}
   </div>
 </div>
 </body></html>`;

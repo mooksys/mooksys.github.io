@@ -6,7 +6,9 @@
       name="viewport"
       content="width=device-width, initial-scale=1.0, viewport-fit=cover"
     />
-    <meta name="theme-color" content="#0b1120" />
+    <!-- 모바일 브라우저 주소창 색. 밝은 테마 전용 앱이므로 --bg 와 맞춥니다.
+         (예전 값 #0b1120 은 거의 검정이라 주소창만 어둡게 떠 있었습니다) -->
+    <meta name="theme-color" content="#e7ecf3" />
     <title>2026 Doje Beacon System</title>
 
     <!-- Pretendard 가변 폰트 (공식 CDN) -->
@@ -73,6 +75,14 @@
         --sh-lg:
           0 4px 8px rgba(15, 23, 42, 0.04), 0 20px 40px rgba(15, 23, 42, 0.08);
         --ring: 0 0 0 4px rgba(59, 130, 246, 0.15);
+        /* 키보드 포커스 테두리. --ring 보다 진한 이유는 outline 이 요소 바깥에
+           얇게 그려지기 때문입니다 — 옅으면 밝은 배경에서 묻힙니다. */
+        --focus-ring: rgba(37, 99, 235, 0.6);
+
+        /* ── 터치 타깃 ──
+           손가락으로 누르는 컨트롤의 최소 크기. iOS 44pt / Android 48dp 권장을
+           따르되, 표 안에 3개가 나란히 들어가야 하는 제약을 감안해 40px 로 둡니다. */
+        --tap-min: 40px;
 
         /* ── 여백 ── */
         --pad-card: 32px;
@@ -231,13 +241,19 @@
         font-family: inherit;
         box-shadow: var(--sh-sm);
       }
-      /* 키보드 포커스는 항상 또렷하게 */
+      /* 키보드 포커스는 항상 또렷하게.
+         ⚠️ box-shadow 로 그리지 마세요. 이 규칙의 우선순위는 (0,1,1) 이라
+         .tab-btn.active 같은 클래스 2개짜리 규칙(0,2,0)에 밀립니다. 같은
+         box-shadow 속성을 다투게 되면 하필 '지금 선택된 탭'에서만 링이
+         사라져, 키보드 사용자가 자기 위치를 알 수 없게 됩니다.
+         outline 은 다투는 상대가 없어 우선순위와 무관하게 항상 그려지고,
+         요즘 브라우저는 border-radius 도 따라갑니다. */
       button:focus-visible,
       a:focus-visible,
       input:focus-visible,
       select:focus-visible {
-        outline: none;
-        box-shadow: var(--ring);
+        outline: 3px solid var(--focus-ring);
+        outline-offset: 2px;
       }
 
       button:active {
@@ -723,8 +739,11 @@
         display: inline-flex !important;
         align-items: center;
         gap: 3px;
-        padding: 3px 8px !important;
-        min-height: unset !important;
+        /* 누를 수 있는 토글이므로 높이를 확보합니다. 예전에는 20px 이었습니다.
+           (오탭해도 다시 누르면 되는 필터라, 삭제 버튼만큼 크게 잡지는 않고
+            헤더 한 줄에 들어가는 선에서 타협했습니다) */
+        padding: 4px 10px !important;
+        min-height: 28px !important;
         margin-bottom: 0 !important;
         border-radius: var(--r-pill) !important;
         font-size: 11px;
@@ -1120,6 +1139,22 @@
         }
       }
 
+      /* Flatpickr 를 못 불러왔을 때 쓰는 기본 날짜 입력.
+         칩 전체를 덮는 투명 레이어로 깔아서, 겉모습은 그대로 두고
+         어디를 눌러도 브라우저 기본 달력이 열리게 합니다. */
+      .native-date-fallback {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        opacity: 0;
+        cursor: pointer;
+        font: inherit;
+      }
+
       /* Flatpickr 커스텀 */
       .flatpickr-calendar {
         font-family: "Pretendard", sans-serif !important;
@@ -1354,8 +1389,8 @@
       }
       .page-btn {
         width: auto;
-        min-width: 34px;
-        min-height: 34px;
+        min-width: var(--tap-min);
+        min-height: var(--tap-min);
         padding: 6px 10px;
         background: var(--surface);
         border: 1px solid var(--border);
@@ -2028,13 +2063,16 @@
       }
       .student-action-btn {
         width: auto;
-        min-height: unset;
+        /* 마우스로 쓰는 넓은 화면 기준. 좁은 화면에서는 아래 미디어 쿼리가
+           아이콘 전용 정사각 버튼(--tap-min)으로 바꿉니다. */
+        min-height: 34px;
         display: inline-flex;
         align-items: center;
-        gap: 3px;
-        padding: 5px 8px;
+        justify-content: center;
+        gap: 4px;
+        padding: 6px 10px;
         border-radius: 8px;
-        font-size: 11px;
+        font-size: 12px;
         font-weight: 700;
         letter-spacing: -0.01em;
         cursor: pointer;
@@ -2047,8 +2085,8 @@
         flex-shrink: 0;
       }
       .student-action-btn svg {
-        width: 11px;
-        height: 11px;
+        width: 13px;
+        height: 13px;
         flex-shrink: 0;
       }
       .student-action-btn.edit {
@@ -2168,26 +2206,52 @@
           gap: 4px;
         }
         .page-btn {
+          /* 좁은 화면에서도 터치 타깃은 줄이지 않고 좌우 여백만 줄입니다. */
           padding: 6px 7px;
-          min-width: 32px;
         }
         /* 학생 목록 테이블 최적화 (3열 레이아웃 및 1줄 버튼 고정) */
         #tab-students th,
         #tab-students td {
           padding: 9px 5px;
         }
+        /* 좁은 화면에서는 글자를 떼고 아이콘 전용 정사각 버튼으로 바꿉니다.
+           PRD §4.4 가 요구한 '가로 1줄(nowrap)'은 그대로 지키면서
+           누를 수 있는 크기를 되찾기 위해서입니다.
+           40px × 3개 + gap 8px × 2 = 136px 이라 360px 화면에도 들어갑니다.
+
+           예전에는 이 요구를 버튼을 줄여서 맞췄고(높이 ≈ 23px, 간격 3px),
+           그 결과 되돌리기 어려운 [PW 초기화]·[삭제]가 오탭하기 쉬웠습니다. */
         .student-action-group {
-          gap: 3px;
+          gap: 8px;
           flex-wrap: nowrap;
         }
         .student-action-btn {
-          padding: 4px 6px;
-          font-size: 10.5px;
-          gap: 2px;
+          /* 감춘 <span> 의 기준점. 없으면 절대 배치가 표 바깥으로 빠집니다. */
+          position: relative;
+          width: var(--tap-min);
+          min-width: var(--tap-min);
+          height: var(--tap-min);
+          min-height: var(--tap-min);
+          padding: 0;
+          gap: 0;
+        }
+        /* 글자는 화면에서만 감춥니다. display:none 으로 지우면 스크린 리더가
+           읽을 이름이 사라져서, 아이콘만 남은 버튼이 무엇인지 알 수 없습니다. */
+        .student-action-btn > span {
+          position: absolute;
+          width: 1px;
+          height: 1px;
+          margin: -1px;
+          padding: 0;
+          overflow: hidden;
+          clip: rect(0 0 0 0);
+          clip-path: inset(50%);
+          white-space: nowrap;
+          border: 0;
         }
         .student-action-btn svg {
-          width: 10px;
-          height: 10px;
+          width: 17px;
+          height: 17px;
         }
         .time-range-badge {
           padding: 2.5px 5px;
@@ -2229,7 +2293,9 @@
           padding-bottom: 2px;
         }
         .alert-filter-tab {
-          padding: 3.5px 8px !important;
+          /* 손가락으로 누르는 화면이므로 기본(28px)보다 더 키웁니다. */
+          padding: 6px 12px !important;
+          min-height: 34px !important;
           font-size: 11px;
         }
       }
@@ -3780,6 +3846,14 @@
               <span id="displayDateText" class="current-day-label"
                 >로딩중...</span
               >
+              <!-- Flatpickr 로드 실패(폐쇄망·CDN 차단) 시에만 노출되는
+                   브라우저 기본 날짜 입력 폴백. 평소에는 hidden 입니다. -->
+              <input
+                type="date"
+                id="nativeDatePicker"
+                class="native-date-fallback hidden"
+                aria-label="조회 날짜 선택"
+              />
             </div>
             <button class="nav-btn" onclick="changeDate(1)">
               <svg
@@ -4588,6 +4662,45 @@
 
       // ── 화면 전용 상수 (서버 규칙과 무관) ─────────────────────────────
       const SESSION_KEY = "attendance_user";
+
+      // 로그인 상태는 [로그아웃]을 누를 때까지 유지합니다.
+      //
+      // sessionStorage 를 쓰면 탭을 닫는 순간 사라지므로 localStorage 에 둡니다.
+      // 자동 로그아웃 타이머도 없앴습니다(예전에는 30분 무활동 시 해제).
+      //
+      // 세션을 끝내는 경로는 이제 셋뿐입니다.
+      //   ① 사용자가 [로그아웃] 을 누름
+      //   ② 서버 토큰이 만료됨 (SESSION_TTL_MS, 현재 30일 슬라이딩)
+      //   ③ 교사가 학생 정보를 수정하거나 비밀번호를 초기화해 세션을 폐기함
+      //
+      // ②로 끊긴 경우 저장된 값은 남아 있지만 서버가 거부하므로,
+      // 그때는 clearStoredSession() 으로 정리하고 로그인 화면으로 돌려보냅니다.
+      function readStoredSession() {
+        try {
+          return localStorage.getItem(SESSION_KEY);
+        } catch (_) {
+          // 사파리 프라이빗 모드 등에서 접근이 막힐 수 있습니다.
+          return null;
+        }
+      }
+
+      function writeStoredSession(value) {
+        try {
+          localStorage.setItem(SESSION_KEY, JSON.stringify(value));
+        } catch (_) {
+          // 저장에 실패해도 이번 접속은 메모리의 userInfo 로 계속 동작합니다.
+        }
+      }
+
+      function clearStoredSession() {
+        try {
+          localStorage.removeItem(SESSION_KEY);
+        } catch (_) {}
+        // 예전 버전이 sessionStorage 에 남긴 값도 같이 치웁니다.
+        try {
+          sessionStorage.removeItem(SESSION_KEY);
+        } catch (_) {}
+      }
       // ✅ 자동 새로고침 30초로 조정 (기존 10초)
       const AUTO_REFRESH_MS = 30 * 1000;
       const ITEMS_PER_PAGE = 5;
@@ -4615,7 +4728,8 @@
         lateGraceMinutes: 20,
         dashboardLateAlertMinutes: 25,
         dayCloseMinutes: 18 * 60,
-        sessionTimeoutMs: 30 * 60 * 1000,
+        // 무활동 자동 로그아웃은 없앴습니다. 로그인은 [로그아웃]을 누를 때까지
+        // 유지되므로 프론트가 참고할 타임아웃 값도 필요 없습니다.
         minPasswordLength: 4,
         maxPasswordLength: 50,
         blockedPasswords: ["0000", "1234"],
@@ -4641,7 +4755,6 @@
       let fpCalendar = null;
       let currentFilteredData = [];
       let currentPage = 1;
-      let sessionTimeoutTimer;
       let editingStudentId = null;
       let studentPage = 1;
       // 날짜 차단 캘린더 상태
@@ -4711,11 +4824,23 @@
         setLoginButton("로그인", false);
         document.getElementById("loginBtn").disabled = false;
 
-        // 세션 복원
+        // 세션 복원 — 브라우저를 닫았다 열어도 이어집니다.
         // JSON.parse 를 감싸지 않으면 저장값이 손상됐을 때 예외가 나면서
-        // window.onload 의 나머지(세션 타임아웃·리사이즈·탭 전환 처리)가
-        // 통째로 등록되지 않습니다.
-        const savedSession = sessionStorage.getItem(SESSION_KEY);
+        // window.onload 의 나머지(리사이즈·탭 전환 처리)가 통째로 등록되지 않습니다.
+        //
+        // 예전 버전은 sessionStorage 를 썼으므로, 남아 있으면 옮겨옵니다.
+        let savedSession = readStoredSession();
+        if (!savedSession) {
+          try {
+            const legacy = sessionStorage.getItem(SESSION_KEY);
+            if (legacy) {
+              localStorage.setItem(SESSION_KEY, legacy);
+              sessionStorage.removeItem(SESSION_KEY);
+              savedSession = legacy;
+            }
+          } catch (_) {}
+        }
+
         if (savedSession) {
           let restored = null;
           try {
@@ -4727,22 +4852,10 @@
             userInfo = restored;
             document.getElementById("loginSection").classList.add("hidden");
             showMain();
-            // 복원 직후에도 자동 로그아웃이 걸리도록 타이머를 시작합니다.
-            // (예전에는 첫 마우스·키 입력이 있어야 비로소 시작됐습니다)
-            resetSessionTimer();
           } else {
-            sessionStorage.removeItem(SESSION_KEY);
+            clearStoredSession();
           }
         }
-
-        // 세션 타임아웃 이벤트 등록
-        ["click", "mousemove", "keypress", "scroll", "touchstart"].forEach(
-          (evt) => {
-            document.addEventListener(evt, resetSessionTimer, {
-              passive: true,
-            });
-          },
-        );
 
         // 화면 폭이 바뀌면 레포트 미리보기 배율을 다시 계산합니다
         let refitTimer = null;
@@ -4763,13 +4876,19 @@
         });
       };
 
-      function resetSessionTimer() {
-        if (!sessionStorage.getItem(SESSION_KEY)) return;
-        clearTimeout(sessionTimeoutTimer);
-        sessionTimeoutTimer = setTimeout(() => {
-          alert("보안을 위해 장시간 활동이 없어 자동 로그아웃 되었습니다.");
-          logout();
-        }, CONFIG.sessionTimeoutMs);
+      // 서버가 세션을 더 이상 인정하지 않을 때의 정리 절차.
+      // 무활동 자동 로그아웃은 없앴지만, 서버 토큰 만료나 교사의 세션 폐기로
+      // 끊기는 경우는 남아 있어서 그때 저장값을 치우고 로그인 화면으로 보냅니다.
+      function handleSessionExpired(message) {
+        clearStoredSession();
+        if (liveClockTimer) clearInterval(liveClockTimer);
+        if (autoRefreshTimer) clearInterval(autoRefreshTimer);
+        if (outUnlockTimer) clearInterval(outUnlockTimer);
+        userInfo = {};
+        showAlert(message || "세션이 만료되었습니다. 다시 로그인해주세요.", {
+          type: "info",
+          title: "다시 로그인",
+        }).then(() => location.reload());
       }
 
       // ── API 통신 ──────────────────────────────────────────────────────
@@ -4876,7 +4995,7 @@
       async function login() {
         const id = document.getElementById("userId").value.trim();
         const pw = document.getElementById("userPw").value;
-        if (!id || !pw) return alert("입력값을 확인해주세요.");
+        if (!id || !pw) return showAlert("입력값을 확인해주세요.");
 
         const btn = document.getElementById("loginBtn");
         setLoginButton("확인중...", true);
@@ -4925,8 +5044,7 @@
                 .classList.remove("hidden");
             }
           } else {
-            sessionStorage.setItem(SESSION_KEY, JSON.stringify(userInfo));
-            resetSessionTimer();
+            writeStoredSession(userInfo);
             showMain();
           }
         } else {
@@ -4934,16 +5052,17 @@
         }
       }
 
+      // 로그인 상태를 끝내는 유일한 정상 경로입니다.
+      // 자동 로그아웃이 없으므로, 공용 PC 에서는 반드시 이 버튼을 눌러야 합니다.
       function logout() {
         if (liveClockTimer) clearInterval(liveClockTimer);
         if (autoRefreshTimer) clearInterval(autoRefreshTimer);
-        if (sessionTimeoutTimer) clearTimeout(sessionTimeoutTimer);
         if (outUnlockTimer) clearInterval(outUnlockTimer);
         // 서버 측 세션 토큰도 즉시 폐기 (실패해도 로그아웃 자체는 진행)
         if (userInfo && userInfo.token) {
           callAPI({ action: "logout", token: userInfo.token }).catch(() => {});
         }
-        sessionStorage.removeItem(SESSION_KEY);
+        clearStoredSession();
         location.reload();
       }
 
@@ -4957,11 +5076,14 @@
           newPw.length < CONFIG.minPasswordLength ||
           newPw.length > CONFIG.maxPasswordLength
         )
-          return alert(
+          return showAlert(
             `비밀번호는 ${CONFIG.minPasswordLength}~${CONFIG.maxPasswordLength}자로 입력하세요.`,
+            { type: "error" },
           );
         if (CONFIG.blockedPasswords.includes(newPw))
-          return alert("초기 비밀번호는 새 비밀번호로 사용할 수 없습니다.");
+          return showAlert("초기 비밀번호는 새 비밀번호로 사용할 수 없습니다.", {
+            type: "error",
+          });
 
         const res = await callAPI({
           action: "initialSetup",
@@ -4972,10 +5094,12 @@
         });
 
         if (res.success) {
-          alert("설정이 완료되었습니다! 다시 로그인해주세요.");
+          await showAlert("설정이 완료되었습니다! 다시 로그인해주세요.", {
+            type: "success",
+          });
           location.reload();
         } else {
-          alert(res.msg);
+          await showAlert(res.msg, { type: "error" });
         }
       }
 
@@ -5057,8 +5181,8 @@
           document.getElementById("changePwBtn").classList.add("hidden");
           showAdmin();
         } else {
-          alert("권한 정보가 유효하지 않습니다.");
           logout();
+          showAlert("권한 정보가 유효하지 않습니다.", { type: "error" });
         }
       }
 
@@ -5168,7 +5292,7 @@
         });
 
         if (res.success) {
-          alert(res.msg);
+          await showAlert(res.msg, { type: "success" });
           const status = await callAPI({
             action: "getStudentStatus",
             id: userInfo.id,
@@ -5176,7 +5300,7 @@
           if (status.success)
             updateStudentButtons(status.inDone, status.outDone);
         } else {
-          alert(res.msg);
+          await showAlert(res.msg, { type: "error" });
           const status = await callAPI({
             action: "getStudentStatus",
             id: userInfo.id,
@@ -5275,8 +5399,10 @@
       // ── 교사 대시보드 ─────────────────────────────────────────────────
       function showAdmin() {
         if (!userInfo || userInfo.role !== "교사") {
-          alert("비정상적인 접근입니다. 관리자 권한이 없습니다.");
           logout();
+          showAlert("비정상적인 접근입니다. 관리자 권한이 없습니다.", {
+            type: "error",
+          });
           return;
         }
 
@@ -5306,6 +5432,8 @@
               if (selectedDates.length > 0) pickDate(selectedDates[0]);
             },
           });
+        } else {
+          enableNativeDatePickerFallback();
         }
 
         fetchAdminData(false);
@@ -5377,8 +5505,38 @@
       function changeDate(offset) {
         currentAdminDate.setDate(currentAdminDate.getDate() + offset);
         if (fpCalendar) fpCalendar.setDate(currentAdminDate);
+        syncNativeDatePicker();
         currentPage = 1;
         fetchAdminData(false);
+      }
+
+      // ── 날짜 선택기 폴백 ──────────────────────────────────────────────
+      // Flatpickr 는 CDN 에서 받아오므로 폐쇄망이나 CDN 차단 환경에서는
+      // 로드에 실패할 수 있습니다. 그때 날짜 선택 기능이 통째로 죽지 않도록
+      // 브라우저 기본 <input type="date"> 로 대체합니다.
+      function enableNativeDatePickerFallback() {
+        const input = document.getElementById("nativeDatePicker");
+        if (!input) return;
+
+        input.classList.remove("hidden");
+        syncNativeDatePicker();
+        input.addEventListener("change", () => {
+          if (!input.value) return;
+          // 'yyyy-MM-dd' 를 직접 쪼개 로컬 자정으로 만듭니다.
+          // new Date("2026-09-16") 은 UTC 로 해석돼 하루 밀릴 수 있습니다.
+          const [y, m, d] = input.value.split("-").map(Number);
+          pickDate(new Date(y, m - 1, d));
+        });
+
+        console.warn(
+          "Flatpickr 를 불러오지 못해 브라우저 기본 날짜 입력으로 대체했습니다.",
+        );
+      }
+
+      function syncNativeDatePicker() {
+        const input = document.getElementById("nativeDatePicker");
+        if (!input || input.classList.contains("hidden")) return;
+        input.value = formatDateForCompare(currentAdminDate);
       }
 
       async function fetchAdminData(isSilent = false) {
@@ -5413,9 +5571,13 @@
           renderStudentManager();
           renderBlockCalendar();
         } else {
-          if (!isSilent) {
-            alert(res.msg);
-            if (res.msg.includes("권한") || res.msg.includes("세션")) logout();
+          // 서버가 세션을 거부하면 저장된 로그인 정보를 정리하고 로그인 화면으로
+          // 돌려보냅니다. 조용한 자동 새로고침(isSilent) 중에 끊긴 경우에도
+          // 안내 없이 로그인 화면만 떠 있으면 혼란스러우므로 똑같이 처리합니다.
+          if (res.msg && (res.msg.includes("권한") || res.msg.includes("세션"))) {
+            handleSessionExpired(res.msg);
+          } else if (!isSilent) {
+            await showAlert(res.msg, { type: "error" });
           }
         }
 
@@ -5455,7 +5617,11 @@
             document.getElementById("copyInitialPwBtn").textContent = "복사";
           }, 1500);
         } catch (_) {
-          alert(`초기 비밀번호: ${value}`);
+          // 클립보드 권한이 없는 환경(비 HTTPS 등)에서는 값을 직접 보여줍니다.
+          await showAlert(`초기 비밀번호: ${value}`, {
+            type: "info",
+            title: "초기 비밀번호",
+          });
         }
       }
 

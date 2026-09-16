@@ -2,14 +2,22 @@
 
 ## 1. 프로젝트 개요 (Overview)
 - **프로젝트 명**: 2026 Doje Beacon System (성일정보고등학교 도제반 3-12 출결 관리 시스템)
-- **문서 버전**: v1.0.0
-- **작성일**: 2026-08-19
+- **문서 버전**: v1.0.2
+- **작성일**: 2026-08-19 (최종 수정: 2026-09-16)
 - **개발/운영 환경**:
-  - **Frontend**: Pure HTML5, CSS3, Vanilla JavaScript (Single Page Application, Zero-CDN 폐쇄망 대응)
+  - **Frontend**: Pure HTML5, CSS3, Vanilla JavaScript (Single Page Application, 단일 파일 `index.html`)
   - **Backend**: Google Apps Script (GAS) Web App (`code.gs`)
   - **Database/Storage**: Google Spreadsheets (`Users`, `Attendance`, `BlockedDates`, `Sessions` 시트), PropertiesService (`Script Properties`)
   - **Config**: `project26_05_gas_url.json` (API 엔드포인트 설정)
-  - **Vendor Libraries**: Flatpickr v4.6.13, Pretendard Variable Font (자체 호스팅)
+  - **Vendor Libraries**: Flatpickr v4.6.13, Pretendard Variable Font (**CDN 로드 — jsdelivr**)
+
+> **v1.0.1 정정**: 초판은 Frontend를 "Zero-CDN 폐쇄망 대응", Vendor Libraries를
+> "자체 호스팅"으로 기술했으나, 실제 구현은 §6.4와 같이 jsdelivr CDN에서 로드합니다
+> (초판 §1과 §6.4가 서로 모순이었습니다). 미사용 상태로 남아 있던 `vendor/` 폴더는
+> 2026-09-16에 제거하고 CDN 방식으로 확정했습니다.
+>
+> 대신 CDN 차단 환경에서 날짜 선택 기능이 죽지 않도록, Flatpickr 로드 실패 시
+> 브라우저 기본 `<input type="date">`로 자동 대체하는 폴백을 추가했습니다(§6.4 참조).
 
 ---
 
@@ -45,7 +53,7 @@
    - 5회 실패 시 5분간 계정 잠금 처리 (Brute-force 방어).
    - 솔트(계정별 무작위)+페퍼(스크립트 속성) HMAC-SHA256 2000회 반복 해싱 검증.
    - 레거시 계정(평문/단일 SHA-256) 로그인 시 신규 암호화 체계로 자동 승급(Auto-upgrade).
-   - 로그인 성공 시 UUID 기반 세션 토큰 발급 (`Sessions` 시트에 기록, 유효기간 30분).
+   - 로그인 성공 시 UUID 기반 세션 토큰 발급 (`Sessions` 시트에 기록, 유효기간 30일 슬라이딩 갱신).
    - **학생 / 교사 로그인 탭 UI**:
      - **[ 👨‍🎓 학생 로그인 ]** 탭: 학번 입력, 화·수·목 실습일 뱃지, 학생용 ID 저장 지원.
      - **[ 👩‍🏫 교사 로그인 ]** 탭: 교사 ID 입력, 관리자 전용 뱃지, 구글 시트 초기화 안내, 교사용 ID 저장 지원.
@@ -56,9 +64,20 @@
 4. **비밀번호 변경 (`changePw`)**:
    - 학생 화면 상단에서 현재 비밀번호 확인 후 새 비밀번호(4~50자)로 변경.
 5. **세션 및 보안 관리**:
-   - 클라이언트 비활성 30분 감지 시 자동 로그아웃 (`SESSION_TIMEOUT`).
+   - **로그인 유지**: 한 번 로그인하면 사용자가 **[로그아웃]을 누를 때까지** 상태가 유지됩니다. 세션 정보를 `localStorage`에 저장하므로 브라우저를 닫았다 열어도 이어집니다.
+     - 세션이 끝나는 경로는 셋뿐입니다 — ① 사용자가 [로그아웃] 클릭, ② 서버 토큰 만료(`SESSION_TTL_MS` 30일, 사용 중에는 슬라이딩 갱신되어 사실상 만료되지 않음), ③ 교사가 해당 학생의 정보를 수정하거나 비밀번호를 초기화해 세션을 폐기.
+     - ②·③으로 끊긴 경우 서버가 요청을 거부하고, 클라이언트는 저장값을 정리한 뒤 로그인 화면으로 돌려보냅니다(`handleSessionExpired`).
    - 서버 측 요청마다 세션 토큰 및 권한(Role) 유효성 검증.
    - 백그라운드 탭 전환 시(`visibilitychange`) 자동 새로고침 중지하여 GAS 할당량 보호.
+
+> **v1.0.2 변경 (2026-09-16)**: 기존의 "클라이언트 비활성 30분 감지 시 자동 로그아웃
+> (`SESSION_TIMEOUT`)"을 제거했습니다. 서버 토큰 수명도 30분 → 30일로 늘렸습니다.
+>
+> ⚠️ **운영상 유의**: 자동 로그아웃이 없어졌으므로 **공용 PC에서는 반드시
+> [로그아웃]을 눌러야 합니다.** 누르지 않고 자리를 뜨면 다음 사용자가 그 계정으로
+> 출결을 기록할 수 있어, §2가 방지 목표로 삼은 대리 출석 위험이 커집니다.
+> 학생에게 이 점을 안내하거나, 필요하면 학생 계정만 짧은 만료를 두는 방식으로
+> 되돌릴 수 있습니다.
 
 ---
 
@@ -247,11 +266,13 @@
    - 읽기-수정-쓰기 작업의 원자성(Atomicity) 보장.
 3. **성능 및 GAS 할당량 최적화 (Performance & Quota Optimization)**:
    - **행 숨김 처리**: 지난 날짜 출결 행은 자동 숨김(`hidePastAttendanceRows`) 처리하여 대용량 시트 탐색 부하 경감.
-   - **부분 읽기**: 일별 대시보드 조회 시 전체 시트 대신 요청 날짜 범위만 추출(`readAttendanceByDate`).
+   - **부분 읽기**: 전체 시트 대신 필요한 행 범위만 추출. 일별 대시보드는 `readAttendanceByDate`, 월간 레포트는 `readAttendanceByMonth`가 담당하며, 두 함수 모두 날짜 열 1개만 스캔해 구간을 좁힌 뒤 그 구간만 전체 열로 읽습니다.
    - **세션 정리 일괄화**: 일일 배치 트리거 및 만료 세션 효율적 일괄 삭제.
    - **해싱 사전 계산**: 전역 락 획득 전 솔트 해싱을 선행 계산하여 락 점유 시간 최소화.
 4. **호환성 및 접근성 (Compatibility & Accessibility)**:
-    - **글로벌 CDN 및 폴백 안정성**: 공식 고신뢰성 CDN(jsdelivr) 기반 Pretendard 가변 폰트 및 Flatpickr(v4.6.13) 로딩을 통해 GitHub Pages, Live Server, 로컬 등 모든 배포 환경에서 404 및 ReferenceError 없이 100% 정상 작동.
+    - **CDN 로딩 및 폴백**: Pretendard 가변 폰트와 Flatpickr(v4.6.13)를 jsdelivr CDN에서 로드합니다. GitHub Pages, Live Server, 로컬 등 일반 배포 환경에서 404 없이 동작합니다.
+      - **CDN 차단 시 동작**: 폰트는 시스템 기본 폰트로 자연 대체됩니다. Flatpickr는 `typeof flatpickr` 검사로 부재를 감지해 브라우저 기본 `<input type="date">`(`enableNativeDatePickerFallback`)로 전환하므로, 날짜 선택 기능이 중단되지 않습니다.
+      - **잔여 제약**: 폐쇄망에서는 달력 UI의 디자인이 브라우저 기본 모양이 됩니다. 배포 전 실제 학교 네트워크에서 `cdn.jsdelivr.net` 접근 가능 여부를 확인해야 합니다.
     - 반응형 디자인(Mobile, Tablet, Desktop 지원 - 380px 이하 초소형 화면 최적화).
    - 다크 테마 메타 태그, WAI-ARIA 속성(`aria-label`, `aria-current`, `role="alert"`) 준수.
 
