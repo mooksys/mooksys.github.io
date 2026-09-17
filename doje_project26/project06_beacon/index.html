@@ -2546,10 +2546,17 @@
           padding-bottom: 2px;
         }
         .alert-filter-tab {
-          /* 손가락으로 누르는 화면이므로 기본(28px)보다 더 키웁니다. */
-          padding: 6px 12px !important;
+          /* 세로는 키우고(터치 타깃 34px), 가로는 조입니다.
+             좌우 12px 로는 칩 4개가 293px 라 영역(280px)을 넘겨 두 줄이 됐습니다.
+             8px 로 줄이면 4개가 264px 로 한 줄에 들어갑니다.
+             시간대가 5개 이상이면 그때는 줄바꿈됩니다(잘리는 것보다 낫습니다). */
+          padding: 6px 8px !important;
+          gap: 2px;
           min-height: 34px !important;
           font-size: 11px;
+        }
+        .alert-filter-tab .tab-badge {
+          padding: 1px 3px;
         }
       }
 
