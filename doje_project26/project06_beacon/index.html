@@ -603,7 +603,9 @@
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 6px;
+        /* 필터 칩 줄(order:3)이 아래로 내려갈 수 있도록 줄바꿈을 허용합니다 */
+        flex-wrap: wrap;
+        gap: 6px 0;
         margin-bottom: 12px;
         padding-bottom: 8px;
         border-bottom: 1px dashed var(--accent-line);
@@ -618,18 +620,28 @@
         gap: 8px;
         flex-shrink: 0;
       }
+      /* 시간대 필터 칩은 항상 제목 아래 제 줄을 차지합니다.
+         예전에는 제목과 인원수 배지 사이에 끼워 넣고 가로 스크롤을 줬는데,
+         카드 폭이 640px 로 묶여 있어서 알림 헤더에 실제로 남는 자리는
+         200px 남짓입니다. 칩 서너 개면 바로 넘쳐서 마지막 칩이 잘린 채
+         멈춰 있었고, 스크롤된다는 신호가 없어 고장난 것처럼 보였습니다. */
       .alert-filter-tabs-container {
-        flex: 1 1 auto;
+        order: 3;
+        width: 100%;
+        flex: 0 0 100%;
         display: flex;
         align-items: center;
         min-width: 0;
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        scrollbar-width: none;
-        margin: 0 4px;
+        margin: 6px 0 0;
+        padding-top: 6px;
+        border-top: 1px dashed var(--accent-line);
       }
-      .alert-filter-tabs-container::-webkit-scrollbar {
+      /* 시간대가 하나뿐이면 탭을 만들지 않으므로 구분선만 남지 않게 접습니다 */
+      .alert-filter-tabs-container:empty {
         display: none;
+        margin: 0;
+        padding: 0;
+        border-top: none;
       }
       .alert-head-right {
         display: flex;
@@ -674,9 +686,12 @@
         border-color: #a7f3d0;
         background: #ecfdf5;
       }
+      /* 실제 <button> 입니다. 전역 button 규칙의 width:100% / padding:15px 을
+         덮어써야 24px 원형 모양이 유지됩니다. */
       .alert-toggle-icon {
         display: inline-grid;
         place-items: center;
+        padding: 0;
         width: 24px;
         height: 24px;
         border-radius: 8px;
@@ -707,6 +722,12 @@
       .alert-box.is-collapsed .alert-body {
         display: none;
       }
+      /* 접혀 있으면 시간대 필터 칩도 감춥니다.
+         칩이 거르는 대상은 .alert-body 의 명단인데, 그 명단이 숨겨진 상태에서
+         필터만 떠 있으면 무엇을 조작하는 건지 알 수 없습니다. */
+      .alert-box.is-collapsed .alert-filter-tabs-container {
+        display: none;
+      }
 
       .alert-body {
         font-size: 13px;
@@ -725,10 +746,14 @@
 
       /* ── 헤더 내부 일체형 시간대별 필터 탭 바 ── */
       .alert-filter-tabs {
-        display: inline-flex;
+        display: flex;
         align-items: center;
-        flex-wrap: nowrap;
-        gap: 4px;
+        /* 칩이 잘리는 대신 다음 줄로 넘어갑니다. 시간대 수는 학생들의
+           기준시간 종류만큼이라 많아야 서너 개고, 전부 보이는 편이
+           스와이프로 찾는 것보다 빠릅니다. */
+        flex-wrap: wrap;
+        width: 100%;
+        gap: 5px;
         margin-bottom: 0;
         padding: 1px 0;
         border-bottom: none;
@@ -760,10 +785,26 @@
         box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
         white-space: nowrap;
       }
-      .alert-filter-tab:hover:not(.active) {
+      .alert-filter-tab:hover:not(.active):not(:disabled) {
         background: var(--accent-tint);
         transform: translateY(-1px);
         box-shadow: 0 2px 5px var(--accent-shadow-soft);
+      }
+      /* 미입력자가 0명인 시간대 — 걸러 볼 대상이 없어 비활성입니다.
+         전역 button:disabled 가 background 를 !important 로 덮어쓰므로
+         여기서도 !important 로 되돌려야 회색 덩어리가 되지 않습니다.
+         '오류'가 아니라 '이미 끝남'이므로 cursor 는 not-allowed 대신 default. */
+      .alert-filter-tab:disabled {
+        background: var(--surface-sunken) !important;
+        border-color: var(--border);
+        color: var(--text-muted);
+        box-shadow: none;
+        transform: none;
+        cursor: default;
+      }
+      .alert-filter-tab:disabled .tab-badge {
+        background: rgba(15, 23, 42, 0.06);
+        color: var(--text-muted);
       }
       .alert-filter-tab.active {
         background: var(--accent) !important;
@@ -829,6 +870,14 @@
         font-weight: 700;
         color: var(--accent-text);
         opacity: 0.85;
+      }
+      /* 괄호는 장식이라 CSS 로 붙입니다 — 자리가 빠듯한 좁은 화면에서
+         content:none 으로 간단히 떼어낼 수 있게 하기 위해서입니다. */
+      .student-chip .chip-id::before {
+        content: "(";
+      }
+      .student-chip .chip-id::after {
+        content: ")";
       }
       .student-chip .chip-time {
         font-size: 11px;
@@ -1353,18 +1402,25 @@
         justify-content: center;
         margin-top: 5px;
       }
-      .stat-done {
+      .stat-done,
+      .stat-warn {
         display: inline-flex;
         align-items: center;
         gap: 3px;
         padding: 2px 7px;
         border-radius: var(--r-pill);
-        background: var(--success-soft);
-        color: #047857;
         font-size: 10.5px;
         font-weight: 700;
         letter-spacing: -0.01em;
         white-space: nowrap;
+      }
+      .stat-done {
+        background: var(--success-soft);
+        color: #047857;
+      }
+      .stat-warn {
+        background: var(--warn-soft);
+        color: #92400e;
       }
 
       /* 지각·조퇴는 '상태'입니다.
@@ -1385,6 +1441,15 @@
       }
       .stat-item.is-alert .stat-val {
         color: var(--tone);
+      }
+      /* 미퇴실 경고용 팔레트.
+         퇴실 타일은 평소 파란색이라 그대로 경고를 켜면 '파란 경고'가 되어
+         눈에 걸리지 않습니다. 경고일 때만 앰버로 바꿔 씁니다.
+         (is-alert 보다 뒤에 와야 --tint/--tone 을 덮습니다) */
+      .stat-item.is-overdue {
+        --tint: #fffbeb;
+        --tint-line: #fde68a;
+        --tone: #92400e;
       }
 
       @media (max-width: 420px) {
@@ -2408,38 +2473,76 @@
           font-size: 10.5px;
         }
 
-        /* ── 모바일 (480px / 450px 이하) 알림 카드 헤더 2단 스마트 레이아웃 ── */
-        .alert-head {
-          flex-wrap: wrap;
-          gap: 6px 0;
-          padding-bottom: 6px;
+        /* 학생 칩을 2열 그리드로 배치합니다.
+           flex-wrap 으로 두면 칩 하나가 한 줄을 통째로 쓰고 오른쪽에 120px 넘는
+           빈 공간이 남았습니다(360px 기준 칩 158px / 영역 280px).
+           2열로 묶으면 같은 인원의 목록 높이가 절반 이하로 줄어, 스크롤 없이
+           훑을 수 있는 인원이 두 배가 됩니다. */
+        .alert-body {
+          display: grid;
+          grid-template-columns: repeat(2, minmax(0, 1fr));
+          gap: 6px;
+          align-items: stretch;
         }
-        .alert-head-left {
-          order: 1;
+        /* 빈 상태 안내('✓ 전원 입실 완료' 등)는 한 칸이 아니라 줄 전체를 씁니다 */
+        .alert-body > :not(.student-chip) {
+          grid-column: 1 / -1;
+        }
+        /* 2열 한 줄 칩. 칸 폭이 137px(360px 화면 기준)뿐이라 기본 간격으로는
+           들어가지 않습니다 — 실측으로 이름 42 + 학번 57 + 시각 41 = 140px 라,
+           패딩과 간격을 0으로 만들어도 3px 이 모자랍니다.
+           그래서 간격을 조이는 것에 더해 보조 정보(학번·시각)의 글자를 줄이고
+           학번 괄호를 뗍니다. 이름은 가장 중요한 정보라 12px 로 남깁니다. */
+        .student-chip {
+          width: 100%;
+          flex-wrap: nowrap;
+          padding: 5px 6px;
+          gap: 2px;
+          justify-content: flex-start;
+          align-items: center;
+          min-width: 0;
+          font-size: 12px;
+          letter-spacing: -0.03em;
+          /* 알약(--r-pill)은 칩이 내용 폭일 때의 값입니다. 폭이 고정된
+             칸 안에서는 양 끝이 과하게 둥글어 보여 12px 로 낮춥니다. */
+          border-radius: calc(var(--r-xl) / 2);
+        }
+        /* 그래도 넘치면(4자 이상 이름) 이름만 말줄임합니다.
+           학번과 시각이 잘리면 학생을 특정할 수 없기 때문입니다.
+           잘린 이름은 chip-name 의 title 로 전체를 확인할 수 있습니다. */
+        .student-chip .chip-name {
+          flex: 0 1 auto;
+          min-width: 0;
+          overflow: hidden;
+          text-overflow: ellipsis;
+          white-space: nowrap;
+        }
+        .student-chip .chip-id {
           flex: 0 0 auto;
+          font-size: 10px;
         }
-        .alert-head-right {
-          order: 2;
+        /* 괄호 두 글자가 약 14px 입니다. 이 폭에서는 그 정도가 아쉽습니다. */
+        .student-chip .chip-id::before,
+        .student-chip .chip-id::after {
+          content: none;
+        }
+        .student-chip .chip-time {
           flex: 0 0 auto;
           margin-left: auto;
+          padding: 2px 4px;
+          font-size: 10px;
+        }
+
+        /* 헤더 2단 배치(제목/배지 한 줄, 필터 칩 한 줄)는 이제 기본 규칙입니다.
+           여기서는 좁은 화면에 맞춘 여백만 조정합니다. */
+        .alert-head {
+          padding-bottom: 6px;
         }
         .alert-filter-tabs-container {
-          order: 3;
-          width: 100%;
-          flex: 0 0 100%;
-          margin: 4px 0 0 0;
+          margin-top: 4px;
           padding-top: 5px;
-          border-top: 1px dashed var(--accent-line);
-        }
-        .alert-filter-tabs-container:empty {
-          display: none;
-          margin: 0;
-          padding: 0;
-          border-top: none;
         }
         .alert-filter-tabs {
-          width: 100%;
-          gap: 5px;
           padding-bottom: 2px;
         }
         .alert-filter-tab {
@@ -4191,7 +4294,11 @@
             <div style="margin-bottom: 10px">
               <!-- 1. 입실 미입력 학생 -->
               <div class="alert-box box-red is-collapsed" id="alertBoxIn">
-                <div class="alert-head" onclick="toggleAlertBox('alertBoxIn')" role="button" tabindex="0" aria-expanded="false" title="클릭하여 목록 펼치기/접기">
+                <!-- 헤더는 마우스 편의를 위한 클릭 영역일 뿐입니다.
+                     role="button"/tabindex 를 달면 안쪽 시간 칩 <button> 들이
+                     버튼 안의 버튼이 되어 스크린 리더가 개별 칩을 노출하지
+                     못합니다. 키보드·보조기기용 컨트롤은 아래 토글 버튼입니다. -->
+                <div class="alert-head" onclick="toggleAlertBox('alertBoxIn')" title="클릭하여 목록 펼치기/접기">
                   <div class="alert-head-left">
                     <span class="alert-icon">🚪</span>
                     <span class="alert-title-text">입실 미입력</span>
@@ -4199,11 +4306,18 @@
                   <div class="alert-filter-tabs-container" id="inFilterTabs" onclick="event.stopPropagation()"></div>
                   <div class="alert-head-right">
                     <span class="alert-count-badge is-zero" id="unrecordedInCount">0명</span>
-                    <span class="alert-toggle-icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <button
+                      type="button"
+                      class="alert-toggle-icon"
+                      aria-expanded="false"
+                      aria-controls="unrecordedInList"
+                      aria-label="입실 미입력 명단 펼치기/접기"
+                      onclick="event.stopPropagation(); toggleAlertBox('alertBoxIn')"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polyline points="6 9 12 15 18 9"></polyline>
                       </svg>
-                    </span>
+                    </button>
                   </div>
                 </div>
                 <div class="alert-body" id="unrecordedInList">
@@ -4213,7 +4327,7 @@
 
               <!-- 2. 퇴실 미입력 학생 -->
               <div class="alert-box box-orange is-collapsed" id="alertBoxOut">
-                <div class="alert-head" onclick="toggleAlertBox('alertBoxOut')" role="button" tabindex="0" aria-expanded="false" title="클릭하여 목록 펼치기/접기">
+                <div class="alert-head" onclick="toggleAlertBox('alertBoxOut')" title="클릭하여 목록 펼치기/접기">
                   <div class="alert-head-left">
                     <span class="alert-icon">🚶</span>
                     <span class="alert-title-text">퇴실 미입력</span>
@@ -4221,11 +4335,18 @@
                   <div class="alert-filter-tabs-container" id="outFilterTabs" onclick="event.stopPropagation()"></div>
                   <div class="alert-head-right">
                     <span class="alert-count-badge is-zero" id="unrecordedOutCount">0명</span>
-                    <span class="alert-toggle-icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <button
+                      type="button"
+                      class="alert-toggle-icon"
+                      aria-expanded="false"
+                      aria-controls="unrecordedOutList"
+                      aria-label="퇴실 미입력 명단 펼치기/접기"
+                      onclick="event.stopPropagation(); toggleAlertBox('alertBoxOut')"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polyline points="6 9 12 15 18 9"></polyline>
                       </svg>
-                    </span>
+                    </button>
                   </div>
                 </div>
                 <div class="alert-body" id="unrecordedOutList">
@@ -4235,18 +4356,25 @@
 
               <!-- 3. 지각 학생 -->
               <div class="alert-box box-rose is-collapsed" id="alertBoxLate">
-                <div class="alert-head" onclick="toggleAlertBox('alertBoxLate')" role="button" tabindex="0" aria-expanded="false" title="클릭하여 목록 펼치기/접기">
+                <div class="alert-head" onclick="toggleAlertBox('alertBoxLate')" title="클릭하여 목록 펼치기/접기">
                   <div class="alert-head-left">
                     <span class="alert-icon">⏰</span>
                     <span class="alert-title-text">지각 학생</span>
                   </div>
                   <div class="alert-head-right">
                     <span class="alert-count-badge is-zero" id="lateCountBadge">0명</span>
-                    <span class="alert-toggle-icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <button
+                      type="button"
+                      class="alert-toggle-icon"
+                      aria-expanded="false"
+                      aria-controls="lateList"
+                      aria-label="지각 학생 명단 펼치기/접기"
+                      onclick="event.stopPropagation(); toggleAlertBox('alertBoxLate')"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polyline points="6 9 12 15 18 9"></polyline>
                       </svg>
-                    </span>
+                    </button>
                   </div>
                 </div>
                 <div class="alert-body" id="lateList">
@@ -4256,18 +4384,25 @@
 
               <!-- 4. 조퇴 학생 -->
               <div class="alert-box box-purple is-collapsed" id="alertBoxEarly">
-                <div class="alert-head" onclick="toggleAlertBox('alertBoxEarly')" role="button" tabindex="0" aria-expanded="false" title="클릭하여 목록 펼치기/접기">
+                <div class="alert-head" onclick="toggleAlertBox('alertBoxEarly')" title="클릭하여 목록 펼치기/접기">
                   <div class="alert-head-left">
                     <span class="alert-icon">🏃</span>
                     <span class="alert-title-text">조퇴 학생</span>
                   </div>
                   <div class="alert-head-right">
                     <span class="alert-count-badge is-zero" id="earlyCountBadge">0명</span>
-                    <span class="alert-toggle-icon">
-                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <button
+                      type="button"
+                      class="alert-toggle-icon"
+                      aria-expanded="false"
+                      aria-controls="earlyList"
+                      aria-label="조퇴 학생 명단 펼치기/접기"
+                      onclick="event.stopPropagation(); toggleAlertBox('alertBoxEarly')"
+                    >
+                      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
                         <polyline points="6 9 12 15 18 9"></polyline>
                       </svg>
-                    </span>
+                    </button>
                   </div>
                 </div>
                 <div class="alert-body" id="earlyList">
@@ -5670,14 +5805,21 @@
       }
 
       // ── 확인 필요 알림 카드 아코디언 토글 ───────────────────────────
+      // 펼침 상태를 알리는 주체는 토글 버튼(.alert-toggle-icon)입니다.
+      // 예전에는 헤더(.alert-head)에 role="button" 과 aria-expanded 를 달았는데,
+      // 그 헤더 안에 시간대 필터 <button> 들이 들어 있어서 '버튼 안의 버튼'이
+      // 되었습니다. 스크린 리더는 버튼 내부를 하나의 이름으로 눌러 읽기 때문에
+      // 개별 칩이 컨트롤로 노출되지 않았습니다.
+      function setAlertBoxExpanded(box, isExpanded) {
+        const toggle = box.querySelector(".alert-toggle-icon");
+        if (toggle) toggle.setAttribute("aria-expanded", String(isExpanded));
+      }
+
       function toggleAlertBox(boxId) {
         const box = document.getElementById(boxId);
         if (!box) return;
         const isCollapsed = box.classList.toggle("is-collapsed");
-        const head = box.querySelector(".alert-head");
-        if (head) {
-          head.setAttribute("aria-expanded", String(!isCollapsed));
-        }
+        setAlertBoxExpanded(box, !isCollapsed);
       }
 
       // ✅ 자동 새로고침 함수 분리
@@ -6217,17 +6359,15 @@
       }
 
       // ── 알림 카드 시간대별 필터 칩 다중 선택 (Toggle) ──────────────────
+      //
+      // 접힌 카드를 자동으로 펼치던 코드가 있었지만 제거했습니다.
+      // 이제 카드가 접히면 칩도 함께 숨겨지므로(.is-collapsed 규칙),
+      // 접힌 상태에서 칩이 눌리는 경우 자체가 생기지 않습니다.
       function toggleInTimeFilter(time) {
         if (selectedInTimeFilters.has(time)) {
           selectedInTimeFilters.delete(time);
         } else {
           selectedInTimeFilters.add(time);
-        }
-        const box = document.getElementById("alertBoxIn");
-        if (box && box.classList.contains("is-collapsed")) {
-          box.classList.remove("is-collapsed");
-          const head = box.querySelector(".alert-head");
-          if (head) head.setAttribute("aria-expanded", "true");
         }
         renderDashboard();
       }
@@ -6237,12 +6377,6 @@
           selectedOutTimeFilters.delete(time);
         } else {
           selectedOutTimeFilters.add(time);
-        }
-        const box = document.getElementById("alertBoxOut");
-        if (box && box.classList.contains("is-collapsed")) {
-          box.classList.remove("is-collapsed");
-          const head = box.querySelector(".alert-head");
-          if (head) head.setAttribute("aria-expanded", "true");
         }
         renderDashboard();
       }
@@ -6332,30 +6466,66 @@
 
         const totalStudentCount = allStudents.length;
 
-        // 숫자·단위·완료배지를 따로 그립니다. 값이 전부 서버에서 센 정수라
+        // 숫자·단위·배지를 따로 그립니다. 값이 전부 서버에서 센 정수라
         // 이스케이프가 필요 없지만, 실수로 문자열이 섞여도 안전하도록
         // Number() 로 한 번 걸러서 넣습니다.
-        const setStatValue = (elId, count, isDone) => {
+        // badge: null | { text, kind: "done" | "warn" }
+        const setStatValue = (elId, count, badge) => {
           const n = Number(count) || 0;
+          const badgeHtml = badge
+            ? `<span class="stat-done-row"><span class="${
+                badge.kind === "warn" ? "stat-warn" : "stat-done"
+              }">${esc(badge.text)}</span></span>`
+            : "";
           document.getElementById(elId).innerHTML =
-            `${n}<span class="stat-unit">명</span>` +
-            (isDone
-              ? `<span class="stat-done-row"><span class="stat-done">전원 완료</span></span>`
-              : "");
+            `${n}<span class="stat-unit">명</span>` + badgeHtml;
         };
 
-        setStatValue(
-          "countIn",
-          statIn,
-          totalStudentCount > 0 && statIn >= totalStudentCount,
-        );
+        // ── 퇴실 미완료 판정 ──
+        // 퇴실은 하루 종일 비어 있는 게 정상이라, 무조건 경고를 켜면 아침 내내
+        // 빨갛게 떠 있습니다. 그래서 업무 마감(CONFIG.dayCloseMinutes, 기본 18시)이
+        // 지난 뒤부터만 '미퇴실'로 봅니다 — 서버가 레포트에서 당일을 집계에
+        // 넣는 기준(REPORT_DAY_CLOSE_MINUTES)과 같은 값입니다.
+        // 지난 날짜를 조회 중이면 그날은 이미 끝났으므로 바로 판정합니다.
+        const nowForDash = new Date();
+        const todayStrForDash = formatDateForCompare(nowForDash);
+        const nowMinutes = nowForDash.getHours() * 60 + nowForDash.getMinutes();
+        const dayCloseMinutes = CONFIG.dayCloseMinutes || 18 * 60;
+        const dayIsOver =
+          targetDateStr < todayStrForDash ||
+          (targetDateStr === todayStrForDash && nowMinutes >= dayCloseMinutes);
+
+        const inDone = totalStudentCount > 0 && statIn >= totalStudentCount;
+        const outDone = totalStudentCount > 0 && statOut >= totalStudentCount;
+        const missingOut = Math.max(totalStudentCount - statOut, 0);
+        // 실습일이 아니거나 차단된 날은 애초에 퇴실할 일이 없으므로 제외합니다.
+        const isAttendanceDay =
+          isOjt && CONFIG.fieldDays.includes(adminDayIdx) && !blockedInfo.blocked;
+        const outOverdue =
+          isAttendanceDay &&
+          dayIsOver &&
+          totalStudentCount > 0 &&
+          !outDone;
+
+        setStatValue("countIn", statIn, inDone ? { text: "전원 완료", kind: "done" } : null);
         setStatValue(
           "countOut",
           statOut,
-          totalStudentCount > 0 && statOut >= totalStudentCount,
+          outDone
+            ? { text: "전원 완료", kind: "done" }
+            : outOverdue
+              ? { text: `${missingOut}명 미퇴실`, kind: "warn" }
+              : null,
         );
-        setStatValue("countLate", statLate, false);
-        setStatValue("countEarly", statEarly, false);
+        setStatValue("countLate", statLate, null);
+        setStatValue("countEarly", statEarly, null);
+
+        // 퇴실 타일: 마감이 지났는데 전원 완료가 아니면 지각처럼 경고로 띄웁니다.
+        const outTile = document.getElementById("countOut").closest(".stat-item");
+        if (outTile) {
+          outTile.classList.toggle("is-alert", outOverdue);
+          outTile.classList.toggle("is-overdue", outOverdue);
+        }
 
         // 지각·조퇴는 상태 타일입니다. 0명이면 가라앉히고 1명 이상일 때만
         // 색을 올려서, 좋은 상태가 경고처럼 보이지 않게 합니다.
@@ -6382,7 +6552,11 @@
           const clickAttr = isClickable
             ? `onclick="openOfficialAbsenceModal('${esc(id)}', '${esc(name)}')" title="${tooltip}"`
             : "";
-          return `<span class="student-chip ${isClickable ? 'is-clickable' : ''}" ${clickAttr}><span class="chip-name">${esc(name)}</span><span class="chip-id">(${esc(id)})</span>${timeBadge}</span>`;
+          // 학번의 괄호는 CSS(::before/::after)가 붙입니다. 좁은 화면에서는
+          // 괄호 두 글자(약 14px)가 아쉬워 떼어내야 하는데, 텍스트에 박아두면
+          // 그럴 수가 없습니다. 이름은 좁은 화면에서 말줄임될 수 있으므로
+          // 전체 이름을 title 로 남겨둡니다.
+          return `<span class="student-chip ${isClickable ? 'is-clickable' : ''}" ${clickAttr}><span class="chip-name" title="${esc(name)}">${esc(name)}</span><span class="chip-id">${esc(id)}</span>${timeBadge}</span>`;
         };
 
         // 헬퍼: 카운트 뱃지 업데이트
@@ -6401,8 +6575,19 @@
 
         // 입실 기준시간 고유 목록 추출 & 시간순 정렬
         const inTimes = [...new Set(allStudents.map((s) => s.inTime || "09:00"))].sort();
+        const inCounts = new Map(
+          inTimes.map((t) => [
+            t,
+            unrecordedInStudents.filter((s) => (s.inTime || "09:00") === t).length,
+          ]),
+        );
+        // 더 이상 존재하지 않는 시간대, 그리고 미입력자가 0명이 된 시간대는
+        // 선택에서 해제합니다. 0명 칩은 비활성이라 다시 누를 수 없으므로,
+        // 선택된 채로 남으면 사용자가 해제할 방법이 없어집니다.
         for (const t of selectedInTimeFilters) {
-          if (!inTimes.includes(t)) selectedInTimeFilters.delete(t);
+          if (!inTimes.includes(t) || !inCounts.get(t)) {
+            selectedInTimeFilters.delete(t);
+          }
         }
 
         // 1-1. 헤더 내부 입실시간별 탭 생성 ([전체] 제외, 다중 선택 토글)
@@ -6413,11 +6598,11 @@
               <div class="alert-filter-tabs">
                 ${inTimes
                   .map((t) => {
-                    const cnt = unrecordedInStudents.filter(
-                      (s) => (s.inTime || "09:00") === t,
-                    ).length;
+                    const cnt = inCounts.get(t) || 0;
                     const isSelected = selectedInTimeFilters.has(t);
-                    return `<button type="button" class="alert-filter-tab ${isSelected ? "active" : ""}" onclick="event.stopPropagation(); toggleInTimeFilter('${esc(t)}')" title="${esc(t)} 선택/해제">
+                    // 미입력자가 없는 시간대는 걸러 볼 대상이 없으므로 비활성화합니다.
+                    const isDone = cnt === 0;
+                    return `<button type="button" class="alert-filter-tab ${isSelected ? "active" : ""}"${isDone ? " disabled" : ""} onclick="event.stopPropagation(); toggleInTimeFilter('${esc(t)}')" title="${esc(t)} ${isDone ? "— 전원 입실 완료" : "선택/해제"}">
                       ${esc(t)} <span class="tab-badge">${cnt}</span>
                     </button>`;
                   })
@@ -6462,8 +6647,17 @@
 
         // 퇴실 기준시간 고유 목록 추출 & 시간순 정렬
         const outTimes = [...new Set(allStudents.map((s) => s.outTime || "18:00"))].sort();
+        const outCounts = new Map(
+          outTimes.map((t) => [
+            t,
+            unrecordedOutStudents.filter((s) => (s.outTime || "18:00") === t).length,
+          ]),
+        );
+        // 입실과 같은 이유로, 0명이 된 시간대는 선택에서 해제합니다.
         for (const t of selectedOutTimeFilters) {
-          if (!outTimes.includes(t)) selectedOutTimeFilters.delete(t);
+          if (!outTimes.includes(t) || !outCounts.get(t)) {
+            selectedOutTimeFilters.delete(t);
+          }
         }
 
         // 2-1. 헤더 내부 퇴실시간별 탭 생성 ([전체] 제외, 다중 선택 토글)
@@ -6474,11 +6668,10 @@
               <div class="alert-filter-tabs">
                 ${outTimes
                   .map((t) => {
-                    const cnt = unrecordedOutStudents.filter(
-                      (s) => (s.outTime || "18:00") === t,
-                    ).length;
+                    const cnt = outCounts.get(t) || 0;
                     const isSelected = selectedOutTimeFilters.has(t);
-                    return `<button type="button" class="alert-filter-tab ${isSelected ? "active" : ""}" onclick="event.stopPropagation(); toggleOutTimeFilter('${esc(t)}')" title="${esc(t)} 선택/해제">
+                    const isDone = cnt === 0;
+                    return `<button type="button" class="alert-filter-tab ${isSelected ? "active" : ""}"${isDone ? " disabled" : ""} onclick="event.stopPropagation(); toggleOutTimeFilter('${esc(t)}')" title="${esc(t)} ${isDone ? "— 전원 퇴실 완료" : "선택/해제"}">
                       ${esc(t)} <span class="tab-badge">${cnt}</span>
                     </button>`;
                   })
