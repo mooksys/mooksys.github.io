@@ -5,77 +5,91 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>성일정보고등학교 | 스마트 통합 일정표</title>
   <meta name="description" content="성일정보고등학교 도제교육과정의 학사 일정, 교내 교육, 현장 훈련 및 주요 마일스톤을 한눈에 확인하는 통합 일정표입니다.">
-  <meta name="theme-color" content="#f8fafc">
+  <meta name="theme-color" content="#fbfbf9">
   
   <style>
     :root {
       color-scheme: light;
-      --ink: #0f172a;
-      --ink-soft: #64748b;
-      --line: rgba(148, 163, 184, .2);
-      --surface: rgba(255, 255, 255, .84);
-      --canvas: #f8fafc;
-      --primary: #4f46e5;
-      --primary-hover: #4338ca;
-      --primary-light: #eef2ff;
-      --mint: #10b981;
-      --blue-offjt: #3b82f6;
-      --red-ojt: #f43f5e;
-      --green-special: #10b981;
-      --purple-special: #8b5cf6;
-      --gray-general: #64748b;
-      --danger: #ef4444;
-      --shadow-sm: 0 2px 8px rgba(15, 23, 42, .04);
-      --shadow-md: 0 8px 24px rgba(15, 23, 42, .06);
-      --shadow-lg: 0 20px 40px -15px rgba(15, 23, 42, .12);
-      --shadow-modal: 0 25px 60px -12px rgba(15, 23, 42, .25);
-      --radius-sm: 10px;
+      /* Pinterest Neutral Palette */
+      --canvas: #ffffff;
+      --surface-soft: #fbfbf9;
+      --surface-card: #f6f6f3;
+      --secondary-bg: #e5e5e0;
+      --secondary-pressed: #c8c8c1;
+      --surface-dark: #262622;
+      --hairline: #dadad3;
+      --hairline-soft: #e5e5e0;
+
+      /* Typography Colors */
+      --ink: #000000;
+      --ink-soft: #211922;
+      --body: #33332e;
+      --charcoal: #262622;
+      --mute: #62625b;
+      --ash: #91918c;
+      --stone: #c8c8c1;
+      --on-dark: #ffffff;
+
+      /* Brand Accent - Pinterest Red */
+      --primary: #e60023;
+      --primary-hover: #cc001f;
+      --primary-light: #fef0f2;
+
+      /* Semantic & Editorial Accents */
+      --danger: #cc001f;
+      --danger-deep: #9e0a0a;
+      --danger-light: #fff0f2;
+      --success: #103c25;
+      --success-pale: #c7f0da;
+      --focus-outer: #435ee5;
+
+      /* Category Colors */
+      --blue-offjt: #3979f6;
+      --red-ojt: #e60023;
+      --green-special: #107c41;
+      --purple-special: #7e238b;
+      /* 학사일정(일반) 배지 색.
+         기존 #62625b는 올리브빛이 돌아 off-JT 블루·특별수업 퍼플과 겉돌았다.
+         같은 채도 계열의 차분한 슬레이트로 맞춰, 가장 빈번한 분류가 다른 색을 누르지 않게 한다. */
+      --gray-general: #475569;
+
+      /* Shapes: Exactly 3 Radius Values (16px, 32px, Pill) */
+      --radius-sm: 8px;
+      --radius-md: 16px;
       --radius: 16px;
-      --radius-lg: 24px;
-      --radius-xl: 28px;
-      --font-sans: -apple-system, BlinkMacSystemFont, "Pretendard Variable", Pretendard, "Segoe UI", Roboto, "Noto Sans KR", sans-serif;
+      --radius-lg: 32px;
+      --radius-full: 9999px;
+
+      /* Elevation & Depth */
+      --shadow-sm: 0 1px 3px rgba(0, 0, 0, .04);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, .06);
+      --shadow-lg: 0 12px 32px rgba(0, 0, 0, .08);
+      --shadow-modal: 0 16px 32px rgba(0, 0, 0, .15);
+
+      --font-sans: -apple-system, BlinkMacSystemFont, "Pin Sans", "Pretendard Variable", Pretendard, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html { min-width: 320px; scroll-behavior: smooth; }
     body {
       min-width: 320px;
-      color: var(--ink);
-      background: var(--canvas);
-      font: 500 15px/1.55 var(--font-sans);
-      letter-spacing: -.015em;
+      color: var(--body);
+      background: var(--surface-soft);
+      font: 500 15px/1.45 var(--font-sans);
+      letter-spacing: -.01em;
       position: relative;
       overflow-x: hidden;
     }
 
-    body::before, body::after {
-      content: "";
-      position: fixed;
-      z-index: -1;
-      border-radius: 50%;
-      filter: blur(80px);
-      pointer-events: none;
-    }
-    body::before {
-      width: 28rem;
-      height: 28rem;
-      top: -10rem;
-      left: -10rem;
-      background: rgba(99, 102, 241, .12);
-    }
-    body::after {
-      width: 30rem;
-      height: 30rem;
-      right: -12rem;
-      top: 24rem;
-      background: rgba(56, 189, 248, .1);
-    }
+    /* Pinterest Clean Chrome: No noisy neon glow background */
+    body::before, body::after { display: none; }
 
     button, input, select { font: inherit; }
     button { border: 0; cursor: pointer; background: none; }
     button:focus-visible, input:focus-visible, select:focus-visible {
-      outline: 2px solid var(--primary);
+      outline: 2px solid var(--ink);
       outline-offset: 2px;
+      box-shadow: 0 0 0 4px var(--focus-outer);
     }
     
     .sr-only {
@@ -95,7 +109,7 @@
       left: 1rem;
       top: -5rem;
       padding: .65rem 1.2rem;
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       color: #fff;
       background: var(--primary);
       box-shadow: var(--shadow-md);
@@ -108,14 +122,12 @@
     /* Layout Shell (Default Width: 1024px) */
     .app-shell {
       width: min(100% - 24px, 1024px);
-      margin: 12px auto 28px;
-      padding: 12px;
-      border: 1px solid rgba(255, 255, 255, .8);
+      margin: 16px auto 32px;
+      padding: 16px;
+      border: 1px solid var(--hairline);
       border-radius: var(--radius-lg);
-      background: rgba(255, 255, 255, .68);
-      box-shadow: var(--shadow-lg);
-      backdrop-filter: blur(20px);
-      -webkit-backdrop-filter: blur(20px);
+      background: var(--canvas);
+      box-shadow: var(--shadow-md);
     }
 
     .topbar, .hero, .dashboard, .calendar-workspace {
@@ -144,18 +156,18 @@
       width: 34px;
       height: 34px;
       place-items: center;
-      border-radius: 11px;
+      border-radius: var(--radius-md);
       color: #fff;
       font-weight: 900;
       font-size: .95rem;
-      background: linear-gradient(135deg, var(--primary), #8b5cf6);
-      box-shadow: 0 6px 16px rgba(79, 70, 229, .28);
+      background: var(--primary);
+      box-shadow: 0 4px 12px rgba(230, 0, 35, .25);
     }
     .brand-copy { display: grid; line-height: 1.15; }
-    .brand-copy strong { font-size: .95rem; font-weight: 800; letter-spacing: -.03em; }
+    .brand-copy strong { font-size: .95rem; font-weight: 800; letter-spacing: -.03em; color: var(--ink); }
     .brand-copy span {
       margin-top: 2px;
-      color: var(--ink-soft);
+      color: var(--mute);
       font-size: .68rem;
       font-weight: 700;
       letter-spacing: .05em;
@@ -166,10 +178,10 @@
       align-items: center;
       gap: 7px;
       padding: 6px 12px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      color: #334155;
-      background: rgba(255, 255, 255, .8);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-full);
+      color: var(--mute);
+      background: var(--surface-card);
       font-size: .75rem;
       font-weight: 700;
       box-shadow: var(--shadow-sm);
@@ -205,33 +217,33 @@
       width: 6px;
       height: 6px;
       border-radius: 50%;
-      background: #06b6d4;
+      background: var(--primary);
     }
     .title-area h1 {
-      font-size: clamp(1.75rem, 5vw, 2.7rem);
-      font-weight: 900;
-      line-height: 1.12;
-      letter-spacing: -.05em;
+      font-size: clamp(1.75rem, 5vw, 2.5rem);
+      font-weight: 800;
+      line-height: 1.15;
+      letter-spacing: -0.8px;
       color: var(--ink);
     }
     .title-area h1 span {
       display: inline-flex;
       margin-left: 6px;
-      padding: 3px 9px;
+      padding: 3px 10px;
       vertical-align: middle;
-      border: 1px solid rgba(79, 70, 229, .18);
-      border-radius: 999px;
+      border: 1px solid rgba(230, 0, 35, .2);
+      border-radius: var(--radius-full);
       color: var(--primary);
-      background: rgba(238, 242, 255, .9);
+      background: var(--primary-light);
       font-size: .72rem;
       font-weight: 800;
     }
     .title-area p {
       max-width: 580px;
       margin-top: 6px;
-      color: var(--ink-soft);
+      color: var(--mute);
       font-size: .9rem;
-      font-weight: 550;
+      font-weight: 500;
     }
     .hero-actions {
       display: flex;
@@ -240,464 +252,459 @@
       gap: 8px;
     }
 
-    /* Buttons */
+    /* Pinterest Buttons: 16px Radius & Scaled States */
     .btn-primary, .btn-success, .btn-secondary, .btn-danger, .btn-sm {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      min-height: 38px;
-      padding: 8px 15px;
+      min-height: 40px;
+      padding: 8px 16px;
       border: 1px solid transparent;
-      border-radius: var(--radius-sm);
-      font-size: .82rem;
+      border-radius: var(--radius-md);
+      font-size: .84rem;
       font-weight: 750;
       letter-spacing: -.01em;
-      transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all .16s ease;
       cursor: pointer;
       user-select: none;
     }
     .btn-primary {
-      color: #fff;
+      color: #ffffff;
       background: var(--primary);
-      box-shadow: 0 4px 14px rgba(79, 70, 229, .25);
+      box-shadow: 0 2px 8px rgba(230, 0, 35, .2);
     }
     .btn-primary:hover {
       background: var(--primary-hover);
-      box-shadow: 0 8px 20px rgba(79, 70, 229, .32);
+      box-shadow: 0 4px 12px rgba(230, 0, 35, .28);
       transform: translateY(-1px);
     }
+    .btn-primary:active {
+      background: var(--primary-hover);
+      transform: scale(.98);
+    }
     .btn-success {
-      color: #1e293b;
-      background: #eff6ff;
-      border-color: #dbeafe;
+      color: var(--ink);
+      background: var(--surface-card);
+      border-color: var(--hairline);
       box-shadow: var(--shadow-sm);
     }
     .btn-success:hover {
-      background: #e0e7ff;
-      border-color: #c7d2fe;
-      color: var(--primary);
-      transform: translateY(-1px);
-    }
-    .btn-secondary {
-      color: #475569;
-      background: #ffffff;
-      border-color: #e2e8f0;
-      box-shadow: var(--shadow-sm);
-    }
-    .btn-secondary:hover {
-      background: #f8fafc;
-      border-color: #cbd5e1;
+      background: var(--secondary-bg);
+      border-color: var(--secondary-pressed);
       color: var(--ink);
       transform: translateY(-1px);
     }
+    .btn-secondary {
+      color: var(--ink);
+      background: var(--secondary-bg);
+      border-color: var(--hairline-soft);
+      box-shadow: var(--shadow-sm);
+    }
+    .btn-secondary:hover {
+      background: var(--secondary-pressed);
+      border-color: var(--secondary-pressed);
+      color: var(--ink);
+      transform: translateY(-1px);
+    }
+    .btn-secondary:active {
+      background: var(--secondary-pressed);
+      transform: scale(.98);
+    }
     .btn-secondary.admin-active {
       color: var(--primary);
-      background: #eef2ff;
-      border-color: #c7d2fe;
+      background: var(--primary-light);
+      border-color: rgba(230, 0, 35, .25);
     }
     .btn-danger {
-      color: #e11d48;
-      background: #fff1f2;
-      border-color: #ffe4e6;
+      color: var(--danger);
+      background: var(--danger-light);
+      border-color: #fecdd3;
     }
     .btn-danger:hover {
       background: #fee2e2;
-      border-color: #fecdd3;
+      border-color: #fda4af;
+      color: var(--danger-deep);
       transform: translateY(-1px);
     }
-    .btn-sm {
-      min-height: 30px;
-      padding: 4px 10px;
-      font-size: .74rem;
-      border-radius: 8px;
+    .btn-danger:active {
+      transform: scale(.98);
     }
-    .btn-primary:active, .btn-success:active, .btn-secondary:active, .btn-danger:active {
-      transform: translateY(1px) scale(.98);
+    .btn-sm {
+      min-height: 32px;
+      padding: 5px 12px;
+      font-size: .76rem;
+      border-radius: var(--radius-md);
     }
 
-    /* Notice Banner & Colorful Event Badges */
+    /* ── Notice Banner (Modern Premium Capsule Bar) ── */
     .notice-bar {
       display: flex;
       align-items: center;
-      gap: 12px;
-      margin: 0 0 14px;
-      padding: 10px 14px;
-      border: 1.5px solid rgba(99, 102, 241, .2);
-      border-radius: var(--radius);
-      color: #334155;
-      background: linear-gradient(120deg, rgba(238, 242, 255, .95), rgba(255, 255, 255, .95));
-      box-shadow: var(--shadow-sm);
-      min-height: 52px;
+      gap: 16px;
+      margin: 0 0 16px;
+      padding: 14px 20px;
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      border-radius: 18px;
+      color: var(--body);
+      background: #ffffff;
+      box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.04), 0 2px 6px -1px rgba(0, 0, 0, 0.02);
+      min-height: 58px;
     }
     .notice-icon {
       display: grid;
-      width: 32px;
-      height: 32px;
+      width: 38px;
+      height: 38px;
       flex: 0 0 auto;
       place-items: center;
-      border-radius: 10px;
+      border-radius: var(--radius-full);
       color: var(--primary);
-      background: #ffffff;
-      font-size: .95rem;
-      box-shadow: 0 2px 6px rgba(79, 70, 229, .18);
+      background: var(--primary-light);
+      border: 1px solid rgba(230, 0, 35, 0.15);
+      font-size: 1.05rem;
+      box-shadow: 0 2px 8px rgba(230, 0, 35, 0.12);
     }
     .notice-content {
       min-width: 0;
       flex: 1;
       display: flex;
-      flex-direction: column;
-      gap: 4px;
+      align-items: center;
+      gap: 12px;
+      flex-wrap: wrap;
     }
     .notice-title {
       display: inline-flex;
       align-items: center;
+      justify-content: center;
       gap: 4px;
-      color: var(--primary);
-      font-size: .72rem;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      color: #ffffff;
+      background: var(--primary);
+      font-size: .68rem;
       font-weight: 850;
-      letter-spacing: .06em;
+      letter-spacing: .08em;
       text-transform: uppercase;
-      width: fit-content;
+      box-shadow: 0 2px 8px rgba(230, 0, 35, 0.25);
+      flex-shrink: 0;
     }
     .notice-text {
       overflow-wrap: anywhere;
-      font-size: 1rem;
-      font-weight: 750;
+      font-size: .95rem;
+      font-weight: 700;
       line-height: 1.4;
-      color: #1e293b;
-      width: 100%;
+      color: var(--ink);
     }
     .notice-badges-wrap {
       display: flex;
       flex-wrap: wrap;
       align-items: center;
-      gap: 8px 10px;
-      width: 100%;
+      gap: 10px;
+      flex: 1;
     }
+    /* Modern Premium Notice Pill Badges */
     .notice-event-badge {
       display: inline-flex;
       align-items: center;
-      gap: 7px;
-      padding: 5px 13px 5px 8px;
-      border-radius: 999px;
-      font-size: .88rem;
-      font-weight: 800;
-      letter-spacing: -.02em;
-      line-height: 1.3;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, .04);
+      gap: 8px;
+      padding: 7px 16px 7px 12px;
+      border-radius: var(--radius-full);
+      font-size: .84rem;
+      font-weight: 750;
+      letter-spacing: -.01em;
+      line-height: 1.35;
+      color: #1e293b;
+      background: #fbfbf9;
+      border: 1px solid #e7e7e2;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
       transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
       user-select: none;
-      border: 1px solid;
     }
     .notice-event-badge:hover {
-      transform: translateY(-1px) scale(1.02);
-      box-shadow: 0 4px 12px rgba(15, 23, 42, .08);
-    }
-    .notice-badge-icon {
-      display: grid;
-      place-items: center;
-      width: 22px;
-      height: 22px;
-      border-radius: 50%;
       background: #ffffff;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, .08);
-      flex-shrink: 0;
+      border-color: rgba(0, 0, 0, 0.15);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px -2px rgba(0, 0, 0, 0.08);
     }
-    .notice-badge-icon svg {
-      margin-left: 1.5px;
+    .notice-badge-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: var(--radius-full);
+      background: var(--primary);
+      box-shadow: 0 0 0 3px rgba(230, 0, 35, 0.15);
+      flex-shrink: 0;
     }
     .notice-badge-text {
       overflow-wrap: anywhere;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .notice-date-tag {
+      display: inline-flex;
+      align-items: center;
+      padding: 2px 8px;
+      border-radius: var(--radius-full);
+      color: var(--primary);
+      background: var(--primary-light);
+      border: 1px solid rgba(230, 0, 35, 0.15);
+      font-size: .74rem;
+      font-weight: 850;
+      letter-spacing: -.02em;
     }
 
-    /* Colorful Schemes for Notice Badges */
-    .notice-badge-blue {
-      background: linear-gradient(135deg, #eff6ff, #dbeafe);
-      color: #1d4ed8;
-      border-color: #bfdbfe;
+    /* ── Dashboard Cards (Modern Slim 20% Reduced Height) ── */
+    .scope-bar {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 6px;
+      margin: 0 0 8px;
+      padding: 0 2px;
     }
-    .notice-badge-blue .notice-badge-icon {
-      color: #2563eb;
+    .scope-label {
+      margin-right: 2px;
+      font-size: .72rem;
+      font-weight: 800;
+      color: var(--mute);
     }
+    .scope-btn {
+      min-height: 28px;
+      padding: 0 12px;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-full);
+      background: var(--canvas);
+      color: var(--mute);
+      font-size: .74rem;
+      font-weight: 750;
+      transition: all .16s ease;
+    }
+    .scope-btn:hover { border-color: var(--secondary-pressed); color: var(--ink); }
+    .scope-btn.active {
+      border-color: var(--charcoal);
+      background: var(--charcoal);
+      color: var(--on-dark);
+    }
+    .stat-bar {
+      height: 5px;
+      margin: 0 0 6px;
+      border-radius: var(--radius-full);
+      background: #ececeb;
+      overflow: hidden;
+    }
+    .stat-bar-fill {
+      display: block;
+      height: 100%;
+      width: 0;
+      border-radius: var(--radius-full);
+      background: currentColor;
+      transition: width .35s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .stat-card.offjt .stat-bar-fill { color: var(--blue-offjt); }
+    .stat-card.ojt .stat-bar-fill { color: var(--red-ojt); }
+    .stat-card.afterschool .stat-bar-fill { color: var(--green-special); }
 
-    .notice-badge-purple {
-      background: linear-gradient(135deg, #f5f3ff, #ede9fe);
-      color: #6d28d9;
-      border-color: #ddd6fe;
-    }
-    .notice-badge-purple .notice-badge-icon {
-      color: #7c3aed;
-    }
-
-    .notice-badge-emerald {
-      background: linear-gradient(135deg, #ecfdf5, #d1fae5);
-      color: #047857;
-      border-color: #a7f3d0;
-    }
-    .notice-badge-emerald .notice-badge-icon {
-      color: #059669;
-    }
-
-    .notice-badge-rose {
-      background: linear-gradient(135deg, #fff1f2, #ffe4e6);
-      color: #be123c;
-      border-color: #fecdd3;
-    }
-    .notice-badge-rose .notice-badge-icon {
-      color: #e11d48;
-    }
-
-    .notice-badge-amber {
-      background: linear-gradient(135deg, #fffbeb, #fef3c7);
-      color: #b45309;
-      border-color: #fde68a;
-    }
-    .notice-badge-amber .notice-badge-icon {
-      color: #d97706;
-    }
-
-    .notice-badge-indigo {
-      background: linear-gradient(135deg, #eef2ff, #e0e7ff);
-      color: #4338ca;
-      border-color: #c7d2fe;
-    }
-    .notice-badge-indigo .notice-badge-icon {
-      color: #4f46e5;
-    }
-
-    .notice-badge-cyan {
-      background: linear-gradient(135deg, #ecfeff, #cffafe);
-      color: #0e7490;
-      border-color: #a5f3fc;
-    }
-    .notice-badge-cyan .notice-badge-icon {
-      color: #0891b2;
-    }
-
-    /* Dashboard Cards (Golden Balance for 1024px shell ~88px height) */
     .dashboard {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
       gap: 10px;
-      margin: 0 0 12px;
+      margin: 0 0 14px;
     }
     .stat-card {
       position: relative;
       overflow: hidden;
-      padding: 11px 14px;
-      border: 1.5px solid rgba(255, 255, 255, .9);
-      border-radius: 15px;
-      background: var(--surface);
-      box-shadow: var(--shadow-sm);
-      backdrop-filter: blur(16px);
-      transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+      padding: 10px 14px 8px;
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      border-top: 3px solid transparent;
+      border-radius: 16px;
+      background: #ffffff;
+      box-shadow: 0 3px 14px -2px rgba(0, 0, 0, 0.04), 0 1px 4px -1px rgba(0, 0, 0, 0.02);
+      transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
       display: flex;
       flex-direction: column;
       justify-content: space-between;
     }
     .stat-card:hover {
+      border-color: rgba(0, 0, 0, 0.14);
       transform: translateY(-2px);
-      box-shadow: var(--shadow-md);
+      box-shadow: 0 8px 20px -3px rgba(0, 0, 0, 0.08);
     }
-    .stat-card::after {
-      content: "";
-      position: absolute;
-      right: -10px;
-      top: -12px;
-      width: 68px;
-      height: 68px;
-      border-radius: 50%;
-      opacity: .7;
-      pointer-events: none;
-    }
+
+    /* Top Accent Colors */
     .stat-card.offjt {
-      border-color: rgba(59, 130, 246, .35);
-      background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%);
+      border-top-color: #3979f6;
     }
-    .stat-card.offjt::after { background: rgba(59, 130, 246, .12); }
-    .stat-card.offjt .stat-title {
-      color: #1d4ed8;
-      background: rgba(219, 234, 254, .7);
-      border-color: rgba(147, 197, 253, .6);
-    }
-    .stat-card.offjt .stat-desc {
-      color: #1e40af;
-      background: rgba(239, 246, 255, .9);
-      border: 1px solid rgba(191, 219, 254, .8);
-    }
-
     .stat-card.ojt {
-      border-color: rgba(244, 63, 94, .35);
-      background: linear-gradient(135deg, #ffffff 0%, #fff1f2 100%);
+      border-top-color: var(--primary);
     }
-    .stat-card.ojt::after { background: rgba(244, 63, 94, .12); }
-    .stat-card.ojt .stat-title {
-      color: #e11d48;
-      background: rgba(255, 228, 230, .7);
-      border-color: rgba(254, 205, 211, .6);
-    }
-    .stat-card.ojt .stat-desc {
-      color: #9f1239;
-      background: rgba(255, 241, 242, .9);
-      border: 1px solid rgba(254, 205, 211, .8);
-    }
-
     .stat-card.afterschool {
-      border-color: rgba(16, 185, 129, .35);
-      background: linear-gradient(135deg, #ffffff 0%, #ecfdf5 100%);
+      border-top-color: #107c41;
     }
-    .stat-card.afterschool::after { background: rgba(16, 185, 129, .12); }
-    .stat-card.afterschool .stat-title {
-      color: #047857;
-      background: rgba(209, 250, 229, .75);
-      border-color: rgba(167, 243, 208, .7);
-    }
-    .stat-card.afterschool .stat-desc {
-      color: #065f46;
-      background: rgba(236, 253, 245, .9);
-      border: 1px solid rgba(167, 243, 208, .8);
-    }
-
     .stat-card.dday {
-      border-color: rgba(99, 102, 241, .35);
-      background: linear-gradient(135deg, #ffffff 0%, #f5f3ff 100%);
-    }
-    .stat-card.dday::after { background: rgba(99, 102, 241, .14); }
-    .stat-card.dday .stat-title {
-      color: #4338ca;
-      background: rgba(224, 231, 255, .75);
-      border-color: rgba(199, 210, 254, .7);
-    }
-    .stat-card.dday .stat-desc {
-      color: #3730a3;
-      background: rgba(238, 242, 255, .95);
-      border: 1px solid rgba(199, 210, 254, .9);
-      font-weight: 850;
+      border-top-color: #1e1e1e;
     }
 
+    /* Category Pill Header */
     .stat-title {
       display: inline-flex;
       align-items: center;
       gap: 5px;
       padding: 2.5px 8px;
-      border: 1px solid transparent;
-      border-radius: 6px;
-      font-size: .75rem;
-      font-weight: 850;
-      letter-spacing: -.02em;
+      border-radius: var(--radius-full);
+      font-size: .72rem;
+      font-weight: 750;
+      letter-spacing: -.01em;
       width: fit-content;
-      line-height: 1.2;
+      line-height: 1.15;
+      transition: background .15s ease;
     }
-    .stat-title::before {
-      content: "";
+    .stat-card.offjt .stat-title {
+      color: #2563eb;
+      background: #eff6ff;
+      border: 1px solid rgba(37, 99, 235, 0.12);
+    }
+    .stat-card.ojt .stat-title {
+      color: var(--primary);
+      background: var(--primary-light);
+      border: 1px solid rgba(230, 0, 35, 0.15);
+    }
+    .stat-card.afterschool .stat-title {
+      color: #059669;
+      background: #ecfdf5;
+      border: 1px solid rgba(5, 150, 105, 0.12);
+    }
+    .stat-card.dday .stat-title {
+      color: #1e293b;
+      background: #f8fafc;
+      border: 1px solid rgba(30, 41, 59, 0.1);
+    }
+
+    .stat-title-dot {
       width: 5px;
       height: 5px;
-      border-radius: 50%;
+      border-radius: var(--radius-full);
       background: currentColor;
-      box-shadow: 0 0 5px currentColor;
+      flex-shrink: 0;
     }
+
+    /* High-Impact Value Display (Slimmed Margins) */
     .stat-value {
-      margin: 4px 0 3px;
-      color: var(--ink);
-      font-size: 1.30rem;
-      font-weight: 900;
+      margin: 6px 0 5px;
+      color: #0f172a;
+      font-size: 1.34rem;
+      font-weight: 850;
       letter-spacing: -.035em;
       text-align: center;
-      line-height: 1.2;
+      line-height: 1.15;
     }
-    .stat-card.dday .stat-value { color: var(--primary); }
+    .stat-card.dday .stat-value {
+      color: var(--primary);
+      font-size: 1.45rem;
+      font-weight: 900;
+      letter-spacing: -.04em;
+    }
+
+    /* Refined Subtitle Pill (Slimmed Padding) */
     .stat-desc {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 5px;
-      padding: 3.5px 6px;
-      border-radius: 6px;
-      font-size: .73rem;
-      font-weight: 750;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      background: #f8fafc;
+      border: 1px solid rgba(0, 0, 0, 0.05);
+      font-size: .71rem;
+      font-weight: 650;
+      color: #64748b;
       text-align: center;
       line-height: 1.25;
       overflow-wrap: anywhere;
+      transition: all .15s ease;
+    }
+    .stat-card:hover .stat-desc {
+      background: #f1f5f9;
+      color: #334155;
     }
     #stat-dday-title {
-      color: #3730a3;
-      font-weight: 850;
-      font-size: .76rem;
+      color: #0f172a;
+      font-weight: 800;
+      font-size: .74rem;
     }
 
-    /* Calendar Workspace */
+    /* Calendar Workspace (Modern Canvas with 24px Radius) */
     .calendar-workspace {
-      padding: 16px 12px 14px;
-      border: 1px solid #e2e8f0;
-      border-radius: var(--radius-lg);
+      padding: 20px;
+      border: 1px solid rgba(0, 0, 0, 0.07);
+      border-radius: 24px;
       background: #ffffff;
-      box-shadow: var(--shadow-sm);
+      box-shadow: 0 4px 24px -4px rgba(0, 0, 0, 0.04), 0 2px 8px -1px rgba(0, 0, 0, 0.02);
     }
     .calendar-toolbar {
       display: grid;
-      gap: 12px;
-      padding: 0 2px 14px;
+      gap: 14px;
+      padding: 0 2px 16px;
     }
     .toolbar-left {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
       flex-wrap: wrap;
     }
     .view-tabs {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       padding: 4px;
-      gap: 3px;
-      border-radius: 12px;
-      background: #f1f5f9;
+      gap: 4px;
+      border-radius: var(--radius-full);
+      background: #f1f2f4;
+      border: 1px solid rgba(0, 0, 0, 0.04);
       width: 100%;
-      max-width: 260px;
+      max-width: 270px;
     }
     .tab-btn {
-      min-height: 34px;
-      padding: 6px 8px;
-      border-radius: 9px;
-      color: var(--ink-soft);
+      min-height: 36px;
+      padding: 6px 12px;
+      border-radius: var(--radius-full);
+      color: #64748b;
       background: transparent;
-      font-size: .78rem;
-      font-weight: 800;
-      transition: all .2s ease;
+      font-size: .8rem;
+      font-weight: 750;
+      transition: all .18s ease;
       white-space: nowrap;
     }
     .tab-btn.active {
-      color: var(--ink);
-      background: #ffffff;
-      box-shadow: 0 2px 6px rgba(15, 23, 42, .08);
+      color: #ffffff;
+      background: var(--primary);
+      box-shadow: 0 2px 10px rgba(230, 0, 35, 0.28);
     }
 
     .btn-save-image {
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
-      min-height: 36px;
-      padding: 7px 13px;
-      border: 1.5px solid #c7d2fe;
-      border-radius: var(--radius-sm);
-      color: var(--primary);
-      background: #eef2ff;
-      font-size: .78rem;
-      font-weight: 850;
-      transition: all .2s ease;
+      gap: 7px;
+      min-height: 38px;
+      padding: 7px 16px;
+      border: 1px solid rgba(0, 0, 0, 0.08);
+      border-radius: var(--radius-md);
+      color: #1e293b;
+      background: #ffffff;
+      font-size: .8rem;
+      font-weight: 750;
+      transition: all .18s ease;
       cursor: pointer;
-      box-shadow: 0 2px 6px rgba(79, 70, 229, .06);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
       white-space: nowrap;
     }
     .btn-save-image:hover {
-      background: var(--primary);
-      color: #fff;
-      border-color: var(--primary);
+      background: #f8fafc;
+      border-color: rgba(0, 0, 0, 0.16);
+      color: var(--primary);
       transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(79, 70, 229, .22);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
     }
-    .btn-save-image:active { transform: translateY(1px) scale(.97); }
+    .btn-save-image:active { transform: scale(.98); }
 
     .calendar-nav {
       display: flex;
@@ -711,32 +718,54 @@
       text-align: center;
       color: var(--ink);
       font-size: 1.45rem;
-      font-weight: 850;
-      letter-spacing: -.035em;
+      font-weight: 800;
+      letter-spacing: -0.8px;
     }
     .calendar-nav .nav-arrow-btn {
       display: grid;
       place-items: center;
-      width: 44px;
-      height: 44px;
-      min-height: 44px;
+      width: 40px;
+      height: 40px;
+      min-height: 40px;
       padding: 0;
-      border: 1.5px solid rgba(148, 163, 184, .3);
-      border-radius: 14px;
-      background: #fff;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-full);
+      background: var(--surface-card);
       box-shadow: var(--shadow-sm);
-      color: #334155;
-      font-size: 1.5rem;
-      transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+      color: var(--ink);
+      font-size: 1.4rem;
+      transition: all .16s ease;
     }
     .calendar-nav .nav-arrow-btn:hover {
-      background: #eef2ff;
-      border-color: var(--primary);
+      background: var(--secondary-bg);
+      border-color: var(--secondary-pressed);
       color: var(--primary);
-      transform: translateY(-1px) scale(1.06);
-      box-shadow: 0 6px 18px rgba(79, 70, 229, .15);
+      transform: translateY(-1px) scale(1.05);
     }
-    .calendar-nav .nav-arrow-btn:active { transform: translateY(1px) scale(.95); }
+    .calendar-nav .nav-arrow-btn:active { transform: scale(.95); }
+
+    .calendar-nav .btn-today {
+      height: 34px;
+      min-height: 34px;
+      margin-left: 2px;
+      padding: 0 14px;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-full);
+      background: var(--surface-card);
+      box-shadow: var(--shadow-sm);
+      color: var(--ink);
+      font-size: .78rem;
+      font-weight: 800;
+      letter-spacing: -.01em;
+      transition: all .16s ease;
+    }
+    .calendar-nav .btn-today:hover {
+      background: var(--secondary-bg);
+      border-color: var(--secondary-pressed);
+      color: var(--primary);
+      transform: translateY(-1px);
+    }
+    .calendar-nav .btn-today:active { transform: scale(.96); }
 
     /* Legends & Filters */
     .legend-panel {
@@ -744,7 +773,7 @@
       flex-wrap: wrap;
       gap: 7px 14px;
       padding: 0 4px 12px;
-      color: var(--ink-soft);
+      color: var(--mute);
       font-size: .72rem;
       font-weight: 700;
     }
@@ -760,34 +789,35 @@
       scrollbar-width: none;
     }
     .filter-panel::-webkit-scrollbar { display: none; }
+    /* Pinterest Filter Chips: Surface-Card Default -> Ink Black Active */
     .filter-chip {
       flex: 0 0 auto;
-      min-height: 32px;
-      padding: 6px 12px;
-      border: 1px solid var(--line);
-      border-radius: 999px;
-      color: #475569;
-      background: #fff;
-      font-size: .74rem;
+      min-height: 34px;
+      padding: 6px 14px;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-full);
+      color: var(--ink);
+      background: var(--surface-card);
+      font-size: .76rem;
       font-weight: 750;
-      transition: all .2s ease;
+      transition: all .16s ease;
     }
     .filter-chip:hover {
-      border-color: #cbd5e1;
-      background: #f8fafc;
+      border-color: var(--secondary-pressed);
+      background: var(--secondary-bg);
     }
     .filter-chip.active {
-      border-color: var(--primary);
-      color: #fff;
-      background: var(--primary);
-      box-shadow: 0 4px 12px rgba(79, 70, 229, .22);
+      border-color: var(--ink);
+      color: #ffffff;
+      background: var(--ink);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, .2);
     }
 
     /* Calendar Grid */
     .calendar-scroll {
       overflow-x: auto;
       padding-bottom: 4px;
-      scrollbar-color: #cbd5e1 transparent;
+      scrollbar-color: var(--hairline) transparent;
       scrollbar-width: thin;
     }
     .calendar-grid {
@@ -798,44 +828,43 @@
     }
     .day-header {
       padding: 8px 4px;
-      border-radius: 10px;
-      color: var(--ink-soft);
-      background: #f8fafc;
+      border-radius: 8px;
+      color: var(--mute);
+      background: var(--surface-card);
       text-align: center;
       font-size: 11px;
       font-weight: 800;
     }
-    .day-header:nth-child(1) { color: var(--red-ojt); background: #fff1f2; }
-    .day-header:nth-child(7) { color: var(--blue-offjt); background: #eff6ff; }
+    .day-header:nth-child(1) { color: var(--red-ojt); background: #fef0f2; }
+    .day-header:nth-child(7) { color: var(--blue-offjt); background: #eef3ff; }
 
     .calendar-cell {
       min-height: 98px;
       padding: 6px 8px;
-      border: 1.5px dashed #94a3b8;
-      border-radius: 12px;
-      background: #ffffff;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      background: var(--canvas);
       cursor: pointer;
-      transition: all .16s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all .16s ease;
       position: relative;
       font-size: 11px;
     }
     .calendar-cell:hover {
-      border-color: var(--primary);
-      border-style: dashed;
-      background: #f8faff;
-      box-shadow: 0 4px 14px rgba(79, 70, 229, .12);
+      border-color: var(--ink);
+      background: #fafaf8;
+      box-shadow: var(--shadow-sm);
       transform: translateY(-1.5px);
     }
     .view-week-1 .calendar-cell { min-height: 180px; }
     .view-week-2 .calendar-cell { min-height: 115px; }
     .calendar-cell.other-month {
       opacity: .45;
-      background: #f8fafc;
-      border-color: #cbd5e1;
+      background: var(--surface-soft);
+      border-color: var(--hairline-soft);
     }
     .calendar-cell.today {
-      border: 2.5px solid var(--primary);
-      background: #f5f7ff;
+      border: 2px solid var(--primary);
+      background: #fffcfc;
     }
     .cell-header {
       display: flex;
@@ -906,7 +935,7 @@
     .holiday .del-btn { background: rgba(190, 18, 60, .12); }
     .holiday .del-btn:hover { background: rgba(190, 18, 60, .25); }
 
-    /* Modal Backdrop & Common Cards (+20% Spacious Scale) */
+    /* Pinterest Modal Backdrop & Common Cards (32px Radius, 32px Padding, 50% Scrim) */
     .modal-backdrop {
       position: fixed;
       inset: 0;
@@ -915,93 +944,100 @@
       align-items: center;
       justify-content: center;
       padding: 20px;
-      background: rgba(15, 23, 42, .6);
+      background: rgba(0, 0, 0, 0.5);
       backdrop-filter: blur(8px);
       -webkit-backdrop-filter: blur(8px);
       animation: fadeIn .2s cubic-bezier(0.16, 1, 0.3, 1) both;
     }
     #confirm-modal {
       z-index: 20000 !important;
-      background: rgba(15, 23, 42, .75);
+      background: rgba(0, 0, 0, 0.65);
     }
     #confirm-modal .modal-card {
       z-index: 20001 !important;
-      box-shadow: 0 25px 60px -5px rgba(0, 0, 0, .45);
+      box-shadow: 0 20px 48px rgba(0, 0, 0, .35);
     }
     .modal-card {
       position: relative;
       width: min(100%, 550px);
-      max-height: 90vh;
+      max-height: 94vh;
       overflow-y: auto;
-      padding: 28px 30px;
-      border: 1px solid rgba(255, 255, 255, .95);
-      border-radius: var(--radius-xl);
-      background: #ffffff;
+      padding: 20px 24px;
+      border: 1px solid var(--hairline);
+      border-radius: 20px;
+      background: var(--canvas);
       box-shadow: var(--shadow-modal);
       animation: popIn .25s cubic-bezier(0.16, 1, 0.3, 1) both;
+      scrollbar-width: thin;
+      scrollbar-color: rgba(0, 0, 0, 0.15) transparent;
     }
-    .modal-card-sm { width: min(100%, 480px); }
-    .modal-card-lg { width: min(100%, 650px); }
-    .modal-card-xl { width: min(100%, 840px); }
+    .modal-card::-webkit-scrollbar { width: 5px; }
+    .modal-card::-webkit-scrollbar-thumb { background: rgba(0, 0, 0, 0.15); border-radius: 999px; }
+    .modal-card-sm { width: min(100%, 460px); }
+    .modal-card-lg { width: min(100%, 660px); }
+    .modal-card-xl { width: min(100%, 880px); }
 
     .modal-close-btn {
       position: absolute;
-      top: 20px;
-      right: 20px;
+      top: 16px;
+      right: 16px;
       display: grid;
       place-items: center;
-      width: 36px;
-      height: 36px;
-      border-radius: 50%;
-      color: #94a3b8;
-      background: #f1f5f9;
-      transition: all .15s ease;
+      width: 34px;
+      height: 34px;
+      border-radius: var(--radius-full);
+      color: var(--ink);
+      background: var(--surface-card);
+      border: 1px solid var(--hairline);
+      transition: all .16s ease;
       z-index: 2;
     }
     .modal-close-btn:hover {
-      color: #0f172a;
-      background: #e2e8f0;
+      color: var(--primary);
+      background: var(--secondary-bg);
+      border-color: var(--secondary-pressed);
     }
     .modal-header {
       display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      margin-bottom: 20px;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 12px;
     }
     .modal-icon-badge {
       display: grid;
-      width: 52px;
-      height: 52px;
+      width: 40px;
+      height: 40px;
       flex: 0 0 auto;
       place-items: center;
-      border-radius: 16px;
+      border-radius: 12px;
       color: var(--primary);
-      background: #eef2ff;
-      border: 1px solid #e0e7ff;
+      background: var(--primary-light);
+      border: 1px solid rgba(230, 0, 35, .2);
+      font-size: 1.1rem;
     }
     .modal-icon-badge.danger {
       color: var(--danger);
-      background: #fef2f2;
-      border-color: #fee2e2;
+      background: var(--danger-light);
+      border-color: #fecdd3;
     }
     .modal-title {
-      font-size: 1.35rem;
-      font-weight: 850;
-      letter-spacing: -.03em;
-      color: #0f172a;
+      font-size: 1.2rem;
+      font-weight: 800;
+      letter-spacing: -0.6px;
+      color: var(--ink);
     }
     .modal-subtitle {
-      margin-top: 4px;
-      color: #64748b;
-      font-size: .92rem;
-      line-height: 1.45;
+      margin-top: 2px;
+      color: var(--mute);
+      font-size: .82rem;
+      line-height: 1.35;
     }
-    .modal-body { margin-bottom: 20px; }
+    .modal-body { margin-bottom: 16px; }
     .modal-label {
       display: block;
-      margin-bottom: 7px;
-      color: #475569;
-      font-size: .84rem;
+      margin-bottom: 5px;
+      color: var(--body);
+      font-size: .82rem;
       font-weight: 750;
     }
     .password-input-wrapper {
@@ -1010,77 +1046,80 @@
       align-items: center;
     }
     .password-input-wrapper input {
-      padding-right: 48px;
-      font-size: 1rem;
+      padding-right: 44px;
+      font-size: .95rem;
     }
     .password-toggle-btn {
       position: absolute;
-      right: 12px;
+      right: 10px;
       display: grid;
       place-items: center;
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      color: #94a3b8;
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      color: var(--ash);
       transition: color .15s ease;
     }
-    .password-toggle-btn:hover { color: #334155; }
+    .password-toggle-btn:hover { color: var(--ink); }
     .modal-error-text {
-      margin-top: 10px;
-      color: #e11d48;
-      font-size: .84rem;
+      margin-top: 8px;
+      color: var(--danger);
+      font-size: .82rem;
       font-weight: 700;
       animation: shake .3s ease;
     }
     .confirm-content-box {
-      padding: 14px 16px;
-      border-radius: 14px;
+      padding: 12px 14px;
+      border-radius: var(--radius-md);
       border: 1px solid #fecdd3;
-      background: #fff1f2;
-      color: #9f1239;
-      font-size: .92rem;
+      background: var(--danger-light);
+      color: var(--danger-deep);
+      font-size: .88rem;
       font-weight: 700;
-      line-height: 1.45;
+      line-height: 1.4;
       overflow-wrap: anywhere;
     }
     .modal-footer {
       display: flex;
       align-items: center;
       justify-content: flex-end;
-      gap: 12px;
+      gap: 10px;
     }
 
     /* Admin Operations Tabs & Modal Elements */
     .admin-badge {
-      padding: 4px 10px;
-      border-radius: 999px;
-      font-size: .75rem;
+      padding: 3px 10px;
+      border-radius: var(--radius-full);
+      font-size: .72rem;
       font-weight: 800;
       color: var(--primary);
-      background: #e0e7ff;
+      background: var(--primary-light);
+      border: 1px solid rgba(230, 0, 35, .2);
     }
     .admin-tabs {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 6px;
-      padding: 6px;
-      background: #f1f5f9;
-      border-radius: 14px;
+      gap: 4px;
+      padding: 3px;
+      background: var(--surface-card);
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-full);
       width: 100%;
+      margin-bottom: 12px;
     }
     .admin-tab-btn {
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      min-height: 42px;
-      padding: 8px 10px;
-      border-radius: 10px;
-      font-size: .84rem;
-      font-weight: 800;
-      color: #64748b;
+      min-height: 34px;
+      padding: 4px 10px;
+      border-radius: var(--radius-full);
+      font-size: .8rem;
+      font-weight: 750;
+      color: var(--mute);
       background: transparent;
-      transition: all .2s cubic-bezier(0.16, 1, 0.3, 1);
+      transition: all .16s ease;
       cursor: pointer;
       white-space: nowrap;
       text-align: center;
@@ -1088,14 +1127,14 @@
       width: 100%;
     }
     .admin-tab-btn:hover {
-      color: #0f172a;
-      background: rgba(255, 255, 255, .7);
+      color: var(--ink);
+      background: var(--secondary-bg);
     }
     .admin-tab-btn.active {
-      color: var(--primary);
-      background: #ffffff;
-      box-shadow: 0 2px 8px rgba(15, 23, 42, .1);
-      border-color: rgba(79, 70, 229, .2);
+      color: #ffffff;
+      background: var(--primary);
+      box-shadow: 0 2px 8px rgba(230, 0, 35, .25);
+      border-color: transparent;
     }
     .admin-tab-icon {
       font-size: 0.95rem;
@@ -1115,53 +1154,56 @@
       display: block;
     }
 
-    /* Modern Form Layouts & Card Styling */
+    /* Modern Form Layouts & Card Styling (Slim Compact Scale) */
     .admin-card {
       position: relative;
-      padding: 22px 24px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: var(--radius);
-      background: #ffffff;
-      box-shadow: 0 4px 16px rgba(15, 23, 42, .03);
+      padding: 14px 16px;
+      border: 1px solid var(--hairline);
+      border-radius: 14px;
+      background: var(--canvas);
+      box-shadow: 0 1px 4px rgba(0, 0, 0, 0.02);
     }
     .admin-card.card-highlight {
-      background: linear-gradient(145deg, #ffffff, #f8faff);
-      border-color: #dbeafe;
+      background: var(--surface-card);
+      border-color: var(--hairline);
     }
     .admin-card-header {
       display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 16px;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
     }
     .admin-card-icon {
       display: grid;
       place-items: center;
-      width: 36px;
-      height: 36px;
-      border-radius: 10px;
-      font-size: 1.15rem;
-      background: #eef2ff;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      font-size: 1rem;
+      background: var(--surface-card);
+      color: var(--primary);
+      border: 1px solid var(--hairline);
       flex-shrink: 0;
     }
     .admin-card h4 {
-      font-size: 1.05rem;
-      font-weight: 850;
-      color: #0f172a;
-      line-height: 1.3;
+      font-size: .95rem;
+      font-weight: 800;
+      letter-spacing: -0.4px;
+      color: var(--ink);
+      line-height: 1.25;
     }
     .admin-card p.card-desc {
-      margin-top: 3px;
-      color: #64748b;
-      font-size: .84rem;
-      font-weight: 550;
-      line-height: 1.45;
+      margin-top: 1px;
+      color: var(--mute);
+      font-size: .76rem;
+      font-weight: 500;
+      line-height: 1.35;
     }
     
     .admin-two-col {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 16px;
+      gap: 12px;
     }
     @media (min-width: 720px) {
       .admin-two-col {
@@ -1172,12 +1214,12 @@
     .form-stack {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 8px;
     }
     .form-row-2 {
       display: grid;
       grid-template-columns: 1fr;
-      gap: 12px;
+      gap: 8px;
     }
     @media (min-width: 540px) {
       .form-row-2 {
@@ -1187,14 +1229,14 @@
     .form-group {
       display: flex;
       flex-direction: column;
-      gap: 6px;
+      gap: 3px;
     }
     .form-group label {
       display: flex;
       align-items: center;
-      gap: 6px;
-      color: #334155;
-      font-size: .84rem;
+      gap: 5px;
+      color: var(--body);
+      font-size: .78rem;
       font-weight: 750;
     }
     .btn-block {
@@ -1202,96 +1244,100 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 8px;
+      gap: 6px;
+      min-height: 38px;
+      font-size: .84rem;
     }
     .form-action-row {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       flex-wrap: wrap;
       width: 100%;
     }
     .form-action-row input {
-      flex: 1 1 200px;
+      flex: 1 1 180px;
       min-width: 0;
     }
     .form-action-row button {
-      min-height: 48px;
-      padding: 10px 22px;
+      min-height: 36px;
+      padding: 6px 16px;
+      font-size: .82rem;
       white-space: nowrap;
     }
     .form-hour-row {
       display: flex;
-      gap: 10px;
+      gap: 8px;
       width: 100%;
       flex-wrap: wrap;
     }
     .form-hour-row select {
-      flex: 1 1 180px;
+      flex: 1 1 160px;
       min-width: 0;
     }
     .form-hour-row input {
-      flex: 0 0 130px;
+      flex: 0 0 120px;
       min-width: 0;
     }
 
+    /* Pinterest Form Inputs: Slim Compact Height */
     input, select {
       width: 100%;
-      min-height: 48px;
-      padding: 10px 14px;
-      border: 1.5px solid #cbd5e1;
-      border-radius: 12px;
+      min-height: 36px;
+      padding: 6px 12px;
+      border: 1px solid var(--hairline);
+      border-radius: 10px;
       color: var(--ink);
-      background: #fff;
-      font-size: .94rem;
+      background: var(--canvas);
+      font-size: .88rem;
       transition: border-color .15s ease, box-shadow .15s ease;
     }
     input:focus, select:focus {
-      border-color: var(--primary);
-      box-shadow: 0 0 0 3px rgba(79, 70, 229, .15);
-      outline: none;
+      border-color: var(--ink);
+      outline: 2px solid var(--focus-outer);
+      outline-offset: 1px;
     }
     
-    /* Notice Admin Management Cards */
+    /* Notice Admin Management Cards (Slim Compact) */
     #admin-notice-list {
-      margin-top: 6px;
-      padding: 8px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 14px;
-      background: #f8fafc;
+      margin-top: 4px;
+      padding: 6px;
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      background: var(--surface-card);
     }
-    .notice-admin-list { display: grid; gap: 8px; }
+    .notice-admin-list { display: grid; gap: 6px; }
     .notice-admin-item {
       display: flex;
       flex-direction: column;
-      gap: 7px;
-      padding: 11px 13px;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      background: #ffffff;
-      box-shadow: var(--shadow-sm);
+      gap: 4px;
+      padding: 7px 10px;
+      border: 1px solid var(--hairline);
+      border-radius: 10px;
+      background: var(--canvas);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
       transition: all .15s ease;
     }
     .notice-admin-item:hover {
-      border-color: #cbd5e1;
-      box-shadow: var(--shadow-md);
+      border-color: var(--secondary-pressed);
+      box-shadow: var(--shadow-sm);
     }
     .notice-admin-item.editing {
       border-color: var(--primary);
-      background: #f5f7ff;
-      box-shadow: 0 0 0 2px rgba(79, 70, 229, .2);
+      background: #fffcfc;
+      box-shadow: 0 0 0 2px rgba(230, 0, 35, .15);
     }
     .notice-admin-header-row {
       display: flex;
-      align-items: flex-start;
+      align-items: center;
       justify-content: space-between;
-      gap: 10px;
+      gap: 8px;
       width: 100%;
     }
     .notice-admin-text {
-      font-size: .88rem;
+      font-size: .82rem;
       font-weight: 750;
-      color: #1e293b;
-      line-height: 1.4;
+      color: var(--ink);
+      line-height: 1.3;
       word-break: keep-all;
       overflow-wrap: break-word;
       flex: 1;
@@ -1300,112 +1346,113 @@
     .notice-admin-footer-row {
       display: flex;
       align-items: center;
-      justify-content: flex-end; /* 오른쪽 정렬 */
+      justify-content: flex-end;
       gap: 6px;
       width: 100%;
-      padding-top: 4px;
-      border-top: 1px dashed #f1f5f9;
+      padding-top: 3px;
+      border-top: 1px dashed var(--hairline-soft);
     }
     .notice-status-pill {
       display: inline-flex;
       align-items: center;
-      gap: 4px;
-      padding: 2px 7px;
-      border-radius: 999px;
-      font-size: .7rem;
+      gap: 3px;
+      padding: 2px 6px;
+      border-radius: var(--radius-full);
+      font-size: .68rem;
       font-weight: 800;
       line-height: 1.2;
     }
     .notice-status-pill.current-month {
-      color: #065f46;
-      background: #d1fae5;
-      border: 1px solid #a7f3d0;
+      color: #047857;
+      background: #eef9f2;
+      border: 1px solid #bbf7d0;
     }
     .notice-status-pill.future {
-      color: #1e40af;
-      background: #dbeafe;
-      border: 1px solid #bfdbfe;
+      color: #1d4ed8;
+      background: #eef3ff;
+      border: 1px solid #dbeafe;
     }
     .notice-status-pill.past {
-      color: #64748b;
-      background: #f1f5f9;
-      border: 1px solid #e2e8f0;
+      color: var(--mute);
+      background: var(--surface-card);
+      border: 1px solid var(--hairline);
     }
     .notice-status-pill.no-date {
-      color: #6b21a8;
-      background: #f3e8ff;
+      color: var(--purple-special);
+      background: #f9f0fb;
       border: 1px solid #e9d5ff;
     }
     .notice-admin-actions {
       display: flex;
       align-items: center;
-      gap: 6px;
+      gap: 5px;
       flex-shrink: 0;
     }
     
     #admin-dday-list {
       margin-top: 4px;
       padding: 6px;
-      border: 1.5px solid #e2e8f0;
-      border-radius: 14px;
-      background: #f8fafc;
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      background: var(--surface-card);
     }
-    .dday-list { display: grid; gap: 8px; }
+    .dday-list { display: grid; gap: 6px; }
     .dday-list-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 12px 14px;
-      border: 1px solid #e2e8f0;
-      border-radius: 12px;
-      background: #ffffff;
-      box-shadow: var(--shadow-sm);
+      gap: 8px;
+      padding: 7px 10px;
+      border: 1px solid var(--hairline);
+      border-radius: 10px;
+      background: var(--canvas);
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.02);
       transition: all .15s ease;
     }
     .dday-list-item:hover {
-      border-color: #cbd5e1;
-      box-shadow: var(--shadow-md);
+      border-color: var(--secondary-pressed);
+      box-shadow: var(--shadow-sm);
     }
     .dday-list-item.editing {
       border-color: var(--primary);
-      background: #f5f7ff;
-      box-shadow: 0 0 0 2px rgba(79, 70, 229, .2);
+      background: #fffcfc;
+      box-shadow: 0 0 0 2px rgba(230, 0, 35, .15);
     }
     .dday-list-copy { min-width: 0; flex: 1; }
     .dday-list-date {
       display: inline-flex;
       align-items: center;
-      gap: 5px;
-      padding: 2px 8px;
+      gap: 4px;
+      padding: 2px 6px;
       border-radius: 6px;
-      color: #be123c;
-      background: #fff1f2;
-      font-size: .78rem;
+      color: var(--primary);
+      background: var(--primary-light);
+      border: 1px solid rgba(230, 0, 35, .2);
+      font-size: .74rem;
       font-weight: 800;
     }
     .dday-list-title {
       display: block;
-      margin-top: 5px;
+      margin-top: 2px;
       overflow-wrap: anywhere;
-      font-size: .92rem;
+      font-size: .84rem;
       font-weight: 750;
-      color: #1e293b;
+      color: var(--ink);
     }
     .dday-pagination-wrap {
-      margin-top: 10px;
-      padding: 10px 4px 4px;
-      border-top: 1px dashed #e2e8f0;
+      margin-top: 6px;
+      padding: 6px 4px 2px;
+      border-top: 1px dashed var(--hairline-soft);
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 4px;
     }
     .dday-pagination {
       display: flex;
       align-items: center;
       justify-content: center;
-      gap: 6px;
+      gap: 4px;
       width: 100%;
       flex-wrap: wrap;
     }
@@ -1413,22 +1460,22 @@
       display: inline-flex;
       align-items: center;
       justify-content: center;
-      gap: 4px;
-      min-height: 34px;
-      padding: 4px 10px;
+      gap: 3px;
+      min-height: 28px;
+      padding: 2px 10px;
       border-radius: 8px;
-      border: 1px solid #cbd5e1;
-      background: #ffffff;
-      color: #334155;
-      font-size: 0.78rem;
+      border: 1px solid var(--hairline);
+      background: var(--surface-card);
+      color: var(--ink);
+      font-size: 0.74rem;
       font-weight: 750;
       cursor: pointer;
       transition: all .15s ease;
     }
     .btn-page-nav:hover:not(:disabled) {
-      border-color: var(--primary);
+      background: var(--secondary-bg);
+      border-color: var(--secondary-pressed);
       color: var(--primary);
-      background: #f8faff;
     }
     .btn-page-nav:disabled {
       opacity: .45;
@@ -1444,142 +1491,143 @@
     .dday-page-pill {
       display: grid;
       place-items: center;
-      min-width: 32px;
-      height: 32px;
-      padding: 0 6px;
-      border-radius: 8px;
-      border: 1px solid #e2e8f0;
-      background: #ffffff;
-      color: #475569;
-      font-size: 0.8rem;
+      min-width: 26px;
+      height: 26px;
+      padding: 0 4px;
+      border-radius: 6px;
+      border: 1px solid var(--hairline);
+      background: var(--canvas);
+      color: var(--ink);
+      font-size: 0.74rem;
       font-weight: 800;
       cursor: pointer;
       transition: all .15s ease;
     }
     .dday-page-pill:hover {
-      border-color: #cbd5e1;
-      color: #0f172a;
-      background: #f1f5f9;
+      border-color: var(--secondary-pressed);
+      color: var(--primary);
+      background: var(--surface-card);
     }
     .dday-page-pill.active {
       background: var(--primary);
       border-color: var(--primary);
       color: #ffffff;
-      box-shadow: 0 2px 6px rgba(79, 70, 229, .25);
+      box-shadow: 0 2px 6px rgba(230, 0, 35, .25);
     }
     .dday-page-meta {
-      font-size: 0.74rem;
+      font-size: 0.7rem;
       font-weight: 650;
-      color: #94a3b8;
+      color: var(--mute);
     }
 
-    /* Date Events Detail Modal Specifics */
-    .date-events-section { margin-bottom: 20px; }
+    /* Date Events Detail Modal Specifics (Slim Compact) */
+    .date-events-section { margin-bottom: 12px; }
     .date-section-heading {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 10px;
-      font-size: .94rem;
+      margin-bottom: 6px;
+      font-size: .88rem;
       font-weight: 800;
-      color: #334155;
+      color: var(--ink);
     }
     .date-events-list {
       display: grid;
-      gap: 10px;
-      max-height: 260px;
+      gap: 6px;
+      max-height: 180px;
       overflow-y: auto;
       padding-right: 2px;
+      scrollbar-width: thin;
     }
     .date-event-item {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      padding: 12px 14px;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      background: #f8fafc;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid var(--hairline);
+      border-radius: 8px;
+      background: var(--surface-card);
       transition: all .15s ease;
     }
     .date-event-item:hover {
-      border-color: #cbd5e1;
-      background: #ffffff;
+      border-color: var(--secondary-pressed);
+      background: var(--canvas);
       box-shadow: var(--shadow-sm);
     }
     .date-event-item.editing {
       border-color: var(--primary);
-      background: #f5f7ff;
-      box-shadow: 0 0 0 2px rgba(79, 70, 229, .18);
+      background: #fffcfc;
+      box-shadow: 0 0 0 2px rgba(230, 0, 35, .2);
     }
     .date-event-main {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 8px;
       min-width: 0;
       flex: 1;
     }
     .date-event-type-badge {
       display: inline-block;
       flex-shrink: 0;
-      padding: 4px 10px;
-      border-radius: 8px;
-      font-size: .74rem;
+      padding: 3px 8px;
+      border-radius: 6px;
+      font-size: .7rem;
       font-weight: 800;
       color: #fff;
     }
     .date-event-title {
-      font-size: .92rem;
+      font-size: .86rem;
       font-weight: 750;
-      color: #1e293b;
+      color: var(--ink);
       overflow-wrap: anywhere;
     }
     .date-event-actions {
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 6px;
       flex-shrink: 0;
     }
 
     .date-empty-box {
-      padding: 28px 18px;
-      border: 1.5px dashed #cbd5e1;
-      border-radius: 14px;
+      padding: 18px 14px;
+      border: 1px dashed var(--hairline);
+      border-radius: var(--radius-md);
       text-align: center;
-      color: #94a3b8;
-      font-size: .92rem;
+      color: var(--mute);
+      font-size: .84rem;
       font-weight: 700;
-      background: #fafbff;
+      background: var(--surface-card);
     }
 
     .date-form-box {
-      padding: 18px 20px;
-      border: 1px solid #e2e8f0;
-      border-radius: 16px;
-      background: #f8faff;
+      padding: 12px 14px;
+      border: 1px solid var(--hairline);
+      border-radius: 12px;
+      background: var(--surface-card);
     }
     .date-form-header {
       display: flex;
       align-items: center;
       justify-content: space-between;
-      margin-bottom: 14px;
+      margin-bottom: 8px;
     }
     .date-form-title {
-      font-size: .98rem;
+      font-size: .88rem;
       font-weight: 800;
-      color: var(--primary);
+      color: var(--ink);
     }
     .non-admin-callout {
-      padding: 16px 18px;
-      border: 1px solid #e0e7ff;
-      border-radius: 14px;
-      background: #eef2ff;
-      color: #3730a3;
+      padding: 10px 14px;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      background: var(--surface-card);
+      color: var(--body);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      font-size: .88rem;
+      gap: 10px;
+      font-size: .82rem;
       font-weight: 750;
     }
 
@@ -1602,20 +1650,18 @@
       align-items: center;
       gap: 12px;
       padding: 14px 18px;
-      border-radius: 16px;
-      background: rgba(255, 255, 255, .96);
-      border: 1px solid rgba(226, 232, 240, .95);
-      box-shadow: 0 12px 28px -5px rgba(15, 23, 42, .14), 0 8px 12px -6px rgba(15, 23, 42, .08);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
-      animation: toastIn .3s cubic-bezier(0.16, 1, 0.3, 1) both;
-      color: #1e293b;
+      border-radius: var(--radius-md);
+      background: var(--canvas);
+      border: 1px solid var(--hairline);
+      box-shadow: var(--shadow-md);
+      animation: toastIn .25s cubic-bezier(0.16, 1, 0.3, 1) both;
+      color: var(--ink);
       font-size: .92rem;
       font-weight: 750;
       line-height: 1.4;
     }
     .toast.toast-exit {
-      animation: toastOut .25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+      animation: toastOut .2s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     }
     .toast-icon {
       display: grid;
@@ -1623,26 +1669,26 @@
       height: 30px;
       flex: 0 0 auto;
       place-items: center;
-      border-radius: 50%;
+      border-radius: var(--radius-full);
     }
-    .toast-success .toast-icon { background: #dcfce7; color: #16a34a; }
-    .toast-error .toast-icon { background: #fee2e2; color: #dc2626; }
+    .toast-success .toast-icon { background: var(--success-pale); color: var(--success); }
+    .toast-error .toast-icon { background: var(--danger-light); color: var(--danger); }
     .toast-warning .toast-icon { background: #fef3c7; color: #d97706; }
-    .toast-info .toast-icon { background: #e0e7ff; color: #4f46e5; }
+    .toast-info .toast-icon { background: #eef3ff; color: #3979f6; }
     .toast-message { flex: 1; min-width: 0; overflow-wrap: anywhere; }
     .toast-close-btn {
-      width: 26px;
-      height: 26px;
+      width: 28px;
+      height: 28px;
       flex: 0 0 auto;
       display: grid;
       place-items: center;
-      border-radius: 50%;
-      color: #94a3b8;
-      font-size: 1.2rem;
+      border-radius: var(--radius-full);
+      color: var(--mute);
+      font-size: 1.1rem;
       line-height: 1;
       transition: all .15s ease;
     }
-    .toast-close-btn:hover { color: #0f172a; background: #f1f5f9; }
+    .toast-close-btn:hover { color: var(--ink); background: var(--surface-card); }
 
     /* Loading Mask */
     .loading-mask {
@@ -1654,46 +1700,43 @@
       justify-content: center;
       padding: 24px;
       color: var(--ink);
-      background: rgba(248, 250, 252, .88);
+      background: rgba(251, 251, 249, .88);
       font-size: .95rem;
       font-weight: 800;
-      backdrop-filter: blur(10px);
-      -webkit-backdrop-filter: blur(10px);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
     }
     .loading-mask span {
       display: inline-flex;
       align-items: center;
       gap: 12px;
       padding: 16px 24px;
-      border: 1px solid rgba(255, 255, 255, .9);
-      border-radius: var(--radius);
-      background: #ffffff;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-md);
+      background: var(--canvas);
       box-shadow: var(--shadow-lg);
     }
     .loading-mask span::before {
       content: "";
       width: 18px;
       height: 18px;
-      border: 2.5px solid #e2e8f0;
+      border: 2.5px solid var(--hairline);
       border-top-color: var(--primary);
       border-radius: 50%;
       animation: spin .7s linear infinite;
     }
 
     /* Modern Premium Footer */
-    /* Modern Premium Footer (Slim 20% reduced height) */
     .site-footer {
       width: min(100% - 24px, 1024px);
       margin: 8px auto 28px;
       padding: 0 4px;
     }
     .footer-card {
-      padding: 16px 24px;
-      border: 1px solid rgba(255, 255, 255, .85);
+      padding: 18px 24px;
+      border: 1px solid var(--hairline);
       border-radius: var(--radius-lg);
-      background: rgba(255, 255, 255, .68);
-      backdrop-filter: blur(16px);
-      -webkit-backdrop-filter: blur(16px);
+      background: var(--canvas);
       box-shadow: var(--shadow-sm);
       display: flex;
       flex-direction: column;
@@ -1706,7 +1749,7 @@
       flex-wrap: wrap;
       gap: 12px;
       padding-bottom: 12px;
-      border-bottom: 1px solid rgba(148, 163, 184, .18);
+      border-bottom: 1px solid var(--hairline-soft);
     }
     .footer-brand {
       display: flex;
@@ -1718,25 +1761,25 @@
       place-items: center;
       width: 32px;
       height: 32px;
-      border-radius: 10px;
+      border-radius: var(--radius-md);
       color: #fff;
       font-weight: 900;
       font-size: .88rem;
-      background: linear-gradient(135deg, var(--primary), #8b5cf6);
-      box-shadow: 0 3px 10px rgba(79, 70, 229, .22);
+      background: var(--primary);
+      box-shadow: 0 3px 8px rgba(230, 0, 35, .25);
     }
     .footer-title {
       display: block;
       font-size: .9rem;
-      font-weight: 850;
+      font-weight: 800;
       color: var(--ink);
       letter-spacing: -.02em;
     }
     .footer-subtitle {
       margin-top: 1px;
       font-size: .75rem;
-      color: var(--ink-soft);
-      font-weight: 600;
+      color: var(--mute);
+      font-weight: 500;
     }
     .footer-badges {
       display: flex;
@@ -1749,10 +1792,10 @@
       align-items: center;
       gap: 6px;
       padding: 4px 10px;
-      border: 1px solid rgba(148, 163, 184, .25);
-      border-radius: 999px;
-      background: rgba(255, 255, 255, .8);
-      color: #475569;
+      border: 1px solid var(--hairline);
+      border-radius: var(--radius-full);
+      background: var(--surface-card);
+      color: var(--mute);
       font-size: .72rem;
       font-weight: 750;
       box-shadow: var(--shadow-sm);
@@ -1771,15 +1814,15 @@
       flex-wrap: wrap;
       gap: 8px;
       font-size: .75rem;
-      color: var(--ink-soft);
-      font-weight: 600;
+      color: var(--mute);
+      font-weight: 500;
     }
-    .footer-copy { color: #64748b; font-weight: 650; }
+    .footer-copy { color: var(--mute); font-weight: 600; }
     .footer-meta {
       display: flex;
       align-items: center;
       gap: 6px;
-      color: #94a3b8;
+      color: var(--ash);
     }
     .footer-dot { opacity: .6; }
 
@@ -2574,31 +2617,44 @@
     </section>
 
     <section class="notice-bar" aria-label="실시간 공지">
-      <span class="notice-icon" aria-hidden="true">✦</span>
+      <span class="notice-icon" aria-hidden="true">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2a7 7 0 0 0-7 7c0 5.25 7 13 7 13s7-7.75 7-13a7 7 0 0 0-7-7zm0 9.5a2.5 2.5 0 1 1 0-5 2.5 2.5 0 0 1 0 5z"/></svg>
+      </span>
       <div class="notice-content">
         <span class="notice-title">Notice</span>
         <div id="notice-display" class="notice-text" aria-live="polite">학사 일정을 불러오는 중입니다...</div>
       </div>
     </section>
 
+    <div class="scope-bar" role="group" aria-label="이수시간 집계 범위">
+      <span class="scope-label">집계 범위</span>
+      <button type="button" class="scope-btn active" data-scope="screen" aria-pressed="true">이번 화면</button>
+      <button type="button" class="scope-btn" data-scope="term1" aria-pressed="false">1학기</button>
+      <button type="button" class="scope-btn" data-scope="term2" aria-pressed="false">2학기</button>
+      <button type="button" class="scope-btn" data-scope="year" aria-pressed="false">연간</button>
+    </div>
+
     <section class="dashboard" aria-label="현재 일정 요약">
       <article class="stat-card offjt">
-        <span class="stat-title">교내 교육 · OFF-JT</span>
+        <span class="stat-title"><span class="stat-title-dot"></span>교내 교육 (off-JT)</span>
         <div class="stat-value" id="stat-offjt-days">0일 / 0시간</div>
-        <div class="stat-desc">현재 달력 화면 기준 합산</div>
+        <div class="stat-bar" id="stat-offjt-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="display:none;"><span class="stat-bar-fill"></span></div>
+        <div class="stat-desc" id="stat-offjt-desc">현재 달력 화면 기준 합산</div>
       </article>
       <article class="stat-card ojt">
-        <span class="stat-title">현장 훈련 · OJT</span>
+        <span class="stat-title"><span class="stat-title-dot"></span>현장 훈련 (OJT)</span>
         <div class="stat-value" id="stat-ojt-days">0일 / 0시간</div>
-        <div class="stat-desc">현재 달력 화면 기준 합산</div>
+        <div class="stat-bar" id="stat-ojt-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="display:none;"><span class="stat-bar-fill"></span></div>
+        <div class="stat-desc" id="stat-ojt-desc">현재 달력 화면 기준 합산</div>
       </article>
       <article class="stat-card afterschool">
-        <span class="stat-title">방과후 수업</span>
+        <span class="stat-title"><span class="stat-title-dot"></span>방과후 수업</span>
         <div class="stat-value" id="stat-afterschool-days">0일 / 0시간</div>
-        <div class="stat-desc">현재 달력 화면 기준 합산</div>
+        <div class="stat-bar" id="stat-afterschool-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="display:none;"><span class="stat-bar-fill"></span></div>
+        <div class="stat-desc" id="stat-afterschool-desc">현재 달력 화면 기준 합산</div>
       </article>
       <article class="stat-card dday">
-        <span class="stat-title">다음 학사 마일스톤</span>
+        <span class="stat-title"><span class="stat-title-dot"></span>차기 마일스톤</span>
         <div class="stat-value" id="stat-dday">D-0</div>
         <div class="stat-desc" id="stat-dday-title">가까운 평가 일정 없음</div>
       </article>
@@ -2621,6 +2677,7 @@
           <button class="nav-arrow-btn" id="previous-period-btn" type="button" aria-label="이전 기간">‹</button>
           <h2 id="calendar-year-month">일정을 준비하고 있어요</h2>
           <button class="nav-arrow-btn" id="next-period-btn" type="button" aria-label="다음 기간">›</button>
+          <button class="btn-today" id="today-btn" type="button" aria-label="오늘이 포함된 기간으로 이동">오늘</button>
         </div>
       </div>
 
@@ -2675,6 +2732,7 @@
 
   <script>
     const STORAGE_KEY_TOKEN = 'school_calendar_admin_token';
+    const STORAGE_KEY_STATS_SCOPE = 'school_calendar_stats_scope';
     let BACKEND_URL = '';
     let calendarData = {};
     let eventIndex = {};
@@ -2683,6 +2741,11 @@
 
     let currentView = 'month';
     let baseDate = new Date();
+    // 통계 집계 범위: 'screen'(현재 화면) | 'term1' | 'term2' | 'year'
+    let statsScope = 'screen';
+    let screenStats = { offjt: { days: 0, hours: 0 }, ojt: { days: 0, hours: 0 }, afterschool: { days: 0, hours: 0 } };
+    let goalHours = {};   // '설정' 시트에서 읽어온 연간 목표 이수시간 { offjt, ojt, afterschool }
+    let termDates = {};   // '설정' 시트에서 읽어온 학기 구간 { term1: {start, end}, term2: {start, end} }
     let selectedFilters = new Set(['ALL']);
     let adminToken = '';
     let isAdmin = false;
@@ -2801,31 +2864,23 @@
           const wrap = document.createElement('div');
           wrap.className = 'notice-badges-wrap';
 
-          const colorSchemes = [
-            'notice-badge-indigo',
-            'notice-badge-rose',
-            'notice-badge-emerald',
-            'notice-badge-purple',
-            'notice-badge-amber',
-            'notice-badge-cyan',
-            'notice-badge-blue'
-          ];
-
-          activeParts.forEach((part, idx) => {
+          activeParts.forEach((part) => {
             const badge = document.createElement('span');
-            const themeClass = colorSchemes[idx % colorSchemes.length];
-            badge.className = `notice-event-badge ${themeClass}`;
+            badge.className = 'notice-event-badge';
 
-            const icon = document.createElement('span');
-            icon.className = 'notice-badge-icon';
-            icon.setAttribute('aria-hidden', 'true');
-            icon.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>`;
+            const dot = document.createElement('span');
+            dot.className = 'notice-badge-dot';
 
             const text = document.createElement('span');
             text.className = 'notice-badge-text';
-            text.textContent = part;
+            const m = part.match(/^(.*?)\s*\(([^)]+)\)$/);
+            if (m) {
+              text.innerHTML = `${escapeHtml(m[1])} <span class="notice-date-tag">${escapeHtml(m[2])}</span>`;
+            } else {
+              text.textContent = part;
+            }
 
-            badge.append(icon, text);
+            badge.append(dot, text);
             wrap.appendChild(badge);
           });
 
@@ -2844,18 +2899,20 @@
         if (activeLines.length > 0) {
           const wrap = document.createElement('div');
           wrap.className = 'notice-badges-wrap';
-          const colorSchemes = ['notice-badge-indigo', 'notice-badge-rose', 'notice-badge-emerald', 'notice-badge-purple'];
-          activeLines.forEach((line, idx) => {
+          activeLines.forEach((line) => {
             const badge = document.createElement('span');
-            badge.className = `notice-event-badge ${colorSchemes[idx % colorSchemes.length]}`;
-            const icon = document.createElement('span');
-            icon.className = 'notice-badge-icon';
-            icon.setAttribute('aria-hidden', 'true');
-            icon.innerHTML = `<svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M5 3l14 9-14 9V3z"/></svg>`;
+            badge.className = 'notice-event-badge';
+            const dot = document.createElement('span');
+            dot.className = 'notice-badge-dot';
             const text = document.createElement('span');
             text.className = 'notice-badge-text';
-            text.textContent = line;
-            badge.append(icon, text);
+            const m = line.match(/^(.*?)\s*\(([^)]+)\)$/);
+            if (m) {
+              text.innerHTML = `${escapeHtml(m[1])} <span class="notice-date-tag">${escapeHtml(m[2])}</span>`;
+            } else {
+              text.textContent = line;
+            }
+            badge.append(dot, text);
             wrap.appendChild(badge);
           });
           noticeDisplay.appendChild(wrap);
@@ -2927,6 +2984,7 @@
       bindControls();
       initAdminTabs();
       restoreAdminSession();
+      restoreStatsScope();
       if (window.innerWidth < 800) {
         switchView('week1');
       }
@@ -3009,6 +3067,19 @@
       document.getElementById('tab-week-2').addEventListener('click', () => switchView('week2'));
       document.getElementById('previous-period-btn').addEventListener('click', () => moveTime(-1));
       document.getElementById('next-period-btn').addEventListener('click', () => moveTime(1));
+      document.getElementById('today-btn').addEventListener('click', goToToday);
+
+      document.querySelectorAll('.scope-btn').forEach((btn) => {
+        btn.addEventListener('click', () => setStatsScope(btn.dataset.scope));
+      });
+
+      // 모바일 경계(799px)를 넘나들면 아젠다 안내 문구의 표시 조건이 바뀌므로 다시 그린다.
+      const handleAgendaViewportChange = () => renderActiveView();
+      if (agendaViewportQuery.addEventListener) {
+        agendaViewportQuery.addEventListener('change', handleAgendaViewportChange);
+      } else if (agendaViewportQuery.addListener) {
+        agendaViewportQuery.addListener(handleAgendaViewportChange); // 구형 Safari 대응
+      }
       
       // Notice Admin Item-based Controls (Date + Title inputs)
       document.getElementById('admin-notice-submit-btn').addEventListener('click', submitNoticeItem);
@@ -3068,11 +3139,13 @@
 
       // Close modals on Esc or backdrop click
       window.addEventListener('keydown', (e) => {
-        if (e.key === 'Escape') {
-          if (document.getElementById('admin-tools-modal').style.display === 'flex') closeAdminToolsModal();
-          if (document.getElementById('date-event-modal').style.display === 'flex') closeDateEventModal();
-          if (document.getElementById('login-modal').style.display === 'flex') closeLoginModal();
-        }
+        if (e.key !== 'Escape') return;
+        // 최상단 모달 하나만 닫는다. 확인 다이얼로그는 자체 핸들러가 처리하므로 여기서 건드리지 않는다.
+        // (이전에는 확인 창을 Esc로 취소할 때 뒤에 있던 모달까지 함께 닫혔다.)
+        if (document.getElementById('confirm-modal').style.display === 'flex') return;
+        if (document.getElementById('login-modal').style.display === 'flex') closeLoginModal();
+        else if (document.getElementById('date-event-modal').style.display === 'flex') closeDateEventModal();
+        else if (document.getElementById('admin-tools-modal').style.display === 'flex') closeAdminToolsModal();
       });
 
       document.getElementById('admin-tools-modal').addEventListener('click', (e) => {
@@ -3223,6 +3296,12 @@
         calendarData = json.data || {};
         eventIndex = buildEventIndex(calendarData);
         filterTypes = json.types || [];
+        syncEventTypeOptions();
+        // 목표 이수시간은 '설정' 시트에 등록된 경우에만 내려온다.
+        // 구버전 백엔드(미포함)에서는 진행률 막대 없이 누적 수치만 표시된다.
+        goalHours = (json && typeof json.goals === 'object' && json.goals) ? json.goals : {};
+        // 학기 구간이 비어 있으면 월 단위 기본 구분으로 동작한다(구버전 백엔드 호환).
+        termDates = (json && typeof json.terms === 'object' && json.terms) ? json.terms : {};
         milestonesData = sortItemsUpcomingFirst(json.milestones || []);
 
         currentNoticeRaw = json.notice || '';
@@ -3249,6 +3328,40 @@
       }
     }
 
+    // 시트에 사용자 정의 분류 열(예: '자격증시험')이 추가되면 달력·필터에는 즉시 반영되지만
+    // 등록/수정 폼의 <select>에는 없어서, 해당 일정을 수정할 때 분류가 빈 값으로 전송된다.
+    // 서버가 내려준 분류 목록을 두 select에 병합해 그 불일치를 없앤다.
+    function syncEventTypeOptions() {
+      ['date-input-type', 'admin-add-type'].forEach((selectId) => {
+        const select = document.getElementById(selectId);
+        if (!select) return;
+        const previous = select.value;
+        const existing = new Set(Array.from(select.options).map((opt) => opt.value));
+        filterTypes.forEach((type) => {
+          const name = String(type || '').trim();
+          if (!name || existing.has(name)) return;
+          const option = document.createElement('option');
+          option.value = name;
+          option.textContent = name;
+          select.appendChild(option);
+          existing.add(name);
+        });
+        if (previous) select.value = previous;
+      });
+    }
+
+    // select에 없는 분류(시트에서 이미 사라진 열 등)를 편집할 때 값이 빈 문자열로 떨어지는 것을 막는다.
+    function ensureTypeOption(select, type) {
+      const name = String(type || '').trim();
+      if (!name || !select) return;
+      const found = Array.from(select.options).some((opt) => opt.value === name);
+      if (found) return;
+      const option = document.createElement('option');
+      option.value = name;
+      option.textContent = name;
+      select.appendChild(option);
+    }
+
     function buildEventIndex(data) {
       return Object.entries(data).reduce((index, [sheetKey, events]) => {
         const byDay = new Map();
@@ -3268,10 +3381,10 @@
 
     // View Switching & Navigation
     function switchView(viewType) {
+      // 보고 있던 기간을 유지한 채 표시 방식만 바꾼다.
+      // (이전에는 주간 탭을 누를 때마다 오늘로 되돌아가 탐색 위치를 잃었다.
+      //  오늘로 돌아가려면 '오늘' 버튼을 사용한다.)
       currentView = viewType;
-      if (viewType === 'week1' || viewType === 'week2') {
-        baseDate = new Date();
-      }
       const tabMap = { month: 'tab-month', week1: 'tab-week-1', week2: 'tab-week-2' };
       Object.entries(tabMap).forEach(([type, tabId]) => {
         const tab = document.getElementById(tabId);
@@ -3306,6 +3419,12 @@
       } else if (currentView === 'week2') {
         baseDate.setDate(baseDate.getDate() + (direction * 14));
       }
+      renderActiveView();
+    }
+
+    // 뷰 전환이 더 이상 기간을 초기화하지 않으므로, 오늘로 복귀하는 명시적 수단을 제공한다.
+    function goToToday() {
+      baseDate = new Date();
       renderActiveView();
     }
 
@@ -3440,7 +3559,7 @@
         cell.addEventListener('click', () => openDateEventModal(dateIso));
 
         const dayEvents = getDayEvents(currentSheetKey, d);
-        processEventsToCell(dayEvents, cell, currentSheetKey, d, offjtDays, ojtDays, afterschoolDays, hoursObj);
+        processEventsToCell(dayEvents, cell, d, offjtDays, ojtDays, afterschoolDays, hoursObj);
         grid.appendChild(cell);
       }
 
@@ -3474,7 +3593,7 @@
       endOfWeek.setDate(startOfWeek.getDate() + (totalDays - 1));
       
       const startStr = `${startOfWeek.getFullYear() !== endOfWeek.getFullYear() ? startOfWeek.getFullYear() + '년 ' : ''}${startOfWeek.getMonth() + 1}월 ${startOfWeek.getDate()}일`;
-      const endStr = `${endOfWeek.getFullYear() !== endOfWeek.getFullYear() ? endOfWeek.getFullYear() + '년 ' : ''}${endOfWeek.getMonth() + 1}월 ${endOfWeek.getDate()}일`;
+      const endStr = `${startOfWeek.getFullYear() !== endOfWeek.getFullYear() ? endOfWeek.getFullYear() + '년 ' : ''}${endOfWeek.getMonth() + 1}월 ${endOfWeek.getDate()}일`;
       const labelSuffix = weeksCount === 2 ? ' (2주간)' : '';
       document.getElementById('calendar-year-month').textContent = `${startStr} ~ ${endStr}${labelSuffix}`;
 
@@ -3511,7 +3630,7 @@
         cell.addEventListener('click', () => openDateEventModal(dateIso));
 
         const dayEvents = getDayEvents(sheetKey, iDay);
-        processEventsToCell(dayEvents, cell, sheetKey, iDay, offjtDays, ojtDays, afterschoolDays, hoursObj);
+        processEventsToCell(dayEvents, cell, iDay, offjtDays, ojtDays, afterschoolDays, hoursObj);
         grid.appendChild(cell);
       }
       updateDashBoardStats(offjtDays.size, hoursObj.offjt, ojtDays.size, hoursObj.ojt, afterschoolDays.size, hoursObj.afterschool);
@@ -3530,34 +3649,55 @@
       return defaultHours;
     }
 
+    // CSS의 표시 조건(@media (max-width: 799px) + 주간 그리드)과 1:1로 대응한다.
+    const agendaViewportQuery = window.matchMedia('(max-width: 799px)');
+    function isAgendaEmptyMsgVisible() {
+      return agendaViewportQuery.matches && currentView !== 'month';
+    }
+
+    const HOLIDAY_KEYWORDS = ['재량휴업일', '휴업일', '공휴일', '대체공휴일', '국가공휴일', '국경일', '법정공휴일', '명절'];
+
+    // 일정 분류 판정. 화면 기준 집계와 누적 집계가 같은 규칙을 쓰도록 한 곳에 모아 둔다.
+    // (두 곳에 복제해 두면 규칙이 갈라져 통계가 어긋난다)
+    function classifyEvent(ev) {
+      const typeClean = ev.type ? ev.type.replace(/[-\s]/g, '').toUpperCase() : '';
+      const titleClean = ev.title ? ev.title.replace(/[-\s]/g, '').toUpperCase() : '';
+      return {
+        isOffJt: typeClean.includes('OFFJT') || titleClean.includes('OFFJT'),
+        isOjt: typeClean.includes('OJT') || titleClean.includes('OJT'),
+        isSpecial: typeClean.includes('특별수업') || titleClean.includes('특별수업') || ev.type === '특별수업',
+        isAfterSchool: titleClean.includes('방과후') || typeClean.includes('방과후'),
+        isHoliday: HOLIDAY_KEYWORDS.some((keyword) => typeClean.includes(keyword) || titleClean.includes(keyword) || ev.type === keyword)
+      };
+    }
+
+    // 하루치 일정을 집계 누적기에 반영한다. dayKey는 월을 넘나들어도 고유해야 하므로 'YYYY.M-D' 형태를 쓴다.
+    function accumulateEventStats(ev, dayKey, acc) {
+      const kind = classifyEvent(ev);
+      if (kind.isHoliday) return kind;
+
+      if (kind.isOffJt) {
+        acc.offjtDays.add(dayKey);
+        acc.hours.offjt += getEventHours(ev, 7);
+      } else if (kind.isOjt) {
+        acc.ojtDays.add(dayKey);
+        acc.hours.ojt += getEventHours(ev, 8);
+      }
+
+      if (kind.isAfterSchool) {
+        acc.afterschoolDays.add(dayKey);
+        acc.hours.afterschool += getEventHours(ev, 2);
+      }
+      return kind;
+    }
+
     // Cell Event Badges & Calculation
-    function processEventsToCell(dayEvents, cell, sheetKey, d, offjtDays, ojtDays, afterschoolDays, hoursObj) {
+    function processEventsToCell(dayEvents, cell, d, offjtDays, ojtDays, afterschoolDays, hoursObj) {
       let visibleCount = 0;
+      const acc = { offjtDays: offjtDays, ojtDays: ojtDays, afterschoolDays: afterschoolDays, hours: hoursObj };
+
       dayEvents.forEach((ev) => {
-        const typeClean = ev.type ? ev.type.replace(/[-\s]/g, '').toUpperCase() : '';
-        const titleClean = ev.title ? ev.title.replace(/[-\s]/g, '').toUpperCase() : '';
-        
-        const isOffJt = typeClean.includes('OFFJT') || titleClean.includes('OFFJT');
-        const isOjt = typeClean.includes('OJT') || titleClean.includes('OJT');
-        const isSpecial = typeClean.includes('특별수업') || titleClean.includes('특별수업') || ev.type === '특별수업';
-        const isAfterSchool = titleClean.includes('방과후') || typeClean.includes('방과후');
-        
-        const holidayKeywords = ['재량휴업일', '휴업일', '공휴일', '대체공휴일', '국가공휴일', '국경일', '법정공휴일', '명절'];
-        const isHoliday = holidayKeywords.some(keyword => typeClean.includes(keyword) || titleClean.includes(keyword) || ev.type === keyword);
-
-        // Calculate hours and active days
-        if(isOffJt && !isHoliday) {
-          offjtDays.add(d); 
-          hoursObj.offjt += getEventHours(ev, 7); 
-        } else if(isOjt && !isHoliday) {
-          ojtDays.add(d); 
-          hoursObj.ojt += getEventHours(ev, 8); 
-        }
-
-        if(isAfterSchool && !isHoliday) {
-          afterschoolDays.add(d);
-          hoursObj.afterschool += getEventHours(ev, 2);
-        }
+        const { isOffJt, isOjt, isSpecial, isAfterSchool, isHoliday } = accumulateEventStats(ev, d, acc);
 
         if (!selectedFilters.has('ALL') && !selectedFilters.has(ev.type)) return;
         visibleCount++;
@@ -3578,7 +3718,10 @@
         cell.appendChild(badge);
       });
 
-      if (visibleCount === 0) {
+      // '등록된 일정이 없습니다.' 안내는 모바일 아젠다(주간) 뷰에서만 화면에 나타난다.
+      // 그 외 환경에서는 CSS(.agenda-empty-msg { display:none })로 어차피 숨겨지므로,
+      // 월 렌더링마다 30~40개의 보이지 않는 노드를 만들지 않도록 생성 자체를 건너뛴다.
+      if (visibleCount === 0 && isAgendaEmptyMsgVisible()) {
         const emptyMsg = document.createElement('div');
         emptyMsg.className = 'agenda-empty-msg';
         emptyMsg.textContent = '등록된 일정이 없습니다.';
@@ -3586,14 +3729,178 @@
       }
     }
 
-    // Dashboard Statistics & D-Day
-    function updateDashBoardStats(offJtDaysCount, offJtHoursCount, ojtDaysCount, ojtHoursCount, afterschoolDaysCount = 0, afterschoolHoursCount = 0) {
-      document.getElementById('stat-offjt-days').textContent = `${offJtDaysCount}일 / ${offJtHoursCount}시간`;
-      document.getElementById('stat-ojt-days').textContent = `${ojtDaysCount}일 / ${ojtHoursCount}시간`;
-      const afterschoolEl = document.getElementById('stat-afterschool-days');
-      if (afterschoolEl) {
-        afterschoolEl.textContent = `${afterschoolDaysCount}일 / ${afterschoolHoursCount}시간`;
+    /* ── 누적 이수시간 집계 ─────────────────────────────────────────────
+       학년도는 3월 시작. 1학기 = 3~8월, 2학기 = 9월~다음해 2월.
+       기준 학년도는 '오늘'이 아니라 '보고 있는 기간(baseDate)'을 따른다.
+       (2027년 4월을 조회 중이면 2027학년도 누적을 보는 것이 자연스럽다)            */
+
+    function schoolYearOf(date) {
+      return date.getMonth() + 1 >= 3 ? date.getFullYear() : date.getFullYear() - 1;
+    }
+
+    function schoolYearOfIso(iso) {
+      const month = Number(iso.slice(5, 7));
+      const year = Number(iso.slice(0, 4));
+      return month >= 3 ? year : year - 1;
+    }
+
+    function isoOf(year, month, day) {
+      return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+    }
+
+    function shortDate(iso) {
+      return `${Number(iso.slice(5, 7))}/${Number(iso.slice(8, 10))}`;
+    }
+
+    // '설정' 시트에 적힌 학기 날짜를 쓴다. 조회 중인 학년도와 시트의 학년도가 다르면 쓸 수 없다.
+    function termRangeFromSheet(scope, schoolYear) {
+      const term1 = termDates.term1;
+      const term2 = termDates.term2;
+
+      if (scope === 'term1' && term1 && schoolYearOfIso(term1.start) === schoolYear) {
+        return { from: term1.start, to: term1.end };
       }
+      if (scope === 'term2' && term2 && schoolYearOfIso(term2.start) === schoolYear) {
+        return { from: term2.start, to: term2.end };
+      }
+      // 연간은 1학기 시작 ~ 2학기 종료. 학기 사이 방학 기간도 포함된다.
+      if (scope === 'year' && term1 && term2 &&
+          schoolYearOfIso(term1.start) === schoolYear && schoolYearOfIso(term2.start) === schoolYear) {
+        return { from: term1.start, to: term2.end };
+      }
+      return null;
+    }
+
+    // 시트에 학기 날짜가 없을 때 쓰는 월 단위 기본 구분 (1학기 3~8월 / 2학기 9월~익년 2월)
+    function defaultTermRange(scope, schoolYear) {
+      const lastFebDay = new Date(schoolYear + 1, 2, 0).getDate();
+      if (scope === 'term1') return { from: isoOf(schoolYear, 3, 1), to: isoOf(schoolYear, 8, 31) };
+      if (scope === 'term2') return { from: isoOf(schoolYear, 9, 1), to: isoOf(schoolYear + 1, 2, lastFebDay) };
+      return { from: isoOf(schoolYear, 3, 1), to: isoOf(schoolYear + 1, 2, lastFebDay) };
+    }
+
+    // 집계 범위를 ISO 날짜 구간으로 반환한다.
+    // 학기 경계는 월로 떨어지지 않으므로(예: 8/13 방학, 8/14 개학) 날짜 단위로 비교한다.
+    function statsRangeFor(scope, date) {
+      if (scope === 'screen') return null;
+
+      const sy = schoolYearOf(date);
+      const scopeName = scope === 'term1' ? '1학기' : (scope === 'term2' ? '2학기' : '연간');
+      const fromSheet = termRangeFromSheet(scope, sy);
+      const range = fromSheet || defaultTermRange(scope, sy);
+
+      // 어떤 구간을 더한 결과인지 캡션에 그대로 드러내, 기준이 어긋나면 바로 알아챌 수 있게 한다.
+      const period = `${shortDate(range.from)} ~ ${shortDate(range.to)}`;
+      range.label = `${sy}학년도 ${scopeName}`;
+      range.caption = fromSheet
+        ? `${range.label} (${period}) 누적`
+        : `${range.label} (${period} · 기본 구분) 누적`;
+      return range;
+    }
+
+    // 지정 구간의 일정을 날짜 단위로 누적 집계한다.
+    // 카테고리 필터와 무관하게 전체를 합산한다(화면 기준 집계와 동일한 정책).
+    function computeStatsForRange(range) {
+      const acc = {
+        offjtDays: new Set(), ojtDays: new Set(), afterschoolDays: new Set(),
+        hours: { offjt: 0, ojt: 0, afterschool: 0 }
+      };
+
+      Object.keys(calendarData).forEach((sheetKey) => {
+        const parts = sheetKey.split('.');
+        const year = Number(parts[0]);
+        const month = Number(parts[1]);
+        if (!Number.isInteger(year) || !Number.isInteger(month)) return;
+
+        (calendarData[sheetKey] || []).forEach((ev) => {
+          const day = Number(ev.day);
+          if (!Number.isInteger(day)) return;
+
+          // ISO(yyyy-MM-dd) 문자열 비교만으로 날짜 순서가 보장된다.
+          const iso = isoOf(year, month, day);
+          if (iso < range.from || iso > range.to) return;
+
+          // 같은 날짜 숫자가 여러 달에 등장하므로 날짜 전체를 키로 써 고유 일수를 센다.
+          accumulateEventStats(ev, iso, acc);
+        });
+      });
+
+      return {
+        offjt: { days: acc.offjtDays.size, hours: acc.hours.offjt },
+        ojt: { days: acc.ojtDays.size, hours: acc.hours.ojt },
+        afterschool: { days: acc.afterschoolDays.size, hours: acc.hours.afterschool }
+      };
+    }
+
+    // Dashboard Statistics & D-Day
+    // 캘린더 렌더러가 넘겨준 '현재 화면 기준' 수치를 보관해 두고,
+    // 선택된 집계 범위에 따라 화면 기준 / 누적 중 무엇을 표시할지 renderDashboard가 결정한다.
+    function updateDashBoardStats(offJtDaysCount, offJtHoursCount, ojtDaysCount, ojtHoursCount, afterschoolDaysCount = 0, afterschoolHoursCount = 0) {
+      screenStats = {
+        offjt: { days: offJtDaysCount, hours: offJtHoursCount },
+        ojt: { days: ojtDaysCount, hours: ojtHoursCount },
+        afterschool: { days: afterschoolDaysCount, hours: afterschoolHoursCount }
+      };
+      renderDashboard();
+    }
+
+    function renderDashboard() {
+      const range = statsRangeFor(statsScope, baseDate);
+      const stats = range ? computeStatsForRange(range) : screenStats;
+      const caption = range ? range.caption : '현재 달력 화면 기준 합산';
+
+      [
+        { key: 'offjt', valueId: 'stat-offjt-days', descId: 'stat-offjt-desc', barId: 'stat-offjt-bar' },
+        { key: 'ojt', valueId: 'stat-ojt-days', descId: 'stat-ojt-desc', barId: 'stat-ojt-bar' },
+        { key: 'afterschool', valueId: 'stat-afterschool-days', descId: 'stat-afterschool-desc', barId: 'stat-afterschool-bar' }
+      ].forEach((card) => {
+        const data = stats[card.key] || { days: 0, hours: 0 };
+        const valueEl = document.getElementById(card.valueId);
+        if (valueEl) valueEl.textContent = `${data.days}일 / ${data.hours}시간`;
+        renderGoalBar(card, data, caption);
+      });
+    }
+
+    // 목표 시간은 '설정' 시트에 등록된 학년도(연간) 기준 값이다.
+    // 비교 기준이 어긋나지 않도록 진행률 막대는 '연간' 범위에서만 노출한다.
+    function renderGoalBar(card, data, caption) {
+      const descEl = document.getElementById(card.descId);
+      const barWrap = document.getElementById(card.barId);
+      const goal = Number(goalHours[card.key]) || 0;
+      const showBar = statsScope === 'year' && goal > 0;
+
+      if (barWrap) {
+        barWrap.style.display = showBar ? 'block' : 'none';
+        if (showBar) {
+          const percent = Math.min(100, Math.round((data.hours / goal) * 100));
+          const fill = barWrap.querySelector('.stat-bar-fill');
+          if (fill) fill.style.width = percent + '%';
+          barWrap.setAttribute('aria-valuenow', String(percent));
+          barWrap.title = `연간 목표 ${goal}시간 중 ${data.hours}시간 (${percent}%)`;
+          if (descEl) descEl.textContent = `연간 목표 ${goal}h 대비 ${percent}%`;
+          return;
+        }
+      }
+      if (descEl) descEl.textContent = caption;
+    }
+
+    function setStatsScope(scope) {
+      statsScope = scope;
+      try { localStorage.setItem(STORAGE_KEY_STATS_SCOPE, scope); } catch (e) {}
+
+      document.querySelectorAll('.scope-btn').forEach((btn) => {
+        const isActive = btn.dataset.scope === scope;
+        btn.classList.toggle('active', isActive);
+        btn.setAttribute('aria-pressed', String(isActive));
+      });
+      renderDashboard();
+    }
+
+    function restoreStatsScope() {
+      let saved = 'screen';
+      try { saved = localStorage.getItem(STORAGE_KEY_STATS_SCOPE) || 'screen'; } catch (e) {}
+      if (!['screen', 'term1', 'term2', 'year'].includes(saved)) saved = 'screen';
+      setStatsScope(saved);
     }
 
     function calculateDDay() {
@@ -3779,9 +4086,11 @@
         }
       }
 
+      const typeSelect = document.getElementById('date-input-type');
+      ensureTypeOption(typeSelect, ev.type);
       document.getElementById('date-input-title').value = rawTitle;
-      document.getElementById('date-input-type').value = ev.type || '학사일정';
-      handleDateTypeChange(ev.type || '학사일정');
+      typeSelect.value = ev.type || '학사일정';
+      handleDateTypeChange(typeSelect.value);
 
       if (ev.type === 'off-JT' || ev.type === 'OJT') {
         const isDefaultHour = (ev.type === 'off-JT' && hours === 7) || (ev.type === 'OJT' && hours === 8) || hours === null;
@@ -3836,37 +4145,38 @@
       try {
         if (modalEditEvent) {
           // Edit existing event
-          let result;
-          try {
-            // Attempt update_event
-            result = await sendAdminRequest({
-              action: 'update_event',
-              date: modalSelectedDate,
-              oldDate: modalSelectedDate,
-              oldType: modalEditEvent.type,
-              oldTitle: modalEditEvent.title,
-              newDate: modalSelectedDate,
-              newType: type,
-              newTitle: title,
-              hours: hours,
-              eventId: modalEditEvent.id
-            });
-          } catch (updateErr) {
-            // Fallback to delete + add
-            await sendAdminRequest({
+          // sendAdminRequest()는 실패 시 예외를 던지지 않고 null을 반환하므로 반환값으로 판정한다.
+          let result = await sendAdminRequest({
+            action: 'update_event',
+            date: modalSelectedDate,
+            oldDate: modalSelectedDate,
+            oldType: modalEditEvent.type,
+            oldTitle: modalEditEvent.title,
+            newDate: modalSelectedDate,
+            newType: type,
+            newTitle: title,
+            hours: hours,
+            eventId: modalEditEvent.id
+          }, { silent: true });
+
+          if (!result) {
+            // Fallback: update_event 미지원 구버전 백엔드 대응 (삭제 후 재등록)
+            const removed = await sendAdminRequest({
               action: 'delete_event',
               date: modalSelectedDate,
               type: modalEditEvent.type,
               title: modalEditEvent.title,
               eventId: modalEditEvent.id
             });
-            result = await sendAdminRequest({
-              action: 'add_event',
-              date: modalSelectedDate,
-              title: title,
-              type: type,
-              hours: hours
-            });
+            if (removed) {
+              result = await sendAdminRequest({
+                action: 'add_event',
+                date: modalSelectedDate,
+                title: title,
+                type: type,
+                hours: hours
+              });
+            }
           }
 
           if (result) {
@@ -4060,9 +4370,13 @@
       renderActiveView();
     }
 
-    async function sendAdminRequest(payload) {
+    // options.silent: 실패해도 오류 토스트를 띄우지 않는다.
+    // 폴백이 뒤따르는 1차 시도에 사용한다. (최종 실패는 폴백 쪽에서 알린다)
+    // 세션 만료는 즉시 대응해야 하므로 silent와 무관하게 항상 처리한다.
+    async function sendAdminRequest(payload, options) {
+      const silent = !!(options && options.silent);
       if (!isAdmin || !adminToken) {
-        showToast('관리자 로그인이 필요합니다.', 'warning');
+        if (!silent) showToast('관리자 로그인이 필요합니다.', 'warning');
         return null;
       }
 
@@ -4073,7 +4387,7 @@
         if (error.message.includes('세션') || error.message.includes('인증')) {
           endAdminSession();
           showToast('관리자 세션이 만료되었습니다. 다시 로그인해 주세요.', 'warning');
-        } else {
+        } else if (!silent) {
           showToast(`처리 실패: ${error.message}`, 'error');
         }
         return null;
@@ -4085,7 +4399,9 @@
     // Notice Items State for Admin Management (Structured like D-Day Milestones)
     let currentNoticeRaw = '';
     let noticesData = []; // Array of { id, date, title }
-    let editingNoticeIndex = -1;
+    // 수정 대상은 배열 인덱스가 아닌 ID로 고정한다.
+    // 인덱스로 들고 있으면 편집 도중 loadServerData()로 목록이 재정렬될 때 다른 공지가 수정된다.
+    let editingNoticeId = null;
     let noticeCurrentPage = 1;
     const NOTICE_PAGE_SIZE = 4;
 
@@ -4181,7 +4497,7 @@
         const index = startIndex + relIdx;
         const itemEl = document.createElement('div');
         itemEl.className = 'notice-admin-item';
-        if (editingNoticeIndex === index) {
+        if (editingNoticeId !== null && editingNoticeId === item.id) {
           itemEl.classList.add('editing');
         }
 
@@ -4224,7 +4540,7 @@
         dateBadge.className = 'dday-list-date';
         dateBadge.style.cssText = 'padding: 2px 7px; font-size: .75rem; border-radius: 6px; font-weight: 800;';
         if (item.date) {
-          dateBadge.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span>${item.date}</span>`;
+          dateBadge.innerHTML = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg><span>${escapeHtml(item.date)}</span>`;
         } else {
           dateBadge.style.background = '#f3e8ff';
           dateBadge.style.color = '#6b21a8';
@@ -4336,9 +4652,9 @@
     function startEditNoticeItem(index) {
       if (index < 0 || index >= noticesData.length) return;
 
-      editingNoticeIndex = index;
-      noticeCurrentPage = Math.floor(index / NOTICE_PAGE_SIZE) + 1;
       const item = noticesData[index];
+      editingNoticeId = item.id;
+      noticeCurrentPage = Math.floor(index / NOTICE_PAGE_SIZE) + 1;
 
       const dateInput = document.getElementById('admin-notice-date');
       const titleInput = document.getElementById('admin-notice-title');
@@ -4356,7 +4672,7 @@
     }
 
     function cancelEditNoticeItem() {
-      editingNoticeIndex = -1;
+      editingNoticeId = null;
       const dateInput = document.getElementById('admin-notice-date');
       const titleInput = document.getElementById('admin-notice-title');
       const submitText = document.getElementById('admin-notice-submit-text');
@@ -4371,6 +4687,40 @@
       renderAdminNoticeList();
     }
 
+    // 서버('공지사항' 시트 __id열)가 발급한 UUID 여부 판정.
+    // 클라이언트가 임시 생성한 'notice-item-N'은 행 단위 API의 대상이 될 수 없다.
+    function isServerNoticeId(id) {
+      return typeof id === 'string' && id.length >= 20 && id.length <= 100;
+    }
+
+    // 행 단위 API 실패(구버전 백엔드 등) 시 전체 공지를 종합 텍스트로 재조립하여 저장하는 폴백.
+    async function saveNoticesAsRawText(nextItems, targetId) {
+      const newNotice = stringifyNoticeItems(nextItems);
+      const res = await sendAdminRequest({ action: 'update_notice', newNotice });
+      if (!res) return null;
+      return { notice: res.notice || newNotice, notices: res.notices, targetId };
+    }
+
+    // 저장 결과를 화면 상태에 반영하고, 변경한 항목이 보이는 페이지로 이동한다.
+    function applyNoticeMutationResult(result, fallbackItems) {
+      currentNoticeRaw = result.notice || '';
+      // 서버 응답이 최우선(마지막 1건 삭제로 빈 배열이 와도 그대로 반영해야 한다)
+      noticesData = Array.isArray(result.notices)
+        ? sortItemsUpcomingFirst(result.notices)
+        : sortItemsUpcomingFirst(fallbackItems);
+
+      if (result.targetId) {
+        const newIdx = noticesData.findIndex(item => item.id === result.targetId);
+        if (newIdx >= 0) noticeCurrentPage = Math.floor(newIdx / NOTICE_PAGE_SIZE) + 1;
+      }
+
+      const totalPages = Math.max(1, Math.ceil(noticesData.length / NOTICE_PAGE_SIZE));
+      if (noticeCurrentPage > totalPages) noticeCurrentPage = totalPages;
+
+      renderNotice(currentNoticeRaw);
+      cancelEditNoticeItem();
+    }
+
     async function submitNoticeItem() {
       const dateInput = document.getElementById('admin-notice-date');
       const titleInput = document.getElementById('admin-notice-title');
@@ -4383,40 +4733,49 @@
         return;
       }
 
-      const isEdit = editingNoticeIndex >= 0;
-      let targetId = isEdit ? noticesData[editingNoticeIndex].id : null;
+      const isEdit = editingNoticeId !== null;
+      const target = isEdit ? noticesData.find(it => it.id === editingNoticeId) : null;
 
-      if (isEdit) {
-        noticesData[editingNoticeIndex] = { id: targetId || `notice-item-${Date.now()}`, date, title };
-      } else {
-        targetId = `notice-item-${Date.now()}`;
-        noticesData.push({ id: targetId, date, title });
-      }
-
-      noticesData = sortItemsUpcomingFirst(noticesData);
-      const newIdx = noticesData.findIndex(item => item.id === targetId);
-      if (newIdx >= 0) {
-        noticeCurrentPage = Math.floor(newIdx / NOTICE_PAGE_SIZE) + 1;
-      }
-
-      const newNotice = stringifyNoticeItems(noticesData);
-      const res = await sendAdminRequest({ action: 'update_notice', newNotice });
-      if (res) {
-        currentNoticeRaw = res.notice || newNotice;
-        if (Array.isArray(res.notices) && res.notices.length > 0) {
-          noticesData = sortItemsUpcomingFirst(res.notices);
-        }
-        renderNotice(currentNoticeRaw);
+      // 편집 중 목록이 갱신되어 대상이 사라진 경우, 신규 등록으로 새어 나가지 않도록 중단한다.
+      if (isEdit && !target) {
+        showToast('수정하려던 공지를 목록에서 찾을 수 없습니다. 최신 목록에서 다시 선택해 주세요.', 'warning');
         cancelEditNoticeItem();
-        showToast(isEdit ? '공지사항이 수정되어 구글 시트에 저장되었습니다.' : '신규 공지가 구글 시트에 등록되었습니다.', 'success');
+        return;
       }
+
+      let result = null;
+
+      // 1순위: 행 단위 API (해당 행만 갱신하므로 다른 공지의 __id가 보존된다)
+      if (isEdit && target && isServerNoticeId(target.id)) {
+        const res = await sendAdminRequest({ action: 'update_notice_item', id: target.id, date, title }, { silent: true });
+        if (res) result = { notice: res.notice, notices: res.notices, targetId: target.id };
+      } else if (!isEdit) {
+        const res = await sendAdminRequest({ action: 'add_notice', date, title }, { silent: true });
+        if (res) result = { notice: res.notice, notices: res.notices, targetId: res.item && res.item.id };
+      }
+
+      // 2순위: 종합 텍스트 일괄 저장 폴백
+      let nextItems = noticesData;
+      if (!result) {
+        const localId = (target && target.id) || `notice-item-${Date.now()}`;
+        nextItems = noticesData.slice();
+        const editIdx = isEdit ? nextItems.findIndex(it => it.id === editingNoticeId) : -1;
+        if (editIdx >= 0) nextItems[editIdx] = { id: localId, date, title };
+        else nextItems.push({ id: localId, date, title });
+        nextItems = sortItemsUpcomingFirst(nextItems);
+        result = await saveNoticesAsRawText(nextItems, localId);
+        if (!result) return;
+      }
+
+      applyNoticeMutationResult(result, nextItems);
+      showToast(isEdit ? '공지사항이 수정되어 구글 시트에 저장되었습니다.' : '신규 공지가 구글 시트에 등록되었습니다.', 'success');
     }
 
     async function deleteNoticeItem(index) {
       if (index < 0 || index >= noticesData.length) return;
 
       const item = noticesData[index];
-      const confirmed = await AppDialog.confirm({
+      const confirmed = await showConfirmDialog({
         title: '공지사항 삭제 확인',
         message: '선택하신 공지사항을 삭제하시겠습니까?',
         details: `[삭제 대상] ${item.date ? `(${item.date}) ` : ''}${item.title}`,
@@ -4427,22 +4786,26 @@
 
       if (!confirmed) return;
 
-      noticesData.splice(index, 1);
-      noticesData = sortItemsUpcomingFirst(noticesData);
-      const nextTotalPages = Math.max(1, Math.ceil(noticesData.length / NOTICE_PAGE_SIZE));
-      if (noticeCurrentPage > nextTotalPages) noticeCurrentPage = nextTotalPages;
+      let result = null;
 
-      const newNotice = stringifyNoticeItems(noticesData);
-      const res = await sendAdminRequest({ action: 'update_notice', newNotice });
-      if (res) {
-        currentNoticeRaw = res.notice || newNotice;
-        if (Array.isArray(res.notices)) {
-          noticesData = sortItemsUpcomingFirst(res.notices);
-        }
-        renderNotice(currentNoticeRaw);
-        cancelEditNoticeItem();
-        showToast('공지사항이 삭제되어 구글 시트에 반영되었습니다.', 'success');
+      // 1순위: 행 단위 삭제 (남은 공지의 __id가 그대로 유지된다)
+      if (isServerNoticeId(item.id)) {
+        const res = await sendAdminRequest({ action: 'delete_notice', id: item.id }, { silent: true });
+        if (res) result = { notice: res.notice, notices: res.notices };
       }
+
+      // 2순위: 종합 텍스트 일괄 저장 폴백
+      let nextItems = noticesData;
+      if (!result) {
+        nextItems = noticesData.slice();
+        nextItems.splice(index, 1);
+        nextItems = sortItemsUpcomingFirst(nextItems);
+        result = await saveNoticesAsRawText(nextItems, null);
+        if (!result) return;
+      }
+
+      applyNoticeMutationResult(result, nextItems);
+      showToast('공지사항이 삭제되어 구글 시트에 반영되었습니다.', 'success');
     }
 
     let ddayCurrentPage = 1;
@@ -4620,19 +4983,32 @@
 
       if (editingDDayId) {
         // Edit Mode
-        const old = milestonesData.find(m => m.id === editingDDayId) || {};
-        let updated = false;
-        try {
-          const res = await sendAdminRequest({ action: 'update_dday', id: editingDDayId, date, title, oldDate: old.date, oldTitle: old.title });
-          if (res && res.success !== false) updated = true;
-        } catch (e) {
-          updated = false;
+        const old = milestonesData.find(m => m.id === editingDDayId);
+        if (!old) {
+          showToast('수정하려던 마일스톤을 목록에서 찾을 수 없습니다. 최신 목록에서 다시 선택해 주세요.', 'warning');
+          cancelEditDDay();
+          return;
         }
 
+        // sendAdminRequest()는 실패 시 예외 대신 null을 반환하므로 반환값으로 판정한다.
+        let updated = await sendAdminRequest({
+          action: 'update_dday', id: editingDDayId, date, title, oldDate: old.date, oldTitle: old.title
+        }, { silent: true });
+
         if (!updated) {
-          // Fallback: delete old and add new
-          await sendAdminRequest({ action: 'delete_dday', ...old });
-          await sendAdminRequest({ action: 'add_dday', date, title });
+          // Fallback: update_dday 미지원 구버전 백엔드 대응 (삭제 후 재등록)
+          // 삭제가 실패하면 재등록하지 않는다. 반대로 삭제만 성공하고 재등록이 실패하면
+          // 마일스톤이 유실되므로, 그 사실을 성공으로 덮지 않고 그대로 알린다.
+          const removed = await sendAdminRequest({ action: 'delete_dday', ...old });
+          if (!removed) return;
+
+          updated = await sendAdminRequest({ action: 'add_dday', date, title });
+          if (!updated) {
+            showToast('기존 마일스톤은 삭제되었으나 새 내용 등록에 실패했습니다. 목록을 확인한 뒤 다시 등록해 주세요.', 'error', 6000);
+            cancelEditDDay();
+            await loadServerData();
+            return;
+          }
         }
 
         showToast('디데이 마일스톤이 수정되었습니다.', 'success');
@@ -4653,7 +5029,7 @@
     async function deleteDDay(milestone) {
       if (editingDDayId === milestone.id) cancelEditDDay();
 
-      const confirmed = await AppDialog.confirm({
+      const confirmed = await showConfirmDialog({
         title: '디데이 마일스톤 삭제',
         message: '해당 마일스톤을 삭제하시겠습니까?',
         details: `[${milestone.date}] ${milestone.title}`,
@@ -4670,47 +5046,11 @@
       }
     }
 
-    async function deleteEvent(event) {
-      event.stopPropagation();
-      const button = event.currentTarget;
-      const sheetKey = button.dataset.sheetKey;
-      const day = Number(button.dataset.day);
-      const [year, month] = sheetKey.split('.').map(Number);
-      const date = toIsoDate(new Date(year, month - 1, day));
-      const type = button.dataset.type;
-      const title = button.dataset.title;
-
-      const confirmed = await showConfirmDialog({
-        title: '일정 삭제 확인',
-        message: '해당 일정을 삭제하시겠습니까?',
-        details: `[${type}] ${title} (${date})`,
-        confirmText: '일정 삭제',
-        isDanger: true
-      });
-      if (!confirmed) return;
-
-      const result = await sendAdminRequest({
-        action: 'delete_event',
-        date,
-        type,
-        title,
-        eventId: button.dataset.eventId
-      });
-      if (result) {
-        showToast('일정이 안전하게 삭제되었습니다.', 'success');
-        await loadServerData();
-      }
-    }
-
     function parseIsoDate(value) {
       const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value || '');
       if (!match) return null;
       const date = new Date(Number(match[1]), Number(match[2]) - 1, Number(match[3]));
       return date.getFullYear() === Number(match[1]) && date.getMonth() === Number(match[2]) - 1 && date.getDate() === Number(match[3]) ? date : null;
-    }
-
-    function toIsoDate(date) {
-      return [date.getFullYear(), String(date.getMonth() + 1).padStart(2, '0'), String(date.getDate()).padStart(2, '0')].join('-');
     }
 
     // High-Resolution Image Export
@@ -4727,6 +5067,9 @@
         script.onerror = () => reject(new Error('캡처 라이브러리를 불러오지 못했습니다.'));
         document.head.appendChild(script);
       });
+
+      // 실패한 Promise를 캐시에 남기면 네트워크가 복구된 뒤에도 영원히 실패한다.
+      captureLibraryPromise.catch(() => { captureLibraryPromise = null; });
       return captureLibraryPromise;
     }
 
@@ -4743,6 +5086,12 @@
       if (loadingSpan) loadingSpan.textContent = '달력 일정표 이미지를 생성하는 중입니다...';
       if (loadingEl) loadingEl.style.display = 'flex';
 
+      // 모바일에서 월간 달력은 가로 스크롤(.calendar-scroll) 안에 들어 있어 화면보다 넓다.
+      // 보이는 폭만 캡처하면 목·금·토 열이 통째로 잘리므로, 넘치는 폭만큼 캡처 영역을 넓힌다.
+      const scroller = target.querySelector('.calendar-scroll');
+      const overflowWidth = scroller ? Math.max(0, scroller.scrollWidth - scroller.clientWidth) : 0;
+      const captureWidth = target.offsetWidth + overflowWidth;
+
       try {
         const html2canvas = await loadCaptureLibrary();
         const canvas = await html2canvas(target, {
@@ -4752,13 +5101,32 @@
           logging: false,
           scrollX: 0,
           scrollY: 0,
+          width: captureWidth,
+          windowWidth: Math.max(document.documentElement.clientWidth, captureWidth),
           onclone: (clonedDoc) => {
-            const ws = clonedDoc.getElementById('calendar-workspace');
-            if (ws) {
-              ws.style.backdropFilter = 'none';
-              ws.style.webkitBackdropFilter = 'none';
-              ws.style.boxShadow = 'none';
-              ws.style.background = '#ffffff';
+            // 복제본에서는 가로 스크롤을 풀어 달력 전체가 한 장에 담기도록 한다.
+            const clonedWorkspace = clonedDoc.getElementById('calendar-workspace');
+            if (clonedWorkspace) clonedWorkspace.style.width = captureWidth + 'px';
+            const clonedScroller = clonedWorkspace && clonedWorkspace.querySelector('.calendar-scroll');
+            if (clonedScroller) {
+              clonedScroller.style.overflow = 'visible';
+              clonedScroller.style.width = 'auto';
+            }
+            // [중요] html2canvas는 문서를 복제한 뒤 곧바로 래스터화한다.
+            // 복제본에서는 진입 애니메이션(`animation: rise ... both`)이 처음부터 다시 시작하므로
+            // 캡처 시점의 상태가 keyframe의 시작값(opacity: 0)이 되어 결과가 백지로 나온다.
+            // 복제본의 모든 애니메이션/트랜지션을 무력화해 최종 상태로 렌더링되도록 한다.
+            // animation을 끄면 fill-mode로 적용돼 있던 시작 상태가 사라지고 요소 본래의 스타일로 돌아간다.
+            // (opacity를 일괄로 강제하지는 않는다. 지난달 날짜 칸의 흐림 처리 등 의도된 투명도는 보존해야 한다.)
+            const freeze = clonedDoc.createElement('style');
+            freeze.textContent = '*, *::before, *::after { animation: none !important; transition: none !important; }';
+            (clonedDoc.head || clonedDoc.documentElement).appendChild(freeze);
+
+            if (clonedWorkspace) {
+              clonedWorkspace.style.backdropFilter = 'none';
+              clonedWorkspace.style.webkitBackdropFilter = 'none';
+              clonedWorkspace.style.boxShadow = 'none';
+              clonedWorkspace.style.background = '#ffffff';
             }
             clonedDoc.querySelectorAll('.calendar-cell').forEach((cell) => {
               cell.style.boxShadow = 'none';
@@ -4766,8 +5134,10 @@
             clonedDoc.querySelectorAll('.event-badge').forEach((badge) => {
               badge.style.boxShadow = 'none';
             });
+            // 복제 문서의 뷰로 계산해야 정확하다(다른 document의 요소를 현재 window로 조회하면 결과가 부정확할 수 있음).
+            const clonedView = clonedDoc.defaultView || window;
             clonedDoc.querySelectorAll('*').forEach((el) => {
-              if (window.getComputedStyle(el).backdropFilter !== 'none') {
+              if (clonedView.getComputedStyle(el).backdropFilter !== 'none') {
                 el.style.backdropFilter = 'none';
                 el.style.webkitBackdropFilter = 'none';
               }
@@ -4796,7 +5166,11 @@
         const viewName = currentView === 'month' ? '월간' : (currentView === 'week1' ? '1주간' : '2주간');
         link.download = `성일정보고_달력_${viewName}_${periodStr}.png`;
         link.href = canvas.toDataURL('image/png');
+        // Firefox 등은 문서에 연결되지 않은 링크의 click()을 무시하므로 DOM에 붙였다가 제거한다.
+        link.style.display = 'none';
+        document.body.appendChild(link);
         link.click();
+        link.remove();
         showToast('일정표 이미지가 성공적으로 저장되었습니다.', 'success');
       } catch (error) {
         showToast('이미지 생성에 실패했습니다. 잠시 후 다시 시도하세요.', 'error');
