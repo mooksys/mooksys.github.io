@@ -14,6 +14,13 @@ const HIDE_TRIGGER_HANDLER = 'hideOldMonthlySheets';
 const ROW_HIDE_TRIGGER_HANDLER = 'hidePastDatedRows';
 const DATED_ROW_SHEETS = ['디데이', '공지사항'];
 
+// doGet 응답 캐시. 시트를 고치면 즉시 무효화되므로 TTL은 안전망 역할만 한다.
+const PAYLOAD_CACHE_KEY = 'calendar-payload-v1';
+const PAYLOAD_CACHE_TTL_SECONDS = 5 * 60;
+const PAYLOAD_CACHE_CHUNK = 90000;   // CacheService 값 한도 100KB에 여유를 둔 크기
+const PAYLOAD_CACHE_MAX_CHUNKS = 20; // 약 1.8MB까지만 캐싱
+const CACHE_WARM_TRIGGER_HANDLER = 'warmPayloadCache';
+
 /**
  * 스프레드시트 열릴 때 상단 커스텀 메뉴 추가
  */
@@ -22,7 +29,13 @@ function onOpen() {
     const ui = SpreadsheetApp.getUi();
     ui.createMenu('📅 캘린더 관리')
       .addItem('📢 공지사항 시트 자동 생성 및 동기화', 'createNoticeSheetNow')
+      .addItem('🗓️ 다음 학년도 월 시트 만들기', 'createNextSchoolYearSheets')
       .addSeparator()
+      .addSubMenu(ui.createMenu('⚡ 응답 속도 (캐시)')
+        .addItem('지금 캐시 비우기', 'clearPayloadCacheWithReport')
+        .addSeparator()
+        .addItem('⏰ 5분 주기 자동 예열 켜기', 'installCacheWarmTrigger')
+        .addItem('⏹️ 자동 예열 끄기', 'removeCacheWarmTrigger'))
       .addSubMenu(ui.createMenu('🗂️ 지난 월 시트 정리')
         .addItem('지금 숨기기', 'hideOldMonthlySheetsWithReport')
         .addItem('모두 다시 표시', 'showAllMonthlySheets')
@@ -52,6 +65,149 @@ function parseMonthlySheetName_(name) {
   const month = Number(match[2]);
   // '2026.9'와 '2026.10'은 문자열로 비교하면 순서가 뒤집히므로 반드시 숫자로 환산해 비교한다.
   return { year: year, month: month, index: year * 12 + month };
+}
+
+/** 오늘 기준 다음 학년도 (학년도는 3월 시작) */
+function nextSchoolYear_() {
+  const today = new Date();
+  const current = (today.getMonth() + 1) >= 3 ? today.getFullYear() : today.getFullYear() - 1;
+  return current + 1;
+}
+
+/**
+ * [메뉴용] 다음 학년도 월 시트를 한 번에 만든다. (예: 2027학년도 → 2027.3 ~ 2028.2)
+ *
+ * 헤더는 기존 월 시트에서 그대로 가져와 학교가 쓰던 분류 구성을 유지한다.
+ * A·B열에는 해당 월의 날짜와 요일을 채워 두어 바로 일정 입력이 가능하다.
+ * 이미 있는 시트는 건드리지 않는다.
+ */
+function createNextSchoolYearSheets() {
+  const ss = getSpreadsheet_();
+  const schoolYear = nextSchoolYear_();
+
+  const targets = [];
+  for (let i = 0; i < 12; i++) {
+    const rawMonth = 3 + i;
+    targets.push(rawMonth <= 12
+      ? { year: schoolYear, month: rawMonth }
+      : { year: schoolYear + 1, month: rawMonth - 12 });
+  }
+
+  const first = targets[0].year + '.' + targets[0].month;
+  const last = targets[targets.length - 1].year + '.' + targets[targets.length - 1].month;
+
+  // 이미 다 만들어 둔 경우에는 확인 창을 띄우지 않고 바로 알린다.
+  const missing = targets.filter(function(target) {
+    return !ss.getSheetByName(target.year + '.' + target.month);
+  });
+  if (missing.length === 0) {
+    showMessage_('이미 준비되어 있습니다',
+      schoolYear + '학년도 시트(' + first + ' ~ ' + last + ')가 모두 있습니다.\n\n' +
+      '※ 그 다음 학년도 시트는 해가 바뀐 뒤(3월 이후) 같은 메뉴로 만들 수 있습니다.');
+    return;
+  }
+
+  const proceed = confirmMessage_(schoolYear + '학년도 월 시트 만들기',
+    '대상: ' + first + ' ~ ' + last + ' (12개)\n' +
+    '새로 만들 시트: ' + missing.length + '개\n\n' +
+    '· 헤더는 기존 월 시트와 동일하게 구성합니다.\n' +
+    '· 날짜와 요일은 자동으로 채웁니다.\n' +
+    '· 이미 있는 시트는 그대로 둡니다.\n\n계속할까요?');
+  if (!proceed) return;
+
+  const headers = monthlySheetHeaderTemplate_(ss);
+  const created = [];
+  const skipped = [];
+
+  targets.forEach(function(target) {
+    const name = target.year + '.' + target.month;
+    if (ss.getSheetByName(name)) {
+      skipped.push(name);
+      return;
+    }
+    buildMonthlySheet_(ss, name, target.year, target.month, headers);
+    created.push(name);
+  });
+
+  if (created.length > 0) invalidatePayloadCache_();
+
+  const lines = [];
+  lines.push('생성: ' + (created.length ? created.join(', ') : '없음'));
+  if (skipped.length) lines.push('이미 있어 건너뜀: ' + skipped.join(', '));
+  lines.push('');
+  lines.push('분류 열: ' + headers.slice(2).join(', '));
+  lines.push('');
+  lines.push('※ 일정은 웹 캘린더에서 등록하거나 시트에 직접 입력하면 됩니다.');
+  showMessage_(schoolYear + '학년도 시트 생성 완료', lines.join('\n'));
+}
+
+/**
+ * 새 월 시트의 헤더 구성을 결정한다.
+ * 가장 최근 월 시트의 헤더를 그대로 물려받아, 학교가 실제로 쓰는 분류(예: 도제일정)를 유지한다.
+ */
+function monthlySheetHeaderTemplate_(ss) {
+  let best = null;
+  let bestIndex = -1;
+
+  ss.getSheets().forEach(function(sheet) {
+    const parsed = parseMonthlySheetName_(sheet.getName());
+    if (!parsed) return;
+    if (sheet.getLastRow() < 1 || sheet.getLastColumn() < 3) return;
+    if (parsed.index <= bestIndex) return;
+
+    const row = sheet.getRange(1, 1, 1, sheet.getLastColumn()).getDisplayValues()[0];
+    const headers = row.map(function(cell) { return String(cell || '').trim(); });
+    while (headers.length > 0 && headers[headers.length - 1] === '') headers.pop();
+    if (headers.length < 3) return;
+
+    best = headers;
+    bestIndex = parsed.index;
+  });
+
+  return best || ['일', '요일', '학사일정', 'off-JT', 'OJT', '특별수업', '국가공휴일', '휴업일'];
+}
+
+function buildMonthlySheet_(ss, name, year, month, headers) {
+  const sheet = ss.insertSheet(name);
+  const weekdayNames = ['일', '월', '화', '수', '목', '금', '토'];
+  const lastDay = new Date(year, month, 0).getDate();
+
+  sheet.getRange(1, 1, 1, headers.length).setValues([headers])
+    .setFontWeight('bold')
+    .setBackground('#f1f5f9')
+    .setHorizontalAlignment('center');
+
+  const rows = [];
+  const fontColors = [];
+  for (let day = 1; day <= lastDay; day++) {
+    const weekdayIndex = new Date(year, month - 1, day).getDay();
+    rows.push([day, weekdayNames[weekdayIndex]]);
+    // 주말은 글자색으로 구분해 입력 실수를 줄인다. (일요일 적색 / 토요일 청색)
+    const color = weekdayIndex === 0 ? '#c13750' : (weekdayIndex === 6 ? '#2563eb' : '#262622');
+    fontColors.push([color, color]);
+  }
+
+  const dayRange = sheet.getRange(2, 1, lastDay, 2);
+  dayRange.setValues(rows).setFontColors(fontColors).setHorizontalAlignment('center');
+
+  sheet.setFrozenRows(1);
+  sheet.setColumnWidth(1, 45);
+  sheet.setColumnWidth(2, 55);
+  for (let column = 3; column <= headers.length; column++) {
+    sheet.setColumnWidth(column, 170);
+  }
+
+  return sheet;
+}
+
+function confirmMessage_(title, message) {
+  try {
+    const ui = SpreadsheetApp.getUi();
+    return ui.alert(title, message, ui.ButtonSet.YES_NO) === ui.Button.YES;
+  } catch (e) {
+    // UI가 없는 실행 환경에서는 되돌리기 어려운 작업을 임의로 진행하지 않는다.
+    return false;
+  }
 }
 
 /** 스프레드시트 표준시 기준 이번 달의 통산 월수 */
@@ -312,11 +468,22 @@ function createNoticeSheetNow() {
     });
     noticeSheet.getRange(2, 1, rows.length, 3).setNumberFormat('@').setValues(rows);
   }
+  invalidatePayloadCache_();
   return '공지사항 시트 생성 및 ' + parsedItems.length + '건 동기화 완료!';
 }
 
-function doGet() {
+function doGet(e) {
   try {
+    // 월 시트가 쌓이면 전체 조회가 십수 초까지 걸린다. 같은 응답을 캐시에서 즉시 돌려준다.
+    // ?fresh=1 로 호출하면 캐시를 건너뛴다(점검용).
+    const skipCache = !!(e && e.parameter && e.parameter.fresh === '1');
+    if (!skipCache) {
+      const cached = readCachedPayload_();
+      if (cached) {
+        return ContentService.createTextOutput(cached).setMimeType(ContentService.MimeType.JSON);
+      }
+    }
+
     const ss = getSpreadsheet_();
     const result = { data: {}, types: [], notice: '', milestones: [] };
     const typeSet = {};
@@ -339,10 +506,114 @@ function doGet() {
       result.data[sheetKey] = (result.data[sheetKey] || []).concat(events);
     });
 
-    return jsonOutput_(result);
+    result.generatedAt = Utilities.formatDate(new Date(), ss.getSpreadsheetTimeZone(), "yyyy-MM-dd'T'HH:mm:ss");
+
+    const json = JSON.stringify(result);
+    writeCachedPayload_(json);
+    return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
   } catch (error) {
     return jsonOutput_({ error: safeErrorMessage_(error) });
   }
+}
+
+/* ── doGet 응답 캐시 ──────────────────────────────────────────────────────
+   CacheService 값 한도는 키당 100KB라, 응답 JSON을 조각내어 저장하고
+   조각 수를 메타 키에 기록한다. 조각이 하나라도 만료되면 캐시 전체를 무시한다.  */
+
+function readCachedPayload_() {
+  try {
+    const cache = CacheService.getScriptCache();
+    const count = Number(cache.get(PAYLOAD_CACHE_KEY));
+    if (!Number.isInteger(count) || count < 1) return '';
+
+    const keys = [];
+    for (let i = 0; i < count; i++) keys.push(PAYLOAD_CACHE_KEY + ':' + i);
+
+    const parts = cache.getAll(keys);
+    let json = '';
+    for (let i = 0; i < count; i++) {
+      const piece = parts[PAYLOAD_CACHE_KEY + ':' + i];
+      if (piece === null || piece === undefined) return '';
+      json += piece;
+    }
+    return json;
+  } catch (error) {
+    return '';
+  }
+}
+
+function writeCachedPayload_(json) {
+  try {
+    const chunks = {};
+    let count = 0;
+    for (let i = 0; i < json.length; i += PAYLOAD_CACHE_CHUNK) {
+      chunks[PAYLOAD_CACHE_KEY + ':' + count] = json.substring(i, i + PAYLOAD_CACHE_CHUNK);
+      count++;
+    }
+    // 조각이 지나치게 많으면(=응답이 비정상적으로 큼) 캐싱을 포기하고 매번 계산한다.
+    if (count < 1 || count > PAYLOAD_CACHE_MAX_CHUNKS) return;
+
+    chunks[PAYLOAD_CACHE_KEY] = String(count);
+    CacheService.getScriptCache().putAll(chunks, PAYLOAD_CACHE_TTL_SECONDS);
+  } catch (error) {
+    // 캐시 저장 실패는 조회 자체를 막지 않는다.
+  }
+}
+
+function invalidatePayloadCache_() {
+  try {
+    const cache = CacheService.getScriptCache();
+    const keys = [PAYLOAD_CACHE_KEY];
+    const count = Number(cache.get(PAYLOAD_CACHE_KEY));
+    if (Number.isInteger(count)) {
+      for (let i = 0; i < count; i++) keys.push(PAYLOAD_CACHE_KEY + ':' + i);
+    }
+    cache.removeAll(keys);
+  } catch (error) {
+    // 무시. TTL이 만료되면 어차피 갱신된다.
+  }
+}
+
+/**
+ * 스프레드시트를 사람이 직접 편집했을 때도 캐시를 즉시 비운다.
+ * (앱을 통한 수정은 doPost에서 비우지만, 시트 직접 입력은 이 단순 트리거로만 감지된다)
+ */
+function onEdit(e) {
+  invalidatePayloadCache_();
+}
+
+/** [메뉴용] 캐시를 수동으로 비운다. */
+function clearPayloadCacheWithReport() {
+  invalidatePayloadCache_();
+  showMessage_('캐시 비움', '다음 조회부터 스프레드시트를 다시 읽습니다.\n\n※ 평소에는 시트를 수정하면 자동으로 비워집니다.');
+}
+
+/**
+ * 캐시가 비어 있을 때만 미리 채워 둔다. (5분 주기 트리거)
+ * 캐시가 살아 있으면 즉시 반환하므로 대부분의 실행은 1초 미만으로 끝나고,
+ * 시트를 수정한 직후에만 재계산이 일어난다. 덕분에 첫 방문자도 대기하지 않는다.
+ */
+function warmPayloadCache() {
+  if (readCachedPayload_()) return;
+  doGet();
+}
+
+/** [메뉴용] 5분 주기 캐시 예열 트리거를 설치한다. */
+function installCacheWarmTrigger() {
+  removeTriggersByHandler_(CACHE_WARM_TRIGGER_HANDLER);
+  ScriptApp.newTrigger(CACHE_WARM_TRIGGER_HANDLER)
+    .timeBased()
+    .everyMinutes(5)
+    .create();
+  showMessage_('자동 예열 켜짐', '5분마다 캐시 상태를 확인해 비어 있으면 미리 채웁니다.\n\n첫 방문자도 기다리지 않고 바로 일정을 보게 됩니다.');
+}
+
+/** [메뉴용] 캐시 예열 트리거를 해제한다. */
+function removeCacheWarmTrigger() {
+  const removed = removeTriggersByHandler_(CACHE_WARM_TRIGGER_HANDLER);
+  showMessage_('자동 예열 꺼짐', removed > 0
+    ? '캐시 예열 트리거를 해제했습니다.'
+    : '설치된 캐시 예열 트리거가 없습니다.');
 }
 
 function doPost(e) {
@@ -405,6 +676,9 @@ function doPost(e) {
         default:
           throw new Error('지원하지 않는 요청입니다.');
       }
+
+      // 쓰기가 성공했으므로 캐시된 조회 응답은 더 이상 유효하지 않다.
+      invalidatePayloadCache_();
 
       return jsonOutput_(Object.assign({ success: true }, result || {}));
     } finally {
@@ -605,28 +879,41 @@ function storedDateToIso_(value, timezone) {
  */
 function readGoalHours_(ss) {
   const sheet = ss.getSheetByName('설정');
-  if (!sheet) return {};
+  if (!sheet) return { byYear: {}, fallback: {} };
 
-  const lastRow = Math.min(sheet.getLastRow(), 20);
-  if (lastRow < 1) return {};
+  const lastRow = Math.min(sheet.getLastRow(), 60);
+  if (lastRow < 1) return { byYear: {}, fallback: {} };
 
   const values = sheet.getRange(1, 1, lastRow, 2).getValues();
-  const goals = {};
+  const byYear = {};
+  const fallback = {};   // 학년도를 적지 않은 값. 해당 학년도 전용 값이 없을 때 쓴다.
 
   values.forEach(function(row) {
-    const label = String(row[0] || '').replace(/[-\s]/g, '').toUpperCase();
+    const rawLabel = String(row[0] || '');
+    const label = rawLabel.replace(/[-\s]/g, '').toUpperCase();
     if (!label || label.indexOf('목표') === -1) return;
 
     const hours = Number(row[1]);
     if (!isFinite(hours) || hours <= 0) return;
 
     // 'OFFJT'가 'OJT'보다 먼저 판정되어야 한다. (OFFJT 안에는 OJT가 들어 있지 않지만 순서를 명시해 둔다)
-    if (label.indexOf('OFFJT') !== -1) goals.offjt = hours;
-    else if (label.indexOf('OJT') !== -1) goals.ojt = hours;
-    else if (label.indexOf('방과후') !== -1) goals.afterschool = hours;
+    const key = label.indexOf('OFFJT') !== -1 ? 'offjt'
+      : (label.indexOf('OJT') !== -1 ? 'ojt'
+        : (label.indexOf('방과후') !== -1 ? 'afterschool' : ''));
+    if (!key) return;
+
+    // 학기 날짜와 동일하게, 라벨 앞에 학년도를 붙이면 그 학년도 전용 목표가 된다.
+    const labelYear = /(20\d{2})/.exec(label);
+    if (labelYear) {
+      const year = labelYear[1];
+      if (!byYear[year]) byYear[year] = {};
+      byYear[year][key] = hours;
+    } else {
+      fallback[key] = hours;
+    }
   });
 
-  return goals;
+  return { byYear: byYear, fallback: fallback };
 }
 
 /**
@@ -643,16 +930,32 @@ function readGoalHours_(ss) {
  * 비어 있으면 프론트엔드가 월 단위 기본 구분(3~8월 / 9~2월)으로 대체한다.
  * @return {{term1?: {start: string, end: string}, term2?: {start: string, end: string}}}
  */
+/**
+ * '설정' 시트에서 학기 시작·종료일을 학년도별로 읽는다.
+ *
+ * 학년도가 바뀌어도 지난 학년도 집계가 그대로 유지되도록, 여러 학년도를 함께 보관한다.
+ * 라벨 앞에 학년도를 붙이면 그 학년도의 값으로 저장된다. (권장)
+ *   A: 2026 1학기 시작   B: 2026-03-01
+ *   A: 2026 2학기 종료   B: 2027-01-07
+ *   A: 2027 1학기 시작   B: 2027-03-02
+ *
+ * 학년도를 생략하면 날짜에서 유추한다(3월 시작 기준).
+ *   A: 1학기 시작        B: 2026-03-01   → 2026학년도
+ *   A: 2학기 종료        B: 2027-01-07   → 2026학년도 (1~2월은 이전 학년도)
+ *
+ * @return {{byYear: Object, issues?: string[]}}
+ */
 function readTermDates_(ss) {
   const sheet = ss.getSheetByName('설정');
-  if (!sheet) return {};
+  if (!sheet) return { byYear: {} };
 
-  const lastRow = Math.min(sheet.getLastRow(), 20);
-  if (lastRow < 1) return {};
+  const lastRow = Math.min(sheet.getLastRow(), 60);
+  if (lastRow < 1) return { byYear: {} };
 
   const timezone = ss.getSpreadsheetTimeZone();
   const values = sheet.getRange(1, 1, lastRow, 2).getValues();
-  const terms = {};
+  const byYear = {};
+  const issues = [];
 
   values.forEach(function(row) {
     const label = String(row[0] || '').replace(/\s/g, '');
@@ -666,20 +969,95 @@ function readTermDates_(ss) {
       : ((label.indexOf('종료') !== -1 || label.indexOf('끝') !== -1) ? 'end' : '');
     if (!boundary) return;
 
-    const iso = storedDateToIso_(row[1], timezone);
-    if (!iso) return;
+    const raw = row[1];
+    const iso = parseFlexibleDate_(raw, timezone);
+    if (!iso) {
+      // 라벨은 맞는데 날짜만 못 읽은 경우다. 조용히 넘기면 원인을 알 수 없으므로 사유를 남긴다.
+      const shown = String(raw === null || raw === undefined ? '' : raw).trim();
+      issues.push(String(row[0]).trim() + ': 날짜를 인식하지 못했습니다' +
+        (shown ? ' (입력값: ' + shown + ')' : ''));
+      return;
+    }
 
-    if (!terms[termKey]) terms[termKey] = {};
-    terms[termKey][boundary] = iso;
+    // 라벨의 학년도가 있으면 그것을 쓰고, 없으면 날짜에서 유추한다.
+    const labelYear = /(20\d{2})/.exec(label);
+    const schoolYear = labelYear ? Number(labelYear[1]) : schoolYearOfIso_(iso);
+
+    if (!byYear[schoolYear]) byYear[schoolYear] = {};
+    if (!byYear[schoolYear][termKey]) byYear[schoolYear][termKey] = {};
+    byYear[schoolYear][termKey][boundary] = iso;
   });
 
-  // 한쪽만 적혀 있거나 시작이 종료보다 늦은 경우는 신뢰할 수 없으므로 버린다.
-  Object.keys(terms).forEach(function(key) {
-    const term = terms[key];
-    if (!term.start || !term.end || term.start > term.end) delete terms[key];
+  // 한쪽만 적혀 있거나 시작이 종료보다 늦으면 신뢰할 수 없다. 버리되 사유를 함께 알린다.
+  Object.keys(byYear).forEach(function(year) {
+    ['term1', 'term2'].forEach(function(key) {
+      const term = byYear[year][key];
+      if (!term) return;
+      const name = year + '학년도 ' + termLabel_(key);
+      if (!term.start) {
+        issues.push(name + ' 시작일이 없어 이 학기는 기본 구분으로 계산됩니다.');
+        delete byYear[year][key];
+      } else if (!term.end) {
+        issues.push(name + ' 종료일이 없어 이 학기는 기본 구분으로 계산됩니다.');
+        delete byYear[year][key];
+      } else if (term.start > term.end) {
+        issues.push(name + ' 시작일이 종료일보다 늦습니다.');
+        delete byYear[year][key];
+      }
+    });
+    if (Object.keys(byYear[year]).length === 0) delete byYear[year];
   });
 
-  return terms;
+  const result = { byYear: byYear };
+  if (issues.length > 0) result.issues = issues;
+  return result;
+}
+
+function termLabel_(key) {
+  return key === 'term1' ? '1학기' : '2학기';
+}
+
+/** ISO 날짜가 속한 학년도 (3월 시작) */
+function schoolYearOfIso_(iso) {
+  const year = Number(iso.slice(0, 4));
+  const month = Number(iso.slice(5, 7));
+  return month >= 3 ? year : year - 1;
+}
+
+/**
+ * 학기 날짜처럼 사람이 직접 입력하는 날짜를 너그럽게 해석한다.
+ * 지원: Date 셀, 2026-03-01, 2026-3-1, 2026.3.1, 2026. 3. 1., 2026/3/1, 2026년 3월 1일,
+ *       연도 없는 3/1 · 3.1 · 3월 1일 (오늘 기준 학년도로 보정)
+ */
+function parseFlexibleDate_(value, timezone) {
+  if (Object.prototype.toString.call(value) === '[object Date]' && !isNaN(value.getTime())) {
+    return Utilities.formatDate(value, timezone, 'yyyy-MM-dd');
+  }
+
+  const text = String(value === null || value === undefined ? '' : value).trim();
+  if (!text) return '';
+
+  const withYear = /^(\d{4})\s*[-./년]\s*(\d{1,2})\s*[-./월]\s*(\d{1,2})\s*[일.]?$/.exec(text);
+  if (withYear) {
+    return buildIsoIfValid_(Number(withYear[1]), Number(withYear[2]), Number(withYear[3]));
+  }
+
+  const withoutYear = /^(\d{1,2})\s*[-./월]\s*(\d{1,2})\s*[일.]?$/.exec(text);
+  if (withoutYear) {
+    const month = Number(withoutYear[1]);
+    const day = Number(withoutYear[2]);
+    // 학년도는 3월 시작이므로, 1~2월은 다음 해로 본다.
+    const today = new Date();
+    const schoolYear = (today.getMonth() + 1) >= 3 ? today.getFullYear() : today.getFullYear() - 1;
+    return buildIsoIfValid_(month >= 3 ? schoolYear : schoolYear + 1, month, day);
+  }
+
+  return '';
+}
+
+function buildIsoIfValid_(year, month, day) {
+  if (!isValidDateParts_(year, month, day)) return '';
+  return [year, String(month).padStart(2, '0'), String(day).padStart(2, '0')].join('-');
 }
 
 function readNotices_(ss, lockHeld) {
