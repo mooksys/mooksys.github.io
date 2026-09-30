@@ -182,6 +182,7 @@
       input[type="text"],
       input[type="password"],
       input[type="time"],
+      input[type="date"],
       select {
         width: 100%;
         padding: 13px 14px;
@@ -202,6 +203,7 @@
       input[type="text"]:hover:not(:disabled),
       input[type="password"]:hover:not(:disabled),
       input[type="time"]:hover:not(:disabled),
+      input[type="date"]:hover:not(:disabled),
       select:hover:not(:disabled) {
         border-color: var(--border-strong);
       }
@@ -209,6 +211,7 @@
       input[type="text"]:focus,
       input[type="password"]:focus,
       input[type="time"]:focus,
+      input[type="date"]:focus,
       select:focus {
         border-color: var(--primary);
         background: var(--surface);
@@ -2234,6 +2237,117 @@
         overflow: hidden;
         text-overflow: ellipsis;
       }
+      /* 좁은 화면 전용. 기본 화면에서는 '기준시간' 열이 따로 있습니다. */
+      .s-time-inline {
+        display: none;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--text-muted);
+        letter-spacing: -0.01em;
+      }
+      /* ── 퇴반 학생 ── */
+      .s-left-badge {
+        display: inline-block;
+        margin-left: 6px;
+        padding: 1px 6px;
+        border-radius: var(--r-pill);
+        background: var(--surface-sunken);
+        border: 1px solid var(--border-strong);
+        color: var(--text-muted);
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        vertical-align: middle;
+      }
+      /* 퇴반 학생 행 — 점선 테두리 + 연한 바이올렛.
+         점선은 '진행 중이 아님'을 뜻해서, 실선으로 이어지는 재학생 행들
+         사이에서 한눈에 갈립니다. 색은 [퇴반] 버튼과 같은 바이올렛 계열로
+         맞췄습니다(로즈는 오류, 앰버는 경고로 읽혀 어울리지 않습니다).
+
+         table 이 border-collapse: collapse 라서 tr 테두리가 그려집니다.
+         다만 행 사이 가로 변에서는 td 의 1px 실선과 충돌합니다. 충돌은
+         '폭 → 스타일' 순으로 정해지는데 같은 폭이면 solid 가 dashed 를
+         이기므로, 2px 로 두어 폭에서 확실히 이기게 합니다.
+         (1.5px 은 브라우저가 1px 로 반올림해 무승부가 됩니다)
+
+         opacity 는 0.62 → 0.85 로 올렸습니다. 이제 테두리가 구분 역할을
+         맡으므로 더 흐릴 필요가 없고, 너무 흐리면 점선 색까지 죽습니다. */
+      tr.student-row-left {
+        border: 2px dashed #c4b5fd;
+        background: #faf8ff;
+        opacity: 0.85;
+      }
+      /* tbody tr:hover 의 배경(#fafcfe)이 덮어써서 틴트가 사라지는 것을 막습니다 */
+      tr.student-row-left:hover {
+        opacity: 1;
+        background: #f5f3ff;
+        border-color: #a78bfa;
+      }
+      .left-student-toggle {
+        width: auto;
+        margin: 0 0 10px;
+        padding: 6px 12px;
+        border-radius: var(--r-pill);
+        border: 1px dashed var(--border-strong);
+        background: transparent;
+        color: var(--text-light);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: -0.01em;
+        box-shadow: none;
+      }
+      .left-student-toggle:hover {
+        background: var(--surface-sunken);
+        color: var(--text);
+      }
+      .left-student-toggle.is-on {
+        border-style: solid;
+        background: var(--surface-sunken);
+        color: var(--text);
+      }
+      /* 입력 모달(showPrompt)
+         #popupActions 는 버튼 두 개를 가로로 놓으려고 flex-row 입니다.
+         입력칸과 버튼줄을 함께 넣으면 둘이 좌우로 갈라져 버튼이 세로로
+         찌그러지므로, 이때만 세로 배치로 바꿉니다. */
+      .popup-actions.is-prompt {
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+      }
+      .popup-prompt-field {
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        margin-bottom: 14px;
+        text-align: left;
+      }
+      .popup-prompt-field label {
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text-light);
+      }
+      /* 날짜 입력. appearance:none 은 주지 않습니다 — 사파리에서 선택기
+         자체가 사라집니다. 달력 아이콘만 눈에 띄게 손봅니다. */
+      .popup-prompt-field input[type="date"] {
+        min-height: 46px;
+      }
+      .popup-prompt-field input[type="date"]::-webkit-calendar-picker-indicator {
+        cursor: pointer;
+        opacity: 0.55;
+        transition: opacity 0.15s ease;
+      }
+      .popup-prompt-field input[type="date"]:hover::-webkit-calendar-picker-indicator,
+      .popup-prompt-field
+        input[type="date"]:focus::-webkit-calendar-picker-indicator {
+        opacity: 1;
+      }
+      .popup-prompt-actions {
+        display: flex;
+        gap: 8px;
+      }
+      .popup-prompt-actions button {
+        flex: 1 1 0;
+      }
       .student-info-cell .s-id {
         font-size: 11px;
         font-weight: 700;
@@ -2327,6 +2441,34 @@
         border-color: #fcd34d;
         transform: translateY(-1.5px);
         box-shadow: 0 3px 8px rgba(245, 158, 11, 0.18);
+      }
+      /* 퇴반 — 바이올렛.
+         수정(블루)·PW(앰버)·삭제(로즈)와 겹치지 않으면서 눈에 걸리는 색을
+         골랐습니다. 색이 없으면 투명 버튼이 되어 아예 안 보입니다. */
+      .student-action-btn.leave {
+        background: #f5f3ff;
+        color: #6d28d9;
+        border-color: #ddd6fe;
+      }
+      .student-action-btn.leave:hover {
+        background: #ede9fe;
+        color: #5b21b6;
+        border-color: #c4b5fd;
+        transform: translateY(-1.5px);
+        box-shadow: 0 3px 8px rgba(124, 58, 237, 0.18);
+      }
+      /* 복구 — 에메랄드. 되살리는 동작이라 긍정 색을 씁니다. */
+      .student-action-btn.restore {
+        background: #ecfdf5;
+        color: #047857;
+        border-color: #a7f3d0;
+      }
+      .student-action-btn.restore:hover {
+        background: #d1fae5;
+        color: #065f46;
+        border-color: #6ee7b7;
+        transform: translateY(-1.5px);
+        box-shadow: 0 3px 8px rgba(16, 185, 129, 0.18);
       }
       .student-action-btn.delete {
         background: #fff1f2;
@@ -2436,17 +2578,30 @@
 
            예전에는 이 요구를 버튼을 줄여서 맞췄고(높이 ≈ 23px, 간격 3px),
            그 결과 되돌리기 어려운 [PW 초기화]·[삭제]가 오탭하기 쉬웠습니다. */
+        /* 좁은 화면에서는 '기준시간'을 별도 열로 두지 않고 학생 정보 셀
+           아래줄에 붙입니다. 열을 그대로 두면 학생정보 129 + 기준시간 95 +
+           관리 203 = 427px 라 컨테이너(312px)를 넘겨 관리 버튼이 잘립니다.
+           (버튼이 3개이던 때에도 이미 68px 넘치고 있었습니다) */
+        .col-time {
+          display: none;
+        }
+        .s-time-inline {
+          display: inline-block;
+        }
         .student-action-group {
-          gap: 8px;
+          gap: 4px;
           flex-wrap: nowrap;
         }
         .student-action-btn {
           /* 감춘 <span> 의 기준점. 없으면 절대 배치가 표 바깥으로 빠집니다. */
           position: relative;
-          width: var(--tap-min);
-          min-width: var(--tap-min);
-          height: var(--tap-min);
-          min-height: var(--tap-min);
+          /* 버튼이 4개(수정·PW·퇴반/복구·삭제)라 40px 로는 열이 넘칩니다.
+             36px 은 권장 터치 크기보다 작지만, 가로 스크롤 뒤로 버튼이
+             숨는 것보다는 눌러서 닿는 편이 낫다고 보고 택한 절충입니다. */
+          width: 36px;
+          min-width: 36px;
+          height: 36px;
+          min-height: 36px;
           padding: 0;
           gap: 0;
         }
@@ -4460,6 +4615,16 @@
             </button>
           </div>
 
+          <!-- 퇴반 학생은 기본적으로 감춰둡니다. 명단이 길어지면 지금 다니는
+               학생을 훑는 데 방해가 되기 때문입니다. -->
+          <button
+            type="button"
+            id="leftStudentToggle"
+            class="left-student-toggle hidden"
+            aria-expanded="false"
+            onclick="toggleLeftStudents()"
+          ></button>
+
           <!-- 발급된 초기 비밀번호는 해시로만 저장되어 다시 볼 수 없습니다 -->
           <div id="initialPwNotice" class="initial-pw-notice hidden">
             <div class="initial-pw-head">
@@ -4489,7 +4654,7 @@
               <thead>
                 <tr>
                   <th style="text-align: left; padding-left: 16px;">학생 정보</th>
-                  <th>기준시간</th>
+                  <th class="col-time">기준시간</th>
                   <th style="text-align: right; padding-right: 18px;">관리</th>
                 </tr>
               </thead>
@@ -4507,7 +4672,12 @@
               <line x1="12" y1="16" x2="12" y2="12"/>
               <line x1="12" y1="8" x2="12.01" y2="8"/>
             </svg>
-            <div>학번은 출결 이력 식별키이므로 등록 후 변경할 수 없습니다. 학생 삭제 시 기존 출결 기록은 안전하게 보존됩니다.</div>
+            <div>
+              학번은 출결 이력 식별키이므로 등록 후 변경할 수 없습니다.<br />
+              <strong>과정을 중간에 그만둔 학생은 [삭제]가 아니라 [퇴반]으로 처리하세요.</strong>
+              퇴반은 그 날짜부터만 출결 대상에서 빼므로 이전 기록과 지난 출석부가 그대로 남습니다.
+              삭제하면 계정이 사라져 재학 중 남긴 출결까지 대시보드·레포트에서 함께 빠집니다.
+            </div>
           </div>
         </div>
 
@@ -4958,6 +5128,8 @@
           titleEl.textContent = title;
           msgEl.textContent = msgStr;
 
+          // showPrompt 가 남겼을 수 있는 세로 배치를 되돌립니다.
+          actionsEl.classList.remove("is-prompt");
           const confirmClass = isDanger ? "btn-danger" : "btn-primary";
           actionsEl.innerHTML = `
             <button class="btn-secondary" id="popupCancelBtn" style="margin-bottom:0">${esc(cancelText)}</button>
@@ -4991,6 +5163,92 @@
             () => document.getElementById("popupConfirmBtn")?.focus(),
             50,
           );
+        });
+      }
+
+      // 값을 하나 입력받는 모달. showConfirm 과 같은 팝업을 쓰되 입력칸을
+      // 하나 얹습니다. 취소하면 null, 확인하면 입력한 문자열을 돌려줍니다.
+      // (빈 문자열도 유효한 값일 수 있으므로 취소는 반드시 null 로 구분합니다)
+      function showPrompt(message, options = {}) {
+        return new Promise((resolve) => {
+          const title = options.title || "입력";
+          const confirmText = options.confirmText || "확인";
+          const cancelText = options.cancelText || "취소";
+
+          const modal = document.getElementById("appModal");
+          const iconWrap = document.getElementById("popupIconWrap");
+          const titleEl = document.getElementById("popupTitle");
+          const msgEl = document.getElementById("popupMessage");
+          const actionsEl = document.getElementById("popupActions");
+
+          iconWrap.className = "popup-icon-wrap popup-icon-info";
+          iconWrap.innerHTML =
+            '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>';
+
+          titleEl.textContent = title;
+          msgEl.textContent = String(message || "");
+
+          // type="date" 를 주면 브라우저 기본 날짜 선택기가 뜹니다.
+          // 모달 안이라 Flatpickr 를 띄우면 달력이 모달 뒤로 깔리는 문제가
+          // 생기고, 모바일에서는 네이티브 피커가 훨씬 편합니다.
+          const inputType = options.inputType || "text";
+          const isDate = inputType === "date";
+          actionsEl.classList.add("is-prompt");
+          actionsEl.innerHTML = `
+            <div class="popup-prompt-field">
+              ${options.label ? `<label for="popupPromptInput">${esc(options.label)}</label>` : ""}
+              <input id="popupPromptInput" type="${esc(inputType)}"
+                     ${isDate ? "" : 'inputmode="numeric"'}
+                     ${options.min ? `min="${esc(options.min)}"` : ""}
+                     ${options.max ? `max="${esc(options.max)}"` : ""}
+                     value="${esc(options.value || "")}"
+                     placeholder="${esc(options.placeholder || "")}" />
+            </div>
+            <div class="popup-prompt-actions">
+              <button class="btn-secondary" id="popupCancelBtn" style="margin-bottom:0">${esc(cancelText)}</button>
+              <button class="btn-primary" id="popupConfirmBtn" style="margin-bottom:0">${esc(confirmText)}</button>
+            </div>
+          `;
+
+          const input = document.getElementById("popupPromptInput");
+          let isResolved = false;
+          const close = (val) => {
+            if (isResolved) return;
+            isResolved = true;
+            modal.classList.add("hidden");
+            // 같은 팝업을 showAlert/showConfirm 이 재사용하므로 세로 배치를
+            // 반드시 되돌립니다. 남겨두면 다음 확인창의 버튼이 세로로 눌립니다.
+            actionsEl.classList.remove("is-prompt");
+            window.removeEventListener("keydown", onKeyDown);
+            resolve(val);
+          };
+
+          const onKeyDown = (e) => {
+            if (e.key === "Escape") {
+              e.preventDefault();
+              close(null);
+            } else if (e.key === "Enter" && document.activeElement === input) {
+              e.preventDefault();
+              close(input.value);
+            }
+          };
+
+          document.getElementById("popupCancelBtn").onclick = () => close(null);
+          document.getElementById("popupConfirmBtn").onclick = () =>
+            close(input.value);
+          window.addEventListener("keydown", onKeyDown);
+
+          modal.classList.remove("hidden");
+          setTimeout(() => {
+            input.focus();
+            // select() 는 날짜 입력에서 InvalidStateError 를 던집니다.
+            // (텍스트 선택이라는 개념이 없는 입력 타입입니다)
+            if (!isDate) {
+              try {
+                input.select();
+              } catch (_) {}
+            }
+          }, 50);
         });
       }
 
@@ -5086,6 +5344,10 @@
       let userInfo = {};
       let allAdminData = [];
       let allStudents = [];
+      // 조회 날짜 시점에 이미 퇴반한 학생. 학생 관리 탭 전용입니다.
+      let allLeftStudents = [];
+      // 학생 관리 탭에서 퇴반 학생을 펼쳐 보는 중인지
+      let showLeftStudents = false;
       let allBlockedDates = []; // 차단 날짜 목록
       let currentAdminDate = new Date();
       let autoRefreshTimer = null;
@@ -5910,6 +6172,9 @@
 
           allAdminData = res.data.attendance.reverse();
           allStudents = res.data.students;
+          // 조회 날짜 기준으로 이미 빠진 학생들입니다. 출결 통계에는 넣지 않고
+          // 학생 관리 탭에서만 씁니다.
+          allLeftStudents = res.data.leftStudents || [];
           allBlockedDates = res.data.blockedDates || [];
           renderDashboard();
           renderStudentManager();
@@ -6026,17 +6291,44 @@
       }
 
       // ── 학생 목록 페이징 ──────────────────────────────────────────
+      // 학생 관리 탭은 '오늘' 기준 명단을 보여줍니다.
+      // allStudents/allLeftStudents 는 대시보드가 조회 중인 날짜 기준으로
+      // 갈라져 오므로, 과거 날짜를 보던 중에 이 탭으로 와도 관리 화면이
+      // 그때의 명단으로 바뀌지 않도록 오늘 기준으로 다시 나눕니다.
+      function getManagedRoster() {
+        const today = formatDateForCompare(new Date());
+        const all = [...allStudents, ...allLeftStudents].sort((a, b) =>
+          a.id.localeCompare(b.id, "ko", { numeric: true }),
+        );
+        return {
+          active: all.filter((s) => !s.leftDate || today < s.leftDate),
+          left: all.filter((s) => s.leftDate && today >= s.leftDate),
+        };
+      }
+
+      function toggleLeftStudents() {
+        showLeftStudents = !showLeftStudents;
+        studentPage = 1;
+        renderStudentManager();
+      }
+
       function displayStudentPage(page) {
         const tbody = document.getElementById("studentManageContent");
         if (!tbody) return;
 
+        const roster = getManagedRoster();
+        // 퇴반 학생은 기본적으로 숨기고, 펼쳤을 때만 재학생 뒤에 붙입니다.
+        const rows = showLeftStudents
+          ? [...roster.active, ...roster.left]
+          : roster.active;
+
         const totalPages = Math.max(
           1,
-          Math.ceil(allStudents.length / STUDENTS_PER_PAGE),
+          Math.ceil(rows.length / STUDENTS_PER_PAGE),
         );
         studentPage = Math.min(Math.max(1, page), totalPages);
 
-        if (allStudents.length === 0) {
+        if (rows.length === 0) {
           tbody.innerHTML =
             '<tr><td colspan="3" style="padding:24px;color:#94a3b8;">등록된 학생이 없습니다.</td></tr>';
           document.getElementById("studentPagination").innerHTML = "";
@@ -6044,17 +6336,24 @@
         }
 
         const start = (studentPage - 1) * STUDENTS_PER_PAGE;
-        tbody.innerHTML = allStudents
+        tbody.innerHTML = rows
           .slice(start, start + STUDENTS_PER_PAGE)
           .map(
-            (student) => `<tr>
+            (student) => `<tr class="${student.leftDate ? "student-row-left" : ""}">
               <td style="text-align: left; padding: 11px 12px 11px 16px;">
                 <div class="student-info-cell">
-                  <span class="s-name">${esc(student.name)}</span>
+                  <span class="s-name">${esc(student.name)}${
+                    student.leftDate
+                      ? `<span class="s-left-badge">퇴반 ${esc(student.leftDate.substring(5))}</span>`
+                      : ""
+                  }</span>
                   <span class="s-id">${esc(student.id)}</span>
+                  <!-- 좁은 화면에서는 기준시간 열을 접고 여기에 붙입니다
+                       (넓은 화면에서는 CSS 로 숨김) -->
+                  <span class="s-time-inline">${esc(student.inTime || "-")} ~ ${esc(student.outTime || "-")}</span>
                 </div>
               </td>
-              <td>
+              <td class="col-time">
                 <div class="time-range-badge">
                   <span class="t-in">${esc(student.inTime || "-")}</span>
                   <span class="t-sep">~</span>
@@ -6076,7 +6375,25 @@
                     </svg>
                     <span>PW</span>
                   </button>
-                  <button class="student-action-btn delete" data-id="${esc(student.id)}" onclick="deleteStudentFromAdmin(this.dataset.id)" title="학생 삭제">
+                  ${
+                    student.leftDate
+                      ? `<button class="student-action-btn restore" data-id="${esc(student.id)}" onclick="restoreStudentFromAdmin(this.dataset.id)" title="재학 상태로 되돌리기">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <polyline points="1 4 1 10 7 10"/>
+                      <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+                    </svg>
+                    <span>복구</span>
+                  </button>`
+                      : `<button class="student-action-btn leave" data-id="${esc(student.id)}" onclick="openLeaveStudentModal(this.dataset.id)" title="중도 퇴반 처리">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                      <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/>
+                      <polyline points="16 17 21 12 16 7"/>
+                      <line x1="21" y1="12" x2="9" y2="12"/>
+                    </svg>
+                    <span>퇴반</span>
+                  </button>`
+                  }
+                  <button class="student-action-btn delete" data-id="${esc(student.id)}" onclick="deleteStudentFromAdmin(this.dataset.id)" title="계정 삭제 (잘못 등록한 경우에만)">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
                       <polyline points="3 6 5 6 21 6"/>
                       <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>
@@ -6095,8 +6412,26 @@
 
       function renderStudentManager() {
         if (!document.getElementById("studentManageContent")) return;
+        const roster = getManagedRoster();
+        // 인원수는 '재학생' 기준입니다. 퇴반 학생까지 더하면 실제 운영 인원과
+        // 어긋나 보입니다.
         document.getElementById("studentManageCount").textContent =
-          `${allStudents.length}명`;
+          `${roster.active.length}명`;
+
+        const toggle = document.getElementById("leftStudentToggle");
+        if (toggle) {
+          if (roster.left.length === 0) {
+            toggle.classList.add("hidden");
+          } else {
+            toggle.classList.remove("hidden");
+            toggle.classList.toggle("is-on", showLeftStudents);
+            toggle.setAttribute("aria-expanded", String(showLeftStudents));
+            toggle.textContent = showLeftStudents
+              ? `퇴반 학생 ${roster.left.length}명 숨기기`
+              : `퇴반 학생 ${roster.left.length}명 보기`;
+          }
+        }
+
         // 삭제로 마지막 페이지가 비면 앞 페이지로 당깁니다.
         displayStudentPage(studentPage);
       }
@@ -6183,11 +6518,83 @@
         if (res.success) await fetchAdminData(true);
       }
 
-      async function deleteStudentFromAdmin(studentId) {
-        const student = allStudents.find((item) => item.id === studentId);
+      // ── 중도 퇴반 처리 ────────────────────────────────────────────────
+      //
+      // 중도에 그만둔 학생은 '삭제'가 아니라 '퇴반'으로 처리해야 합니다.
+      // 삭제하면 계정 행이 사라져서, 그 학생이 재학 중 남긴 출결까지
+      // 대시보드와 월간 레포트에서 통째로 빠집니다(지난 출석부가 바뀝니다).
+      function findManagedStudent(studentId) {
+        return [...allStudents, ...allLeftStudents].find(
+          (item) => item.id === studentId,
+        );
+      }
+
+      async function openLeaveStudentModal(studentId) {
+        const student = findManagedStudent(studentId);
+        if (!student) return;
+
+        const today = formatDateForCompare(new Date());
+        const input = await showPrompt(
+          `${student.name} 학생을 퇴반 처리합니다.\n` +
+            `입력한 날짜부터 출결 대상에서 제외되며, 그 이전 기록은 그대로 보존됩니다.`,
+          {
+            title: "중도 퇴반 처리",
+            label: "퇴반일 (이 날짜부터 제외)",
+            inputType: "date",
+            value: today,
+            confirmText: "퇴반 처리",
+          },
+        );
+        if (input === null) return;
+
+        // 날짜 선택기를 쓰지만, 비워둔 채 확인을 누를 수 있어 형식은 확인합니다.
+        const leftDate = input.trim();
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(leftDate)) {
+          await showAlert("퇴반일을 선택해주세요.", { type: "error" });
+          return;
+        }
+
+        setStudentManageMessage("퇴반 처리 중...");
+        const res = await callAPI({
+          action: "setStudentLeftDate",
+          id: userInfo.id,
+          studentId,
+          leftDate,
+        });
+        if (res.success && editingStudentId === studentId) closeStudentForm();
+        setStudentManageMessage(res.msg, res.success);
+        if (res.success) await fetchAdminData(true);
+      }
+
+      async function restoreStudentFromAdmin(studentId) {
+        const student = findManagedStudent(studentId);
         if (!student) return;
         const ok = await showConfirm(
-          `${student.name} 학생 계정을 삭제할까요?\n과거 출결 기록은 삭제되지 않습니다.`,
+          `${student.name} 학생을 재학 상태로 되돌릴까요?\n다시 출결 대상에 포함됩니다.`,
+          { title: "재학 상태로 복구", confirmText: "복구" },
+        );
+        if (!ok) return;
+
+        setStudentManageMessage("복구 중...");
+        const res = await callAPI({
+          action: "setStudentLeftDate",
+          id: userInfo.id,
+          studentId,
+          leftDate: "",
+        });
+        setStudentManageMessage(res.msg, res.success);
+        if (res.success) await fetchAdminData(true);
+      }
+
+      async function deleteStudentFromAdmin(studentId) {
+        const student = findManagedStudent(studentId);
+        if (!student) return;
+        const ok = await showConfirm(
+          `${student.name} 학생 계정을 완전히 삭제할까요?\n\n` +
+            `⚠️ 중도에 그만둔 학생이라면 [퇴반] 을 쓰세요.\n` +
+            `삭제하면 계정 행이 사라져서, 이 학생이 재학 중 남긴 출결이 ` +
+            `대시보드와 월간 레포트에서 함께 빠집니다. 지난 달 출석부도 바뀝니다.\n\n` +
+            `삭제는 잘못 등록한 계정을 정리할 때만 쓰세요.`,
           {
             title: "학생 계정 삭제",
             confirmText: "삭제",

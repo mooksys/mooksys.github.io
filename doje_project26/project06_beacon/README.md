@@ -16,13 +16,19 @@
 
 ```
 project06_beacon/
-├─ index.html                  프론트엔드 전체 (HTML+CSS+JS 단일 파일, 6,300여 줄)
-├─ code.gs                     GAS 백엔드 전체 (2,000여 줄)
+├─ index.html                  프론트엔드 전체 (HTML+CSS+JS 단일 파일, 7,700여 줄)
+├─ code.gs                     GAS 백엔드 전체 (2,600여 줄)
 ├─ tests.gs                    순수 함수 테스트 (Apps Script 편집기에서 실행)
 ├─ project26_05_gas_url.json   GAS 웹앱 배포 URL
 ├─ prd.md                      요구사항 명세서
+├─ IMPROVEMENTS.md             개선 과제 목록 (반영 완료 / 남은 항목)
+├─ DESIGN-REVIEW.md            디자인 일관성 점검 결과
 └─ old/                        이전 버전 백업 (배포 대상 아님)
 ```
+
+`index.html`과 `code.gs`는 **의도적으로 단일 파일**입니다. 배포가 "파일 하나를
+올린다"로 끝나는 것이 이 프로젝트의 장점이라 쪼개지 않습니다
+(자세한 내용은 [IMPROVEMENTS.md](IMPROVEMENTS.md) P3-10).
 
 외부 의존성인 Pretendard 폰트와 Flatpickr(v4.6.13)는 `cdn.jsdelivr.net`에서 로드합니다
 (`index.html` `<head>` 참조). 빌드·설치 단계가 없으며 `index.html`을 그대로 서빙하면 됩니다.
@@ -99,6 +105,15 @@ G~J열(`FAIL`·`LOCK`·`SALT`·`MUST_SETUP`)은 첫 요청에서 자동 추가�
 | H | `LOCK` | 잠금 해제 시각 (ms epoch) |
 | I | `SALT` | 계정별 무작위 솔트 (비어있으면 레거시 계정) |
 | J | `MUST_SETUP` | 초기 설정 강제 여부 `TRUE`/`FALSE` |
+| K | `LEFT_DATE` | 퇴반일 `yyyy-MM-dd`. **비어 있으면 재학 중** |
+
+> **`LEFT_DATE`는 '출결 대상에서 빠지는 첫 날'입니다.** `2026-09-15`이면 9/15부터
+> 제외되고 9/12까지는 집계 대상입니다. 모든 판정이 **조회 날짜와 비교**하므로,
+> 퇴반이 생겨도 그 이전 기간의 대시보드와 월간 레포트는 바뀌지 않습니다.
+>
+> 중도에 그만둔 학생은 **삭제하지 말고 퇴반 처리**하세요. 삭제하면 Users 행이
+> 사라지는데 대시보드와 레포트가 Users 기준으로 명단을 만들기 때문에, 그 학생이
+> 재학 중 남긴 출결까지 화면에서 함께 빠집니다(지난 달 출석부가 소급해 바뀝니다).
 
 ### `Attendance` — 출결 로그 (append-only)
 
@@ -135,7 +150,7 @@ G~J열(`FAIL`·`LOCK`·`SALT`·`MUST_SETUP`)은 첫 요청에서 자동 추가�
 | 키 | 용도 |
 |---|---|
 | `PW_PEPPER` | 비밀번호 페퍼. 최초 요청 시 자동 생성되며 **시트에 저장되지 않습니다.** |
-| `usersSchemaReady_v2` | Users 시트 G~J열 준비 완료 플래그 |
+| `usersSchemaReady_v3` | Users 시트 G~K열 준비 완료 플래그. **열을 추가하면 이 이름의 버전을 올려야** 기존 스프레드시트에도 새 열이 생깁니다 |
 
 > **주의**: `PW_PEPPER`를 분실하거나 변경하면 **모든 계정의 비밀번호 검증이 실패합니다.**
 > 스크립트를 다른 프로젝트로 이전할 때는 이 값도 함께 옮겨야 합니다.
@@ -186,6 +201,7 @@ G~J열(`FAIL`·`LOCK`·`SALT`·`MUST_SETUP`)은 첫 요청에서 자동 추가�
 | `updateStudent` | `studentId`, `name`, `inTime`, `outTime` |
 | `deleteStudent` | `studentId` |
 | `resetStudentPassword` | `studentId` |
+| `setStudentLeftDate` | `studentId`, `leftDate` (`yyyy-MM-dd` = 퇴반, `""` = 재학 복구) |
 | `setBlockedDate` | `date`, `reason`, `blocked` |
 | `getBlockedDates` | — |
 | `generateMonthlyReport` | `year`, `month` |
@@ -248,6 +264,21 @@ G~J열(`FAIL`·`LOCK`·`SALT`·`MUST_SETUP`)은 첫 요청에서 자동 추가�
 2026년에 실습일과 겹치는 공휴일은 `06-03`(임시공휴일)과 `09-24`(추석 연휴) 둘뿐이며
 이미 등록되어 있습니다.
 
+### 학생이 중도에 그만두면
+
+`학생 관리` 탭에서 그 학생 행의 **`[📤 퇴반]`** 을 누르고 날짜를 고릅니다
+(기본값 오늘, 그 날짜부터 출결 대상에서 빠집니다).
+
+- 계정과 출결 기록은 그대로 남고, **퇴반 이전 기간의 대시보드·출석부는 바뀌지 않습니다.**
+- 퇴반 학생은 목록에서 기본 숨김입니다. `퇴반 학생 N명 보기` 토글로 펼치면
+  **바이올렛 점선 테두리**가 둘린 행으로 표시되고, `[🔄 복구]` 로 되돌릴 수 있습니다.
+- 월간 레포트에는 이름 아래 `퇴반 09-15` 가 붙고, 퇴반 이후 실습일은 결석이 아니라
+  회색 `–` 로 표시됩니다. 그 달 전체가 퇴반 이후면 명단에서 빠집니다.
+- 퇴반 처리하면 그 학생의 로그인이 차단되고 기존 세션도 즉시 끊깁니다.
+
+> **`[🗑️ 삭제]` 는 잘못 등록한 계정을 지울 때만 쓰세요.** 중도 퇴반에 쓰면
+> 재학 중 남긴 출결까지 대시보드·레포트에서 함께 빠집니다.
+
 ---
 
 ## 보안 설계
@@ -283,15 +314,18 @@ G~J열(`FAIL`·`LOCK`·`SALT`·`MUST_SETUP`)은 첫 요청에서 자동 추가�
   줄번호 대신 함수명을 쓰세요.
 - **프론트와 백엔드에 같은 규칙을 중복 정의하지 마세요.** 새 업무 규칙은 `code.gs` 상수에
   추가하고 `buildClientConfig()`로 내려보냅니다.
-- **`alert()`/`confirm()` 대신 `showAlert()`/`showConfirm()`을 쓰세요.** 둘 다 Promise를
-  반환합니다 — `await showConfirm("삭제할까요?")`.
+- **`alert()`/`confirm()`/`prompt()` 대신 `showAlert()`/`showConfirm()`/`showPrompt()`를
+  쓰세요.** 셋 다 Promise를 반환합니다 — `await showConfirm("삭제할까요?")`.
+  `showPrompt(message, { label, inputType, value })`는 확인 시 입력값,
+  **취소 시 `null`** 을 돌려줍니다(빈 문자열도 유효한 값이라 반드시 `null`로 구분).
+  `inputType: "date"`를 주면 브라우저 기본 날짜 선택기가 뜹니다.
   세션이 끊기는 경로에서는 `logout()`을 **먼저** 부르고 안내를 띄우세요. 모달은 사용자가
   확인을 누를 때까지 열려 있어서, 순서를 반대로 하면 그동안 로그인 상태가 유지됩니다.
 - **날짜·시각 문자열은 `formatKST()`로 만드세요.** `nowKST()`는 요일·시각 '필드' 접근
   전용입니다. `Utilities.formatDate(nowKST(), 'GMT+9', ...)`처럼 쓰면 이중 변환이 되어
   스크립트 시간대가 `Asia/Seoul`이 아닐 때 날짜가 어긋납니다.
 - **테스트**: Apps Script 편집기에서 `runAllTests`를 실행하면 `tests.gs`의 순수 함수
-  테스트 20건이 돌고 [실행 로그]에 결과가 나옵니다. 시트에 접근하지 않으므로
+  테스트 21건이 돌고 [실행 로그]에 결과가 나옵니다. 시트에 접근하지 않으므로
   운영 데이터에 영향이 없습니다. 새 테스트는 `TEST_CASES` 배열에 한 줄 추가하면 됩니다.
   `benchmarkPasswordHash()`로는 해시 소요시간을 측정할 수 있습니다.
 

@@ -29,7 +29,30 @@ const COL = {
   LOCK:       7,  // H: 잠금해제시간 (timestamp ms)
   SALT:       8,  // I: 계정별 무작위 솔트 (비어있으면 레거시 계정)
   MUST_SETUP: 9,  // J: 초기 설정 필요 여부 (TRUE/FALSE)
+  LEFT_DATE: 10,  // K: 퇴반일 (yyyy-MM-dd). 비어있으면 재학 중
 };
+
+// ── 퇴반(중도 포기) 처리 ─────────────────────────────────────────────
+//
+// 중도에 그만둔 학생을 '삭제'하면 Users 행이 사라지는데, 대시보드와 월간
+// 레포트는 Users 를 기준으로 명단을 만듭니다. 그래서 삭제하는 순간 그 학생이
+// 재학 중 남긴 출결까지 화면에서 통째로 사라집니다 — 이미 확정된 지난 달
+// 출석부가 소급해 바뀌는 셈이라 나중에 설명할 수가 없습니다.
+// 반대로 그냥 두면 퇴반 이후의 모든 실습일이 결석으로 쌓이고 대시보드
+// '미입력' 명단에도 매일 등장합니다.
+//
+// 그래서 상태값(재학/퇴반)이 아니라 '언제부터'를 담는 날짜를 둡니다.
+// 날짜가 있어야 조회 날짜와 비교해 "그 시점에 재학 중이었는가"를 판정할 수
+// 있고, 과거 조회 결과가 바뀌지 않습니다.
+//
+// ⚠️ LEFT_DATE 는 '출결 대상에서 빠지는 첫 날'입니다.
+//    (예: 2026-09-15 이면 9/15 부터 제외, 9/12 까지는 집계 대상)
+function isEnrolledOn(leftDate, dateStr) {
+  const left = (leftDate === null || leftDate === undefined ? '' : leftDate.toString().trim());
+  if (!left) return true;             // 비어있으면 재학 중
+  if (!dateStr) return false;
+  return dateStr.toString().trim() < left;
+}
 
 // ── 열 인덱스 상수 (Attendance 시트) ─────────────────────────────────
 const ACOL = {
@@ -121,7 +144,11 @@ const INITIAL_PW_ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 const INITIAL_PW_LENGTH   = 8;
 
 // Users 시트 스키마(솔트·초기설정 열) 준비 완료 플래그
-const USERS_SCHEMA_PROP = 'usersSchemaReady_v2';
+// ⚠️ Users 시트에 열을 추가하면 이 값을 올려야 합니다.
+//    완료 플래그가 켜져 있으면 ensureUserSheetColumns 가 통째로 건너뛰므로,
+//    이미 돌아가던 스프레드시트에는 새 열이 생기지 않습니다.
+//    v3: 퇴반일(LEFT_DATE) 열 추가
+const USERS_SCHEMA_PROP = 'usersSchemaReady_v3';
 
 // 퇴실 버튼과 동일한 서버 측 최소 대기시간 (입실 기준시간 + 2시간)
 const OUT_UNLOCK_AFTER_MINUTES = 2 * 60;
@@ -250,6 +277,12 @@ function doPost(e) {
         const sv = verifySessionToken(sheets.sessions, req.token, req.id, '교사');
         if (!sv.valid) { response = { success: false, msg: sv.msg }; break; }
         response = deleteStudent(sheets.users, sheets.sessions, req.studentId);
+        break;
+      }
+      case 'setStudentLeftDate': {
+        const sv = verifySessionToken(sheets.sessions, req.token, req.id, '교사');
+        if (!sv.valid) { response = { success: false, msg: sv.msg }; break; }
+        response = setStudentLeftDate(sheets.users, sheets.sessions, req.studentId, req.leftDate);
         break;
       }
       case 'resetStudentPassword': {
@@ -430,8 +463,9 @@ function ensureUserSheetColumns(userSheet) {
     [COL.LOCK,       '잠금해제시간'],
     [COL.SALT,       '솔트'],
     [COL.MUST_SETUP, '초기설정필요'],
+    [COL.LEFT_DATE,  '퇴반일'],
   ];
-  const neededColumns = COL.MUST_SETUP + 1;
+  const neededColumns = COL.LEFT_DATE + 1;
 
   const locked = runWithScriptLock(() => {
     const maxColumns = userSheet.getMaxColumns();
@@ -1366,6 +1400,17 @@ function checkLogin(userSheet, sessionSheet, id, pw) {
       return { success: false, msg: genericError };
     }
 
+    // 퇴반한 학생은 비밀번호가 맞아도 들여보내지 않습니다.
+    // 실패 횟수는 올리지 않습니다 — 비밀번호를 틀린 게 아니라 자격이
+    // 끝난 것이고, 잠금까지 걸면 교사가 상태를 되돌려도 5분을 기다려야 합니다.
+    const leftDate = cellAt(rowDisp, COL.LEFT_DATE);
+    if (!isEnrolledOn(leftDate, formatKST('yyyy-MM-dd'))) {
+      return {
+        success: false,
+        msg: `${leftDate}자로 도제반 과정이 종료된 계정입니다. 담당 교사에게 문의해주세요.`,
+      };
+    }
+
     // 레거시 비밀번호로 로그인에 성공하면 즉시 솔트 방식으로 다시 저장합니다.
     if (needsUpgrade) writePasswordUnsafe(userSheet, rowIdx, inputPw);
 
@@ -1596,15 +1641,25 @@ function recordAttendance(userSheet, attendSheet, blockedSheet, id, type) {
       if (userDisplayData[i][COL.ID].toString().trim() !== id.toString().trim()) continue;
       if (userDisplayData[i][COL.ROLE].toString().trim() === '학생') {
         student = {
-          name:    userDisplayData[i][COL.NAME].toString().trim(),
-          inTime:  timeObjectToHHMM(userValues[i][COL.IN_TIME]),
-          outTime: timeObjectToHHMM(userValues[i][COL.OUT_TIME]),
+          name:     userDisplayData[i][COL.NAME].toString().trim(),
+          inTime:   timeObjectToHHMM(userValues[i][COL.IN_TIME]),
+          outTime:  timeObjectToHHMM(userValues[i][COL.OUT_TIME]),
+          leftDate: cellAt(userDisplayData[i], COL.LEFT_DATE),
         };
       }
       break;
     }
     if (!student || !student.name) {
       return { success: false, msg: '유효하지 않은 사용자 정보이거나 등록되지 않은 학생입니다.' };
+    }
+
+    // 로그인 단계에서 이미 막지만, 퇴반 직전에 발급된 세션 토큰이 살아있을 수
+    // 있으므로 기록 시점에도 확인합니다(세션 수명이 30일입니다).
+    if (!isEnrolledOn(student.leftDate, todayStr)) {
+      return {
+        success: false,
+        msg: `${student.leftDate}자로 도제반 과정이 종료되어 출결을 기록할 수 없습니다.`,
+      };
     }
 
     const inStdMins  = hhmmToMinutes(student.inTime);
@@ -1725,9 +1780,18 @@ function generateMonthlyReport(userSheet, attendSheet, blockedSheet, year, month
   const userData    = userSheet.getDataRange().getDisplayValues();
   const studentList = [];
   for (let i = 1; i < userData.length; i++) {
-    if (userData[i][COL.ROLE] === '학생') {
-      studentList.push({ id: userData[i][COL.ID].trim(), name: userData[i][COL.NAME].trim() });
-    }
+    if (userData[i][COL.ROLE] !== '학생') continue;
+    const leftDate = cellAt(userData[i], COL.LEFT_DATE);
+    // 퇴반 학생도 명단에 남깁니다. 재학 중 출석한 기록은 그대로 출석부에
+    // 나와야 합니다(빼버리면 지난 달 출석부가 소급해 바뀝니다).
+    // 대신 퇴반일 이후 실습일은 아래에서 집계 대상에서 제외합니다.
+    // 이 달이 통째로 퇴반 이후라면 출석부에 올릴 이유가 없으므로 건너뜁니다.
+    if (leftDate && leftDate <= `${prefix}-01`) continue;
+    studentList.push({
+      id:       cellAt(userData[i], COL.ID),
+      name:     cellAt(userData[i], COL.NAME),
+      leftDate: leftDate,
+    });
   }
 
   const monthData = readAttendanceByMonth(attendSheet, prefix);
@@ -1738,7 +1802,10 @@ function generateMonthlyReport(userSheet, attendSheet, blockedSheet, year, month
 
   const summary = {};
   studentList.forEach(s => {
-    summary[s.id] = { name: s.name, normal: 0, late: 0, early: 0, official: 0, absent: 0, records: {} };
+    summary[s.id] = {
+      name: s.name, leftDate: s.leftDate,
+      normal: 0, late: 0, early: 0, official: 0, absent: 0, records: {},
+    };
   });
 
   monthData.forEach(r => {
@@ -1764,6 +1831,8 @@ function generateMonthlyReport(userSheet, attendSheet, blockedSheet, year, month
   const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
   dates.forEach(d => {
     studentList.forEach(s => {
+      // 퇴반일 이후는 애초에 나올 의무가 없는 날이므로 결석으로 세지 않습니다.
+      if (!isEnrolledOn(s.leftDate, d)) return;
       if (!summary[s.id].records[d] || !summary[s.id].records[d]['입실']) {
         summary[s.id].absent++;
       }
@@ -1871,18 +1940,25 @@ function getAdminData(userSheet, attendSheet, blockedSheet, dateStr) {
   const userRange   = userSheet.getDataRange();
   const userValues  = userRange.getValues();
   const userData    = userRange.getDisplayValues();
+  // 조회 날짜에 재학 중이던 학생만 담습니다. 과거 날짜를 조회하면 그때의
+  // 명단이 그대로 나오므로, 퇴반이 생겨도 지난 대시보드가 바뀌지 않습니다.
   const studentList = [];
+  const leftStudents = [];
   for (let i = 1; i < userData.length; i++) {
-    if (userData[i][COL.ROLE] === '학생') {
-      studentList.push({
-        id:      userData[i][COL.ID].trim(),
-        name:    userData[i][COL.NAME].trim(),
-        inTime:  timeObjectToHHMM(userValues[i][COL.IN_TIME]),
-        outTime: timeObjectToHHMM(userValues[i][COL.OUT_TIME]),
-      });
-    }
+    if (userData[i][COL.ROLE] !== '학생') continue;
+    const student = {
+      id:       cellAt(userData[i], COL.ID),
+      name:     cellAt(userData[i], COL.NAME),
+      inTime:   timeObjectToHHMM(userValues[i][COL.IN_TIME]),
+      outTime:  timeObjectToHHMM(userValues[i][COL.OUT_TIME]),
+      leftDate: cellAt(userData[i], COL.LEFT_DATE),
+    };
+    if (isEnrolledOn(student.leftDate, targetDate)) studentList.push(student);
+    else leftStudents.push(student);
   }
-  studentList.sort((a, b) => a.id.localeCompare(b.id, 'ko', { numeric: true }));
+  const byId = (a, b) => a.id.localeCompare(b.id, 'ko', { numeric: true });
+  studentList.sort(byId);
+  leftStudents.sort(byId);
 
   // 차단 날짜 목록도 함께 반환
   const blockedList = getBlockedDates(blockedSheet).dates || [];
@@ -1891,6 +1967,9 @@ function getAdminData(userSheet, attendSheet, blockedSheet, dateStr) {
     date:         targetDate,
     attendance:   attendanceRecords,
     students:     studentList,
+    // 학생 관리 탭에서 '퇴반 학생 보기'에 쓰는 목록입니다. 출결 통계에는
+    // 들어가지 않도록 students 와 분리해서 보냅니다.
+    leftStudents: leftStudents,
     blockedDates: blockedList,
   };
 }
@@ -2020,6 +2099,49 @@ function deleteStudent(userSheet, sessionSheet, id) {
     return {
       success: true,
       msg: `${studentName} 학생 계정을 삭제했습니다. 기존 출결 기록은 보존됩니다.`,
+    };
+  });
+
+  return locked.acquired ? locked.value : lockBusyResponse();
+}
+
+// ─────────────────────────────────────────────────────────────────────
+// 퇴반 처리 / 복구 (교사 전용)
+//
+// leftDate 에 날짜를 넣으면 그 날부터 출결 대상에서 빠지고, 빈 값을 넣으면
+// 재학 상태로 되돌립니다. 계정과 출결 기록은 그대로 두므로, 퇴반 이전 기간의
+// 대시보드와 월간 레포트는 아무 영향도 받지 않습니다.
+// ─────────────────────────────────────────────────────────────────────
+function setStudentLeftDate(userSheet, sessionSheet, id, leftDate) {
+  const v = validate(id, PATTERN.ID, '학번');
+  if (!v.ok) return { success: false, msg: v.msg };
+
+  const studentId = id.toString().trim();
+  const raw = (leftDate === null || leftDate === undefined ? '' : leftDate.toString().trim());
+  const isRestore = raw === '';
+
+  if (!isRestore) {
+    const dv = validate(raw, PATTERN.DATE, '퇴반일');
+    if (!dv.ok) return { success: false, msg: dv.msg };
+  }
+
+  const locked = runWithScriptLock(() => {
+    const data = userSheet.getDataRange().getDisplayValues();
+    const rowIdx = findStudentRowIndex(data, studentId);
+    if (rowIdx < 0) return { success: false, msg: '학생을 찾을 수 없습니다.' };
+
+    const studentName = cellAt(data[rowIdx], COL.NAME);
+    userSheet.getRange(rowIdx + 1, COL.LEFT_DATE + 1).setValue(raw);
+
+    // 퇴반 처리하면 쓰던 세션을 즉시 끊습니다. 복구할 때는 건드리지 않아도
+    // 어차피 로그인부터 다시 해야 합니다.
+    if (!isRestore) deleteSessionsForUserUnsafe(sessionSheet, studentId);
+
+    return {
+      success: true,
+      msg: isRestore
+        ? `${studentName} 학생을 재학 상태로 되돌렸습니다.`
+        : `${studentName} 학생을 ${raw}자로 퇴반 처리했습니다. 이전 출결 기록은 그대로 보존됩니다.`,
     };
   });
 
@@ -2320,6 +2442,11 @@ function buildReportHtml(year, month, dates, students, summary, dayNames) {
   let rows = students.map(s => {
     const rec  = summary[s.id] || { normal: 0, late: 0, early: 0, official: 0, absent: 0, records: {} };
     let cells  = fieldDates.map(d => {
+      // 퇴반 이후의 날은 '기록 없음(결석)'이 아니라 '대상 아님'입니다.
+      // 빈 칸으로 두면 결석과 구분되지 않으므로 회색 빗금으로 채웁니다.
+      if (!isEnrolledOn(rec.leftDate, d)) {
+        return `<td style="text-align:center;padding:2px 1px;border:1px solid #cbd5e1;background:#f1f5f9;color:#94a3b8;font-size:9px;">–</td>`;
+      }
       const dayRec = rec.records[d] || {};
       const inRec  = dayRec['입실'];
       const outRec = dayRec['퇴실'];
@@ -2357,7 +2484,11 @@ function buildReportHtml(year, month, dates, students, summary, dayNames) {
 
     return `<tr>
       <td style="padding:3px 3px;border:1px solid #cbd5e1;white-space:nowrap;font-weight:800;font-size:9.5px;text-align:center;">${escapeHtml(s.id)}</td>
-      <td style="padding:3px 3px;border:1px solid #cbd5e1;white-space:nowrap;font-weight:700;font-size:10px;text-align:center;">${escapeHtml(s.name)}</td>
+      <td style="padding:3px 3px;border:1px solid #cbd5e1;white-space:nowrap;font-weight:700;font-size:10px;text-align:center;">${escapeHtml(s.name)}${
+        rec.leftDate
+          ? `<div style="color:#94a3b8;font-weight:700;font-size:8px;line-height:1.1;">퇴반 ${escapeHtml(rec.leftDate.substring(5))}</div>`
+          : ''
+      }</td>
       <td style="padding:3px 1px;text-align:center;border:1px solid #cbd5e1;color:#059669;font-weight:800;font-size:9.5px;">${rec.normal}</td>
       <td style="padding:3px 1px;text-align:center;border:1px solid #cbd5e1;color:#e11d48;font-weight:800;font-size:9.5px;">${rec.late}</td>
       <td style="padding:3px 1px;text-align:center;border:1px solid #cbd5e1;color:#d97706;font-weight:800;font-size:9.5px;">${rec.early}</td>
