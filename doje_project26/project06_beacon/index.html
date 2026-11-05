@@ -452,6 +452,254 @@
         color: #d97706;
       }
 
+      /* ── 내 출결 (학생 본인 월간 조회) ──────────────────────────────
+         기본은 접힘입니다. 학생이 이 화면에 오는 주된 이유는 입·퇴실
+         버튼을 누르기 위해서라, 목록을 펼쳐두면 버튼이 접히는 선 아래로
+         밀려납니다. 펼칠 때 처음 한 번만 서버를 부릅니다. */
+      .myatt-card {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--r-lg);
+        box-shadow: var(--sh-sm);
+        overflow: hidden;
+        margin-bottom: 12px;
+      }
+      .myatt-toggle {
+        width: 100%;
+        display: flex;
+        align-items: center;
+        gap: 9px;
+        padding: 13px 15px;
+        min-height: var(--tap-min);
+        background: none;
+        border: none;
+        cursor: pointer;
+        font-size: 14.5px;
+        font-weight: 800;
+        color: var(--heading);
+        letter-spacing: -0.02em;
+        text-align: left;
+        transition: background 0.15s;
+      }
+      .myatt-toggle:hover {
+        background: var(--surface-sunken);
+      }
+      .myatt-toggle-ico {
+        font-size: 15px;
+        line-height: 1;
+      }
+      .myatt-toggle-text {
+        flex: 1;
+      }
+      /* 접힌 상태에서도 이번 달 출석률을 보여줍니다. 펼치지 않고도
+         가장 알고 싶은 숫자 하나는 바로 눈에 들어와야 합니다. */
+      .myatt-toggle-rate {
+        font-size: 12.5px;
+        font-weight: 800;
+        color: var(--text-light);
+      }
+      .myatt-chev {
+        width: 15px;
+        height: 15px;
+        flex: 0 0 auto;
+        color: var(--text-muted);
+        transition: transform 0.2s;
+      }
+      .myatt-card.is-open .myatt-chev {
+        transform: rotate(180deg);
+      }
+      .myatt-body {
+        padding: 0 15px 15px;
+        border-top: 1px solid var(--border);
+      }
+
+      /* 월 이동 */
+      .myatt-nav {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 12px 0;
+      }
+      .myatt-nav-btn {
+        width: 34px;
+        height: 34px;
+        flex: 0 0 auto;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        border-radius: var(--r-sm);
+        color: var(--text);
+        font-size: 16px;
+        font-weight: 800;
+        line-height: 1;
+        cursor: pointer;
+        transition: background 0.15s, border-color 0.15s;
+      }
+      .myatt-nav-btn:hover:not(:disabled) {
+        background: #eef2f7;
+        border-color: var(--border-strong);
+      }
+      .myatt-nav-btn:disabled {
+        opacity: 0.35;
+        cursor: not-allowed;
+      }
+      .myatt-nav-label {
+        font-size: 14px;
+        font-weight: 800;
+        color: var(--heading);
+        letter-spacing: -0.02em;
+      }
+
+      /* 출석률 + 집계 */
+      .myatt-rate {
+        display: flex;
+        align-items: baseline;
+        justify-content: center;
+        gap: 6px;
+        padding: 2px 0 12px;
+      }
+      .myatt-rate-num {
+        font-size: 30px;
+        font-weight: 900;
+        letter-spacing: -0.04em;
+        line-height: 1;
+        font-variant-numeric: tabular-nums;
+      }
+      .myatt-rate-unit {
+        font-size: 15px;
+        font-weight: 800;
+        color: var(--text-light);
+      }
+      .myatt-rate-sub {
+        font-size: 11.5px;
+        font-weight: 700;
+        color: var(--text-muted);
+        margin-left: 2px;
+      }
+      /* 출석률 색은 경고로 읽혀야 합니다 — 90% 이상 초록, 80%대 주황,
+         그 아래는 빨강. 수료 요건이 걸린 숫자라 중립색으로 두지 않습니다. */
+      .myatt-rate-num.is-good { color: #059669; }
+      .myatt-rate-num.is-warn { color: #d97706; }
+      .myatt-rate-num.is-bad  { color: #dc2626; }
+
+      .myatt-stats {
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
+        gap: 5px;
+        margin-bottom: 14px;
+      }
+      .myatt-stat {
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        border-radius: var(--r-sm);
+        padding: 7px 2px 6px;
+        text-align: center;
+      }
+      .myatt-stat-num {
+        font-size: 15px;
+        font-weight: 900;
+        line-height: 1.1;
+        font-variant-numeric: tabular-nums;
+      }
+      .myatt-stat-label {
+        font-size: 10px;
+        font-weight: 700;
+        color: var(--text-light);
+        letter-spacing: -0.03em;
+        margin-top: 1px;
+      }
+      /* 0 인 칸은 눌러둡니다. 숫자가 있는 칸만 눈에 들어오게 합니다. */
+      .myatt-stat.is-zero .myatt-stat-num {
+        color: var(--text-muted);
+      }
+
+      /* 날짜 목록 */
+      .myatt-days {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+      .myatt-day {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 10px;
+        background: var(--surface-sunken);
+        border: 1px solid var(--border);
+        border-radius: var(--r-sm);
+        font-size: 12.5px;
+      }
+      .myatt-day-date {
+        flex: 0 0 auto;
+        font-weight: 800;
+        color: var(--heading);
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -0.02em;
+      }
+      .myatt-day-time {
+        flex: 1;
+        min-width: 0;
+        color: var(--text-light);
+        font-variant-numeric: tabular-nums;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+      }
+      .myatt-badges {
+        flex: 0 0 auto;
+        display: flex;
+        gap: 4px;
+      }
+      .myatt-badge {
+        font-size: 10.5px;
+        font-weight: 800;
+        padding: 2.5px 7px;
+        border-radius: var(--r-pill);
+        white-space: nowrap;
+        letter-spacing: -0.02em;
+      }
+      /* 색은 일일 알림 메일과 맞춰둡니다. 같은 사실을 두 화면에서
+         다른 색으로 보여주면 학생과 교사의 말이 어긋납니다. */
+      .myatt-badge.s-normal   { background: #ecfdf5; color: #059669; }
+      .myatt-badge.s-late     { background: #fffbeb; color: #b45309; }
+      .myatt-badge.s-early    { background: #ecfeff; color: #0e7490; }
+      .myatt-badge.s-official { background: #eff6ff; color: #1d4ed8; }
+      .myatt-badge.s-absent   { background: #fef2f2; color: #dc2626; }
+      .myatt-badge.s-noexit   { background: #f5f3ff; color: #6d28d9; }
+      .myatt-badge.s-none     { background: #f1f5f9; color: #94a3b8; }
+
+      /* 퇴반 이후의 날. 학생 목록의 퇴반 행과 같은 어법(점선+바이올렛)입니다. */
+      .myatt-day.is-out {
+        border-style: dashed;
+        border-color: #ddd6fe;
+        background: #faf8ff;
+        opacity: 0.8;
+      }
+
+      .myatt-empty {
+        padding: 22px 12px;
+        text-align: center;
+        font-size: 12.5px;
+        font-weight: 600;
+        color: var(--text-muted);
+        line-height: 1.6;
+      }
+
+      /* 5칸을 한 줄로 두는 게 기본입니다 — 3+2 로 접히면 둘째 줄이
+         어중간하게 비어 보입니다. 폭이 실제로 모자라는 구형 소형 기기
+         (320px급)에서만 3칸으로 내립니다. */
+      @media (max-width: 340px) {
+        .myatt-stats {
+          grid-template-columns: repeat(3, 1fr);
+        }
+        .myatt-day-time {
+          font-size: 11.5px;
+        }
+      }
+
       /* 메인 액션 출결 버튼 */
       .btn-attend {
         width: 100%;
@@ -1784,6 +2032,29 @@
         margin-left: 6px;
         display: inline-block;
         vertical-align: middle;
+      }
+
+      /* 학년도 배지 — 지금 어느 해에 기록하고 있는지.
+         학번이 해마다 재사용되므로, 전환 직후 이게 안 보이면
+         엉뚱한 학년도에 출결을 쌓게 됩니다.
+         역할 배지와 색을 달리해 '다른 종류의 정보'임을 드러냅니다. */
+      .year-badge {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: 0.02em;
+        color: #334155;
+        background: #f1f5f9;
+        border: 1px solid #cbd5e1;
+        border-radius: var(--r-pill);
+        padding: 2px 8px;
+        margin-left: 5px;
+        display: inline-block;
+        vertical-align: middle;
+        font-variant-numeric: tabular-nums;
+      }
+      /* 학년도를 못 받아왔을 때는 자리까지 비웁니다. */
+      .year-badge:empty {
+        display: none;
       }
 
       /* ── 교사 메인 탭 바 (프리미엄 세그먼트 컨트롤) ── */
@@ -4077,7 +4348,7 @@
             </svg>
           </span>
           <span class="app-head-text">
-            <span class="app-head-title">Doje Beacon</span>
+            <span class="app-head-title">Doje Beacon <span class="year-badge" id="studentYearBadge"></span></span>
             <span class="app-head-sub">성일정보고 도제반 3-12</span>
           </span>
         </div>
@@ -4138,6 +4409,55 @@
           <span>퇴실 기록하기</span>
         </button>
 
+        <!-- ───────── 내 출결 (본인 월간 조회) ───────── -->
+        <section class="myatt-card" id="myAttCard">
+          <button
+            type="button"
+            class="myatt-toggle"
+            id="myAttToggle"
+            aria-expanded="false"
+            aria-controls="myAttBody"
+            onclick="toggleMyAttendance()"
+          >
+            <span class="myatt-toggle-ico" aria-hidden="true">📅</span>
+            <span class="myatt-toggle-text">내 출결</span>
+            <span class="myatt-toggle-rate" id="myAttToggleRate"></span>
+            <svg
+              class="myatt-chev"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2.5"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              aria-hidden="true"
+            >
+              <polyline points="6 9 12 15 18 9" />
+            </svg>
+          </button>
+
+          <div class="myatt-body hidden" id="myAttBody">
+            <div class="myatt-nav">
+              <button
+                type="button"
+                class="myatt-nav-btn"
+                id="myAttPrev"
+                aria-label="이전 달"
+                onclick="shiftMyAttendanceMonth(-1)"
+              >‹</button>
+              <div class="myatt-nav-label" id="myAttMonthLabel">—</div>
+              <button
+                type="button"
+                class="myatt-nav-btn"
+                id="myAttNext"
+                aria-label="다음 달"
+                onclick="shiftMyAttendanceMonth(1)"
+              >›</button>
+            </div>
+            <div id="myAttContent" aria-live="polite"></div>
+          </div>
+        </section>
+
         <footer class="footer-box">
           <span class="footer-mark" aria-hidden="true">
             <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round">
@@ -4173,7 +4493,7 @@
             </svg>
           </span>
           <span class="app-head-text">
-            <span class="app-head-title">Doje Beacon <span class="admin-role-badge">교사</span></span>
+            <span class="app-head-title">Doje Beacon <span class="admin-role-badge">교사</span><span class="year-badge" id="adminYearBadge"></span></span>
             <span class="app-head-sub">성일정보고등학교 도제반 3-12</span>
           </span>
         </div>
@@ -5306,6 +5626,9 @@
       // 시점에 getConfig로 내려받습니다. 아래 값은 그 요청이 실패했을 때만
       // 쓰이는 최후의 기본값입니다 — 규칙을 바꿀 때는 code.gs를 고치세요.
       const CONFIG_FALLBACK = {
+        // 학년도는 서버만 알 수 있습니다 (스크립트 속성). 못 받아오면
+        // 배지를 숨깁니다 — 틀린 연도를 띄우느니 안 띄우는 게 낫습니다.
+        schoolYear: null,
         fieldDays: [2, 3, 4], // 화, 수, 목
         ojtStartMonth: 3, // 3월
         ojtEndMonth: 12, // 12월
@@ -5417,6 +5740,8 @@
         } else {
           console.warn("서버 설정을 받지 못해 기본값으로 동작합니다.");
         }
+
+        applySchoolYearBadge();
 
         document.getElementById("userId").disabled = false;
         document.getElementById("userPw").disabled = false;
@@ -5898,6 +6223,7 @@
           });
           if (status.success)
             updateStudentButtons(status.inDone, status.outDone);
+          refreshMyAttendanceIfOpen();
         } else {
           await showAlert(res.msg, { type: "error" });
           const status = await callAPI({
@@ -5914,6 +6240,238 @@
               : `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg><span>퇴실 기록하기</span>`;
           }
         }
+      }
+
+      // ── 학년도 배지 ───────────────────────────────────────────────────
+      //
+      // 학번(31201 = 3학년 12반 1번)은 해마다 재사용됩니다. 어느 학년도에
+      // 기록하는지 화면에 안 보이면, 전환 직후 엉뚱한 해에 출결을 쌓고도
+      // 한참 뒤에야 알아차리게 됩니다.
+      //
+      // 서버가 학년도를 못 주면(설정 전이거나 통신 실패) 배지를 비워둡니다 —
+      // 브라우저의 올해로 넘겨짚으면 틀린 연도를 자신 있게 띄우게 됩니다.
+      function applySchoolYearBadge() {
+        const year = CONFIG && CONFIG.schoolYear;
+        const text = year ? `${year}학년도` : "";
+        ["adminYearBadge", "studentYearBadge"].forEach((id) => {
+          const el = document.getElementById(id);
+          if (el) el.innerText = text;
+        });
+      }
+
+      // ── 내 출결 (본인 월간 조회) ──────────────────────────────────────
+      //
+      // 서버의 getMyAttendance 는 '본인 확인' 티어라 세션 토큰의 주인만
+      // 조회됩니다. 여기서 id 를 바꿔 보내도 서버가 거부합니다.
+      //
+      // 집계 대상 실습일은 교사의 월간 레포트와 같은 함수가 뽑습니다 —
+      // 두 화면의 숫자가 다르면 그 자체가 분쟁거리가 됩니다.
+      const myAtt = {
+        year: null,
+        month: null,
+        open: false,
+        loading: false,
+        loaded: false,
+      };
+
+      function myAttCurrent() {
+        const now = new Date();
+        return { year: now.getFullYear(), month: now.getMonth() + 1 };
+      }
+
+      function toggleMyAttendance() {
+        const card = document.getElementById("myAttCard");
+        const body = document.getElementById("myAttBody");
+        const btn = document.getElementById("myAttToggle");
+        if (!card || !body || !btn) return;
+
+        myAtt.open = !myAtt.open;
+        card.classList.toggle("is-open", myAtt.open);
+        body.classList.toggle("hidden", !myAtt.open);
+        btn.setAttribute("aria-expanded", myAtt.open ? "true" : "false");
+
+        // 처음 펼칠 때만 서버를 부릅니다. 접었다 펴는 것만으로 매번
+        // 요청하면 학생 21명 × 반복 클릭이 그대로 GAS 할당량이 됩니다.
+        if (myAtt.open && !myAtt.loaded) {
+          const cur = myAttCurrent();
+          myAtt.year = cur.year;
+          myAtt.month = cur.month;
+          loadMyAttendance();
+        }
+      }
+
+      function shiftMyAttendanceMonth(delta) {
+        if (myAtt.loading || myAtt.year === null) return;
+        let m = myAtt.month + delta;
+        let y = myAtt.year;
+        if (m < 1) { m = 12; y--; }
+        if (m > 12) { m = 1; y++; }
+        myAtt.year = y;
+        myAtt.month = m;
+        loadMyAttendance();
+      }
+
+      // 다음 달(미래)로는 갈 수 없습니다. 아직 오지 않은 날을 결석으로
+      // 보여줄 수는 없으니 서버도 미래 날짜를 집계하지 않습니다.
+      function updateMyAttendanceNav() {
+        const cur = myAttCurrent();
+        const prev = document.getElementById("myAttPrev");
+        const next = document.getElementById("myAttNext");
+        const label = document.getElementById("myAttMonthLabel");
+        if (label) label.innerText = `${myAtt.year}년 ${myAtt.month}월`;
+
+        const atFuture =
+          myAtt.year > cur.year ||
+          (myAtt.year === cur.year && myAtt.month >= cur.month);
+        // 과거는 시스템 운영 첫 해(올해 1월)까지만 봅니다.
+        const atStart = myAtt.year <= cur.year && myAtt.month <= 1;
+
+        if (next) next.disabled = myAtt.loading || atFuture;
+        if (prev) prev.disabled = myAtt.loading || atStart;
+      }
+
+      async function loadMyAttendance() {
+        const box = document.getElementById("myAttContent");
+        if (!box || !userInfo) return;
+
+        myAtt.loading = true;
+        updateMyAttendanceNav();
+        box.innerHTML = `<div class="myatt-empty">불러오는 중…</div>`;
+
+        const res = await callAPI({
+          action: "getMyAttendance",
+          id: userInfo.id,
+          year: String(myAtt.year),
+          month: String(myAtt.month),
+        });
+
+        myAtt.loading = false;
+        myAtt.loaded = true;
+        updateMyAttendanceNav();
+
+        if (!res || !res.success) {
+          const msg = (res && res.msg) || "출결을 불러오지 못했습니다.";
+          box.innerHTML = `<div class="myatt-empty">${esc(msg)}</div>`;
+          setMyAttendanceToggleRate(null);
+          return;
+        }
+
+        renderMyAttendance(res);
+      }
+
+      function setMyAttendanceToggleRate(rate) {
+        const el = document.getElementById("myAttToggleRate");
+        if (!el) return;
+        // 접힌 머리글의 출석률은 '이번 달'일 때만 뜻이 있습니다.
+        // 학생이 지난 달을 펼쳐본 채 접으면 엉뚱한 숫자가 남습니다.
+        const cur = myAttCurrent();
+        const isCurrentMonth =
+          myAtt.year === cur.year && myAtt.month === cur.month;
+        el.innerText =
+          rate === null || rate === undefined || !isCurrentMonth
+            ? ""
+            : `출석률 ${rate}%`;
+      }
+
+      function myAttRateClass(rate) {
+        if (rate >= 90) return "is-good";
+        if (rate >= 80) return "is-warn";
+        return "is-bad";
+      }
+
+      function renderMyAttendance(data) {
+        const box = document.getElementById("myAttContent");
+        if (!box) return;
+
+        setMyAttendanceToggleRate(data.rate);
+
+        if (data.notice) {
+          box.innerHTML = `<div class="myatt-empty">${esc(data.notice)}</div>`;
+          return;
+        }
+        if (!data.days.length) {
+          box.innerHTML = `<div class="myatt-empty">
+            이 달에는 아직 집계된 실습일이 없습니다.<br />
+            실습일(화·수·목) 업무 마감 뒤부터 표시됩니다.
+          </div>`;
+          return;
+        }
+
+        const s = data.summary;
+        const rateHtml =
+          data.rate === null
+            ? ""
+            : `<div class="myatt-rate">
+                 <span class="myatt-rate-num ${myAttRateClass(data.rate)}">${data.rate}</span>
+                 <span class="myatt-rate-unit">%</span>
+                 <span class="myatt-rate-sub">실습일 ${data.scheduledDays}일 · 결석 ${s.absent}일</span>
+               </div>`;
+
+        const tiles = [
+          ["정상", s.normal],
+          ["지각", s.late],
+          ["조퇴", s.early],
+          ["공결", s.official],
+          ["결석", s.absent],
+        ]
+          .map(
+            ([label, n]) => `<div class="myatt-stat${n === 0 ? " is-zero" : ""}">
+               <div class="myatt-stat-num">${n}</div>
+               <div class="myatt-stat-label">${label}</div>
+             </div>`
+          )
+          .join("");
+
+        const statusClass = {
+          정상: "s-normal",
+          지각: "s-late",
+          공결: "s-official",
+          결석: "s-absent",
+        };
+
+        const rows = data.days
+          .map((d) => {
+            const mmdd = `${d.date.substring(5, 7)}/${d.date.substring(8, 10)}`;
+            if (d.status === "대상아님") {
+              return `<div class="myatt-day is-out">
+                  <span class="myatt-day-date">${mmdd} (${esc(d.day)})</span>
+                  <span class="myatt-day-time">퇴반 이후</span>
+                  <span class="myatt-badges"><span class="myatt-badge s-none">대상 아님</span></span>
+                </div>`;
+            }
+
+            // 시각 칸: 입실 → 퇴실. 없는 쪽은 '—' 로 자리를 지킵니다.
+            let times = "기록 없음";
+            if (d.status === "공결") {
+              times = d.note ? esc(d.note) : "공결";
+            } else if (d.inTime) {
+              times = `${esc(d.inTime)} → ${d.outTime ? esc(d.outTime) : "—"}`;
+            }
+
+            const badges = [
+              `<span class="myatt-badge ${statusClass[d.status] || "s-none"}">${esc(d.status)}</span>`,
+            ];
+            // 조퇴·미퇴실은 입실 판정과 별개라 배지를 따로 답니다.
+            if (d.early) badges.push(`<span class="myatt-badge s-early">조퇴</span>`);
+            if (d.noExit) badges.push(`<span class="myatt-badge s-noexit">미퇴실</span>`);
+
+            return `<div class="myatt-day">
+                <span class="myatt-day-date">${mmdd} (${esc(d.day)})</span>
+                <span class="myatt-day-time">${times}</span>
+                <span class="myatt-badges">${badges.join("")}</span>
+              </div>`;
+          })
+          .join("");
+
+        box.innerHTML = `${rateHtml}
+          <div class="myatt-stats">${tiles}</div>
+          <div class="myatt-days">${rows}</div>`;
+      }
+
+      // 입·퇴실을 기록하면 펼쳐둔 목록도 같이 갱신합니다.
+      // 방금 누른 결과가 반영되지 않으면 학생은 기록이 안 된 줄 압니다.
+      function refreshMyAttendanceIfOpen() {
+        if (myAtt.open && myAtt.loaded && !myAtt.loading) loadMyAttendance();
       }
 
       // ── 퇴실 버튼: 내 기준 입실시간(IN_TIME) + 2시간이 지나야 활성화 ──────
